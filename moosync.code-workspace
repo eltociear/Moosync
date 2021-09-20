@@ -9,7 +9,6 @@
       "javascript",
       "vue"
     ],
-    "prettier.configPath": ".prettierrc.json",
     "editor.tabSize": 2,
     "cSpell.words": [
       "ALLSONGS",
@@ -67,34 +66,8 @@
       "ytdl",
       "ytoauth"
     ],
-    "sqltools.connections": [
-      {
-        "previewLimit": 50,
-        "driver": "SQLite",
-        "name": "Moosync",
-        "group": "Sqlite",
-        "database": "/home/ovenoboyo/.config/moosync/databases/songs.db"
-      },
-      {
-        "mysqlOptions": {
-          "authProtocol": "default"
-        },
-        "previewLimit": 50,
-        "server": "192.168.0.18",
-        "port": 3306,
-        "driver": "MariaDB",
-        "name": "Raspberry pi",
-        "group": "Symbiosis",
-        "database": "sahil",
-        "username": "sahil",
-        "password": "9797"
-      }
-    ],
-    "sqltools.useNodeRuntime": true,
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "vue3snippets.enable-compile-vue-file-on-did-save-code": false,
     "typescript.tsdk": "node_modules\\typescript\\lib",
     "[vue]": {
       "editor.defaultFormatter": "octref.vetur"
@@ -106,7 +79,9 @@
       "digitalbrainstem.ejs-vue",
       "waderyan.nodejs-extension-pack",
       "octref.vetur",
-      "lauren.vue-pack"
+      "lauren.vue-pack",
+      "ms-vscode.vscode-typescript-next",
+      "rbbit.typescript-hero"
     ]
   }
 }
