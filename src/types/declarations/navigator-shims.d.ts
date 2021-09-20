@@ -1,3 +1,12 @@
+/* 
+ *  navigator-shims.d.ts is a part of Moosync.
+ *  
+ *  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+ *  Licensed under the GNU General Public License. 
+ *  
+ *  See LICENSE in the project root for license information.
+ */
+
 // Type definitions for non-npm package Media Session API 1.1
 // Project: https://wicg.github.io/mediasession/
 // Definitions by: Julien CROUZET <https://github.com/jucrouzet>

@@ -1,3 +1,12 @@
+/* 
+ *  shims.vue-virtual-scroller.d.ts is a part of Moosync.
+ *  
+ *  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+ *  Licensed under the GNU General Public License. 
+ *  
+ *  See LICENSE in the project root for license information.
+ */
+
 // Type definitions for vue-virtual-scroller
 // Project: https://github.com/Akryum/vue-virtual-scroller/
 declare module 'vue-virtual-scroller' {
