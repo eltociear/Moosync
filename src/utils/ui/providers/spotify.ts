@@ -319,7 +319,7 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
     return songList
   }
 
-  public async getRecommendations(): Promise<Recommendations> {
+  public async * getRecommendations(): AsyncGenerator<Song[]> {
     const userTracks: any = await this.populateRequest(ApiResources.TOP, {
       params: {
         type: 'tracks',
@@ -351,9 +351,6 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
         seed_tracks: seedTracks
       }
     })
-
-    return {
-      songs: this.parseRecommendations(recommendationsResp)
-    }
+    yield this.parseRecommendations(recommendationsResp)
   }
 }

@@ -38,5 +38,5 @@ export abstract class GenericRecommendation {
    * Gets recommendations
    * @returns recommendations 
    */
-  public abstract getRecommendations(): Promise<Recommendations>
+  public abstract getRecommendations(): AsyncGenerator<Song[]>
 }

@@ -9,20 +9,48 @@
 
 import { _windowHandler } from '../../../background';
 import { app } from 'electron';
+import { promises as fsP } from 'fs';
 import https from 'https'
-import pie from "puppeteer-in-electron";
-import puppeteer from "puppeteer-core";
+import path from 'path';
+
+const CachePath = path.join(app.getPath('cache'), 'lastfm_cache')
 
 class WebScraper {
+  private cache: { [key: string]: { expiry: number, data: any } } = {}
+
+  constructor() {
+    this.readCache()
+  }
+
+  private async dumpCache() {
+    return fsP.writeFile(CachePath, JSON.stringify(this.cache), { encoding: 'utf-8' })
+  }
+
+  private async readCache() {
+    const data = await fsP.readFile(CachePath, { encoding: 'utf-8' })
+    this.cache = JSON.parse(data)
+  }
+
+  private async addToCache(url: string, data: any) {
+    if (JSON.parse(data)) {
+      const expiry = Date.now() + (2 * 60 * 60 * 1000)
+      this.cache[url] = { expiry, data }
+      await this.dumpCache()
+    }
+  }
+
+  private getCache(url: string): any {
+    const data = this.cache[url]
+    if (data && data.expiry > Date.now()) {
+      return data.data
+    }
+  }
+
   public async scrapeURL(url: string): Promise<any> {
-    // console.log('scraping')
-    // const browser = await pie.connect(app, puppeteer);
-
-    // const window = _windowHandler.createScrapeWindow()
-    // await window.loadURL(url);
-
-    // const page = await pie.getPage(browser, window);
-    // console.log(page.get);
+    const cached = this.getCache(url)
+    if (cached) {
+      return cached
+    }
     return new Promise<any>((resolve, reject) => {
       if (url.startsWith('https')) {
         const request = https.request(new URL(url), (res) => {
@@ -32,6 +60,7 @@ class WebScraper {
           })
           res.on('end', () => {
             resolve(data)
+            this.addToCache(url, data)
           })
         })
 
@@ -44,7 +73,6 @@ class WebScraper {
         reject('URL must start with https: ' + url)
       }
     })
-
   }
 }
 

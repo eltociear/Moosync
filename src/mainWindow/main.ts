@@ -11,6 +11,7 @@ import '@/mainWindow/plugins/recycleScroller'
 import '@/mainWindow/plugins/vueBootstrap'
 import '@/mainWindow/plugins/vueSliderBar'
 import '@/mainWindow/plugins/toasted'
+import '@/mainWindow/plugins/carousel'
 import '@/sass/global.sass'
 
 import App from '@/mainWindow/App.vue'

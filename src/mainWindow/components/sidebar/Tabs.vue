@@ -2,7 +2,7 @@
   <div class="d-flex flex-column">
     <router-link
       v-for="item in componentNames"
-      v-bind:key="item.component"
+      v-bind:key="item.link"
       :to="{ path: item.link }"
       custom
       v-slot="{ navigate, isActive }"
@@ -57,7 +57,8 @@ export default class Sidebar extends Vue {
     { component: 'Playlists', title: 'Playlists', link: '/playlists' },
     { component: 'Albums', title: 'Albums', link: '/albums' },
     { component: 'Artists', title: 'Artists', link: '/artists' },
-    { component: 'Genre', title: 'Genre', link: '/genre' }
+    { component: 'Genre', title: 'Genre', link: '/genre' },
+    { component: 'Genre', title: 'Explore', link: '/recommendations' }
     // { component: 'Fav', title: 'Favourites', link: '/favs' }
   ]
 

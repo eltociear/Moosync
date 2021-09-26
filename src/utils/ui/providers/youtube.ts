@@ -242,7 +242,7 @@ export class YoutubeProvider implements GenericProvider, GenericRecommendation {
     }
   }
 
-  public async getRecommendations(): Promise<Recommendations> {
+  public async * getRecommendations(): AsyncGenerator<Song[]> {
     const youtubeSongs = await window.SearchUtils.searchSongsByOptions({
       song: {
         type: 'YOUTUBE'
@@ -282,10 +282,6 @@ export class YoutubeProvider implements GenericProvider, GenericRecommendation {
       })).items.forEach((val) => resp.push(val.id.videoId))
     }
 
-    const songs = await this.getSongDetailsFromID(...resp)
-    console.log(songs)
-    return {
-      songs
-    }
+    yield await this.getSongDetailsFromID(...resp)
   }
 }
