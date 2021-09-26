@@ -18,14 +18,13 @@ export class YoutubePlayer extends Player {
     this.playerInstance = playerInstance
   }
 
-  load(src?: string, volume?: number): void {
-    src ? this.playerInstance.load(src) : null
-    volume ? (this.volume = volume) : null
+  load(src?: string, volume?: number, autoplay?: boolean): void {
+    src && this.playerInstance.load(src, autoplay)
+    volume && (this.volume = volume)
   }
 
   async play(): Promise<void> {
     this.playerInstance.play()
-    return
   }
 
   pause(): void {

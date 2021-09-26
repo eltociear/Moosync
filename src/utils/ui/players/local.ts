@@ -18,8 +18,9 @@ export class LocalPlayer extends Player {
     this.playerInstance.load()
   }
 
-  load(src?: string): void {
-    if (src) this.playerInstance.src = src
+  load(src?: string, volume?: number): void {
+    src && (this.playerInstance.src = src)
+    volume && (this.volume = volume);
   }
 
   async play(): Promise<void> {
@@ -67,16 +68,29 @@ export class LocalPlayer extends Player {
     this.playerInstance.onerror = this.onErrorCallback as OnErrorEventHandler
   }
 
+  private listeners: { [key: string]: Function } = {}
+
   protected listenOnStateChange(): void {
     if (this.onStateChangeCallback) {
-      this.playerInstance.addEventListener('play', () => this.onStateChangeCallback!('PLAYING'))
-      this.playerInstance.addEventListener('pause', () => this.onStateChangeCallback!('PAUSED'))
-      this.playerInstance.addEventListener('ended', () => this.onStateChangeCallback!('STOPPED'))
+      const play = () => this.onStateChangeCallback!('PLAYING')
+      const pause = () => this.onStateChangeCallback!('PAUSED')
+      const stop = () => this.onStateChangeCallback!('STOPPED')
+
+      this.playerInstance.addEventListener('play', play)
+      this.playerInstance.addEventListener('pause', pause)
+      this.playerInstance.addEventListener('ended', stop)
+
+      this.listeners['play'] = play
+      this.listeners['pause'] = pause
+      this.listeners['ended'] = stop
     }
   }
 
   removeAllListeners(): void {
     this.playerInstance.onended = null
     this.playerInstance.ontimeupdate = null
+    for (const [key, value] of Object.entries(this.listeners)) {
+      this.playerInstance.removeEventListener(key as keyof HTMLMediaElementEventMap, value as any)
+    }
   }
 }

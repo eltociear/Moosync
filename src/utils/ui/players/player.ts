@@ -15,7 +15,7 @@ export abstract class Player {
   protected onStateChangeCallback: ((state: PlayerState) => void) | undefined
 
 
-  abstract load(src?: string, volume?: number): void
+  abstract load(src?: string, volume?: number, autoplay?: boolean): void
   abstract play(): Promise<void>
   abstract pause(): void
   abstract stop(): void

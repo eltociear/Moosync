@@ -57,7 +57,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
   private onPlayerTypeChanged(newType: PlayerType) {
     if (this.activePlayerType !== newType) {
-      this.activePlayer.stop()
+      this.unloadAudio()
       this.activePlayer.removeAllListeners()
       this.activePlayerType = newType
 
@@ -138,14 +138,17 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.handlerFileError(err)
     }
     this.activePlayer.onStateChange = (state) => {
+      if (this.ignoreStateChange) {
+        this.ignoreStateChange = false
+        this.handleActivePlayerState(vxm.player.playerState)
+        return
+      }
+
       if (state === 'STOPPED') {
-        if (!this.ignoreStateChange) {
-          this.onSongEnded()
-        }
+        this.onSongEnded()
       } else {
         vxm.player.playerState = state
       }
-      this.ignoreStateChange = false
     }
 
     vxm.player.$watch('volume', this.onVolumeChanged)
@@ -213,24 +216,19 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.onPlayerTypeChanged('YOUTUBE')
     }
 
-    if (song.type === 'LOCAL') song.path && this.activePlayer.load('media://' + song.path)
+    if (song.type === 'LOCAL') song.path && this.activePlayer.load('media://' + song.path, this.volume)
     else {
       if (!song.playbackUrl || !song.duration) {
-        const oldState = vxm.player.playerState
-        vxm.player.playerState = 'LOADING'
         const res = await this.getPlaybackUrlAndDuration(song)
         if (res) {
           // Shouldn't react on property set normally
           vxm.player.currentSong!.duration = res.duration
           Vue.set(song, 'playbackUrl', res.url)
         }
-        vxm.player.playerState = oldState
         return
       }
-      this.activePlayer.load(song.playbackUrl)
+      this.activePlayer.load(song.playbackUrl, this.volume, this.playerState === 'PLAYING')
     }
-
-    this.activePlayer.volume = this.volume
 
     if (this.handleBroadcasterAudioLoad(song)) return
 
@@ -247,9 +245,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     try {
       switch (newState) {
         case 'PLAYING':
-          return await this.activePlayer.play()
+          return this.activePlayer.play()
         case 'PAUSED':
-        case 'LOADING':
           return this.activePlayer.pause()
         case 'STOPPED':
           return this.activePlayer.stop()
