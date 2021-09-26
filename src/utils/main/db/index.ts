@@ -192,6 +192,21 @@ class SongDBInstance extends DBUtils {
     }
   }
 
+  private getTitleColByProperty(key: string) {
+    switch (key) {
+      case 'song':
+        return 'title'
+      case 'album':
+        return 'album_name'
+      case 'artist':
+        return 'artist_name'
+      case 'genre':
+        return 'genre_name'
+      case 'playlist':
+        return 'playlist_name'
+    }
+  }
+
   public getEntityByOptions<T>(options: EntityApiOptions): T[] {
     let isFirst = true
     const addANDorOR = () => {
@@ -203,10 +218,12 @@ class SongDBInstance extends DBUtils {
     let query = `SELECT * FROM `
     let where = `WHERE `
     const args = []
+    let orderBy
     for (const [key, value] of Object.entries(options)) {
       const tableName = this.getTableByProperty(key as EntityKeys)
       if (tableName) {
         query += `${tableName} `
+        orderBy = `${tableName}.${this.getTitleColByProperty(key as EntityKeys)}`
 
         if (typeof value === 'boolean' && value === true) {
           break
@@ -214,14 +231,14 @@ class SongDBInstance extends DBUtils {
 
         if (typeof value === 'object') {
           for (const [innerKey, innerValue] of Object.entries(options[key as keyof EntityApiOptions]!)) {
-            where += `${addANDorOR()} ${innerKey} LIKE ? `
+            where += `${addANDorOR()} ${innerKey} LIKE ?`
             args.push(innerValue)
           }
           break
         }
       }
     }
-    return this.db.query(`${query} ${args.length > 0 ? where : ''}`, ...args) as T[]
+    return this.db.query(`${query} ${args.length > 0 ? where : ''} ORDER BY ${orderBy} ASC`, ...args) as T[]
   }
 
   public getByHash(hash: string) {
