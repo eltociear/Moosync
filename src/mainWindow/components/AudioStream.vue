@@ -138,6 +138,12 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.handlerFileError(err)
     }
     this.activePlayer.onStateChange = (state) => {
+      // Cued event of youtube embed seems to fire only once and is not reliable
+      // Stop loading when state of player changes
+      if (this.activePlayer instanceof YoutubePlayer) {
+        vxm.player.loading = false
+      }
+
       if (this.ignoreStateChange) {
         this.ignoreStateChange = false
         this.handleActivePlayerState(vxm.player.playerState)
@@ -151,6 +157,14 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       }
     }
 
+    this.activePlayer.onLoad = () => {
+      vxm.player.loading = false
+    }
+
+    this.activePlayer.onBuffer = () => {
+      vxm.player.loading = true
+    }
+
     vxm.player.$watch('volume', this.onVolumeChanged)
   }
 
@@ -162,8 +176,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   private handleFirstPlayback(loadedState: boolean) {
     if (this.isFirst) {
       if (!loadedState) vxm.player.playerState = 'PLAYING'
-
-      if (this.playerState === 'LOADING') vxm.player.playerState = 'PLAYING'
     }
 
     this.isFirst = false
@@ -216,6 +228,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.onPlayerTypeChanged('YOUTUBE')
     }
 
+    vxm.player.loading = true
     if (song.type === 'LOCAL') song.path && this.activePlayer.load('media://' + song.path, this.volume)
     else {
       if (!song.playbackUrl || !song.duration) {

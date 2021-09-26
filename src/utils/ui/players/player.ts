@@ -13,6 +13,7 @@ export abstract class Player {
   protected onTimeUpdateCallback: ((time: number) => void) | undefined
   protected onErrorCallback: OnErrorEventHandler | ((err: ErrorEvent) => void) | undefined
   protected onStateChangeCallback: ((state: PlayerState) => void) | undefined
+  protected onBufferCallback: (() => void) | undefined
 
 
   abstract load(src?: string, volume?: number, autoplay?: boolean): void
@@ -51,10 +52,16 @@ export abstract class Player {
     this.listenOnStateChange()
   }
 
+  set onBuffer(callback: () => void) {
+    this.onBufferCallback = callback
+    this.listenOnBuffer()
+  }
+
   protected abstract listenOnEnded(): void
   protected abstract listenOnTimeUpdate(): void
   protected abstract listenOnLoad(): void
   protected abstract listenOnError(): void
   protected abstract listenOnStateChange(): void
+  protected abstract listenOnBuffer(): void
   abstract removeAllListeners(): void
 }

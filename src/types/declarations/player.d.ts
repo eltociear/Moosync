@@ -9,7 +9,7 @@
 
 type AudioType = 'STREAMING' | 'LOCAL'
 
-type PlayerState = 'PLAYING' | 'PAUSED' | 'STOPPED' | 'LOADING'
+type PlayerState = 'PLAYING' | 'PAUSED' | 'STOPPED'
 
 type PlayerType = 'LOCAL' | 'YOUTUBE'
 

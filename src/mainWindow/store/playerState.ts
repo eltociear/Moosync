@@ -14,7 +14,7 @@ import { v1 } from 'uuid';
 import { vxm } from '.';
 
 class Queue {
-  data: { [id: string]: Song } = { }
+  data: { [id: string]: Song } = {}
   order: { id: string, songID: string }[] = []
   index: number = -1
 }
@@ -26,6 +26,7 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
   public repeat: boolean = false
   public volume: number = 50
   public timestamp: number = 0
+  public loading: boolean = false
 
   get currentTime() {
     return this.timestamp

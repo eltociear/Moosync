@@ -7,11 +7,11 @@
     <b-col cols="auto" v-on:click="toggleRepeat()">
       <Repeat :filled="repeat" />
     </b-col>
-    <b-col cols="auto" v-if="playerState === 'LOADING'">
+    <b-col cols="auto" v-if="isLoading">
       <b-spinner label="Loading..."></b-spinner>
     </b-col>
     <b-col cols="auto" v-else v-on:click="togglePlayerState()">
-      <Play :play="playing" />
+      <Play :play="playerState === 'PLAYING'" />
     </b-col>
     <b-col cols="auto" v-on:click="nextSong()">
       <NextTrack />
@@ -50,11 +50,16 @@ export default class MusicBar extends mixins(PlayerControls) {
   @Prop({ default: 0 })
   private timestamp!: number
 
-  @Prop({ default: true })
-  private playing!: boolean
-
   get repeat() {
     return vxm.player.Repeat
+  }
+
+  get playerState() {
+    return vxm.player.playerState
+  }
+
+  get isLoading() {
+    return vxm.player.loading
   }
 
   private formattedDuration = convertDuration
@@ -66,7 +71,6 @@ export default class MusicBar extends mixins(PlayerControls) {
 </script>
 
 <style lang="sass" scoped>
-
 .timestamp
   color: var(--textSecondary)
   font-size: 16px

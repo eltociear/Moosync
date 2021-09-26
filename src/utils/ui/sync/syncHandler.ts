@@ -682,7 +682,7 @@ export class SyncHolder {
 
   private onUserJoined() {
     this.socketConnection?.on('userJoined', (id: string) => {
-      this.playerStateHandler ? this.playerStateHandler('LOADING') : null
+      this.playerStateHandler ? this.playerStateHandler('PAUSED') : null
       this.setupInitiator(id)
       this.requestReadyStatus()
     })

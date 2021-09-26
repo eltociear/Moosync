@@ -69,11 +69,13 @@ export class YoutubePlayer extends Player {
   }
 
   protected listenOnStateChange(): void {
-    if (this.onStateChangeCallback) {
-      this.playerInstance.addListener('playing', () => this.onStateChangeCallback!('PLAYING'))
-      this.playerInstance.addListener('paused', () => this.onStateChangeCallback!('PAUSED'))
-      this.playerInstance.addListener('ended', () => this.onStateChangeCallback!('STOPPED'))
-    }
+    this.playerInstance.addListener('playing', () => this.onStateChangeCallback!('PLAYING'))
+    this.playerInstance.addListener('paused', () => this.onStateChangeCallback!('PAUSED'))
+    this.playerInstance.addListener('ended', () => this.onStateChangeCallback!('STOPPED'))
+  }
+
+  protected listenOnBuffer(): void {
+    this.playerInstance.addListener('buffering', this.onBufferCallback!)
   }
 
   removeAllListeners(): void {

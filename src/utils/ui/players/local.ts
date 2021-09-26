@@ -86,6 +86,10 @@ export class LocalPlayer extends Player {
     }
   }
 
+  protected listenOnBuffer(): void {
+    // Local player has no need of buffering event (i think)
+  }
+
   removeAllListeners(): void {
     this.playerInstance.onended = null
     this.playerInstance.ontimeupdate = null

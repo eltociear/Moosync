@@ -23,11 +23,7 @@
               />
             </b-col>
             <b-col cols="auto" align-self="center" class="no-gutters controls-col">
-              <Controls
-                :playing="playerState == 'PLAYING'"
-                :duration="currentSong ? currentSong.duration : 0"
-                :timestamp="timestamp"
-              />
+              <Controls :duration="currentSong ? currentSong.duration : 0" :timestamp="timestamp" />
             </b-col>
             <b-col cols="1" lg="2" align-self="center" class="no-gutters extra-col">
               <ExtraControls @onToggleSlider="toggleSlider" />
