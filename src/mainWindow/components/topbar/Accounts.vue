@@ -7,7 +7,7 @@
           @click.native="handleYoutubeClick"
           bgColor="#E62017"
           :title="youtubeName ? youtubeName : 'Connect'"
-          :hoverText="loggedInYoutube ? 'Sign Out' : 'Youtube'"
+          :hoverText="youtube.loggedIn ? 'Sign Out' : 'Youtube'"
         >
           <template slot="icon"> <YoutubeIcon /> </template>
         </IconButton>
@@ -15,7 +15,7 @@
           @click.native="handleSpotifyClick"
           bgColor="#1ED760"
           :title="spotifyName ? spotifyName : 'Connect'"
-          :hoverText="loggedInSpotify ? 'Sign Out' : 'Spotify'"
+          :hoverText="spotify.loggedIn ? 'Sign Out' : 'Spotify'"
         >
           <template slot="icon"> <SpotifyIcon /> </template>
         </IconButton>
@@ -23,7 +23,7 @@
           @click.native="handleLastFmClick"
           bgColor="#BA0000"
           :title="lastFmName ? lastFmName : 'Connect'"
-          :hoverText="loggedInLastFm ? 'Sign Out' : 'LastFM'"
+          :hoverText="spotify.loggedIn ? 'Sign Out' : 'LastFM'"
         >
           <template slot="icon"> <LastFMIcon /> </template>
         </IconButton>
@@ -55,13 +55,10 @@ import { vxm } from '@/mainWindow/store'
 })
 export default class TopBar extends Vue {
   private youtubeName = ''
-  private loggedInYoutube = false
 
   private spotifyName = ''
-  private loggedInSpotify = false
 
   private lastFmName = ''
-  private loggedInLastFm = false
 
   mounted() {
     this.getUserDetailsYoutube()
@@ -82,7 +79,7 @@ export default class TopBar extends Vue {
   }
 
   private handleSpotifyClick() {
-    if (!this.loggedInSpotify) {
+    if (!this.spotify.loggedIn) {
       this.loginSpotify()
       return
     }
@@ -90,7 +87,7 @@ export default class TopBar extends Vue {
   }
 
   private async handleLastFmClick() {
-    if (!this.loggedInLastFm) {
+    if (!this.lastFm.loggedIn) {
       this.loginLastFM()
       return
     }
@@ -100,80 +97,75 @@ export default class TopBar extends Vue {
   private async signOutLastFM() {
     await this.lastFm.signOut()
     this.lastFmName = ''
-    this.loggedInLastFm = false
   }
 
   private async loginLastFM() {
     if (await this.lastFm.login()) {
-      this.getUserDetailsLastFM()
-      this.lastFm.scrobble(vxm.player.currentSong)
+      try {
+        await this.getUserDetailsLastFM()
+        this.lastFm.scrobble(vxm.player.currentSong)
+      } catch (_) {
+        await this.lastFm.signOut()
+      }
     }
   }
 
   private async loginSpotify() {
     await this.spotify.login()
-    this.getUserDetailsSpotify()
+    try {
+      await this.getUserDetailsSpotify()
+    } catch (_) {
+      await this.spotify.signOut()
+    }
   }
 
   private async signOutSpotify() {
     await this.spotify.signOut()
     this.spotifyName = ''
-    this.loggedInSpotify = false
   }
 
-  private getUserDetailsSpotify() {
-    this.spotify
-      .getUserDetails()
-      .then((name) => {
-        if (name) {
-          this.spotifyName = name
-          this.loggedInSpotify = true
-        }
-      })
-      .catch((err) => console.error(err))
+  private async getUserDetailsSpotify() {
+    const name = await this.spotify.getUserDetails()
+    if (name) {
+      this.spotifyName = name
+    }
   }
 
-  private getUserDetailsLastFM() {
-    this.lastFm
-      .getUserDetails()
-      .then((name) => {
-        if (name) {
-          this.lastFmName = name
-          this.loggedInLastFm = true
-        }
-      })
-      .catch((err) => console.error(err))
+  private async getUserDetailsLastFM() {
+    const name = await this.lastFm.getUserDetails()
+    if (name) {
+      this.lastFmName = name
+    }
   }
 
   private handleYoutubeClick() {
-    if (!this.loggedInYoutube) {
+    if (!this.youtube.loggedIn) {
       this.loginYoutube()
       return
     }
     this.signOutYoutube()
   }
 
-  private getUserDetailsYoutube() {
-    this.youtube
-      .getUserDetails()
-      .then((name) => {
-        if (name) {
-          this.youtubeName = name
-          this.loggedInYoutube = true
-        }
-      })
-      .catch((err) => console.error(err))
+  private async getUserDetailsYoutube() {
+    const name = await this.youtube.getUserDetails()
+    if (name) {
+      this.youtubeName = name
+    }
   }
 
   private async loginYoutube() {
     await this.youtube.login()
-    this.getUserDetailsYoutube()
+
+    try {
+      this.getUserDetailsYoutube()
+    } catch (_) {
+      await this.youtube.signOut()
+    }
   }
 
   private async signOutYoutube() {
     await this.youtube.signOut()
     this.youtubeName = ''
-    this.loggedInYoutube = false
   }
 
   private openSettings() {

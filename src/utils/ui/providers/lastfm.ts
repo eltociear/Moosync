@@ -222,48 +222,47 @@ export class LastFMProvider implements GenericScrobbler, GenericRecommendation {
   }
 
   public async * getRecommendations(): AsyncGenerator<Song[]> {
-    // const resp = await this.populateRequest('GET', 'tag.getTopTracks', { tag: 'recommended', taggingtype: 'track' })
-    // console.log(resp)
-
-    const resp = await window.SearchUtils.scrapeLastFM(`https://www.last.fm/player/station/user/${this.username}/recommended`)
-    for (const song of JSON.parse(resp).playlist) {
-      if (song.playlinks.length > 0) {
-        let typeOfLink: 'YOUTUBE' | 'SPOTIFY' | undefined;
-        let url;
-        for (const link of song.playlinks) {
-          if (link.affiliate === 'youtube') {
-            typeOfLink = 'YOUTUBE'
-            url = link.id
-            break
-          } else if (link.affiliate === 'spotify') {
-            typeOfLink = 'SPOTIFY'
-            url = link.id
-            break
-          }
-        }
-
-        if (typeOfLink && url) {
-          const parsed = (await this.parseTrack(song.name, song.artists[0].name)).track
-          const final: Song = {
-            _id: song.playlinks[0].id,
-            title: parsed.name,
-            artists: [parsed.artist?.name],
-            duration: song.duration,
-            date_added: Date.now().toString(),
-            song_coverPath_high: this.getCoverImage(parsed, true),
-            song_coverPath_low: this.getCoverImage(parsed, false),
-            url,
-            type: typeOfLink
-          }
-          if (parsed.album) {
-            song.album = {
-              album_name: parsed.album.title,
-              album_artist: parsed.album.artist,
-              album_coverPath_high: this.getCoverImage(parsed, true),
-              album_coverPath_low: this.getCoverImage(parsed, false)
+    if (this.loggedIn) {
+      const resp = await window.SearchUtils.scrapeLastFM(`https://www.last.fm/player/station/user/${this.username}/recommended`)
+      for (const song of JSON.parse(resp).playlist) {
+        if (song.playlinks.length > 0) {
+          let typeOfLink: 'YOUTUBE' | 'SPOTIFY' | undefined;
+          let url;
+          for (const link of song.playlinks) {
+            if (link.affiliate === 'youtube') {
+              typeOfLink = 'YOUTUBE'
+              url = link.id
+              break
+            } else if (link.affiliate === 'spotify') {
+              typeOfLink = 'SPOTIFY'
+              url = link.id
+              break
             }
           }
-          yield [final]
+
+          if (typeOfLink && url) {
+            const parsed = (await this.parseTrack(song.name, song.artists[0].name)).track
+            const final: Song = {
+              _id: song.playlinks[0].id,
+              title: parsed.name,
+              artists: [parsed.artist?.name],
+              duration: song.duration,
+              date_added: Date.now().toString(),
+              song_coverPath_high: this.getCoverImage(parsed, true),
+              song_coverPath_low: this.getCoverImage(parsed, false),
+              url,
+              type: typeOfLink
+            }
+            if (parsed.album) {
+              song.album = {
+                album_name: parsed.album.title,
+                album_artist: parsed.album.artist,
+                album_coverPath_high: this.getCoverImage(parsed, true),
+                album_coverPath_low: this.getCoverImage(parsed, false)
+              }
+            }
+            yield [final]
+          }
         }
       }
     }

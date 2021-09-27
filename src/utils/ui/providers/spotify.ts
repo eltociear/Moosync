@@ -320,37 +320,39 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
   }
 
   public async * getRecommendations(): AsyncGenerator<Song[]> {
-    const userTracks: any = await this.populateRequest(ApiResources.TOP, {
-      params: {
-        type: 'tracks',
-        time_range: 'long_term'
+    if (this.loggedIn) {
+      const userTracks: any = await this.populateRequest(ApiResources.TOP, {
+        params: {
+          type: 'tracks',
+          time_range: 'long_term'
+        }
+      })
+
+      const userArtists: any = await this.populateRequest(ApiResources.TOP, {
+        params: {
+          type: 'artists',
+          time_range: 'long_term'
+        }
+      })
+
+      const seedTracks = []
+      const seedArtists = []
+
+      for (const item of userTracks.items) {
+        seedTracks.push(item.id)
       }
-    })
 
-    const userArtists: any = await this.populateRequest(ApiResources.TOP, {
-      params: {
-        type: 'artists',
-        time_range: 'long_term'
+      for (const item of userArtists.items) {
+        seedArtists.push(item.id)
       }
-    })
 
-    const seedTracks = []
-    const seedArtists = []
-
-    for (const item of userTracks.items) {
-      seedTracks.push(item.id)
+      const recommendationsResp = await this.populateRequest(ApiResources.RECOMMENDATIONS, {
+        params: {
+          seed_artists: seedArtists,
+          seed_tracks: seedTracks
+        }
+      })
+      yield this.parseRecommendations(recommendationsResp)
     }
-
-    for (const item of userArtists.items) {
-      seedArtists.push(item.id)
-    }
-
-    const recommendationsResp = await this.populateRequest(ApiResources.RECOMMENDATIONS, {
-      params: {
-        seed_artists: seedArtists,
-        seed_tracks: seedTracks
-      }
-    })
-    yield this.parseRecommendations(recommendationsResp)
   }
 }
