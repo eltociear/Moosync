@@ -61,7 +61,7 @@ export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
 
   private async getResults(gen: AsyncGenerator<Song[]>, list: Song[]) {
     for await (const song of gen) {
-      list.push(...song)
+      list.push(...song.filter((val) => !list.find((l) => val._id === l._id)))
     }
   }
 }
