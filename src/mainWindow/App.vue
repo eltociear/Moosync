@@ -26,6 +26,7 @@ import { bus } from './main'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import { v1 } from 'uuid'
 import 'animate.css'
+import Vue from 'vue'
 
 const stun = require('stun')
 
@@ -113,6 +114,10 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
       }
 
       window.onerror = (err) => window.LoggerUtils.error(err)
+
+      Vue.config.errorHandler = (err, vm, info) => {
+        window.LoggerUtils.error(err)
+      }
     }
   }
 
