@@ -56,7 +56,6 @@ export function prefixLogger(basePath: string, logger: log.RootLogger | log.Logg
   logger.methodFactory = (methodName, logLevel, loggerName) => {
     return (...args: any[]) => {
       const prefix = generatePrefix(methodName, loggerName)
-      console.log(prefix, ...args);
       const final = concatArgs(prefix, ...args)
       streamToFile(basePath, final)
     };
