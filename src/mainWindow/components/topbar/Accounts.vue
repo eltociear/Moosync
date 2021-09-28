@@ -128,14 +128,18 @@ export default class TopBar extends Vue {
     const name = await this.spotify.getUserDetails()
     if (name) {
       this.spotifyName = name
+      return
     }
+    this.lastFm.signOut()
   }
 
   private async getUserDetailsLastFM() {
     const name = await this.lastFm.getUserDetails()
     if (name) {
       this.lastFmName = name
+      return
     }
+    this.lastFm.signOut()
   }
 
   private handleYoutubeClick() {
@@ -150,7 +154,9 @@ export default class TopBar extends Vue {
     const name = await this.youtube.getUserDetails()
     if (name) {
       this.youtubeName = name
+      return
     }
+    this.youtube.signOut()
   }
 
   private async loginYoutube() {
