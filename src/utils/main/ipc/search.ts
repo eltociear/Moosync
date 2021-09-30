@@ -27,6 +27,9 @@ export class SearchChannel implements IpcChannelInterface {
       case SearchEvents.SEARCH_YT:
         this.searchYT(event, request)
         break
+      case SearchEvents.YT_SUGGESTIONS:
+        this.getYTSuggestions(event, request)
+        break
       case SearchEvents.SEARCH_ENTITY_BY_OPTIONS:
         this.searchEntityByOptions(event, request)
         break
@@ -58,6 +61,18 @@ export class SearchChannel implements IpcChannelInterface {
         .catch((e) => {
           console.error(e)
           event.reply(request.responseChannel)
+        })
+    }
+  }
+
+  private getYTSuggestions(event: Electron.IpcMainEvent, request: IpcRequest) {
+    if (request.params && request.params.videoID) {
+      ytScraper
+        .getSuggestions(request.params.videoID)
+        .then((data) => event.reply(request.responseChannel, data))
+        .catch((e) => {
+          console.error(e)
+          event.reply(request.responseChannel, [])
         })
     }
   }

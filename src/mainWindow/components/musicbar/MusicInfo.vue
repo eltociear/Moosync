@@ -124,6 +124,7 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
       if (this.queueOrder.length === 1) {
         this.queueOrder = []
         vxm.player.queueIndex = -1
+        vxm.player.playerState = 'STOPPED'
       } else {
         this.queueOrder = [this.queueOrder[this.currentIndex]]
         vxm.player.queueIndex = 0

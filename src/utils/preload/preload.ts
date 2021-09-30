@@ -81,6 +81,7 @@ contextBridge.exposeInMainWorld('SearchUtils', {
     ipcRendererHolder.send(IpcEvents.SEARCH, { type: SearchEvents.SEARCH_ALL, params: { searchTerm: term } }),
   searchYT: (term: string) =>
     ipcRendererHolder.send(IpcEvents.SEARCH, { type: SearchEvents.SEARCH_YT, params: { searchTerm: term } }),
+  getYTSuggestions: (videoID: string) => ipcRendererHolder.send(IpcEvents.SEARCH, { type: SearchEvents.YT_SUGGESTIONS, params: { videoID } }),
   scrapeLastFM: (url: string) => ipcRendererHolder.send(IpcEvents.SEARCH, { type: SearchEvents.SCRAPE_LASTFM, params: { url } }),
 })
 

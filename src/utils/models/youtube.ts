@@ -8,21 +8,24 @@
  */
 
 import { v4 } from 'uuid'
+import ytMusic from 'node-youtube-music';
 
-export function toSong(...item: YoutubeItem[]): Song[] {
+export function toSong(...item: ytMusic.MusicVideo[]): Song[] {
   const songs: Song[] = []
   for (const s of item) {
     songs.push({
       _id: v4(),
-      title: s.yt_title ? s.yt_title.trim() : '',
-      song_coverPath_low: s.yt_coverImage?.replace('w60', 'w300').replace('h60', 'h300')!,
+      title: s.title ? s.title.trim() : '',
+      song_coverPath_high: s.thumbnailUrl?.replace('w60', 'w300').replace('h60', 'h300')!,
+      song_coverPath_low: s.thumbnailUrl,
       album: {
-        album_name: s.yt_album ? s.yt_album.trim() : '',
-        album_coverPath_low: s.yt_coverImage?.replace('w60', 'w300').replace('h60', 'h300')!,
+        album_name: s.album ? s.album.trim() : '',
+        album_coverPath_high: s.thumbnailUrl?.replace('w60', 'w300').replace('h60', 'h300')!,
+        album_coverPath_low: s.thumbnailUrl
       },
-      artists: s.yt_artist ? s.yt_artist.trim().split(/,|&/) : [],
-      duration: s.duration,
-      url: s._id.trim(),
+      artists: s.artist ? s.artist.trim().split(/,|&/) : [],
+      duration: s.duration!.totalSeconds,
+      url: s.youtubeId,
       date_added: Date.now().toString(),
       type: 'YOUTUBE',
     })

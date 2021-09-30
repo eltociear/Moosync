@@ -126,7 +126,7 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
     return []
   }
 
-  public async spotifyToYoutube(item: Song): Promise<YoutubeItem | undefined> {
+  public async spotifyToYoutube(item: Song) {
     const term = `${(item.artists) ? item.artists.join(' ') : ''} ${item.title}`
     const ytItem = await window.SearchUtils.searchYT(term)
     if (ytItem.length > 0)
@@ -227,7 +227,7 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
   public async getPlaybackUrlAndDuration(song: Song) {
     const ytItem = await this.spotifyToYoutube(song)
     if (ytItem) {
-      return { url: ytItem._id, duration: ytItem.duration }
+      return { url: ytItem.youtubeId, duration: ytItem.duration!.totalSeconds }
     }
   }
 
@@ -269,7 +269,7 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
           const song = this.parseSong(resp)
           const yt = await this.spotifyToYoutube(song)
           if (yt) {
-            song.playbackUrl = yt?._id
+            song.playbackUrl = yt?.youtubeId
             return song
           } else {
             console.error('Couldn\'t find song on youtube')

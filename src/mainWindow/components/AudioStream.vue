@@ -228,6 +228,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.onPlayerTypeChanged('YOUTUBE')
     }
 
+    console.log(song)
+
     vxm.player.loading = true
     if (song.type === 'LOCAL') song.path && this.activePlayer.load('media://' + song.path, this.volume)
     else {

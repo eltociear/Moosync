@@ -8,6 +8,7 @@
  */
 
 import { SongAPIOptions, EntityApiOptions } from '@moosync/moosync-types';
+import ytMusic from 'node-youtube-music';
 
 
 interface DBUtils {
@@ -26,7 +27,8 @@ interface searchUtils {
   searchSongsByOptions: (options?: SongAPIOptions) => Promise<Song[]>
   searchEntityByOptions: (options: EntityApiOptions) => Promise<T[]>
   searchAll: (term: string) => Promise<SearchResult>
-  searchYT: (term: string) => Promise<YoutubeItem[]>
+  searchYT: (term: string) => Promise<ytMusic.MusicVideo[]>
+  getYTSuggestions: (videoID: string) => Promise<ytMusic.MusicVideo[]>
   scrapeLastFM: (url: string) => Promise<any>
 }
 

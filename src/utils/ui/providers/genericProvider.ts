@@ -80,7 +80,7 @@ export abstract class GenericProvider {
    * @param song whose url and duration is to be fetched
    * @returns playback url and duration 
    */
-  public abstract getPlaybackUrlAndDuration(song: Song): Promise<{ url: string, duration: number } | undefined>
+  public abstract getPlaybackUrlAndDuration(song: Song): Promise<{ url: string | undefined, duration: number } | undefined>
 
   /**
    * Gets details of a song from its url

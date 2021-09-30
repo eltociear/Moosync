@@ -68,6 +68,12 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
     if (order.length === 0) {
       this.currentSong = null
     }
+
+    const diff = this.songQueue.order.filter(x => !order.includes(x));
+    for (const item of diff) {
+      this.removeFromQueueData(item)
+    }
+
     this.songQueue.order = order
   }
 
@@ -85,6 +91,7 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
     for (const s of item) {
       if (s && !this.songQueue.data[s._id!]) {
         this.songQueue.data[s._id!] = s
+        console.log(this.songQueue.data[s._id!])
       }
     }
   }

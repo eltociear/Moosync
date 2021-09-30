@@ -16,6 +16,7 @@ import { bus } from '@/mainWindow/main';
 import { mixins } from 'vue-class-component';
 import { toSong } from '@/utils/models/youtube';
 import { vxm } from '@/mainWindow/store';
+import ytMusic from 'node-youtube-music';
 
 @Component
 export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong) {
@@ -126,7 +127,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     return items
   }
 
-  private getYoutubeContextMenu(...item: YoutubeItem[]) {
+  private getYoutubeContextMenu(...item: ytMusic.MusicVideo[]) {
     const items = [
       {
         label: 'Play Now',

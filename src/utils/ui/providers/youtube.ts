@@ -243,41 +243,51 @@ export class YoutubeProvider implements GenericProvider, GenericRecommendation {
   }
 
   public async * getRecommendations(): AsyncGenerator<Song[]> {
+    const youtubeSongs = await window.SearchUtils.searchSongsByOptions({
+      song: {
+        type: 'YOUTUBE'
+      }
+    })
+
+
+    const resp: string[] = [];
+
+    let count = 0
+    for (const song of youtubeSongs) {
+      const songs = await window.SearchUtils.getYTSuggestions(song.url!)
+
+      for (const song of songs) {
+        if (song.duration && song.youtubeId) {
+          count++
+          yield [{
+            _id: song.youtubeId,
+            url: song.youtubeId,
+            title: song.title!,
+            artists: song.artist ? [song.artist] : [],
+            duration: song.duration!.totalSeconds,
+            album: {
+              album_name: song.album,
+              album_coverPath_high: song.thumbnailUrl,
+              album_coverPath_low: song.thumbnailUrl
+            },
+            type: 'YOUTUBE',
+            date_added: Date.now().toString(),
+            song_coverPath_high: song.thumbnailUrl,
+            song_coverPath_low: song.thumbnailUrl
+          }]
+        }
+      }
+    }
+
     if (this.loggedIn) {
-      const youtubeSongs = await window.SearchUtils.searchSongsByOptions({
-        song: {
-          type: 'YOUTUBE'
-        }
-      })
-
-      const resp: string[] = [];
-
-      const maxResults: number = Math.max(10 / youtubeSongs.length, 1)
-
-      const baseParams: YoutubeResponses.SearchRequest = {
-        params: {
-          type: 'video',
-          videoCategoryId: 10,
-          videoDuration: 'short',
-          videoEmbeddable: true,
-          order: 'date'
-        }
-      }
-
-      for (const song of youtubeSongs) {
+      if (count < 10) {
         (await this.populateRequest(ApiResources.SEARCH, {
           params: {
-            ...baseParams.params,
-            maxResults,
-            relatedToVideoId: song.url
-          }
-        })).items.forEach((val) => resp.push(val.id.videoId))
-      }
-
-      if (resp.length < 10) {
-        (await this.populateRequest(ApiResources.SEARCH, {
-          params: {
-            ...baseParams.params,
+            type: 'video',
+            videoCategoryId: 10,
+            videoDuration: 'short',
+            videoEmbeddable: true,
+            order: 'date',
             maxResults: 10 - resp.length
           }
         })).items.forEach((val) => resp.push(val.id.videoId))

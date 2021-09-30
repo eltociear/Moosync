@@ -99,8 +99,8 @@ export class SyncStore extends VuexModule.With({ namespaced: 'sync' }) {
     for (const song of songs) {
       const ytItem = await vxm.providers.spotifyProvider.spotifyToYoutube(song)
       if (ytItem) {
-        song.url = ytItem._id
-        song.duration = ytItem.duration
+        song.url = ytItem.youtubeId
+        song.duration = ytItem.duration!.totalSeconds
       } else {
         throw new Error('Could not convert song')
       }

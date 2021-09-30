@@ -38,6 +38,7 @@ export enum SearchEvents {
   SEARCH_ENTITY_BY_OPTIONS = 'searchEntityByOptions',
   SEARCH_ALL = 'searchAll',
   SEARCH_YT = 'searchYT',
+  YT_SUGGESTIONS = 'YTSuggestions',
   SCRAPE_LASTFM = 'scrapeLastFM'
 }
 

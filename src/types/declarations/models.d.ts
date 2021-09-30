@@ -46,7 +46,7 @@ interface SearchResult {
   artists?: artists[]
   genres?: Genre[]
   playlists?: Playlist[]
-  youtube?: YoutubeItem[]
+  youtube?: import('node-youtube-music').MusicVideo[]
 }
 
 interface Song {
@@ -122,15 +122,6 @@ interface stats {
 interface image {
   path: string
   data: Buffer
-}
-
-interface YoutubeItem {
-  _id: string
-  yt_title: string
-  yt_album?: string
-  yt_artist?: string
-  yt_coverImage?: string
-  duration: number
 }
 
 interface ThemeDetails {

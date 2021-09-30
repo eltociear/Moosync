@@ -6,7 +6,7 @@
           class="scroller"
           :items="ComputeTabContent(item.tab)"
           :item-size="80"
-          key-field="_id"
+          key-field="youtubeId"
           v-slot="{ item, index }"
           v-if="result"
           :direction="'vertical'"
@@ -16,7 +16,7 @@
             :subtitle="ComputeTabSubTitle(tab, item)"
             :coverImg="ComputeTabImage(tab, item)"
             :divider="index != result.songs.length - 1"
-            :id="item"
+            :id="item.youtubeId"
             :showButtons="true"
             @imgClick="imgClickHandler(tab, $event)"
             @titleClick="titleClickHandler(tab, $event)"
@@ -35,6 +35,7 @@ import { mixins } from 'vue-class-component'
 import RouterPushes from '@/utils/ui/mixins/RouterPushes'
 import { toSong } from '@/utils/models/youtube'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
+import ytMusic from 'node-youtube-music'
 
 @Component({
   components: {
@@ -110,7 +111,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin) {
         case 'Playlists':
           return (item as Playlist).playlist_name
         case 'Youtube':
-          return (item as YoutubeItem).yt_title
+          return (item as ytMusic.MusicVideo).title
       }
     }
     return ''
@@ -130,7 +131,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin) {
         case 'Playlists':
           return `${(item as Playlist).playlist_songs} Songs`
         case 'Youtube':
-          return `${(item as YoutubeItem).yt_album} - ${(item as YoutubeItem).yt_artist}`
+          return `${(item as ytMusic.MusicVideo).album} - ${(item as ytMusic.MusicVideo).artist}`
       }
     }
     return ''
@@ -150,7 +151,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin) {
         case 'Playlists':
           return (item as Playlist).playlist_coverPath
         case 'Youtube':
-          return (item as YoutubeItem).yt_coverImage
+          return (item as ytMusic.MusicVideo).thumbnailUrl
       }
     }
     return ''
@@ -194,14 +195,14 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin) {
         this.playPlaylist(item as Playlist)
         return
       case 'Youtube':
-        this.playTop(toSong(item as YoutubeItem))
+        this.playTop(toSong(item as ytMusic.MusicVideo))
     }
   }
 
   private contextMenuHandler(tab: string, event: Event, item: any) {
     switch (tab) {
       case 'Youtube':
-        this.getContextMenu(event, { type: 'YOUTUBE', args: { ytItems: [item as YoutubeItem] } })
+        this.getContextMenu(event, { type: 'YOUTUBE', args: { ytItems: [item as ytMusic.MusicVideo] } })
     }
   }
 
