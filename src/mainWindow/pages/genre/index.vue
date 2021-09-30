@@ -3,7 +3,11 @@
     <b-row class="title">Genres</b-row>
     <b-row class="d-flex">
       <b-col col xl="2" md="3" v-for="genre in genres" :key="genre.genre_id">
-        <CardView :title="genre.genre_name" :imgSrc="genre.genre_coverPath" @click.native="gotoGenre(genre)">
+        <CardView
+          :title="genre.genre_name ? genre.genre_name : 'Unknown'"
+          :imgSrc="genre.genre_coverPath"
+          @click.native="gotoGenre(genre)"
+        >
           <template #defaultCover> <SongDefault /></template>
         </CardView>
       </b-col>

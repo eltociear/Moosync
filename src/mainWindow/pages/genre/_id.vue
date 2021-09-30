@@ -10,8 +10,8 @@
       :songList="songList"
       :detailsButtonGroup="buttonGroups"
       @onRowContext="getSongMenu(arguments[0], arguments[1], undefined)"
-      @playAll="playArtist"
-      @addToQueue="addArtistToQueue"
+      @playAll="playGenre"
+      @addToQueue="addGenreToQueue"
     />
   </div>
 </template>
@@ -49,11 +49,11 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin) {
   }
 
   created() {
-    this.fetchAlbum()
+    this.fetchGenre()
     this.fetchSongList()
   }
 
-  private async fetchAlbum() {
+  private async fetchGenre() {
     this.genre = (
       await window.SearchUtils.searchEntityByOptions({
         genre: {
@@ -87,6 +87,14 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin) {
         refreshCallback: () => (this.songList = arrayDiff(this.songList, songs))
       }
     })
+  }
+
+  private playGenre() {
+    this.playTop(this.songList)
+  }
+
+  private addGenreToQueue() {
+    this.queueSong(this.songList)
   }
 }
 </script>
