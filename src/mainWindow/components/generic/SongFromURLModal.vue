@@ -35,6 +35,7 @@
           </b-col>
         </b-row>
       </b-container>
+      <div class="mt-3 warning" v-if="!isLoggedIn">* Requires to be logged in to respective services</div>
       <b-button class="close-button ml-3" @click="close">Close</b-button>
       <b-button class="create-button" @click="addToLibrary">Add</b-button>
     </div>
@@ -69,6 +70,8 @@ export default class SongFromUrlModal extends Vue {
     this.forceEmptyImg = true
   }
 
+  private isLoggedIn = false
+
   private async parseURL(url: string) {
     this.parsedSong =
       (await vxm.providers.youtubeProvider.getSongDetails(url)) ??
@@ -90,6 +93,7 @@ export default class SongFromUrlModal extends Vue {
   mounted() {
     bus.$on(EventBus.SHOW_SONG_FROM_URL_MODAL, (refreshCallback: () => void) => {
       this.refreshCallback = refreshCallback
+      this.isLoggedIn = vxm.providers.youtubeProvider.loggedIn && vxm.providers.spotifyProvider.loggedIn
       this.$bvModal.show(this.id)
     })
   }
@@ -190,4 +194,7 @@ export default class SongFromUrlModal extends Vue {
 .input-group
   margin-top: 15px
   margin-left: 10px
+
+.warning
+  color: #EB2525
 </style>
