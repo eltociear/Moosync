@@ -17,7 +17,7 @@
               <b-col cols="12" class="w-100">
                 <b-row class="w-100">
                   <div class="title text-truncate" :class="{ deactivated: !playlist }">
-                    {{ playlist ? playlist.playlist_name : 'New Song' }}
+                    {{ playlist ? playlist.playlist_name : 'New Playlist' }}
                   </div>
                 </b-row>
                 <b-row class="w-100">
