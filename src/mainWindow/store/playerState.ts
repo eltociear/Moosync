@@ -91,7 +91,6 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
     for (const s of item) {
       if (s && !this.songQueue.data[s._id!]) {
         this.songQueue.data[s._id!] = s
-        console.log(this.songQueue.data[s._id!])
       }
     }
   }
