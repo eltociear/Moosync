@@ -75,30 +75,6 @@ function interceptHttp() {
       responseHeaders: headers
     })
   })
-
-  // Since youtube embeds are blocked on custom protocols like file:// or app://
-  // We'll load the app on http://localhost
-  // Which will then be intercepted here and normal files will be delivered
-  // Essentially spoofing window.location.origin to become http://localhost
-  if (!process.env.WEBPACK_DEV_SERVER_URL) {
-    session.defaultSession.protocol.interceptFileProtocol('http', async (request, callback) => {
-      let pathName = new URL(request.url).pathname
-      pathName = decodeURI(pathName)
-
-      const filePath = path.join(__dirname, pathName)
-
-      // deregister intercept after we handle index.js
-      if (request.url.includes('index.html')) {
-        session.defaultSession.protocol.uninterceptProtocol('http')
-      }
-
-      try {
-        callback(filePath)
-      } catch (e) {
-        console.error(e)
-      }
-    })
-  }
 }
 
 // Quit when all windows are closed.
