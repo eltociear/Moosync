@@ -13,8 +13,8 @@ import axios from 'axios';
 import { cache } from '@/utils/ui/providers/genericProvider';
 import md5 from 'md5'
 
-const AUTH_BASE_URL = 'http://www.last.fm/api/'
-const API_BASE_URL = 'http://ws.audioscrobbler.com/2.0'
+const AUTH_BASE_URL = 'https://www.last.fm/api/'
+const API_BASE_URL = 'https://ws.audioscrobbler.com/2.0'
 const KeytarService = 'MoosyncLastFmToken'
 
 type authenticatedBody = {
