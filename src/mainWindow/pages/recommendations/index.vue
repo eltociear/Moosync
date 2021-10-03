@@ -1,8 +1,6 @@
 <template>
   <b-container class="recommendations-container" fluid>
-    <b-row>
-      <b-col class="page-title">Explore</b-col>
-    </b-row>
+    <b-row no-gutters class="page-title">Explore</b-row>
     <b-row v-for="p of providers" :key="p.title">
       <b-col v-if="p.list.length > 0">
         <b-row class="mt-3">
