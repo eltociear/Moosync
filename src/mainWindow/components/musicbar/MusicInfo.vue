@@ -105,7 +105,7 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   }
 
   set queueOrder(value: { id: string; songID: string }[]) {
-    vxm.player.queueOrder = value
+    vxm.player.setQueueOrder(value)
   }
 
   private forceDefaultImg = false

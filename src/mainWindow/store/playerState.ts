@@ -28,6 +28,7 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
   public timestamp: number = 0
   public loading: boolean = false
 
+
   get currentTime() {
     return this.timestamp
   }
@@ -64,17 +65,29 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
     this.songQueue.index = value
   }
 
-  set queueOrder(order: { id: string, songID: string }[]) {
+  @mutation
+  private clearCurrentSong() {
+    this.currentSong = null
+  }
+
+  @mutation
+  private _setSongQueueOrder(order: { id: string, songID: string }[]) {
+    this.songQueue.order = order
+  }
+
+  @action
+  async setQueueOrder(order: { id: string, songID: string }[]) {
     if (order.length === 0) {
-      this.currentSong = null
+      this.clearCurrentSong()
     }
 
-    const diff = this.songQueue.order.filter(x => !order.includes(x));
+    const oldOrder = this.songQueue.order
+    this._setSongQueueOrder(order)
+
+    const diff = oldOrder.filter(x => !order.includes(x));
     for (const item of diff) {
       this.removeFromQueueData(item)
     }
-
-    this.songQueue.order = order
   }
 
   get queueTop(): Song | null | undefined {
@@ -98,8 +111,9 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
   @mutation
   private removeFromQueueData(orderData: { id: string, songID: string } | undefined) {
     if (orderData) {
-      if (this.songQueue.order.findIndex(val => val.songID === orderData.songID) === -1)
+      if (this.songQueue.order.findIndex(val => val.songID === orderData.songID) === -1) {
         delete this.songQueue.data[orderData.songID]
+      }
     }
   }
 
