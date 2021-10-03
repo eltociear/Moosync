@@ -10,8 +10,8 @@
 type ContextMenuArgs = {
   type: 'SONGS'
   args: {
-    exclude: string | undefined
-    refreshCallback: () => void
+    exclude?: string
+    refreshCallback?: () => void
     songs: Song[]
     sortOptions?: sort
   }
@@ -30,13 +30,13 @@ type ContextMenuArgs = {
   type: 'PLAYLIST'
   args: {
     playlist: Playlist
-    deleteCallback: () => void
+    deleteCallback?: () => void
   }
 } |
 {
   type: 'GENERAL_PLAYLIST',
   args: {
-    refreshCallback: () => void
+    refreshCallback?: () => void
   }
 } | {
   type: 'PLAYLIST_CONTENT',

@@ -12,7 +12,8 @@
           ref="cover"
           class="coverimg me-auto d-flex align-items-center"
           alt="cover img"
-          :src="coverImg"
+          referrerpolicy="no-referrer"
+          :src="getImgSrc(coverImg)"
           @error="handleCoverError"
         />
         <SongDefault v-else class="coverimg me-auto d-flex align-items-center" />
@@ -40,6 +41,7 @@ import Play2 from '@/icons/Play2.vue'
 import { mixins } from 'vue-class-component'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import SongDefault from '@/icons/SongDefault.vue'
+import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 
 @Component({
   components: {
@@ -47,7 +49,7 @@ import SongDefault from '@/icons/SongDefault.vue'
     SongDefault
   }
 })
-export default class SingleSearchResult extends mixins(PlayerControls) {
+export default class SingleSearchResult extends mixins(PlayerControls, ImgLoader) {
   @Prop({ default: '' })
   coverImg!: string
 
@@ -68,11 +70,11 @@ export default class SingleSearchResult extends mixins(PlayerControls) {
 
   private forceEmptyImg = false
 
-  private handleCoverError() {
+  private handleCoverError(err: any) {
     this.forceEmptyImg = true
   }
 
-  @Watch('cover') onCoverChange() {
+  @Watch('coverImg') onCoverChange() {
     this.forceEmptyImg = false
   }
 

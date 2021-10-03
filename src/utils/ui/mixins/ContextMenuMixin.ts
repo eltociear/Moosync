@@ -86,7 +86,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     return items
   }
 
-  private getSongContextMenu(exclude: string | undefined, refreshCallback: () => void, isRemote: boolean, sort: sort | undefined, ...item: Song[]) {
+  private getSongContextMenu(exclude: string | undefined, refreshCallback?: () => void, isRemote: boolean = false, sort?: sort, ...item: Song[]) {
     const items: MenuItem[] = [
       {
         label: 'Play Now',
@@ -117,7 +117,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
           try {
             await window.DBUtils.removeSongs(item)
           } catch (e) { console.error(e) }
-          refreshCallback()
+          refreshCallback && refreshCallback()
         }
       }, {
         label: 'Add from URL',
@@ -153,13 +153,13 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     return items
   }
 
-  private getPlaylistContextMenu(playlist: Playlist, callback: () => void) {
+  private getPlaylistContextMenu(playlist: Playlist, callback?: () => void) {
     const items = []
     if (!playlist.isRemote) {
       items.push({
         label: 'Remove Playlist',
         handler: () => {
-          callback()
+          callback && callback()
         },
       })
     }
@@ -177,7 +177,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     return items
   }
 
-  private getGeneralPlaylistMenu(refreshCallback: () => void) {
+  private getGeneralPlaylistMenu(refreshCallback?: () => void) {
     const items = [
       {
         label: 'Add Playlist from URL',

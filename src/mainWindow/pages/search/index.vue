@@ -6,7 +6,7 @@
           class="scroller"
           :items="ComputeTabContent(item.tab)"
           :item-size="80"
-          key-field="youtubeId"
+          :key-field="item.tab === 'Youtube' ? 'youtubeId' : '_id'"
           v-slot="{ item, index }"
           v-if="result"
           :direction="'vertical'"
@@ -16,7 +16,7 @@
             :subtitle="ComputeTabSubTitle(tab, item)"
             :coverImg="ComputeTabImage(tab, item)"
             :divider="index != result.songs.length - 1"
-            :id="item.youtubeId"
+            :id="item"
             :showButtons="true"
             @imgClick="imgClickHandler(tab, $event)"
             @titleClick="titleClickHandler(tab, $event)"
@@ -36,13 +36,14 @@ import RouterPushes from '@/utils/ui/mixins/RouterPushes'
 import { toSong } from '@/utils/models/youtube'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import ytMusic from 'node-youtube-music'
+import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 
 @Component({
   components: {
     SingleSearchResult
   }
 })
-export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin) {
+export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, ImgLoader) {
   private term: string = ''
   private tabModel = 0
   private result: SearchResult = {}
@@ -141,7 +142,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin) {
     if (item) {
       switch (tab) {
         case 'Songs':
-          return (item as Song).song_coverPath_low ?? (item as Song).album?.album_coverPath_low
+          return this.getValidImageLow(item as Song) ?? this.getValidImageHigh(item as Song)
         case 'Albums':
           return (item as Album).album_coverPath_low
         case 'Artists':
@@ -178,6 +179,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin) {
   }
 
   private imgClickHandler(tab: string, item: any) {
+    console.log(item)
     switch (tab) {
       case 'Songs':
         this.playTop([item as Song])
@@ -203,6 +205,10 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin) {
     switch (tab) {
       case 'Youtube':
         this.getContextMenu(event, { type: 'YOUTUBE', args: { ytItems: [item as ytMusic.MusicVideo] } })
+        break
+      case 'Songs':
+        this.getContextMenu(event, { type: 'SONGS', args: { songs: [item as Song] } })
+        break
     }
   }
 
