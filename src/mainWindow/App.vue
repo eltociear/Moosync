@@ -353,4 +353,10 @@ body
 .success-toast
   background-color: var(--accent) !important
   color: var(--textInverse) !important
+
+.page-title
+  font-weight: bold
+  font-size: 55px
+  margin-bottom: 50px
+  margin-top: 20px
 </style>

@@ -1,6 +1,6 @@
 <template>
   <b-container fluid class="album-container">
-    <b-row class="title">Artists</b-row>
+    <b-row no-gutters class="page-title">Artists</b-row>
     <b-row class="d-flex">
       <b-col col xl="2" md="3" v-for="artist in artistList" :key="artist.artist_id">
         <CardView :title="artist.artist_name" :imgSrc="artist.artist_coverPath" @click.native="gotoArtist(artist)">

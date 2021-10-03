@@ -1,6 +1,6 @@
 <template>
   <b-container fluid class="album-container">
-    <b-row class="title">Genres</b-row>
+    <b-row no-gutters class="page-title">Genres</b-row>
     <b-row class="d-flex">
       <b-col col xl="2" md="3" v-for="genre in genres" :key="genre.genre_id">
         <CardView

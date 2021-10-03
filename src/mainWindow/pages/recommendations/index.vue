@@ -1,7 +1,7 @@
 <template>
   <b-container class="recommendations-container" fluid>
     <b-row>
-      <b-col class="title">Explore</b-col>
+      <b-col class="page-title">Explore</b-col>
     </b-row>
     <b-row v-for="p of providers" :key="p.title">
       <b-col v-if="p.list.length > 0">

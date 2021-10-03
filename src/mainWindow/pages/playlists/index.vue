@@ -1,6 +1,6 @@
 <template>
   <b-container fluid class="album-container" @contextmenu="contextHandler">
-    <b-row class="title">Playlists</b-row>
+    <b-row no-gutters class="page-title">Playlists</b-row>
     <b-row class="d-flex">
       <b-col col xl="2" md="3" v-for="playlist in allPlaylists" :key="playlist.playlist_id" class="card-col">
         <CardView
