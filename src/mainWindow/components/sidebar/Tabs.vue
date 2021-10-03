@@ -14,14 +14,7 @@
         v-bind:class="{ 'button-active': isActive }"
       >
         <div class="whitebar" v-if="isActive && isOpen"></div>
-        <div
-          class="d-flex align-items-center icon-transition"
-          v-bind:class="{
-            'icon-active': isActive && isOpen,
-            'icon-padding-closed': !isOpen,
-            'icon-padding-open': isOpen
-          }"
-        >
+        <div class="d-flex align-items-center icon-transition icon-padding">
           <div class="icon d-flex">
             <component :active="isActive" v-bind:is="item.component"></component>
           </div>
@@ -98,16 +91,13 @@ export default class Sidebar extends Vue {
   height: 38px
   align-items: center
 
-.icon-padding-open
-  padding: 0.25rem 0rem 0.25rem 1.8rem
-
-.icon-padding-closed
-  padding: 0.5rem 0rem 0.25rem 1rem
+.icon-padding
+  padding: 0.5rem 0rem 0.25rem 1.5rem
 
 .icon-transition
   transition: 0.2s
 
-.icon-padding-open.icon-transition:hover
+.icon-padding.icon-transition:hover
   margin-left: 0.6rem
 
 .text-padding
@@ -125,9 +115,6 @@ export default class Sidebar extends Vue {
 
 .button-active
   background: linear-gradient(270deg, rgba(55, 60, 66, 0) 0%, #373C42 100%)
-
-.icon-active
-  padding-left: calc(1.8rem - 3px)
 
 .text-active
   color: var(--accent)
