@@ -15,6 +15,7 @@ import axios from 'axios';
 import moment from 'moment';
 import { once } from 'events';
 import qs from 'qs';
+import { vxm } from '../../../mainWindow/store/index';
 
 const BASE_URL = 'https://youtube.googleapis.com/youtube/v3/'
 
@@ -36,6 +37,7 @@ export class YoutubeProvider implements GenericProvider, GenericRecommendation {
   })
 
   public get loggedIn() {
+    vxm.providers.loggedInYoutube = this.auth.loggedIn()
     return this.auth.loggedIn()
   }
 

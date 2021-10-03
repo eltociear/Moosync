@@ -16,4 +16,32 @@ export class ProviderStore extends VuexModule.With({ namespaced: 'providers' }) 
   public youtubeProvider = new YoutubeProvider()
   public spotifyProvider = new SpotifyProvider()
   public lastfmProvider = new LastFMProvider()
+
+  public _loggedInYoutube = false
+  public _loggedInSpotify = false
+  public _loggedInLastFM = false
+
+  get loggedInYoutube() {
+    return this._loggedInYoutube
+  }
+
+  get loggedInSpotify() {
+    return this._loggedInSpotify
+  }
+
+  get loggedInLastFM() {
+    return this._loggedInLastFM
+  }
+
+  set loggedInYoutube(val: boolean) {
+    this._loggedInYoutube = val
+  }
+
+  set loggedInSpotify(val: boolean) {
+    this._loggedInSpotify = val
+  }
+
+  set loggedInLastFM(val: boolean) {
+    this._loggedInLastFM = val
+  }
 }

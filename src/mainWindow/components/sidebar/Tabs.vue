@@ -7,7 +7,12 @@
       custom
       v-slot="{ navigate, isActive }"
     >
-      <div class="d-flex button-bar" v-on:click="navigate" v-bind:class="{ 'button-active': isActive }">
+      <div
+        class="d-flex button-bar"
+        v-if="item.title !== 'Explore' || showExplore"
+        v-on:click="navigate"
+        v-bind:class="{ 'button-active': isActive }"
+      >
         <div class="whitebar" v-if="isActive && isOpen"></div>
         <div
           class="d-flex align-items-center icon-transition"
@@ -45,6 +50,7 @@ import Albums from '@/icons/Albums.vue'
 import Toggle from '@/icons/Toggle.vue'
 import Rooms from '@/icons/Rooms.vue'
 import Explore from '../../../icons/Explore.vue'
+import { vxm } from '@/mainWindow/store'
 
 @Component({
   components: {
@@ -69,6 +75,10 @@ export default class Sidebar extends Vue {
     { component: 'Explore', title: 'Explore', link: '/recommendations' }
     // { component: 'Fav', title: 'Favourites', link: '/favs' }
   ]
+
+  private get showExplore() {
+    return vxm.providers.loggedInSpotify || vxm.providers.loggedInYoutube || vxm.providers.loggedInLastFM
+  }
 
   private active: ActiveTab = ActiveTab.ALLSONGS
 

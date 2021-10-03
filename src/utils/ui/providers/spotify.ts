@@ -15,6 +15,7 @@ import axios from 'axios';
 import { forageStore } from './genericProvider';
 import { once } from 'events';
 import qs from 'qs';
+import { vxm } from '@/mainWindow/store';
 
 /**
  * Spotify API base URL
@@ -44,6 +45,7 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
   })
 
   public get loggedIn() {
+    vxm.providers.loggedInSpotify = this.auth.loggedIn()
     return this.auth.loggedIn()
   }
 

@@ -12,6 +12,7 @@ import { GenericScrobbler } from './scrobblers/genericScrobbler';
 import axios from 'axios';
 import { cache } from '@/utils/ui/providers/genericProvider';
 import md5 from 'md5'
+import { vxm } from '@/mainWindow/store';
 
 const AUTH_BASE_URL = 'https://www.last.fm/api/'
 const API_BASE_URL = 'https://ws.audioscrobbler.com/2.0'
@@ -41,6 +42,7 @@ export class LastFMProvider implements GenericScrobbler, GenericRecommendation {
   private username: String = ''
 
   public get loggedIn(): boolean {
+    vxm.providers.loggedInLastFM = !!(this.initialized && this._session)
     return !!(this.initialized && this._session)
   }
 
