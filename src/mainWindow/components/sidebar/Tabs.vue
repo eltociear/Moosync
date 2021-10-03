@@ -17,10 +17,16 @@
             'icon-padding-open': isOpen
           }"
         >
-          <div class="icon">
-            <component v-bind:is="item.component"></component>
+          <div class="icon d-flex">
+            <component :active="isActive" v-bind:is="item.component"></component>
           </div>
-          <div v-if="isOpen" class="text-padding text-format">{{ item.title }}</div>
+          <div
+            v-bind:class="{ 'text-active': isActive, 'text-inactive': !isActive }"
+            v-if="isOpen"
+            class="text-padding"
+          >
+            {{ item.title }}
+          </div>
         </div>
       </div>
     </router-link>
@@ -38,6 +44,7 @@ import Genre from '@/icons/Genre.vue'
 import Albums from '@/icons/Albums.vue'
 import Toggle from '@/icons/Toggle.vue'
 import Rooms from '@/icons/Rooms.vue'
+import Explore from '../../../icons/Explore.vue'
 
 @Component({
   components: {
@@ -48,7 +55,8 @@ import Rooms from '@/icons/Rooms.vue'
     Genre,
     Albums,
     Toggle,
-    Rooms
+    Rooms,
+    Explore
   }
 })
 export default class Sidebar extends Vue {
@@ -58,7 +66,7 @@ export default class Sidebar extends Vue {
     { component: 'Albums', title: 'Albums', link: '/albums' },
     { component: 'Artists', title: 'Artists', link: '/artists' },
     { component: 'Genre', title: 'Genre', link: '/genre' },
-    { component: 'Genre', title: 'Explore', link: '/recommendations' }
+    { component: 'Explore', title: 'Explore', link: '/recommendations' }
     // { component: 'Fav', title: 'Favourites', link: '/favs' }
   ]
 
@@ -78,6 +86,7 @@ export default class Sidebar extends Vue {
 .icon
   width: 38px
   height: 38px
+  align-items: center
 
 .icon-padding-open
   padding: 0.25rem 0rem 0.25rem 1.8rem
@@ -95,9 +104,6 @@ export default class Sidebar extends Vue {
   padding-left: 2rem
   user-select: none
 
-.text-format
-  color: var(--textPrimary) !important
-
 .button-bar
   margin-top: 1.25rem
   vertical-align: middle
@@ -112,4 +118,10 @@ export default class Sidebar extends Vue {
 
 .icon-active
   padding-left: calc(1.8rem - 3px)
+
+.text-active
+  color: var(--accent)
+
+.text-inactive
+  color: var(--textPrimary)
 </style>
