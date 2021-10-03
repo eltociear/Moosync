@@ -85,7 +85,7 @@ export default class SongDetailsCompact extends mixins(ImgLoader) {
       return (
         ((this.currentSong?.artists && this.currentSong?.artists?.join(', ')) ?? '') +
         (this.isArtistAlbumNotEmpty() ? ' - ' : '') +
-        (this.currentSong?.album && this.currentSong.album.album_name)
+        ((this.currentSong?.album && this.currentSong.album.album_name) ?? '')
       )
     }
   }
