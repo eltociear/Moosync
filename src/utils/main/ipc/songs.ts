@@ -8,7 +8,6 @@
  */
 
 import { IpcEvents, SongEvents } from './constants'
-import { getDisabledPaths, loadPreferences } from '@/utils/main/db/preferences'
 
 import { SongDB } from '../db'
 import { app } from 'electron'

@@ -27,46 +27,95 @@ const store = new Store({
   serialize: value => JSON.stringify(value)
 })
 
+/**
+ * Saves preferences
+ * All preferences are stored under a key "prefs"
+ * @param prefs preferences to be stored
+ */
 export function savePreferences(prefs: Preferences) {
   store.set('prefs', prefs)
 }
 
+/**
+ * Saves theme under key "themes"
+ * @param theme details of theme to save
+ */
 export function saveTheme(theme: ThemeDetails) {
   store.set(`themes.${theme.id}`, theme)
 }
 
+/**
+ * Removes theme by id
+ * @param id of theme
+ */
 export function removeTheme(id: string) {
   store.delete(`themes.${id}` as any)
 }
 
+/**
+ * Fetches theme by id
+ * @param id of theme
+ * @returns details of theme if found otherwise undefined
+ */
 export function loadTheme(id: string): ThemeDetails | undefined {
   return store.get(`themes.${id}`) as ThemeDetails | undefined
 }
 
+/**
+ * Fetches all themes
+ * @returns Dictionary of themes with their id's as keys
+ */
 export function loadAllThemes(): { [key: string]: ThemeDetails } | undefined {
   return store.get(`themes`) as { [key: string]: ThemeDetails } | undefined
 }
 
+/**
+ * Sets active theme by id
+ * @param id of theme 
+ */
 export function setActiveTheme(id: string) {
   saveSelectivePreference('activeTheme', id, false)
 }
 
+/**
+ * Sets song view to active
+ * @param menu to be set active
+ */
 export function setSongView(menu: songMenu) {
   saveSelectivePreference('songView', menu, false)
 }
 
-export function getSongView(): songMenu | undefined {
-  return loadSelectivePreference('songView', false, 'compact' as songMenu)
+/**
+ * Gets active song view
+ * @returns song view if active otherwise compact
+ */
+export function getSongView(): songMenu {
+  return loadSelectivePreference('songView', false, 'compact' as songMenu) ?? 'compact'
 }
 
+/**
+ * Sets last used window size
+ * @param windowName name of window whose size is to be set
+ * @param windowSize size of window. Dictionary with width and height keys containing width and height of that window 
+ */
 export function setWindowSize(windowName: string, windowSize: { width: number, height: number }) {
   store.set(`window.${windowName}`, windowSize)
 }
 
+/**
+ * Gets window size
+ * @param windowName name of window whose size is to be fetched 
+ * @param defaultValue default size in width and height
+ * @returns  
+ */
 export function getWindowSize(windowName: string, defaultValue: { width: number, height: number }) {
   return store.get(`window.${windowName}`, defaultValue)
 }
 
+/**
+ * Gets active theme
+ * @returns details of active theme if exists otherwise undefined 
+ */
 export function getActiveTheme() {
   const id = loadSelectivePreference('activeTheme', false) as string
   if (id) {
@@ -74,10 +123,24 @@ export function getActiveTheme() {
   }
 }
 
+/**
+ * Saves a single key inside "prefs". Deep keys can be accessed by "." separator. 
+ * @param key 
+ * @param value 
+ * @param [isExtension] true if preference is of an extension. false otherwise
+ */
 export function saveSelectivePreference(key: string, value: any, isExtension: boolean = false) {
   store.set(`prefs.${isExtension ? 'extension.' : ''}${key}`, value)
 }
 
+/**
+ * Loads selective preference inside "prefs"
+ * @template T expected object which will be returned
+ * @param [key] 
+ * @param [isExtension] true if preference is of an extension. false otherwise
+ * @param [defaultValue] 
+ * @returns object belonging to given key
+ */
 export function loadSelectivePreference<T>(key?: string, isExtension: boolean = false, defaultValue?: T): T | undefined {
   try {
     const pref = store.get(`prefs.${isExtension ? 'extension.' : ''}${key}`, defaultValue)
@@ -88,10 +151,18 @@ export function loadSelectivePreference<T>(key?: string, isExtension: boolean = 
   return undefined
 }
 
+/**
+ * Sets initial interface settings
+ */
 export function setInitialInterfaceSettings() {
   onPreferenceChanged('system', loadPreferences()?.systemSettings)
 }
 
+/**
+ * Should be called when preferences are changed
+ * @param key 
+ * @param value 
+ */
 export async function onPreferenceChanged(key: string, value: any) {
   if (key === 'system' && value) {
     for (const val of value) {
@@ -112,6 +183,11 @@ export async function onPreferenceChanged(key: string, value: any) {
   }
 }
 
+/**
+ * Validates preferences
+ * @param prefs to be validated
+ * @returns corrected prefs
+ */
 function validatePrefs(prefs: Preferences): Preferences {
   if (prefs) {
     if (!prefs.musicPaths) {
@@ -130,6 +206,10 @@ function validatePrefs(prefs: Preferences): Preferences {
   return prefs
 }
 
+/**
+ * Loads all preferences
+ * @returns preferences 
+ */
 export function loadPreferences(): Preferences {
   try {
     const tmp = store.get('prefs') as Preferences
@@ -142,6 +222,12 @@ export function loadPreferences(): Preferences {
   return defaultPreferences
 }
 
+// TODO: Make a generic utils file for methods like these
+/**
+ * Gets disabled paths from a list of paths
+ * @param paths 
+ * @returns disabled paths 
+ */
 export function getDisabledPaths(paths: togglePaths): string[] {
   const disablePaths = []
   for (const p of paths) {
@@ -150,6 +236,9 @@ export function getDisabledPaths(paths: togglePaths): string[] {
   return disablePaths
 }
 
+/**
+ * Setups default themes
+ */
 function setupDefaultThemes() {
   const themes: { [key: string]: ThemeDetails } = {
     '809b7310-f852-11eb-82e2-0985b6365ce4': {

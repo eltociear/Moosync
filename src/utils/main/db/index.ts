@@ -47,6 +47,10 @@ class SongDBInstance extends DBUtils {
     return counts
   }
 
+  /**
+   * Removes song by its ID. Also removes references to albums, artists, genre, playlist and unlinks thumbnails.
+   * @param song_id id of song to remove
+   */
   public async removeSong(song_id: string) {
     const pathsToRemove: string[] = []
     this.db.transaction((song_id: string) => {
@@ -98,26 +102,32 @@ class SongDBInstance extends DBUtils {
     }
   }
 
-  public async searchAll(term: string, exclude?: string[]): Promise<SearchResult> {
+  /**
+   * Search every entity for matching keyword
+   * @param term term to search
+   * @param exclude path to exclude from search
+   * @returns SearchResult consisting of songs, albums, artists, genre
+   */
+  public searchAll(term: string, exclude?: string[]): SearchResult {
     const songs = this.getSongByOptions({
       song: {
         path: term
       }
     }, exclude)
 
-    const albums: Album[] = await this.getEntityByOptions({
+    const albums: Album[] = this.getEntityByOptions({
       album: {
         album_name: term
       }
     })
 
-    const artists: artists[] = await this.getEntityByOptions({
+    const artists: artists[] = this.getEntityByOptions({
       artist: {
         artist_name: term
       }
     })
 
-    const genre: Genre[] = await this.getEntityByOptions({
+    const genre: Genre[] = this.getEntityByOptions({
       genre: {
         genre_name: term
       }
@@ -164,7 +174,13 @@ class SongDBInstance extends DBUtils {
     return ''
   }
 
-  public getSongByOptions(options?: SongAPIOptions, exclude?: string[]) {
+  /**
+   * Gets song by options 
+   * @param [options] SongAPIOptions to search by
+   * @param [exclude] paths to exclude from result
+   * @returns list of songs matching the query
+   */
+  public getSongByOptions(options?: SongAPIOptions, exclude?: string[]): Song[] {
     const { where, args } = this.populateWhereQuery(options)
 
     const songs: marshaledSong[] = this.db.query(
@@ -207,6 +223,11 @@ class SongDBInstance extends DBUtils {
     }
   }
 
+  /**
+   * Get album, genre, playlist, artists by options
+   * @param options EntityApiOptions to search by
+   * @returns 
+   */
   public getEntityByOptions<T>(options: EntityApiOptions): T[] {
     let isFirst = true
     const addANDorOR = () => {
@@ -241,18 +262,21 @@ class SongDBInstance extends DBUtils {
     return this.db.query(`${query} ${args.length > 0 ? where : ''} ORDER BY ${orderBy} ASC`, ...args) as T[]
   }
 
+  /**
+   * Get song matching the md5 hash
+   * @param hash md5 hash
+   * @returns Song
+   */
   public getByHash(hash: string) {
     return this.db.queryFirstRow(`SELECT * FROM allsongs WHERE hash = ?`, hash)! as Song
   }
 
-  public async getBySize(size: number): Promise<{ _id: string }[]> {
-    return this.db.query(`SELECT * FROM allsongs WHERE size = ?`, size)
-  }
-
-  public async getInfoByID(id: string): Promise<{ path: string, inode: string, deviceno: string }[]> {
-    return this.db.query(`SELECT path, inode, deviceno FROM allsongs WHERE _id = ?`, id)
-  }
-
+  /**
+   * Update cover image of song by id
+   * @param id id of song to update cover image
+   * @param coverHigh high resolution cove image path
+   * @param coverLow low resolution cove image path
+   */
   public updateSongCover(id: string, coverHigh: string, coverLow: string) {
     this.db.update('allsongs', {
       song_coverPath_high: coverHigh,
@@ -279,10 +303,12 @@ class SongDBInstance extends DBUtils {
     return id as string
   }
 
-  public async updateAlbum(album: Album): Promise<void> {
-    this.db.updateWithBlackList('albums', album, ['album_id = ?', album.album_id], ['album_id', 'album_name'])
-  }
-
+  /**
+  * Updates album covers by song_id
+  * @param songid id of the song belonging to the album whose cover is to be updated
+  * @param coverHigh high resolution cover path
+  * @param coverLow low resolution cover path
+  */
   public updateAlbumCovers(songid: string, coverHigh: string, coverLow: string) {
     this.db.transaction((songid, newHigh, newLow) => {
       const { album_id } = this.db.queryFirstRowObject(`SELECT album as album_id FROM album_bridge WHERE song = ?`, songid) as { album_id: string }
@@ -301,6 +327,9 @@ class SongDBInstance extends DBUtils {
     })(songid, coverHigh, coverLow)
   }
 
+  /**
+   * Updates song count of all albums
+   */
   public updateSongCountAlbum() {
     this.db.transaction(() => {
       for (const row of this.db.query(`SELECT album_id FROM albums`)) {
@@ -321,6 +350,9 @@ class SongDBInstance extends DBUtils {
                 GENRE
      ============================= */
 
+  /**
+   * Updates song count of all genres
+   */
   public updateSongCountGenre() {
     this.db.transaction(() => {
       for (const row of this.db.query(`SELECT genre_id FROM genre`)) {
@@ -359,6 +391,14 @@ class SongDBInstance extends DBUtils {
                 ARTISTS
      ============================= */
 
+  /**
+   * Updates artists details
+   * artist_id and artist_name are not updated
+   * artist is queried by artist_id
+   * @param artist artist with updated details. 
+   * 
+   * @returns number of rows updated
+   */
   public async updateArtists(artist: artists) {
     return new Promise((resolve) => {
       resolve(
@@ -392,6 +432,12 @@ class SongDBInstance extends DBUtils {
     }
   }
 
+  /**
+   * Gets default cover for artist
+   * Queries the albums belonging to songs by the artist for cover image
+   * @param id of artist whose default cover image is required
+   * @returns high resolution cover image for artist
+   */
   public async getDefaultCoverByArtist(id: string): Promise<string | undefined> {
     return (this.db.queryFirstRow(
       `SELECT album_coverPath_high from albums WHERE album_id = (SELECT album FROM album_bridge WHERE song = (SELECT song FROM artists_bridge WHERE artist = ?))`,
@@ -399,6 +445,9 @@ class SongDBInstance extends DBUtils {
     ) as marshaledSong)?.album_coverPath_high
   }
 
+  /**
+   * Updates song count of all genres
+   */
   public updateSongCountArtists() {
     this.db.transaction(() => {
       for (const row of this.db.query(`SELECT artist_id FROM artists`)) {
@@ -415,12 +464,24 @@ class SongDBInstance extends DBUtils {
                 PLAYLISTS
      ============================= */
 
+  /**
+   * Creates playlist
+   * @param name name of playlist
+   * @param desc description of playlist
+   * @param imgSrc cover image of playlist
+   * @returns playlist id after creation
+   */
   public async createPlaylist(name: string, desc: string, imgSrc: string): Promise<string> {
     const id = v4()
     this.db.insert('playlists', { playlist_id: id, playlist_name: name, playlist_desc: desc, playlist_coverPath: imgSrc })
     return id
   }
 
+  /**
+   * Updates playlist cover path
+   * @param playlist_id id of playlist whose cover is to be updated
+   * @param coverPath hig resolution cover path 
+   */
   public updatePlaylistCoverPath(playlist_id: string, coverPath: string) {
     this.db.update('playlists', { playlist_coverPath: coverPath }, ['playlist_id = ?', playlist_id])
   }
@@ -432,6 +493,11 @@ class SongDBInstance extends DBUtils {
     )
   }
 
+  /**
+   * Adds songs to playlist
+   * @param playlist_id id of playlist where songs are to be added
+   * @param songs songs which are to be added to playlist
+   */
   public async addToPlaylist(playlist_id: string, ...songs: Song[]) {
     // TODO: Regenerate cover instead of using existing from song
     const coverExists = this.isPlaylistCoverExists(playlist_id)
@@ -448,6 +514,11 @@ class SongDBInstance extends DBUtils {
     this.updateSongCountPlaylists()
   }
 
+  /**
+   * Removes song from playlist
+   * @param playlist id of playlist from which song is to be removed
+   * @param songs songs which are to be removed
+   */
   public async removeFromPlaylist(playlist: string, ...songs: string[]) {
     this.db.transaction((songs: string[]) => {
       for (const s in songs) {
@@ -457,6 +528,9 @@ class SongDBInstance extends DBUtils {
     this.updateSongCountPlaylists()
   }
 
+  /**
+   * Updates song count of all playlists
+   */
   public updateSongCountPlaylists() {
     this.db.transaction(() => {
       for (const row of this.db.query(`SELECT playlist_id FROM playlists`)) {
@@ -469,6 +543,10 @@ class SongDBInstance extends DBUtils {
     })()
   }
 
+  /**
+   * Removes playlist
+   * @param playlist_id id of playlist to be removed
+   */
   public async removePlaylist(playlist_id: string) {
     this.db.delete('playlist_bridge', { playlist: playlist_id })
     this.db.delete('playlists', { playlist_id: playlist_id })

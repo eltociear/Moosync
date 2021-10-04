@@ -42,15 +42,9 @@ export class SearchChannel implements IpcChannelInterface {
   private async searchAll(event: Electron.IpcMainEvent, request: IpcRequest) {
     const preferences = loadPreferences()
     if (request.params && request.params.searchTerm) {
-      SongDB.searchAll(request.params.searchTerm, getDisabledPaths(preferences.musicPaths))
-        .then((data) => {
-          event.reply(request.responseChannel, data)
-        })
-        .catch((e) => {
-          console.error(e)
-          event.reply(request.responseChannel)
-        })
+      event.reply(request.responseChannel, SongDB.searchAll(request.params.searchTerm, getDisabledPaths(preferences.musicPaths)))
     }
+    event.reply(request.responseChannel)
   }
 
   private searchYT(event: Electron.IpcMainEvent, request: IpcRequest) {

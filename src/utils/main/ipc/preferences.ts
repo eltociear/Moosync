@@ -8,7 +8,7 @@
  */
 
 import { IpcEvents, PreferenceEvents } from './constants';
-import { getActiveTheme, getSongView, loadAllThemes, loadSelectivePreference, loadTheme, onPreferenceChanged, removeTheme, savePreferences, saveSelectivePreference, saveTheme, setActiveTheme, setSongView } from '../db/preferences';
+import { getActiveTheme, getSongView, loadAllThemes, loadSelectivePreference, loadTheme, onPreferenceChanged, removeTheme, saveSelectivePreference, saveTheme, setActiveTheme, setSongView } from '../db/preferences';
 
 import { WindowHandler } from '../windowManager';
 

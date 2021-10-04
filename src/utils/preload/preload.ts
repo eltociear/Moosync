@@ -60,7 +60,7 @@ contextBridge.exposeInMainWorld('Store', {
 
 contextBridge.exposeInMainWorld('FileUtils', {
   scan: () => ipcRendererHolder.send(IpcEvents.SCANNER, { type: ScannerEvents.SCAN_MUSIC }),
-  saveAudioTOFile: (path: string, blob: Buffer) =>
+  saveAudioToFile: (path: string, blob: Buffer) =>
     ipcRendererHolder.send(IpcEvents.SONG, { type: SongEvents.SAVE_AUDIO_TO_FILE, params: { path: path, blob: blob } }),
   saveImageToFile: (path: string, blob: Buffer) =>
     ipcRendererHolder.send(IpcEvents.SONG, { type: SongEvents.SAVE_IMAGE_TO_FILE, params: { path: path, blob: blob } }),

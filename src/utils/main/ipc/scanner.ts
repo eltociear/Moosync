@@ -15,7 +15,6 @@ import { SongDB } from '@/utils/main/db/index'
 import fs from 'fs'
 import { loadPreferences } from '@/utils/main/db/preferences'
 import { notifyRenderer } from '.'
-import path from 'path'
 
 enum scanning {
   UNDEFINED,

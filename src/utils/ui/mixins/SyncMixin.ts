@@ -139,7 +139,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
     reader.onload = async () => {
       if (reader.readyState == 2) {
         const buffer = Buffer.from(reader.result as ArrayBuffer)
-        const filePath = await window.FileUtils.saveAudioTOFile(vxm.sync.currentFetchSong, buffer)
+        const filePath = await window.FileUtils.saveAudioToFile(vxm.sync.currentFetchSong, buffer)
         if (vxm.sync.currentSongDets!._id == vxm.sync.currentFetchSong) {
           if (vxm.sync.isReadyRequested) this.peerHolder.emitReady()
           if (this.setSongSrcCallback) this.setSongSrcCallback('media://' + filePath)
