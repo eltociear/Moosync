@@ -43,8 +43,8 @@ import { AuthorizationRequest } from "@openid/appauth/built/authorization_reques
 import { AuthorizationServiceConfiguration } from "@openid/appauth/built/authorization_service_configuration";
 import EventEmitter from 'events';
 import { NodeRequestor } from '@openid/appauth/built/node_support/node_requestor';
-import { SpotifyTokenRequestHandler } from './tokenHandler';
 import { StringMap } from "@openid/appauth/built/types";
+import { TokenRequestHandlerWClientSecret } from './tokenHandler';
 import {
   TokenResponse
 } from "@openid/appauth/built/token_response";
@@ -84,9 +84,10 @@ export class AuthFlow {
       this.authorizationHandler = new AuthFlowRequestHandler(config.oAuthChannel)
 
       if (type === 'spotify') {
-        this.tokenHandler = new SpotifyTokenRequestHandler(requestor)
+        this.tokenHandler = new TokenRequestHandlerWClientSecret(process.env.SpotifyClientSecret!, requestor)
       } else {
-        this.tokenHandler = new BaseTokenRequestHandler(requestor)
+        console.log(process.env.YoutubeClientSecret)
+        this.tokenHandler = new TokenRequestHandlerWClientSecret(process.env.YoutubeClientSecret!, requestor)
       }
 
       // set notifier to deliver responses
@@ -123,7 +124,7 @@ export class AuthFlow {
         return {
           openIdConnectUrl: "https://accounts.google.com",
           clientId: process.env.YoutubeClientID!,
-          redirectUri: "com.moosync:ytoauth2callback/",
+          redirectUri: "https://ovenoboyo.github.io/moosync-oauth-redirect/youtube",
           scope: "https://www.googleapis.com/auth/youtube.readonly",
           keytarService: 'MoosyncYoutubeRefreshToken',
           oAuthChannel: await window.WindowUtils.registerOAuthCallback('ytoauth2callback'),
@@ -158,7 +159,7 @@ export class AuthFlow {
         return new AuthorizationServiceConfiguration({
           authorization_endpoint: this.config.openIdConnectUrl,
           token_endpoint: 'https://accounts.spotify.com/api/token',
-          revocation_endpoint: this.config.openIdConnectUrl
+          revocation_endpoint: this.config.openIdConnectUrl,
         })
       }
       const configuration = await AuthorizationServiceConfiguration.fetchFromIssuer(

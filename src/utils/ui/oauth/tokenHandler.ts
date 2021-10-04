@@ -7,19 +7,26 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { AppAuthError, AuthorizationServiceConfiguration, BaseTokenRequestHandler, TokenError, TokenErrorJson, TokenRequest, TokenResponse, TokenResponseJson } from "@openid/appauth";
+import { AppAuthError, AuthorizationServiceConfiguration, BaseTokenRequestHandler, QueryStringUtils, Requestor, TokenError, TokenErrorJson, TokenRequest, TokenResponse, TokenResponseJson } from "@openid/appauth";
 
-export class SpotifyTokenRequestHandler extends BaseTokenRequestHandler {
+export class TokenRequestHandlerWClientSecret extends BaseTokenRequestHandler {
+  private clientSecret: string
+
   private isTokenResponseExt(response: TokenResponseJson |
     TokenErrorJson): response is TokenResponseJson {
     return (response as TokenErrorJson).error === undefined;
+  }
+
+  constructor(clientSecret: string, requestor?: Requestor, utils?: QueryStringUtils) {
+    super(requestor, utils)
+    this.clientSecret = clientSecret
   }
 
   async performTokenRequest(configuration: AuthorizationServiceConfiguration, request: TokenRequest): Promise<TokenResponse> {
 
     // Force client-secret in token fetch request
     const reqStrMap = request.toStringMap()
-    reqStrMap['client_secret'] = process.env.SpotifyClientSecret!
+    reqStrMap['client_secret'] = this.clientSecret
 
     const tokenResponse = this.requestor.xhr<TokenResponseJson | TokenErrorJson>({
       url: configuration.tokenEndpoint,
