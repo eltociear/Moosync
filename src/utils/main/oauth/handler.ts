@@ -25,6 +25,7 @@ export class OAuthHandler {
   public handleEvents(data: string) {
     const url = new URL(data)
     const registered = this.callbackRegistry.find(value => value.path === url.hostname || value.path === url.pathname.replaceAll('/', ''))
+    console.log(registered)
     if (registered && !registered.isExtension) {
       WindowHandler.getWindow()?.webContents.send(registered.channelID, data)
     }

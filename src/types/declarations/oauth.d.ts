@@ -7,5 +7,12 @@
  *  See LICENSE in the project root for license information.
  */
 
-type oauthType = 'youtube' | 'spotify'
-type config = { type: oauthType, openIdConnectUrl: string, clientId: string, redirectUri: string, scope: string, keytarService: string, oAuthChannel: string }
+type OAuthProviderConfig = {
+  openIdConnectUrl: string,
+  clientId: string,
+  clientSecret: string
+  redirectUri: string,
+  scope: string,
+  keytarService: string,
+  oAuthChannel: string,
+}

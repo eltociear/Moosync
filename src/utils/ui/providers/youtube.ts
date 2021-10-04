@@ -10,6 +10,7 @@
 import { AuthFlow, AuthStateEmitter } from '@/utils/ui/oauth/flow';
 import { GenericProvider, cache } from '@/utils/ui/providers/genericProvider';
 
+import { AuthorizationServiceConfiguration } from '@openid/appauth';
 import { GenericRecommendation } from './recommendations/genericRecommendations';
 import axios from 'axios';
 import moment from 'moment';
@@ -28,7 +29,33 @@ enum ApiResources {
 }
 
 export class YoutubeProvider implements GenericProvider, GenericRecommendation {
-  private auth = new AuthFlow('youtube')
+  private auth!: AuthFlow | undefined
+
+  private getConfig(oauthChannel: string) {
+    return {
+      openIdConnectUrl: "https://accounts.google.com",
+      clientId: process.env.YoutubeClientID!,
+      clientSecret: process.env.YoutubeClientSecret!,
+      redirectUri:
+        "https://ovenoboyo.github.io/moosync-oauth-redirect/youtube",
+      scope: "https://www.googleapis.com/auth/youtube.readonly",
+      keytarService: 'MoosyncYoutubeRefreshToken',
+      oAuthChannel: oauthChannel,
+    }
+  }
+
+  constructor() {
+    window.WindowUtils.registerOAuthCallback('ytoauth2callback').then(channel => {
+      const serviceConfig = new AuthorizationServiceConfiguration({
+        authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        revocation_endpoint: "https://oauth2.googleapis.com/revoke",
+        token_endpoint: "https://oauth2.googleapis.com/token",
+        userinfo_endpoint: "https://openidconnect.googleapis.com/v1/userinfo"
+      })
+
+      this.auth = new AuthFlow(this.getConfig(channel), serviceConfig)
+    })
+  }
 
   private api = axios.create({
     adapter: cache.adapter,
@@ -37,12 +64,15 @@ export class YoutubeProvider implements GenericProvider, GenericRecommendation {
   })
 
   public get loggedIn() {
-    vxm.providers.loggedInYoutube = this.auth.loggedIn()
-    return this.auth.loggedIn()
+    if (this.auth) {
+      vxm.providers.loggedInYoutube = this.auth.loggedIn()
+      return this.auth.loggedIn()
+    }
+    return false
   }
 
   public async login() {
-    if (!this.loggedIn && this.auth.config) {
+    if (!this.loggedIn && this.auth?.config) {
       const validRefreshToken = await this.auth.hasValidRefreshToken()
       if (validRefreshToken) {
         await this.auth.performWithFreshTokens()
@@ -54,11 +84,11 @@ export class YoutubeProvider implements GenericProvider, GenericRecommendation {
   }
 
   public async signOut() {
-    this.auth.signOut()
+    this.auth?.signOut()
   }
 
   private async populateRequest<K extends ApiResources>(resource: K, search: YoutubeResponses.SearchObject<K>): Promise<YoutubeResponses.ResponseType<K>> {
-    const accessToken = await this.auth.performWithFreshTokens()
+    const accessToken = await this.auth?.performWithFreshTokens()
     const resp = await this.api(resource, {
       params: search.params,
       method: 'GET',
@@ -69,8 +99,8 @@ export class YoutubeProvider implements GenericProvider, GenericRecommendation {
   }
 
   public async getUserDetails(): Promise<string | undefined> {
-    const validRefreshToken = await this.auth.hasValidRefreshToken()
-    if (this.auth.loggedIn() || validRefreshToken) {
+    const validRefreshToken = await this.auth?.hasValidRefreshToken()
+    if (this.auth?.loggedIn() || validRefreshToken) {
       const resp = await this.populateRequest(ApiResources.CHANNELS, {
         params: {
           part: ['id', 'snippet'],
@@ -99,8 +129,8 @@ export class YoutubeProvider implements GenericProvider, GenericRecommendation {
   }
 
   public async getUserPlaylists() {
-    const validRefreshToken = await this.auth.hasValidRefreshToken()
-    if (this.auth.loggedIn() || validRefreshToken) {
+    const validRefreshToken = await this.auth?.hasValidRefreshToken()
+    if (this.auth?.loggedIn() || validRefreshToken) {
       let nextPageToken: string | undefined
       const parsed: YoutubeResponses.UserPlaylists.Item[] = []
       do {
@@ -146,8 +176,8 @@ export class YoutubeProvider implements GenericProvider, GenericRecommendation {
     }
 
     if (id) {
-      const validRefreshToken = await this.auth.hasValidRefreshToken()
-      if (this.auth.loggedIn() || validRefreshToken) {
+      const validRefreshToken = await this.auth?.hasValidRefreshToken()
+      if (this.auth?.loggedIn() || validRefreshToken) {
         let nextPageToken: string | undefined
         do {
           const resp = await this.populateRequest(ApiResources.PLAYLIST_ITEMS, {
@@ -192,8 +222,8 @@ export class YoutubeProvider implements GenericProvider, GenericRecommendation {
   }
 
   private async getSongDetailsFromID(...id: string[]) {
-    const validRefreshToken = await this.auth.hasValidRefreshToken()
-    if (this.auth.loggedIn() || validRefreshToken) {
+    const validRefreshToken = await this.auth?.hasValidRefreshToken()
+    if (this.auth?.loggedIn() || validRefreshToken) {
       const resp = await this.populateRequest(ApiResources.VIDEO_DETAILS, {
         params: {
           part: ['contentDetails', 'snippet'],

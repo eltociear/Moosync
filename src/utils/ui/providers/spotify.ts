@@ -10,6 +10,7 @@
 import { AuthFlow, AuthStateEmitter } from '@/utils/ui/oauth/flow';
 import { GenericProvider, cache } from '@/utils/ui/providers/genericProvider';
 
+import { AuthorizationServiceConfiguration } from '@openid/appauth';
 import { GenericRecommendation } from './recommendations/genericRecommendations';
 import axios from 'axios';
 import { forageStore } from './genericProvider';
@@ -36,7 +37,7 @@ enum ApiResources {
  * API Handler for Spotify.
  */
 export class SpotifyProvider implements GenericProvider, GenericRecommendation {
-  private auth = new AuthFlow('spotify')
+  private auth: AuthFlow | undefined
 
   private api = axios.create({
     adapter: cache.adapter,
@@ -44,13 +45,41 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
     paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'comma' })
   })
 
+  private getConfig(oauthChannel: string) {
+    return {
+      openIdConnectUrl: 'https://accounts.spotify.com/authorize',
+      clientId: process.env.SpotifyClientID!,
+      clientSecret: process.env.SpotifyClientSecret!,
+      redirectUri: "https://ovenoboyo.github.io/moosync-oauth-redirect/spotify",
+      scope: "playlist-read-private user-top-read",
+      keytarService: 'MoosyncSpotifyRefreshToken',
+      oAuthChannel: oauthChannel,
+    }
+  }
+
+  constructor() {
+    window.WindowUtils.registerOAuthCallback('spotifyoauthcallback').then(channel => {
+      const config = this.getConfig(channel)
+      const serviceConfig = new AuthorizationServiceConfiguration({
+        authorization_endpoint: config.openIdConnectUrl,
+        token_endpoint: 'https://accounts.spotify.com/api/token',
+        revocation_endpoint: config.openIdConnectUrl,
+      })
+
+      this.auth = new AuthFlow(config, serviceConfig)
+    })
+  }
+
   public get loggedIn() {
-    vxm.providers.loggedInSpotify = this.auth.loggedIn()
-    return this.auth.loggedIn()
+    if (this.auth) {
+      vxm.providers.loggedInSpotify = this.auth.loggedIn()
+      return this.auth.loggedIn()
+    }
+    return false
   }
 
   public async login() {
-    if (!this.auth.loggedIn() && this.auth.config) {
+    if (!this.auth?.loggedIn() && this.auth?.config) {
       const validRefreshToken = await this.auth.hasValidRefreshToken()
       if (validRefreshToken) {
         await this.auth.performWithFreshTokens()
@@ -62,11 +91,11 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
   }
 
   public async signOut() {
-    this.auth.signOut()
+    this.auth?.signOut()
   }
 
   private async populateRequest<K extends ApiResources>(resource: K, search: SpotifyResponses.SearchObject<K>): Promise<SpotifyResponses.ResponseType<K>> {
-    const accessToken = await this.auth.performWithFreshTokens()
+    const accessToken = await this.auth?.performWithFreshTokens()
 
     let url: string = resource
 
@@ -93,8 +122,8 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
   }
 
   public async getUserDetails(): Promise<string | undefined> {
-    const validRefreshToken = await this.auth.hasValidRefreshToken()
-    if (this.auth.loggedIn() || validRefreshToken) {
+    const validRefreshToken = await this.auth?.hasValidRefreshToken()
+    if (this.auth?.loggedIn() || validRefreshToken) {
       const resp = await this.populateRequest(ApiResources.USER_DETAILS, {
         params: undefined
       })
@@ -118,8 +147,8 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
   }
 
   public async getUserPlaylists(): Promise<Playlist[]> {
-    const validRefreshToken = await this.auth.hasValidRefreshToken()
-    if (this.auth.loggedIn() || validRefreshToken) {
+    const validRefreshToken = await this.auth?.hasValidRefreshToken()
+    if (this.auth?.loggedIn() || validRefreshToken) {
       const resp = await this.populateRequest(ApiResources.PLAYLISTS, {
         params: {}
       })
@@ -178,8 +207,8 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
     }
 
     if (id) {
-      const validRefreshToken = await this.auth.hasValidRefreshToken()
-      if (this.auth.loggedIn() || validRefreshToken) {
+      const validRefreshToken = await this.auth?.hasValidRefreshToken()
+      if (this.auth?.loggedIn() || validRefreshToken) {
 
         // Return directly from cache
         const content = await this.getCachePlaylistContent(id)
@@ -240,8 +269,8 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
     }
 
     if (id) {
-      const validRefreshToken = await this.auth.hasValidRefreshToken()
-      if (this.auth.loggedIn() || validRefreshToken) {
+      const validRefreshToken = await this.auth?.hasValidRefreshToken()
+      if (this.auth?.loggedIn() || validRefreshToken) {
         const resp = await this.populateRequest(ApiResources.PLAYLIST, {
           params: {
             playlist_id: id,
@@ -259,9 +288,9 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
       const split = parsedURL.pathname.split('/')
       const songID = split[split.length - 1]
 
-      const validRefreshToken = await this.auth.hasValidRefreshToken()
+      const validRefreshToken = await this.auth?.hasValidRefreshToken()
 
-      if (this.auth.loggedIn() || validRefreshToken) {
+      if (this.auth?.loggedIn() || validRefreshToken) {
         const resp = await this.populateRequest(ApiResources.SONG_DETAILS, {
           params: {
             song_id: songID,
