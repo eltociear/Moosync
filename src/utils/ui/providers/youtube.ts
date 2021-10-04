@@ -37,7 +37,7 @@ export class YoutubeProvider implements GenericProvider, GenericRecommendation {
       clientId: process.env.YoutubeClientID!,
       clientSecret: process.env.YoutubeClientSecret!,
       redirectUri:
-        "https://ovenoboyo.github.io/moosync-oauth-redirect/youtube",
+        "https://moosync.cf/youtube",
       scope: "https://www.googleapis.com/auth/youtube.readonly",
       keytarService: 'MoosyncYoutubeRefreshToken',
       oAuthChannel: oauthChannel,

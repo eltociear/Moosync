@@ -149,7 +149,7 @@ export class LastFMProvider implements GenericScrobbler, GenericRecommendation {
           resolve(false)
         })
 
-        window.WindowUtils.openExternal(AUTH_BASE_URL + `auth/?api_key=${process.env.LastFmApiKey}&cb=https://ovenoboyo.github.io/moosync-oauth-redirect/lastfm`)
+        window.WindowUtils.openExternal(AUTH_BASE_URL + `auth/?api_key=${process.env.LastFmApiKey}&cb=https://moosync.cf/lastfm`)
       })
     } else {
       return true

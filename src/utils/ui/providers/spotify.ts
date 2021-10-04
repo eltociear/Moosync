@@ -50,7 +50,7 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
       openIdConnectUrl: 'https://accounts.spotify.com/authorize',
       clientId: process.env.SpotifyClientID!,
       clientSecret: process.env.SpotifyClientSecret!,
-      redirectUri: "https://ovenoboyo.github.io/moosync-oauth-redirect/spotify",
+      redirectUri: "https://moosync.cf/spotify",
       scope: "playlist-read-private user-top-read",
       keytarService: 'MoosyncSpotifyRefreshToken',
       oAuthChannel: oauthChannel,
