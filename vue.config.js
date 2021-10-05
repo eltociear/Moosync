@@ -49,8 +49,8 @@ module.exports = {
         },
         publish: [{
           provider: 'github',
-          owner: 'ovenoboyo',
-          repo: 'moosync',
+          owner: 'Moosync',
+          repo: 'moosync-app',
           vPrefixedTagName: true,
           releaseType: "draft"
         }],
