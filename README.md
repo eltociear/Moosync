@@ -1,5 +1,5 @@
-# moosync
+# Moosync
 
-Moved to [Moosync](https://github.com/Moosync/moosync/)
+A simple music player
 
 
