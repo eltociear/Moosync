@@ -40,6 +40,12 @@ export abstract class GenericProvider {
   public abstract signOut(): Promise<void>
 
   /**
+   * Updates config before calling login
+   * Method can be used to update config last moment before login
+   */
+  public abstract updateConfig(): Promise<void>
+
+  /**
    * Gets user details from the provider
    * @returns username as string
    */

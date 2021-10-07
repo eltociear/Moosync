@@ -56,6 +56,7 @@ export class YoutubeProvider implements GenericProvider, GenericRecommendation {
       this.auth = new AuthFlow(this.getConfig(channel), serviceConfig)
     })
   }
+  public async updateConfig(): Promise<void> { }
 
   private api = axios.create({
     adapter: cache.adapter,

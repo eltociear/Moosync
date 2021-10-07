@@ -24,8 +24,6 @@ module.exports = {
         'process.browser': 'true',
         'process.env.YoutubeClientID': JSON.stringify(dotenv.parsed['YOUTUBECLIENTID']),
         'process.env.YoutubeClientSecret': JSON.stringify(dotenv.parsed['YOUTUBECLIENTSECRET']),
-        'process.env.SpotifyClientID': JSON.stringify(dotenv.parsed['SPOTIFYCLIENTID']),
-        'process.env.SpotifyClientSecret': JSON.stringify(dotenv.parsed['SPOTIFYCLIENTSECRET']),
         'process.env.LastFmApiKey': JSON.stringify(dotenv.parsed['LASTFMAPIKEY']),
         'process.env.LastFmSecret': JSON.stringify(dotenv.parsed['LASTFMSECRET'])
 

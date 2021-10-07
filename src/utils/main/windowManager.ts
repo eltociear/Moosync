@@ -8,11 +8,11 @@
  */
 
 import { BrowserWindow, Menu, Tray, app, dialog, protocol } from 'electron';
+import { SongEvents, WindowEvents } from './ipc/constants';
 import { getWindowSize, setWindowSize } from './db/preferences';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 
 import { BrowserWindowConstructorOptions } from 'electron/main';
-import { SongEvents } from './ipc/constants';
 import path from 'path';
 
 export class WindowHandler {
@@ -126,9 +126,10 @@ export class WindowHandler {
     WindowHandler.getWindow() && WindowHandler.getWindow()!.webContents.send(channel, arg)
   }
 
-  public async createWindow(isMainWindow: boolean = true) {
+  public async createWindow(isMainWindow: boolean = true, args?: any) {
+    let win: BrowserWindow
     if (!WindowHandler.getWindow(isMainWindow) || WindowHandler.getWindow(isMainWindow)?.isDestroyed()) {
-      const win = new BrowserWindow(isMainWindow ? this.mainWindowProps : this.prefWindowProps)
+      win = new BrowserWindow(isMainWindow ? this.mainWindowProps : this.prefWindowProps)
 
       await win.loadURL(this.getWindowURL(isMainWindow))
 
@@ -143,8 +144,11 @@ export class WindowHandler {
 
       this.attachWindowEvents(win, isMainWindow)
     } else {
-      WindowHandler.getWindow(isMainWindow)?.focus()
+      win = WindowHandler.getWindow(isMainWindow)!
+      win.focus()
     }
+
+    win.webContents.send(WindowEvents.GOT_EXTRA_ARGS, args)
   }
 
   private handleWindowClose(event: Event, window: BrowserWindow, isMainWindow: boolean) {

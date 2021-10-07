@@ -38,6 +38,7 @@ enum ApiResources {
  */
 export class SpotifyProvider implements GenericProvider, GenericRecommendation {
   private auth: AuthFlow | undefined
+  private _config: any
 
   private api = axios.create({
     adapter: cache.adapter,
@@ -45,11 +46,11 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
     paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'comma' })
   })
 
-  private getConfig(oauthChannel: string) {
+  private getConfig(oauthChannel: string, id: string, secret: string) {
     return {
       openIdConnectUrl: 'https://accounts.spotify.com/authorize',
-      clientId: process.env.SpotifyClientID!,
-      clientSecret: process.env.SpotifyClientSecret!,
+      clientId: id,
+      clientSecret: secret,
       redirectUri: "https://moosync.cf/spotify",
       scope: "playlist-read-private user-top-read",
       keytarService: 'MoosyncSpotifyRefreshToken',
@@ -57,17 +58,18 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
     }
   }
 
-  constructor() {
-    window.WindowUtils.registerOAuthCallback('spotifyoauthcallback').then(channel => {
-      const config = this.getConfig(channel)
-      const serviceConfig = new AuthorizationServiceConfiguration({
-        authorization_endpoint: config.openIdConnectUrl,
-        token_endpoint: 'https://accounts.spotify.com/api/token',
-        revocation_endpoint: config.openIdConnectUrl,
-      })
+  public async updateConfig() {
+    const conf = await window.PreferenceUtils.loadSelective('spotify') as { client_id: string, client_secret: string }
+    const channel = await window.WindowUtils.registerOAuthCallback('spotifyoauthcallback')
+    this._config = this.getConfig(channel, conf.client_id, conf.client_secret)
 
-      this.auth = new AuthFlow(config, serviceConfig)
+    const serviceConfig = new AuthorizationServiceConfiguration({
+      authorization_endpoint: this._config.openIdConnectUrl,
+      token_endpoint: 'https://accounts.spotify.com/api/token',
+      revocation_endpoint: this._config.openIdConnectUrl,
     })
+
+    this.auth = new AuthFlow(this._config, serviceConfig)
   }
 
   public get loggedIn() {

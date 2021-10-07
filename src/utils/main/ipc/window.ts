@@ -56,7 +56,7 @@ export class BrowserWindowChannel implements IpcChannelInterface {
   }
 
   private async openWindow(event: Electron.IpcMainEvent, request: IpcRequest) {
-    _windowHandler.createWindow(!!request.params.isMainWindow)
+    _windowHandler.createWindow(!!request.params.isMainWindow, request.params.args)
     event.reply(request.responseChannel, null)
   }
 

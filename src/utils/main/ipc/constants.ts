@@ -75,7 +75,9 @@ export enum WindowEvents {
   DEREGISTER_OAUTH_CALLBACK = 'deregisterOAuthCallback',
   MAIN_WINDOW_HAS_MOUNTED = 'mainWindowsHasMounted',
 
-  IS_MAXIMIZED = 'isMaximized'
+  IS_MAXIMIZED = 'isMaximized',
+
+  GOT_EXTRA_ARGS = 'gotExtraArgs'
 }
 
 export enum AlbumEvents {

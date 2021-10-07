@@ -17,6 +17,7 @@ import { mixins } from 'vue-class-component'
 import ThemeHandler from '@/utils/ui/mixins/ThemeHandler'
 import Sidebar from '@/preferenceWindow/components/Sidebar.vue'
 import Vue from 'vue'
+import path from 'path'
 
 Vue.directive('click-outside', {
   bind: function (el: any, binding) {
@@ -48,6 +49,15 @@ export default class App extends mixins(ThemeHandler) {
   mounted() {
     this.$root.$on('themeChanged', this.fetchThemeFromID)
     this.registerDevTools()
+    this.listenArgs()
+  }
+
+  private listenArgs() {
+    window.WindowUtils.listenArgs((args) => {
+      if (args.page) {
+        this.$router.push(args.page)
+      }
+    })
   }
 
   private registerDevTools() {

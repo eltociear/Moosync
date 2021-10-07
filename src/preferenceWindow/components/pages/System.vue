@@ -10,6 +10,9 @@
             :defaultValue="checkboxValues"
             prefKey="system"
           />
+
+          <EditText class="mt-5 mb-3" :isExtension="false" title="Spotify Client ID" prefKey="spotify.client_id" />
+          <EditText :isExtension="false" title="Spotify Client Secret" prefKey="spotify.client_secret" />
         </div>
       </b-row>
     </b-container>
@@ -20,10 +23,14 @@
 import { Component } from 'vue-property-decorator'
 import Vue from 'vue'
 import CheckboxGroup from '../CheckboxGroup.vue'
+import EditText from '../EditText.vue'
+import PreferenceHeader from '../PreferenceHeader.vue'
 
 @Component({
   components: {
-    CheckboxGroup
+    CheckboxGroup,
+    EditText,
+    PreferenceHeader
   }
 })
 export default class System extends Vue {

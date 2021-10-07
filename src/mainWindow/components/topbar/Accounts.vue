@@ -78,12 +78,18 @@ export default class TopBar extends Vue {
     return vxm.providers.lastfmProvider
   }
 
-  private handleSpotifyClick() {
-    if (!this.spotify.loggedIn) {
-      this.loginSpotify()
-      return
+  private async handleSpotifyClick() {
+    const tmp = (await window.PreferenceUtils.loadSelective('spotify')) as { client_id: string; client_secret: string }
+    if (tmp.client_id && tmp.client_secret) {
+      if (!this.spotify.loggedIn) {
+        await this.spotify.updateConfig()
+        this.loginSpotify()
+        return
+      }
+      this.signOutSpotify()
+    } else {
+      window.WindowUtils.openWindow(false, { page: 'system' })
     }
-    this.signOutSpotify()
   }
 
   private async handleLastFmClick() {

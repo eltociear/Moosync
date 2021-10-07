@@ -99,7 +99,7 @@ contextBridge.exposeInMainWorld('ThemeUtils', {
 })
 
 contextBridge.exposeInMainWorld('WindowUtils', {
-  openWindow: (isMainWindow: boolean) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.OPEN_WIN, params: { isMainWindow } }),
+  openWindow: (isMainWindow: boolean, args?: any) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.OPEN_WIN, params: { isMainWindow, args } }),
   closeWindow: (isMainWindow: boolean) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.CLOSE_WIN, params: { isMainWindow } }),
   minWindow: (isMainWindow: boolean) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.MIN_WIN, params: { isMainWindow } }),
   maxWindow: (isMainWindow: boolean) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.MAX_WIN, params: { isMainWindow } }),
@@ -110,6 +110,7 @@ contextBridge.exposeInMainWorld('WindowUtils', {
   registerOAuthCallback: (path: string) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.REGISTER_OAUTH_CALLBACK, params: { path } }),
   deregisterOAuthCallback: (path: string) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.DEREGISTER_OAUTH_CALLBACK, params: { path } }),
   listenOAuth: (channelID: string, callback: (data: URL) => void) => ipcRendererHolder.once(channelID, callback),
+  listenArgs: (callback: (args: any) => void) => ipcRendererHolder.once(WindowEvents.GOT_EXTRA_ARGS, callback),
   mainWindowHasMounted: () => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.MAIN_WINDOW_HAS_MOUNTED })
 })
 

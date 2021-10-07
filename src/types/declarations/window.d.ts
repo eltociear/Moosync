@@ -162,7 +162,7 @@ interface store {
  * Utils related to window operations
  */
 interface windowUtils {
-  openWindow: (isMainWindow: boolean) => Promise<void>
+  openWindow: (isMainWindow: boolean, args?: any) => Promise<void>
   closeWindow: (isMainWindow: boolean) => Promise<void>
   minWindow: (isMainWindow: boolean) => Promise<void>
   maxWindow: (isMainWindow: boolean) => Promise<boolean>
@@ -172,6 +172,7 @@ interface windowUtils {
   registerOAuthCallback: (path: string) => Promise<string>
   deregisterOAuthCallback: (path: string) => Promise<void>
   listenOAuth: (channelID: string, callback: (data: string) => void) => void
+  listenArgs: (callback: (args: any) => void) => void
   mainWindowHasMounted: () => Promise<void>
   isWindowMaximized: (isMainWindow: boolean) => Promise<boolean>
 }
