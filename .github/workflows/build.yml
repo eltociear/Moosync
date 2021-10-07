@@ -1,0 +1,92 @@
+name: Build/release
+
+on: push
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+
+      - name: Get yarn cache dir
+        id: yarn-cache
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Yarn cache
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.yarn-cache.outputs.dir }}
+          key: ${{ runner.os }}-yarn-node${{ matrix.node }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-node${{ matrix.node }}-
+      - name: yarn install
+        run: yarn install
+      - name: setup env
+        env:
+          YOUTUBECLIENTID: '${{ secrets.YOUTUBECLIENTID }}'
+          LASTFMAPIKEY: '${{ secrets.LASTFMAPIKEY }}'
+          LASTFMSECRET: '${{ secrets.LASTFMSECRET }}'
+          YOUTUBECLIENTSECRET: '${{ secrets.YOUTUBECLIENTSECRET }}'
+          SPOTIFYCLIENTID: '${{ secrets.SPOTIFYCLIENTID }}'
+          SPOTIFYCLIENTSECRET: '${{ secrets.SPOTIFYCLIENTSECRET }}'
+        run: chmod +x setup_env.sh && . setup_env.sh
+        shell: bash
+      - name: install snapcraft
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt update && sudo apt install -y snapd && sudo snap install snapcraft --classic
+          fi
+        shell: bash
+      - name: yarn electron:build
+        run: yarn electron:build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CI: true
+      - uses: actions/upload-artifact@v2
+        if: ${{ runner.os == 'Windows' }}
+        with:
+          name: Windows Exe
+          path: |
+            dist_electron/*.exe
+            dist_electron/latest*.yml
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ runner.os == 'Linux' }}
+        with:
+          name: Linux Snap
+          path: dist_electron/*.snap
+      - uses: actions/upload-artifact@v2
+        if: ${{ runner.os == 'Linux' }}
+        with:
+          name: Linux AppImage
+          path: |
+            dist_electron/*.AppImage
+            dist_electron/latest*.yml
+      - uses: actions/upload-artifact@v2
+        if: ${{ runner.os == 'Linux' }}
+        with:
+          name: Linux tar.gz
+          path: dist_electron/*.tar.gz
+      - uses: actions/upload-artifact@v2
+        if: ${{ runner.os == 'Linux' }}
+        with:
+          name: Linux Deb
+          path: dist_electron/*.deb
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ runner.os == 'macOS' }}
+        with:
+          name: MacOS Dmg
+          path: |
+            dist_electron/*.dmg
+            dist_electron/latest*.yml

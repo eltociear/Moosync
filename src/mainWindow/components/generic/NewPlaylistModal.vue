@@ -1,0 +1,268 @@
+<template>
+  <b-modal class="playlist-modal" centered size="lg" :id="id" :ref="id" hide-footer hide-header>
+    <div class="modal-content-container">
+      <b-container fluid class="p-0">
+        <b-row no-gutters class="d-flex">
+          <canvas
+            crossorigin="anonymous"
+            v-if="!forceEmptyImg"
+            ref="canvas"
+            width="800"
+            height="800"
+            id="playlist-cover"
+            class="playlist-cover"
+          ></canvas>
+          <SongDefault v-if="forceEmptyImg" class="playlist-cover" />
+          <b-col class="playlist-details">
+            <div class="d-flex">
+              <b-input
+                v-model="title"
+                id="playlist-title"
+                class="playlist-title"
+                maxlength="20"
+                placeholder="Playlist Name..."
+                onkeypress="this.style.width = this.value.length + 'ch'"
+              />
+            </div>
+            <p class="songs-count">{{ songCount }} {{ songCount == 1 ? 'Song' : 'Songs' }}</p>
+          </b-col>
+        </b-row>
+        <b-row no-gutters>
+          <b-form-textarea
+            class="playlist-desc"
+            id="playlist-desc"
+            v-model="desc"
+            placeholder="Description..."
+            rows="3"
+            max-rows="6"
+          ></b-form-textarea>
+        </b-row>
+      </b-container>
+      <b-button class="create-button" @click="createPlaylist">Create</b-button>
+    </div>
+  </b-modal>
+</template>
+
+<script lang="ts">
+import { EventBus } from '@/utils/main/ipc/constants'
+import { Component, Prop, Ref } from 'vue-property-decorator'
+import { mixins } from 'vue-class-component'
+import { bus } from '@/mainWindow/main'
+import { vxm } from '@/mainWindow/store'
+import SongDefault from '@/icons/SongDefault.vue'
+import ImgLoader from '@/utils/ui/mixins/ImageLoader'
+
+@Component({
+  components: {
+    SongDefault
+  }
+})
+export default class NewPlaylistModal extends mixins(ImgLoader) {
+  @Prop({ default: 'NewPlaylistModal' })
+  private id!: string
+
+  private title: string = 'New Playlist'
+  private desc: string = ''
+
+  private songs: Song[] = []
+  private songCount: number = 0
+
+  private forceEmptyImg: boolean = true
+
+  private showing: boolean = false
+
+  @Ref('canvas') private canvas!: HTMLCanvasElement
+
+  private isDuplicatePlaylistName(): boolean {
+    for (const playlist of Object.values(vxm.playlist.playlists)) {
+      if (this.title === playlist) {
+        return true
+      }
+    }
+    return false
+  }
+
+  private async createPlaylist() {
+    const data = this.canvas.toDataURL('image/png')
+    let path = await window.FileUtils.savePlaylistCover(data)
+
+    let playlist_id = await window.DBUtils.createPlaylist(this.title, this.desc, path)
+    this.addToPlaylist(playlist_id, this.songs)
+
+    this.$bvModal.hide(this.id)
+    vxm.playlist.updated = true
+  }
+
+  private handleImageError() {
+    this.forceEmptyImg = true
+  }
+
+  private getValidImages() {
+    let mergableImages: string[] = []
+    for (const song of this.songs) {
+      const cover = this.getValidImageHigh(song)
+      if (cover) mergableImages.push(cover)
+    }
+    return mergableImages.slice(0, 4)
+  }
+
+  private async createImage(src: string, quad: number, len: number, ctx: CanvasRenderingContext2D) {
+    let img = new Image()
+    img.onload = () => this.drawImage(quad, len, ctx, img)
+    img.crossOrigin = ''
+    img.src = this.getImgSrc(src)
+  }
+
+  private isExpandedImage(quad: number, len: number) {
+    if (len === 3) {
+      return quad === 1
+    }
+
+    if (len < 3) return true
+
+    return false
+  }
+
+  private getImageSize(quad: number, len: number) {
+    return this.isExpandedImage(quad, len) ? 800 : 400
+  }
+
+  private drawImage(quad: number, len: number, ctx: CanvasRenderingContext2D, img: HTMLImageElement) {
+    let size = this.getImageSize(quad, len)
+    switch (quad) {
+      case 0:
+        ctx.drawImage(img, 0, 0, size, size)
+        break
+      case 1:
+        ctx.drawImage(img, 400, 0, size, size)
+        break
+      case 2:
+        ctx.drawImage(img, 0, 400, size, size)
+        break
+      case 3:
+        ctx.drawImage(img, 400, 400, size, size)
+        break
+    }
+  }
+
+  private drawWholeImage(ctx: CanvasRenderingContext2D, src: string) {
+    let img = new Image()
+    img.src = this.getImgSrc(src)
+    img.onload = () => ctx.drawImage(img, 0, 0, 800, 800)
+  }
+
+  private mergeImages() {
+    let mergableImages = this.getValidImages()
+    if (mergableImages.length === 0) {
+      this.forceEmptyImg = true
+    } else {
+      if (this.canvas) {
+        let ctx = this.canvas.getContext('2d')
+        ctx!.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        for (let i = 0; i < mergableImages.length; i++)
+          this.createImage(mergableImages[i], i, mergableImages.length, ctx!)
+      }
+    }
+  }
+
+  private async addToPlaylist(playlist_id: string, songs: Song[]) {
+    await window.DBUtils.storeSongs(songs.filter((val) => val.type !== 'LOCAL'))
+    await window.DBUtils.addToPlaylist(playlist_id, ...songs)
+  }
+
+  mounted() {
+    bus.$on(EventBus.SHOW_NEW_PLAYLIST_MODAL, (songs: Song[]) => {
+      if (!this.showing) {
+        this.songs = songs
+        this.songCount = songs.length
+        this.forceEmptyImg = false
+        this.desc = ''
+        this.title = 'New Playlist'
+
+        this.$nextTick(() => this.mergeImages())
+
+        for (let i = 1; this.isDuplicatePlaylistName(); i++) {
+          this.title = `New Playlist ${i}`
+        }
+
+        this.$bvModal.show(this.id)
+      }
+    })
+  }
+}
+</script>
+
+<style lang="sass" scoped>
+.topbar-container
+  background: var(--primary)
+  height: 70px
+  padding-left: calc(261px + 30px + 7.5px)
+
+.modal-content-container
+  margin: 35px 35px 35px 35px
+
+.playlist-cover
+  width: 157px
+  height: 157px
+  border-radius: 16px
+
+.playlist-desc
+  width: 100%
+  background-color: transparent
+  color: var(--textPrimary)
+  border: 0
+  padding: 0
+  padding-left: 10px
+  margin-top: 15px
+  border-radius: 0
+  border-left: 1px solid transparent
+  &:focus
+    -webkit-box-shadow: none
+    box-shadow: none
+  &:hover
+    border-left: 1px solid var(--accent)
+  &::-webkit-scrollbar-track
+    margin-top: 0
+
+.playlist-details
+  margin-left: 40px
+  max-width: 100%
+
+.songs-count
+  font-size: 14px
+  text-align: start
+
+.edit-icon
+  width: 15px
+  height: 15px
+  min-width: 15px
+  min-height: 15px
+  margin-left: 15px
+  margin-top: 5px
+
+.playlist-title
+  font-size: 26px
+  max-width: 100%
+  margin-bottom: 15px !important
+  color: var(--textPrimary)
+  background-color: transparent
+  border: 0
+  border-bottom: 1px solid transparent
+  border-radius: 0
+  padding: 0
+  &:hover
+    border-bottom: 1px solid var(--accent)
+  &:focus
+    outline: none
+    -webkit-box-shadow: none
+
+.create-button
+  font-size: 16px
+  color: var(--textInverse)
+  background-color: var(--accent)
+  border-radius: 6px
+  float: right
+  margin-bottom: 20px
+  margin-top: 15px
+  border: 0
+</style>

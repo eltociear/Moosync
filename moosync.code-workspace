@@ -1,29 +1,88 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {
-		"eslint.validate": [
-			"javascript",
-			"vue"
-		],
-		"prettier.configPath": ".prettierrc.json",
-		"editor.tabSize": 2,
-		"cSpell.words": [
-			"ALLSONGS",
-			"musicmetadata",
-			"vuesax"
-		]
-	},
-	"extensions": {
-		"recommendations": [
-			"dbaeumer.vscode-eslint",
-			"digitalbrainstem.ejs-vue",
-			"waderyan.nodejs-extension-pack",
-			"octref.vetur",
-			"lauren.vue-pack"
-		]
-	},
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "eslint.validate": [
+      "javascript",
+      "vue"
+    ],
+    "editor.tabSize": 2,
+    "cSpell.words": [
+      "ALLSONGS",
+      "appauth",
+      "autoload",
+      "Brainz",
+      "Dets",
+      "deviceno",
+      "Embeddable",
+      "Errored",
+      "Fragmenter",
+      "Gupte",
+      "INDEXEDDB",
+      "initalize",
+      "inode",
+      "keytar",
+      "lastfm",
+      "LASTFMAPIKEY",
+      "LASTFMSECRET",
+      "localforage",
+      "LOCALSTORAGE",
+      "maximizable",
+      "maxres",
+      "MBID",
+      "minimizable",
+      "minisong",
+      "mixins",
+      "Musicbrainz",
+      "musicmetadata",
+      "Notif",
+      "obeserver",
+      "playlinks",
+      "Prefs",
+      "preloads",
+      "Queryable",
+      "Sahil",
+      "scrobble",
+      "Scrobbler",
+      "scrobblers",
+      "Serializable",
+      "shvl",
+      "snapcraft",
+      "Spotify",
+      "SPOTIFYCLIENTID",
+      "SPOTIFYCLIENTSECRET",
+      "spotifyoauthcallback",
+      "Titlebar",
+      "unintercept",
+      "unmarshaled",
+      "vuesax",
+      "Vuex",
+      "youtu",
+      "Youtube",
+      "YOUTUBECLIENTID",
+      "YOUTUBECLIENTSECRET",
+      "ytdl",
+      "ytoauth"
+    ],
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "typescript.tsdk": "node_modules\\typescript\\lib",
+    "[vue]": {
+      "editor.defaultFormatter": "octref.vetur"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "digitalbrainstem.ejs-vue",
+      "waderyan.nodejs-extension-pack",
+      "octref.vetur",
+      "lauren.vue-pack",
+      "ms-vscode.vscode-typescript-next",
+      "rbbit.typescript-hero"
+    ]
+  }
 }

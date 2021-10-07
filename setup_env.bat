@@ -1,0 +1,5 @@
+@echo YOUTUBECLIENTID=\'%YOUTUBECLIENTID%\' >> config.env
+@echo SPOTIFYCLIENTID=\'%SPOTIFYCLIENTID%\' >> config.env
+@echo SPOTIFYCLIENTSECRET=%SPOTIFYCLIENTSECRET%\' >> config.env
+@echo LASTFMAPIKEY=\'%LASTFMAPIKEY%\' >> config.env
+@echo LASTFMSECRET=\'%LASTFMSECRET%\' >> config.env

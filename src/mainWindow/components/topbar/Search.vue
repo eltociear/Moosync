@@ -1,0 +1,187 @@
+<template>
+  <div class="h-100 d-flex align-items-center search-container">
+    <div class="w-100 searchbar-container" :class="showSearchResults ? 'half-border' : 'full-border'">
+      <Search class="search-icon" />
+      <b-form-input
+        class="searchbar"
+        placeholder="Search..."
+        type="text"
+        v-model="inputText"
+        debounce="300"
+        ref="inputfield"
+        @update="onTextChange"
+        @blur="handleInputFocus"
+        @focus="handleInputFocus"
+        @keyup.enter="openSearchPage"
+      />
+    </div>
+    <div class="search-results d-flex" :class="showSearchResults ? 'search-visible' : 'search-invisible'">
+      <div v-if="results && results.length !== 0" class="w-100">
+        <RecycleScroller
+          class="scroller"
+          :items="results"
+          :item-size="83"
+          key-field="_id"
+          v-slot="{ item, index }"
+          :direction="'vertical'"
+        >
+          <SingleSearchResult
+            class="single-result"
+            :title="item.title"
+            :subtitle="item.artists ? item.artists.join(', ') : ''"
+            :coverImg="getImgSrc(getValidImageLow(item))"
+            :divider="index != results.length - 1"
+            :id="index"
+            @imgClick="handleClick"
+          />
+        </RecycleScroller>
+      </div>
+      <div class="w-100 text-center" v-else>No Results found</div>
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { Component } from 'vue-property-decorator'
+import Search from '@/icons/Search.vue'
+import SingleSearchResult from '@/mainWindow/components/generic/SingleSearchResult.vue'
+import { mixins } from 'vue-class-component'
+import PlayerControls from '@/utils/ui/mixins/PlayerControls'
+import ImgLoader from '@/utils/ui/mixins/ImageLoader'
+
+@Component({
+  components: {
+    Search,
+    SingleSearchResult
+  }
+})
+export default class Sidebar extends mixins(PlayerControls, ImgLoader) {
+  private showSearchResults: boolean = false
+  private results: Song[] = []
+  private inputText: string = ''
+
+  private handleInputFocus(event: FocusEvent) {
+    switch (event.type) {
+      case 'blur':
+        this.showSearchResults = false
+        break
+      case 'focus':
+        this.showSearchResults = this.results.length > 0 ? true : false
+        break
+    }
+  }
+
+  private handleClick(index: any) {
+    this.playTop([this.results![index]])
+  }
+
+  private openSearchPage() {
+    this.$router
+      .push({
+        name: 'search',
+        query: {
+          search_term: this.inputText
+        }
+      })
+      .catch(() => {})
+    this.showSearchResults = false
+  }
+  private async onTextChange(value: string) {
+    if (value) {
+      this.showSearchResults = true
+      this.results = await window.SearchUtils.searchSongsByOptions({
+        album: {
+          album_name: value
+        },
+        artist: {
+          artist_name: value
+        },
+        genre: {
+          genre_name: value
+        },
+        playlist: {
+          playlist_name: value
+        },
+        song: {
+          path: value
+        }
+      })
+    } else {
+      this.showSearchResults = false
+      this.results = []
+    }
+  }
+}
+</script>
+
+<style lang="sass" scoped>
+.scroller
+  height: 100%
+  &::-webkit-scrollbar-track
+    margin-top: 0
+    margin-bottom: 18px
+    background: var(--secondary)
+
+.searchbar
+  color: var(--textPrimary) !important
+  background: rgba(0, 0, 0, 0)
+  border: none
+  height: 24px
+  margin-top: -12px
+  width: calc(100% - 24px - 18px - 15px)
+  position: absolute
+  transition: background 0.3s cubic-bezier(0.39, 0.58, 0.57, 1), border-radius 1000ms
+  text-align: left
+  top: 50%
+  box-shadow: none
+  margin-left: calc(24px + 18px)
+  &::-webkit-input-placeholder
+    color: var(--textSecondary)
+  &:focus
+    background: rgba(0, 0, 0, 0) !important
+    outline: 0
+
+.full-border
+  border-radius: 58px
+
+.half-border
+  border-radius: 18px 18px 0 0
+  box-shadow: 0px -2px 17px 0px rgb(0 0 0 / 27%) !important
+
+.search-icon
+  position: absolute
+  height: 24px
+  top: 50%
+  left: 0
+  margin-top: -12px
+  margin-left: 15px
+
+.search-results
+  position: absolute
+  top: 50px
+  padding: 0.375rem 0.75rem
+  width: 100%
+  background: var(--secondary)
+  border-radius: 0 0 18px 18px
+  box-shadow: 0 4px 6px rgb(32 33 36 / 28%)
+  max-height: 60vh
+  overflow: hidden
+
+.search-invisible
+  visibility: hidden
+  opacity: 0
+  transition: visibility 0s linear 300ms, opacity 300ms
+
+.search-visible
+  visibility: visible
+  opacity: 1
+  transition: visibility 0s linear 0s, opacity 300ms
+
+.searchbar-container
+  height: 50px
+  background: var(--secondary)
+  position: relative
+
+.search-container
+  position: relative
+</style>

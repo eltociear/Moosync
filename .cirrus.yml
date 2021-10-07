@@ -1,0 +1,45 @@
+win_linux_task:
+  matrix:
+    - container:
+        image: node:latest
+      node_modules_cache:
+        folder: node_modules
+        fingerprint_script: cat yarn.lock
+        populate_script: yarn install
+      build_script:
+        - chmod +x setup_env.sh && . setup_env.sh && yarn postinstall && yarn electron:build
+      deb_artifacts:
+        path: dist_electron/*.deb
+      appimg_artifacts:
+        path: dist_electron/*.AppImage
+
+    - macos_instance:
+        image: big-sur-base
+      dep_script: brew update && brew install node && npm install --global yarn
+      node_modules_cache:
+        folder: node_modules
+        fingerprint_script: cat yarn.lock
+        populate_script: yarn install
+      build_script: chmod +x setup_env.sh && . setup_env.sh && yarn postinstall && yarn electron:build
+      dmg_artifacts:
+        path: dist_electron/*.dmg
+
+    - windows_container:
+        image: cirrusci/windowsservercore:visualstudio2019
+        os_version: '2019'
+      dep_script: choco install -y nodejs yarn python visualcpp-build-tools
+      node_modules_cache:
+        folder: node_modules
+        fingerprint_script: type yarn.lock
+        populate_script:
+          - refreshenv
+          - yarn install
+      build_script:
+        - refreshenv
+        - setup_env.bat
+        - yarn postinstall && yarn electron:build
+      exe_artifacts:
+        path: dist_electron/*.exe
+
+  environment:
+    GH_TOKEN: ENCRYPTED[f9d4f0ca3fd272d39f66d7e1eb34fa5ce7007601466c3fbbab089e71f131bd50070e746ddac5d3514d9544e2f6a06835]
