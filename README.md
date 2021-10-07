@@ -2,6 +2,22 @@
 
 Moosync is an [Electron](https://www.electronjs.org/) based simple music player with a primary goal to provide a clean and easy interface. Through Moosync you can easily listen songs from your desktop or through Youtube and Spotify.
 
+## Table of contents
+
+- [Moosync](#moosync)
+  - [Table of contents](#table-of-contents)
+  - [Features](#features)
+  - [Enabling Spotify integration](#enabling-spotify-integration)
+    - [Creating an app on Spotify developer portal](#creating-an-app-on-spotify-developer-portal)
+  - [Building from source](#building-from-source)
+    - [Requirements](#requirements)
+    - [Setting up the project](#setting-up-the-project)
+    - [Downloading dependencies](#downloading-dependencies)
+    - [Setting up environment variables](#setting-up-environment-variables)
+    - [Post installation (Optional)](#post-installation-optional)
+    - [Running in development environment](#running-in-development-environment)
+    - [Building a production build](#building-a-production-build)
+
 ## Features
 
 - Play audio files on your desktop.
@@ -49,7 +65,7 @@ You can add your alternate accounts under **Users and Access** and use the same 
 
 - [NodeJS](https://nodejs.org/en/)
 - Package manager like [Yarn](https://yarnpkg.com/getting-started/install) or [NPM](https://www.npmjs.com/)
-  
+
 ### Setting up the project
 
 Clone the project from github
