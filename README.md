@@ -7,6 +7,7 @@ Moosync is an [Electron](https://www.electronjs.org/) based simple music player 
 - [Moosync](#moosync)
   - [Table of contents](#table-of-contents)
   - [Features](#features)
+  - [Download latest release](#download-latest-release)
   - [Enabling Spotify integration](#enabling-spotify-integration)
     - [Creating an app on Spotify developer portal](#creating-an-app-on-spotify-developer-portal)
   - [Building from source](#building-from-source)
@@ -17,6 +18,7 @@ Moosync is an [Electron](https://www.electronjs.org/) based simple music player 
     - [Post installation (Optional)](#post-installation-optional)
     - [Running in development environment](#running-in-development-environment)
     - [Building a production build](#building-a-production-build)
+    - [Developing extensions](#developing-extensions)
 
 ## Features
 
@@ -31,6 +33,10 @@ Moosync is an [Electron](https://www.electronjs.org/) based simple music player 
 - Customizable theme engine
 - Develop own apps on top of Moosync Extension API
 - Available on Windows and Linux
+
+## Download latest release
+
+**The latest release can be found under [Releases](https://github.com/Moosync/Moosync/releases) section**
 
 ## Enabling Spotify integration
 
@@ -116,3 +122,15 @@ To generate a production optimized version run
 ``` bash
 yarn electron:build
 ```
+
+### Developing extensions
+
+It is recommended to write your extensions using [Typescript](https://www.typescriptlang.org/).
+
+Typescript is Javascript but with strict typechecking which helps in preventing some (but not all) runtime errors.
+
+Types for Extension API can be found [here](https://github.com/Moosync/extension-api-types)
+
+A sample extension can be found [here](https://github.com/Moosync/extension-typescript-template)
+
+More details about extension lifecycle can be found in the sample template
