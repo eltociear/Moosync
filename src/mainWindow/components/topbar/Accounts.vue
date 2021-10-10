@@ -23,7 +23,7 @@
           @click.native="handleLastFmClick"
           bgColor="#BA0000"
           :title="lastFmName ? lastFmName : 'Connect'"
-          :hoverText="spotify.loggedIn ? 'Sign Out' : 'LastFM'"
+          :hoverText="lastFm.loggedIn ? 'Sign Out' : 'LastFM'"
         >
           <template slot="icon"> <LastFMIcon /> </template>
         </IconButton>
