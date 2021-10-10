@@ -1,8 +1,15 @@
 const webpack = require('webpack');
 const ThreadsPlugin = require('threads-plugin')
 const dotenv = require('dotenv').config({ path: __dirname + '/config.env' });
+const fs = require('fs')
 
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
+const archElectronConfig = {}
+if (fs.existsSync('/usr/lib/electron13') && fs.existsSync('/usr/lib/electron13/version')) {
+  archElectronConfig.electronDist = '/usr/lib/electron13'
+  archElectronConfig.electronVersion = fs.readFileSync('/usr/lib/electron13/version', { encoding: 'utf-8' }).replace('v', '')
+}
 
 module.exports = {
   runtimeCompiler: true,
@@ -38,6 +45,7 @@ module.exports = {
       mainProcessWatch: ['src/utils/main', 'src/utils/extensions'],
       customFileProtocol: 'com.moosync://./',
       builderOptions: {
+        ...archElectronConfig,
         productName: 'Moosync',
         mac: {
           icon: "build/icons//512x512.png",
