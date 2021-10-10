@@ -113,7 +113,7 @@ export class WindowHandler {
     if (process.env.WEBPACK_DEV_SERVER_URL)
       url = process.env.WEBPACK_DEV_SERVER_URL + ((isMainWindow) ? '' : 'preferenceWindow')
     else
-      url = isMainWindow ? 'com.moosync://./index.html' : 'com.moosync://./preferenceWindow.html'
+      url = isMainWindow ? 'http://localhost/./index.html' : 'com.moosync://./preferenceWindow.html'
 
     return url
   }
