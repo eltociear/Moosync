@@ -24,7 +24,7 @@ import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import { vxm } from '@/mainWindow/store'
 import CardView from '../../components/generic/CardView.vue'
 import CardCarousel from '../../components/generic/CardCarousel.vue'
-import { GenericRecommendation } from '@/utils/ui/providers/recommendations/genericRecommendations'
+import { GenericRecommendation } from '@/utils/ui/providers/generics/genericRecommendations'
 
 @Component({
   components: {

@@ -8,10 +8,11 @@
  */
 
 import { AuthFlow, AuthStateEmitter } from '@/utils/ui/oauth/flow';
-import { GenericProvider, cache } from '@/utils/ui/providers/genericProvider';
+import { GenericProvider, cache } from '@/utils/ui/providers/generics/genericProvider';
 
 import { AuthorizationServiceConfiguration } from '@openid/appauth';
-import { GenericRecommendation } from './recommendations/genericRecommendations';
+import { GenericAuth } from './generics/genericAuth';
+import { GenericRecommendation } from './generics/genericRecommendations';
 import axios from 'axios';
 import moment from 'moment';
 import { once } from 'events';
@@ -28,14 +29,15 @@ enum ApiResources {
   SEARCH = 'search'
 }
 
-export class YoutubeProvider implements GenericProvider, GenericRecommendation {
+export class YoutubeProvider extends GenericAuth implements GenericProvider, GenericRecommendation {
   private auth!: AuthFlow | undefined
+  private _config: any
 
-  private getConfig(oauthChannel: string) {
+  private getConfig(oauthChannel: string, id: string, secret: string) {
     return {
       openIdConnectUrl: "https://accounts.google.com",
-      clientId: process.env.YoutubeClientID!,
-      clientSecret: process.env.YoutubeClientSecret!,
+      clientId: id,
+      clientSecret: secret,
       redirectUri:
         "https://moosync.cf/youtube",
       scope: "https://www.googleapis.com/auth/youtube.readonly",
@@ -44,8 +46,20 @@ export class YoutubeProvider implements GenericProvider, GenericRecommendation {
     }
   }
 
-  constructor() {
-    window.WindowUtils.registerOAuthCallback('ytoauth2callback').then(channel => {
+  private isEnvExists() {
+    return !!(process.env.YoutubeClientID && process.env.YoutubeClientSecret)
+  }
+
+  public async updateConfig(): Promise<boolean> {
+    const conf = await window.PreferenceUtils.loadSelective('youtube') as { client_id: string, client_secret: string }
+
+    if (conf || this.isEnvExists()) {
+      const channel = await window.WindowUtils.registerOAuthCallback('ytoauth2callback')
+
+      const secret = process.env.YoutubeClientSecret ?? conf.client_secret
+      const id = process.env.YoutubeClientID ?? conf.client_id
+      this._config = this.getConfig(channel, id, secret)
+
       const serviceConfig = new AuthorizationServiceConfiguration({
         authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
         revocation_endpoint: "https://oauth2.googleapis.com/revoke",
@@ -53,10 +67,11 @@ export class YoutubeProvider implements GenericProvider, GenericRecommendation {
         userinfo_endpoint: "https://openidconnect.googleapis.com/v1/userinfo"
       })
 
-      this.auth = new AuthFlow(this.getConfig(channel), serviceConfig)
-    })
+      this.auth = new AuthFlow(this._config, serviceConfig)
+    }
+
+    return !!conf || this.isEnvExists()
   }
-  public async updateConfig(): Promise<void> { }
 
   private api = axios.create({
     adapter: cache.adapter,

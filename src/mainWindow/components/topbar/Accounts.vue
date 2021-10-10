@@ -79,21 +79,25 @@ export default class TopBar extends Vue {
   }
 
   private async handleSpotifyClick() {
-    const tmp = (await window.PreferenceUtils.loadSelective('spotify')) as { client_id: string; client_secret: string }
-    if (tmp.client_id && tmp.client_secret) {
-      if (!this.spotify.loggedIn) {
-        await this.spotify.updateConfig()
-        this.loginSpotify()
+    if (!this.spotify.loggedIn) {
+      const success = await this.spotify.updateConfig()
+      if (!success) {
+        window.WindowUtils.openWindow(false, { page: 'system' })
         return
       }
-      this.signOutSpotify()
-    } else {
-      window.WindowUtils.openWindow(false, { page: 'system' })
+      this.loginSpotify()
+      return
     }
+    this.signOutSpotify()
   }
 
   private async handleLastFmClick() {
     if (!this.lastFm.loggedIn) {
+      const success = await this.lastFm.updateConfig()
+      if (!success) {
+        window.WindowUtils.openWindow(false, { page: 'system' })
+        return
+      }
       this.loginLastFM()
       return
     }
@@ -148,8 +152,13 @@ export default class TopBar extends Vue {
     this.lastFm.signOut()
   }
 
-  private handleYoutubeClick() {
+  private async handleYoutubeClick() {
     if (!this.youtube.loggedIn) {
+      const success = await this.youtube.updateConfig()
+      if (!success) {
+        window.WindowUtils.openWindow(false, { page: 'system' })
+        return
+      }
       this.loginYoutube()
       return
     }

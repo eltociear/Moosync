@@ -8,12 +8,13 @@
  */
 
 import { AuthFlow, AuthStateEmitter } from '@/utils/ui/oauth/flow';
-import { GenericProvider, cache } from '@/utils/ui/providers/genericProvider';
+import { GenericProvider, cache } from '@/utils/ui/providers/generics/genericProvider';
 
 import { AuthorizationServiceConfiguration } from '@openid/appauth';
-import { GenericRecommendation } from './recommendations/genericRecommendations';
+import { GenericAuth } from './generics/genericAuth';
+import { GenericRecommendation } from './generics/genericRecommendations';
 import axios from 'axios';
-import { forageStore } from './genericProvider';
+import { forageStore } from './generics/genericProvider';
 import { once } from 'events';
 import qs from 'qs';
 import { vxm } from '@/mainWindow/store';
@@ -36,7 +37,7 @@ enum ApiResources {
 /**
  * API Handler for Spotify.
  */
-export class SpotifyProvider implements GenericProvider, GenericRecommendation {
+export class SpotifyProvider extends GenericAuth implements GenericProvider, GenericRecommendation {
   private auth: AuthFlow | undefined
   private _config: any
 
@@ -60,16 +61,21 @@ export class SpotifyProvider implements GenericProvider, GenericRecommendation {
 
   public async updateConfig() {
     const conf = await window.PreferenceUtils.loadSelective('spotify') as { client_id: string, client_secret: string }
-    const channel = await window.WindowUtils.registerOAuthCallback('spotifyoauthcallback')
-    this._config = this.getConfig(channel, conf.client_id, conf.client_secret)
 
-    const serviceConfig = new AuthorizationServiceConfiguration({
-      authorization_endpoint: this._config.openIdConnectUrl,
-      token_endpoint: 'https://accounts.spotify.com/api/token',
-      revocation_endpoint: this._config.openIdConnectUrl,
-    })
+    if (conf) {
+      const channel = await window.WindowUtils.registerOAuthCallback('spotifyoauthcallback')
+      this._config = this.getConfig(channel, conf.client_id, conf.client_secret)
 
-    this.auth = new AuthFlow(this._config, serviceConfig)
+      const serviceConfig = new AuthorizationServiceConfiguration({
+        authorization_endpoint: this._config.openIdConnectUrl,
+        token_endpoint: 'https://accounts.spotify.com/api/token',
+        revocation_endpoint: this._config.openIdConnectUrl,
+      })
+
+      this.auth = new AuthFlow(this._config, serviceConfig)
+    }
+
+    return !!conf
   }
 
   public get loggedIn() {

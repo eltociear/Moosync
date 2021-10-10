@@ -13,6 +13,34 @@
 
           <EditText class="mt-5 mb-3" :isExtension="false" title="Spotify Client ID" prefKey="spotify.client_id" />
           <EditText :isExtension="false" title="Spotify Client Secret" prefKey="spotify.client_secret" />
+
+          <EditText
+            v-if="!youtubeEnvExists"
+            class="mt-5 mb-3"
+            :isExtension="false"
+            title="Youtube Client ID"
+            prefKey="youtube.client_id"
+          />
+          <EditText
+            v-if="!youtubeEnvExists"
+            :isExtension="false"
+            title="Youtube Client Secret"
+            prefKey="youtube.client_secret"
+          />
+
+          <EditText
+            v-if="!lastfmEnvExists"
+            class="mt-5 mb-3"
+            :isExtension="false"
+            title="LastFM API Key"
+            prefKey="lastfm.client_id"
+          />
+          <EditText
+            v-if="!lastfmEnvExists"
+            :isExtension="false"
+            title="LastFM Client Secret"
+            prefKey="lastfm.client_secret"
+          />
         </div>
       </b-row>
     </b-container>
@@ -36,6 +64,14 @@ import PreferenceHeader from '../PreferenceHeader.vue'
 export default class System extends Vue {
   get checkboxValues() {
     return [this.startupCheckbox, this.minimizeToTrayCheckbox]
+  }
+
+  get youtubeEnvExists() {
+    return !!(process.env.YoutubeClientID && process.env.YoutubeClientSecret)
+  }
+
+  get lastfmEnvExists() {
+    return !!(process.env.LastFmApiKey && process.env.LastFmSecret)
   }
 
   get startupCheckbox() {

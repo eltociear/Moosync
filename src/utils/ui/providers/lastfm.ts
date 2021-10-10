@@ -7,10 +7,11 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { GenericRecommendation } from './recommendations/genericRecommendations';
-import { GenericScrobbler } from './scrobblers/genericScrobbler';
+import { GenericAuth } from './generics/genericAuth';
+import { GenericRecommendation } from './generics/genericRecommendations';
+import { GenericScrobbler } from './generics/genericScrobbler';
 import axios from 'axios';
-import { cache } from '@/utils/ui/providers/genericProvider';
+import { cache } from '@/utils/ui/providers/generics/genericProvider';
 import md5 from 'md5'
 import { vxm } from '@/mainWindow/store';
 
@@ -27,37 +28,44 @@ type authenticatedBody = {
 
 type sessionKey = string
 
-export class LastFMProvider implements GenericScrobbler, GenericRecommendation {
+export class LastFMProvider extends GenericAuth implements GenericScrobbler, GenericRecommendation {
   private _session: sessionKey | undefined
   private api = axios.create({
     adapter: cache.adapter,
     baseURL: API_BASE_URL
   })
-  private initialized = false
   private scrobbleTimeout: ReturnType<typeof setTimeout> | undefined
   private oAuthChannel: string | undefined
 
-  private uninitializedQueue: (() => Promise<any>)[] = []
-
   private username: String = ''
 
-  public get loggedIn(): boolean {
-    vxm.providers.loggedInLastFM = !!(this.initialized && this._session)
-    return !!(this.initialized && this._session)
+  private _config: { key: string, secret: string } | undefined
+
+  private setLoggedInStatus() {
+    vxm.providers.loggedInLastFM = !!(this._session)
   }
 
-  constructor() {
-    this.fetchStoredToken().then((data) => {
-      if (data)
-        this._session = data
-      this.initialized = true
+  public get loggedIn(): boolean {
+    this.setLoggedInStatus()
+    return !!(this._session)
+  }
 
-        ; (async () => {
-          for (const p of this.uninitializedQueue) {
-            await p()
-          }
-        })()
-    })
+  private isEnvExists() {
+    return !!(process.env.LastFmApiKey && process.env.LastFmSecret)
+  }
+
+  public async updateConfig(): Promise<boolean> {
+    const conf = await window.PreferenceUtils.loadSelective('lastfm') as { api_key: string, client_secret: string }
+    if (conf || this.isEnvExists()) {
+      this._config = {
+        key: process.env.LastFmApiKey ?? conf.api_key,
+        secret: process.env.LastFmSecret ?? conf.client_secret
+      }
+
+      this._session = await this.fetchStoredToken() ?? undefined
+    }
+
+    return !!conf || this.isEnvExists()
   }
 
   private getMethodSignature(...params: any[]) {
@@ -78,14 +86,14 @@ export class LastFMProvider implements GenericScrobbler, GenericRecommendation {
     for (const key of keys) {
       str += key + allParams[key]
     }
-    str += process.env.LastFmSecret
+    str += this._config?.secret
     return md5(str)
   }
 
   private async populateRequest(axiosMethod: 'GET' | 'POST', lastFmMethod: string, data?: any, token?: string): Promise<any> {
-    if (this.initialized) {
+    if (this._config) {
       const defaultParams: authenticatedBody = {
-        api_key: process.env.LastFmApiKey!,
+        api_key: this._config.key,
         method: lastFmMethod,
       }
 
@@ -115,11 +123,6 @@ export class LastFMProvider implements GenericScrobbler, GenericRecommendation {
       })
 
       return resp.data
-    } else {
-      let resolveT: (value: any) => void
-      const promise = new Promise<any>(resolve => resolveT = resolve)
-      this.uninitializedQueue.push(() => this.populateRequest(axiosMethod, lastFmMethod, data, token).then(resolveT))
-      return promise
     }
   }
 
@@ -149,7 +152,7 @@ export class LastFMProvider implements GenericScrobbler, GenericRecommendation {
           resolve(false)
         })
 
-        window.WindowUtils.openExternal(AUTH_BASE_URL + `auth/?api_key=${process.env.LastFmApiKey}&cb=https://moosync.cf/lastfm`)
+        window.WindowUtils.openExternal(AUTH_BASE_URL + `auth/?api_key=${this._config?.key}&cb=https://moosync.cf/lastfm`)
       })
     } else {
       return true
@@ -179,7 +182,7 @@ export class LastFMProvider implements GenericScrobbler, GenericRecommendation {
   }
 
   public async scrobble(song: Song | null | undefined) {
-    if (this.initialized && song) {
+    if (this.loggedIn && song) {
       const parsedSong = this.serializeBody({
         track: song.title,
         album: song.album?.album_name,
