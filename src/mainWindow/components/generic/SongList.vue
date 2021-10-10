@@ -54,7 +54,6 @@
 </template>
 
 <script lang="ts">
-import { getEventListener } from 'stream'
 import { Component, Prop, Ref, Vue } from 'vue-property-decorator'
 
 @Component({})
@@ -310,7 +309,6 @@ export default class SongList extends Vue {
   padding: 0
   cursor: ew-resize
   flex: 0 0 auto
-
 
 .handler::before
   content: ''
