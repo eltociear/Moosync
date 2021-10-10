@@ -11,6 +11,14 @@ if (fs.existsSync('/usr/lib/electron13') && fs.existsSync('/usr/lib/electron13/v
   archElectronConfig.electronVersion = fs.readFileSync('/usr/lib/electron13/version', { encoding: 'utf-8' }).replace('v', '')
 }
 
+const secrets = {}
+if (dotenv.parsed) {
+  secrets['process.env.YoutubeClientID'] = JSON.stringify(dotenv.parsed['YOUTUBECLIENTID'])
+  secrets['process.env.YoutubeClientSecret'] = JSON.stringify(dotenv.parsed['YOUTUBECLIENTSECRET'])
+  secrets['process.env.LastFmApiKey'] = JSON.stringify(dotenv.parsed['LASTFMAPIKEY'])
+  secrets['process.env.LastFmSecret'] = JSON.stringify(dotenv.parsed['LASTFMSECRET'])
+}
+
 module.exports = {
   runtimeCompiler: true,
   pages: {
@@ -29,13 +37,8 @@ module.exports = {
     plugins: [
       new webpack.DefinePlugin({
         'process.browser': 'true',
-        'process.env.YoutubeClientID': JSON.stringify(dotenv.parsed['YOUTUBECLIENTID']),
-        'process.env.YoutubeClientSecret': JSON.stringify(dotenv.parsed['YOUTUBECLIENTSECRET']),
-        'process.env.LastFmApiKey': JSON.stringify(dotenv.parsed['LASTFMAPIKEY']),
-        'process.env.LastFmSecret': JSON.stringify(dotenv.parsed['LASTFMSECRET'])
-
+        ...secrets
       }),
-
     ],
     externals: { 'better-sqlite3': 'commonjs better-sqlite3', "vm2": "require('vm2')" },
     devtool: 'source-map'
