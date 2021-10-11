@@ -45,7 +45,6 @@
     "eslint-plugin-vue": "^7.10.0",
     "events": "^3.3.0",
     "jimp": "^0.16.1",
-    "keytar": "^7.7.0",
     "last-fm": "^5.3.0",
     "localforage": "^1.10.0",
     "loglevel": "^1.7.1",

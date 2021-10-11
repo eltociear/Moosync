@@ -7,10 +7,12 @@
  *  See LICENSE in the project root for license information.
  */
 
+import { loadSelectivePreference, removeSelectivePreference, saveSelectivePreference } from '../db/preferences';
+
 import { IpcEvents } from './constants'
 import { StoreEvents } from '@/utils/main/ipc/constants'
-import keytar from 'keytar'
 import os from 'os'
+import { safeStorage } from 'electron'
 
 export class StoreChannel implements IpcChannelInterface {
   name = IpcEvents.STORE
@@ -31,7 +33,10 @@ export class StoreChannel implements IpcChannelInterface {
   private async setKeytar(event: Electron.IpcMainEvent, request: IpcRequest) {
     if (request.params.token && request.params.service) {
       try {
-        await keytar.setPassword(request.params.service, os.userInfo().username, request.params.token)
+        if (safeStorage.isEncryptionAvailable()) {
+          const encrypted = safeStorage.encryptString(request.params.token)
+          saveSelectivePreference(`secure.${request.params.service}`, encrypted.toString('base64'))
+        }
       } catch (e) {
         console.error(e)
       }
@@ -42,7 +47,7 @@ export class StoreChannel implements IpcChannelInterface {
   private async removeKeytar(event: Electron.IpcMainEvent, request: IpcRequest) {
     if (request.params.service) {
       try {
-        await keytar.deletePassword(request.params.service, os.userInfo().username)
+        removeSelectivePreference(`secure.${request.params.service}`)
       } catch (e) {
         console.error(e)
       }
@@ -53,8 +58,13 @@ export class StoreChannel implements IpcChannelInterface {
   private async getKeytar(event: Electron.IpcMainEvent, request: IpcRequest) {
     if (request.params.service) {
       try {
-        const token = await keytar.getPassword(request.params.service, os.userInfo().username)
-        event.reply(request.responseChannel, token)
+        if (safeStorage.isEncryptionAvailable()) {
+          const encrypted = loadSelectivePreference<String>(`secure.${request.params.service}`)
+          if (encrypted) {
+            const decrypted = safeStorage.decryptString(Buffer.from(encrypted, 'base64'))
+            event.reply(request.responseChannel, decrypted)
+          }
+        }
       } catch (e) {
         console.error(e)
       }

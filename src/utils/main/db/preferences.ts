@@ -152,6 +152,14 @@ export function loadSelectivePreference<T>(key?: string, isExtension: boolean = 
 }
 
 /**
+ * Removes selective preference inside "prefs"
+ * @param key key to remove inside prefs
+ */
+export function removeSelectivePreference(key: string) {
+  store.delete(`prefs.${key}` as any)
+}
+
+/**
  * Sets initial interface settings
  */
 export function setInitialInterfaceSettings() {
