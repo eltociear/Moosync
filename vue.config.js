@@ -6,9 +6,9 @@ const fs = require('fs')
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const archElectronConfig = {}
-if (fs.existsSync('/usr/lib/electron13') && fs.existsSync('/usr/lib/electron13/version')) {
-  archElectronConfig.electronDist = '/usr/lib/electron13'
-  archElectronConfig.electronVersion = fs.readFileSync('/usr/lib/electron13/version', { encoding: 'utf-8' }).replace('v', '')
+if (fs.existsSync('/usr/lib/electron') && fs.existsSync('/usr/lib/electron/version')) {
+  archElectronConfig.electronDist = '/usr/lib/electron'
+  archElectronConfig.electronVersion = fs.readFileSync('/usr/lib/electron/version', { encoding: 'utf-8' }).replace('v', '')
 }
 
 const secrets = {}
