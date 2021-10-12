@@ -265,7 +265,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
           return this.activePlayer.stop()
       }
     } catch (e) {
-      this.handlerFileError(e)
+      this.handlerFileError(e as ErrorEvent)
       this.nextSong()
     }
   }

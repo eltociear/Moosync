@@ -72,6 +72,9 @@
     "typescript.tsdk": "node_modules\\typescript\\lib",
     "[vue]": {
       "editor.defaultFormatter": "octref.vetur"
+    },
+    "search.exclude": {
+      "**/node_modules": false
     }
   },
   "extensions": {
