@@ -29,6 +29,11 @@ jobs:
           key: ${{ runner.os }}-yarn-node${{ matrix.node }}-${{ hashFiles('yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-node${{ matrix.node }}-
+      - uses: maxim-lobanov/setup-xcode@v1
+        if: ${{ runner.os == 'macOS' }}
+        with:
+          xcode-version: latest-stable
+
       - name: yarn install
         run: yarn install
       - name: setup env
@@ -40,12 +45,6 @@ jobs:
           SPOTIFYCLIENTID: '${{ secrets.SPOTIFYCLIENTID }}'
           SPOTIFYCLIENTSECRET: '${{ secrets.SPOTIFYCLIENTSECRET }}'
         run: chmod +x setup_env.sh && . setup_env.sh
-        shell: bash
-      - name: install snapcraft
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt update && sudo apt install -y snapd && sudo snap install snapcraft --classic
-          fi
         shell: bash
       - name: yarn electron:build
         run: yarn electron:build
