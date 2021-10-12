@@ -46,7 +46,7 @@ module.exports = {
   pluginOptions: {
     electronBuilder: {
       mainProcessWatch: ['src/utils/main', 'src/utils/extensions'],
-      customFileProtocol: 'com.moosync://./',
+      customFileProtocol: 'moosync://./',
       builderOptions: {
         ...archElectronConfig,
         productName: 'Moosync',
@@ -54,7 +54,7 @@ module.exports = {
           icon: "build/icons//512x512.png",
         },
         linux: {
-          target: ['AppImage', 'deb', 'tar.gz']
+          target: ['AppImage', 'deb', 'tar.gz', 'pacman']
         },
         publish: [{
           provider: 'github',
@@ -68,7 +68,7 @@ module.exports = {
           {
             name: "Default protocol",
             schemes: [
-              "com.moosync"
+              "moosync"
             ]
           }
         ]

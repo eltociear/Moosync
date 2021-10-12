@@ -45,7 +45,7 @@ nativeTheme.themeSource = 'dark'
 // Since in development mode, it is valid to have multiple processes open,
 // Quit the app if it is supposed to be launched for oauth
 // The argv/s will be passed to the original instance
-if (isDevelopment && process.argv.findIndex((arg) => arg.startsWith('com.moosync')) !== -1) {
+if (isDevelopment && process.argv.findIndex((arg) => arg.startsWith('moosync')) !== -1) {
   app.quit()
 }
 
@@ -55,7 +55,7 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 // Scheme must be registered before the app is ready
-protocol.registerSchemesAsPrivileged([{ scheme: 'com.moosync', privileges: { secure: true, standard: true } }])
+protocol.registerSchemesAsPrivileged([{ scheme: 'moosync', privileges: { secure: true, standard: true } }])
 protocol.registerSchemesAsPrivileged([{ scheme: 'media', privileges: { corsEnabled: true, supportFetchAPI: true } }])
 
 function interceptHttp() {
@@ -139,7 +139,7 @@ app.on('ready', async () => {
 
   await _windowHandler.installExtensions()
   _windowHandler.registerProtocol('media')
-  createProtocol('com.moosync')
+  createProtocol('moosync')
 
   interceptHttp()
 
@@ -180,11 +180,11 @@ if (isDevelopment && process.platform === 'win32') {
   // Set the path of electron.exe and your app.
   // These two additional parameters are only available on windows.
   // Setting this is required to get this working in dev mode.
-  app.setAsDefaultProtocolClient('com.moosync', process.execPath, [
+  app.setAsDefaultProtocolClient('moosync', process.execPath, [
     resolve(process.argv[1])
   ])
 } else {
-  app.setAsDefaultProtocolClient('com.moosync')
+  app.setAsDefaultProtocolClient('moosync')
 }
 
 app.on('second-instance', handleSecondInstance)
@@ -195,7 +195,7 @@ app.on('second-instance', handleSecondInstance)
  * @returns array of string which start with app protocol
  */
 function findOAuthArg(argv: string[]) {
-  return argv.find((arg) => arg.startsWith('com.moosync'))
+  return argv.find((arg) => arg.startsWith('moosync'))
 }
 
 function handleSecondInstance(_: Event, argv: string[]) {
