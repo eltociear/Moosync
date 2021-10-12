@@ -36,7 +36,7 @@
     "better-sqlite3": "^7.4.1",
     "better-sqlite3-helper": "^3.1.5",
     "bootstrap-vue": "^2.21.2",
-    "bufferutil": "^4.0.4",
+    "bufferutil": "4.0.3",
     "core-js": "^3.18.2",
     "dotenv": "^10.0.0",
     "electron": "15.1.2",
