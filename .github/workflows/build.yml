@@ -74,6 +74,12 @@ jobs:
       - uses: actions/upload-artifact@v2
         if: ${{ runner.os == 'Linux' }}
         with:
+          name: Arch linux Pacman
+          path: |
+            dist_electron/*.pacman
+      - uses: actions/upload-artifact@v2
+        if: ${{ runner.os == 'Linux' }}
+        with:
           name: Linux tar.gz
           path: dist_electron/*.tar.gz
       - uses: actions/upload-artifact@v2
