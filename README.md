@@ -100,7 +100,7 @@ Native dependencies need to be compiled for electron separately. This is done au
 Incase this does not work, you can run
 
 ``` bash
-yarn postinstall
+yarn native
 ```
 
 To compile native dependencies.
