@@ -42,9 +42,9 @@ jobs:
       - name: setup env
         env:
           YOUTUBECLIENTID: '${{ secrets.YOUTUBECLIENTID }}'
+          YOUTUBECLIENTSECRET: '${{ secrets.YOUTUBECLIENTSECRET }}'
           LASTFMAPIKEY: '${{ secrets.LASTFMAPIKEY }}'
           LASTFMSECRET: '${{ secrets.LASTFMSECRET }}'
-          YOUTUBECLIENTSECRET: '${{ secrets.YOUTUBECLIENTSECRET }}'
           SPOTIFYCLIENTID: '${{ secrets.SPOTIFYCLIENTID }}'
           SPOTIFYCLIENTSECRET: '${{ secrets.SPOTIFYCLIENTSECRET }}'
         run: chmod +x setup_env.sh && . setup_env.sh
