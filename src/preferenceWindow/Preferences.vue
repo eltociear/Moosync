@@ -54,7 +54,7 @@ export default class App extends mixins(ThemeHandler) {
 
   private listenArgs() {
     window.WindowUtils.listenArgs((args) => {
-      if (args.page) {
+      if (args && args.page) {
         this.$router.push(args.page)
       }
     })

@@ -172,7 +172,7 @@ interface windowUtils {
   registerOAuthCallback: (path: string) => Promise<string>
   deregisterOAuthCallback: (path: string) => Promise<void>
   listenOAuth: (channelID: string, callback: (data: string) => void) => void
-  listenArgs: (callback: (args: any) => void) => void
+  listenArgs: (callback: (args: any | undefined) => void) => void
   mainWindowHasMounted: () => Promise<void>
   isWindowMaximized: (isMainWindow: boolean) => Promise<boolean>
 }
