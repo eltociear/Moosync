@@ -51,10 +51,15 @@ module.exports = {
         ...archElectronConfig,
         productName: 'Moosync',
         mac: {
-          icon: "build/icons//512x512.png",
+          icon: "build/icons/512x512.png",
         },
         linux: {
           target: ['AppImage', 'deb', 'tar.gz', 'pacman']
+        },
+        nsis: {
+          oneClick: false,
+          perMachine: true,
+
         },
         publish: [{
           provider: 'github',
