@@ -155,8 +155,8 @@ export function loadSelectivePreference<T>(key?: string, isExtension: boolean = 
  * Removes selective preference inside "prefs"
  * @param key key to remove inside prefs
  */
-export function removeSelectivePreference(key: string) {
-  store.delete(`prefs.${key}` as any)
+export function removeSelectivePreference(key: string, isExtension: boolean = false) {
+  store.delete(`prefs.${isExtension ? 'extension.' : ''}${key}` as any)
 }
 
 /**

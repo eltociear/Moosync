@@ -8,7 +8,7 @@
  */
 
 import { IpcEvents, PreferenceEvents } from './constants';
-import { getActiveTheme, getSongView, loadAllThemes, loadSelectivePreference, loadTheme, onPreferenceChanged, removeTheme, saveSelectivePreference, saveTheme, setActiveTheme, setSongView } from '../db/preferences';
+import { getActiveTheme, getSongView, loadAllThemes, loadSelectivePreference, loadTheme, onPreferenceChanged, removeSelectivePreference, removeTheme, saveSelectivePreference, saveTheme, setActiveTheme, setSongView } from '../db/preferences';
 
 import { WindowHandler } from '../windowManager';
 
@@ -53,8 +53,11 @@ export class PreferenceChannel implements IpcChannelInterface {
   }
 
   private saveSelective(event: Electron.IpcMainEvent, request: IpcRequest) {
-    if (request.params.key && request.params.value) {
-      event.reply(request.responseChannel, saveSelectivePreference(request.params.key, request.params.value, request.params.isExtension))
+    if (request.params.key) {
+      if (request.params.value)
+        event.reply(request.responseChannel, saveSelectivePreference(request.params.key, request.params.value, request.params.isExtension))
+      else
+        event.reply(request.responseChannel, removeSelectivePreference(request.params.key, request.params.isExtension))
     }
     event.reply(request.responseChannel)
   }
