@@ -75,7 +75,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       this.auth = new AuthFlow(this._config, serviceConfig)
     }
 
-    return !!conf
+    return !!(conf && conf.client_id && conf.client_secret)
   }
 
   public get loggedIn() {

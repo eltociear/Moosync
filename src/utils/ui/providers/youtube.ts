@@ -70,7 +70,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
       this.auth = new AuthFlow(this._config, serviceConfig)
     }
 
-    return !!conf || this.isEnvExists()
+    return !!(conf && conf.client_id && conf.client_secret) || this.isEnvExists()
   }
 
   private api = axios.create({

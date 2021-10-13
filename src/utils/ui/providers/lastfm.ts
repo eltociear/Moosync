@@ -65,7 +65,7 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
       this._session = await this.fetchStoredToken() ?? undefined
     }
 
-    return !!conf || this.isEnvExists()
+    return !!(conf && conf.api_key && conf.client_secret) || this.isEnvExists()
   }
 
   private getMethodSignature(...params: any[]) {
