@@ -179,7 +179,6 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   }
 
   private imgClickHandler(tab: string, item: any) {
-    console.log(item)
     switch (tab) {
       case 'Songs':
         this.playTop([item as Song])

@@ -1,6 +1,5 @@
 export abstract class GenericAuth {
   constructor() {
-    console.log('here')
     this.updateConfig()
   }
 

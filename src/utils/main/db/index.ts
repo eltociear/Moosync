@@ -314,8 +314,6 @@ class SongDBInstance extends DBUtils {
       const { album_id } = this.db.queryFirstRowObject(`SELECT album as album_id FROM album_bridge WHERE song = ?`, songid) as { album_id: string }
       if (album_id) {
         const { high, low } = this.db.queryFirstRowObject(`SELECT album_coverPath_high as high, album_coverPath_low as low from albums WHERE album_id = ?`, album_id) as { high: string, low: string }
-        console.log(high, low)
-
         if (!high) {
           this.db.update('albums', { album_coverPath_high: newHigh }, ['album_id = ?', album_id])
         }

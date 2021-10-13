@@ -43,7 +43,6 @@ export class ExtensionHostChannel implements IpcChannelInterface {
 
   private getAllExtensions(event: Electron.IpcMainEvent, request: IpcRequest) {
     extensionHost.mainRequestGenerator.getInstalledExtensions().then((data) => event.reply(request.responseChannel, data)).catch(e => {
-      console.log(e)
       event.reply(request.responseChannel)
     })
   }
