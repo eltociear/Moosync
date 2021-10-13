@@ -52,6 +52,10 @@ if (isDevelopment && process.argv.findIndex((arg) => arg.startsWith('moosync')) 
 if (!app.requestSingleInstanceLock()) {
   if (!isDevelopment)
     app.quit()
+} else {
+  autoUpdater.autoInstallOnAppQuit = true
+  autoUpdater.autoDownload = true
+  autoUpdater.checkForUpdatesAndNotify()
 }
 
 // Scheme must be registered before the app is ready
@@ -120,9 +124,6 @@ app.on('before-quit', () => {
   setIsQuitting(true)
 })
 
-autoUpdater.autoInstallOnAppQuit = true
-autoUpdater.autoDownload = true
-
 // TODO: Figure out a better way to notify the user about update and wait for confirmation
 autoUpdater.on('update-downloaded', () => {
   autoUpdater.quitAndInstall()
@@ -132,8 +133,6 @@ autoUpdater.on('update-downloaded', () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
-  ((await autoUpdater.checkForUpdatesAndNotify())?.downloadPromise)
-
   registerIpcChannels()
   setInitialInterfaceSettings()
 
