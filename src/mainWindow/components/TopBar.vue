@@ -10,6 +10,7 @@
             <b-col cols="auto"> <Navigation /> </b-col>
             <b-col cols="auto"> <Notifications /> </b-col>
             <b-col cols="auto"> <Accounts /></b-col>
+            <b-col cols="auto"> <Gear class="gear-icon" @click.native="openSettings" /></b-col>
           </b-row>
         </b-col>
       </b-row>
@@ -23,21 +24,31 @@ import Search from '@/mainWindow/components/topbar/Search.vue'
 import { Component, Vue } from 'vue-property-decorator'
 import Accounts from '@/mainWindow/components/topbar/Accounts.vue'
 import Notifications from '@/mainWindow/components/topbar/Notifications.vue'
+import Gear from '@/icons/Gear.vue'
 
 @Component({
   components: {
     Search,
     Navigation,
     Accounts,
-    Notifications
+    Notifications,
+    Gear
   }
 })
-export default class TopBar extends Vue {}
+export default class TopBar extends Vue {
+  private openSettings() {
+    window.WindowUtils.openWindow(false)
+  }
+}
 </script>
 
 <style lang="sass" scoped>
-
 .topbar-container
   background: var(--primary)
   height: 70px
+
+.gear-icon
+  height: 26px
+  width: 26px
+  margin-left: 10px
 </style>

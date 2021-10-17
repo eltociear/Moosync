@@ -54,7 +54,6 @@
 import Rooms from '@/icons/Rooms.vue'
 import Toggle from '@/icons/Toggle.vue'
 import Tabs from '@/mainWindow/components/sidebar/Tabs.vue'
-import Gears from '@/icons/Gears.vue'
 import { PeerMode } from '@/mainWindow/store/syncState'
 import { Component, Vue } from 'vue-property-decorator'
 import { vxm } from '../store'
@@ -63,8 +62,7 @@ import { vxm } from '../store'
   components: {
     Toggle,
     Rooms,
-    Tabs,
-    Gears
+    Tabs
   }
 })
 export default class Sidebar extends Vue {

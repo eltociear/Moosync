@@ -27,9 +27,6 @@
         >
           <template slot="icon"> <LastFMIcon /> </template>
         </IconButton>
-        <IconButton bgColor="#737373" title="Settings" @click.native="openSettings">
-          <template slot="icon"> <GearIcon /> </template>
-        </IconButton>
       </div>
     </b-popover>
   </div>
@@ -39,7 +36,6 @@ import IconButton from '@/mainWindow/components/generic/IconButton.vue'
 import YoutubeIcon from '@/icons/Youtube.vue'
 import SpotifyIcon from '@/icons/Spotify.vue'
 import LastFMIcon from '@/icons/LastFM.vue'
-import GearIcon from '@/icons/Gears.vue'
 import Person from '@/icons/Person.vue'
 import { Component, Vue } from 'vue-property-decorator'
 import { vxm } from '@/mainWindow/store'
@@ -49,7 +45,6 @@ import { vxm } from '@/mainWindow/store'
     YoutubeIcon,
     SpotifyIcon,
     LastFMIcon,
-    GearIcon,
     Person
   }
 })
@@ -187,10 +182,6 @@ export default class TopBar extends Vue {
   private async signOutYoutube() {
     await this.youtube.signOut()
     this.youtubeName = ''
-  }
-
-  private openSettings() {
-    window.WindowUtils.openWindow(false)
   }
 }
 </script>
