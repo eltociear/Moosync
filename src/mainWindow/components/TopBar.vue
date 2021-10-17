@@ -1,13 +1,13 @@
 <template>
   <div class="topbar-container d-flex align-items-center">
     <b-container fluid class="d-flex">
-      <b-row class="flex-grow-1 justify-content-start">
-        <b-col cols="6" lg="7" xl="9">
+      <b-row align-h="start" class="flex-grow-1">
+        <b-col cols="auto my-auto"> <Navigation /> </b-col>
+        <b-col cols="7">
           <Search />
         </b-col>
-        <b-col cols="auto" class="my-auto d-flex">
+        <b-col cols="auto" class="pr-5 ml-auto my-auto d-flex">
           <b-row class="flex-grow-1">
-            <b-col cols="auto"> <Navigation /> </b-col>
             <b-col cols="auto"> <Notifications /> </b-col>
             <b-col cols="auto"> <Accounts /></b-col>
             <b-col cols="auto"> <Gear class="gear-icon" @click.native="openSettings" /></b-col>
