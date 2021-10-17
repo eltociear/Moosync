@@ -19,8 +19,10 @@ export class LocalPlayer extends Player {
   }
 
   load(src?: string, volume?: number): void {
-    src && (this.playerInstance.src = src)
-    volume && (this.volume = volume);
+    if (src) {
+      src && (this.playerInstance.src = src)
+      volume && (this.volume = volume);
+    }
   }
 
   async play(): Promise<void> {
@@ -32,7 +34,9 @@ export class LocalPlayer extends Player {
   }
 
   stop(): void {
+    this.playerInstance.removeAttribute('src')
     this.playerInstance.srcObject = null
+    this.playerInstance.load()
   }
 
   get currentTime(): number {
