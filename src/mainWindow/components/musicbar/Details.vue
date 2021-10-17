@@ -11,12 +11,21 @@
     />
     <SongDefault v-if="!imgSrc || forceEmptyImg" class="coverimg" />
     <div class="text-container">
-      <div :title="title" class="text song-title text-truncate">
+      <div id="musicbar-title" :title="title" class="text song-title text-truncate" @click="onTitleClick">
         {{ title }}
       </div>
       <div :title="artists ? artists.join(', ') : '-'" class="text song-subtitle text-truncate">
         {{ artists ? artists.join(', ') : '-' }}
       </div>
+      <b-popover
+        id="clipboard-popover"
+        :show.sync="showPopover"
+        target="musicbar-title"
+        triggers="click blur"
+        placement="top"
+      >
+        Copied!
+      </b-popover>
     </div>
   </div>
 </template>
@@ -43,7 +52,20 @@ export default class MusicBar extends mixins(ImageLoader, ErrorHandler) {
   @Prop({ default: '' })
   private imgSrc!: string
 
+  private showPopover: boolean = false
+
   private forceEmptyImg: boolean = false
+
+  private onTitleClick() {
+    let str = this.artists.join(', ')
+    if (str) {
+      str += ' - '
+    }
+    str += this.title
+    navigator.clipboard.writeText(str)
+    this.showPopover = true
+    setTimeout(() => (this.showPopover = false), 1500)
+  }
 
   private handleError() {
     this.forceEmptyImg = true
@@ -55,8 +77,16 @@ export default class MusicBar extends mixins(ImageLoader, ErrorHandler) {
 }
 </script>
 
-<style lang="sass" scoped>
+<style lang="sass">
+#clipboard-popover
+  background: var(--accent)
+  .arrow::after
+    border-top-color: var(--accent)
+  .popover-body
+    color: var(--textInverse) !important
+</style>
 
+<style lang="sass" scoped>
 .coverimg
   height: 56px
   width: 56px
@@ -78,5 +108,5 @@ export default class MusicBar extends mixins(ImageLoader, ErrorHandler) {
   color: var(--textSecondary)
 
 .text-container
-  width: calc( 100% - 56px - 15px )
+  width: fit-content
 </style>
