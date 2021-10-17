@@ -41,6 +41,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   private isFirst: boolean = true
 
   private ignoreStateChange = false
+  private forcePlaySong = false
 
   get SongRepeat() {
     return vxm.player.Repeat
@@ -124,14 +125,19 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.activePlayer.currentTime = 0
       this.onPlayerStateChanged('PLAYING')
     } else {
+      this.forcePlaySong = true
       await vxm.player.nextSong()
-      this.onPlayerStateChanged('PLAYING')
     }
   }
 
   private registerPlayerListeners() {
+    if (vxm.player.loading) {
+      vxm.player.loading = false
+    }
+
     this.activePlayer.onTimeUpdate = (time) => this.$emit('onTimeUpdate', time)
     this.activePlayer.onError = (err) => {
+      console.error(err)
       console.error(`${this.currentSong?._id}: ${this.currentSong?.title} unplayable, skipping.`)
       this.removeFromQueue(vxm.player.queueIndex)
       this.nextSong()
@@ -248,9 +254,21 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     this.handleFirstPlayback(loadedState)
 
     this.setMediaInfo(song)
+
+    /**
+     * local player fires "PAUSED" event right before changing tracks.
+     * This is to force play if the song has just ended
+     */
+    if (this.forcePlaySong) {
+      if (vxm.player.playerState !== 'PLAYING') vxm.player.playerState = 'PLAYING'
+      else this.onPlayerStateChanged('PLAYING')
+
+      this.forcePlaySong = false
+    }
   }
 
   private unloadAudio() {
+    console.log('here')
     this.activePlayer.stop()
   }
 
@@ -262,7 +280,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
         case 'PAUSED':
           return this.activePlayer.pause()
         case 'STOPPED':
-          return this.activePlayer.stop()
+          return this.unloadAudio()
       }
     } catch (e) {
       this.handlerFileError(e as ErrorEvent)
