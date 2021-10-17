@@ -32,6 +32,7 @@ export class LocalPlayer extends Player {
   }
 
   stop(): void {
+    this.playerInstance.src = ""
     this.playerInstance.srcObject = null
   }
 
