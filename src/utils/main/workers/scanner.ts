@@ -17,7 +17,7 @@ import crypto from 'crypto'
 import path from 'path'
 import { v4 } from 'uuid'
 
-const audioPatterns = new RegExp('.flac|.mp3|.ogg|.m4a|.webm|.wav|.wv', 'i')
+const audioPatterns = new RegExp('.flac|.mp3|.ogg|.m4a|.webm|.wav|.wv|.aac', 'i')
 
 expose({
   start(paths: togglePaths) {
