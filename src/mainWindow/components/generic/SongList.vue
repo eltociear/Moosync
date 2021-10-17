@@ -252,8 +252,14 @@ export default class SongList extends Vue {
   }
 
   private onRowSelected(index: number) {
-    if (this.keyPressed === 'Control') this.selected.push(index)
-    else if (this.keyPressed === 'Shift') {
+    if (this.keyPressed === 'Control') {
+      const i = this.selected.findIndex((val) => val === index)
+      if (i === -1) {
+        this.selected.push(index)
+      } else {
+        this.selected.splice(i, 1)
+      }
+    } else if (this.keyPressed === 'Shift') {
       if (this.selected.length > 0) {
         const lastSelected = this.selected[0]
         const min = Math.min(lastSelected, index)
