@@ -54,17 +54,13 @@
 </template>
 
 <script lang="ts">
+import SongListMixin from '@/utils/ui/mixins/SongListMixin'
+import { mixins } from 'vue-class-component'
 import { Component, Prop, Ref, Vue } from 'vue-property-decorator'
 
 @Component({})
-export default class SongList extends Vue {
+export default class SongList extends mixins(SongListMixin) {
   private refreshKey: boolean = false
-
-  private lastSelect: string = ''
-  private selected: number[] = []
-
-  @Prop({ default: [] })
-  private songList!: Song[]
 
   @Prop({ default: {} })
   private extrafields!: [{ key: TableFields; label?: string }]
@@ -74,14 +70,6 @@ export default class SongList extends Vue {
 
   @Ref('headers')
   private headers!: HTMLDivElement
-
-  // Clear selection after table loses focus
-  private clearSelection() {
-    this.$emit('onRowSelectionClear')
-    this.selected = []
-  }
-
-  private keyPressed: 'Control' | 'Shift' | undefined
 
   private getFieldData(field: TableFields, song: Song) {
     switch (field) {
@@ -103,12 +91,10 @@ export default class SongList extends Vue {
     this.computeDefaultWidths()
     this.generateHandlerMap()
     this.setupMouseEvents()
-    this.setupKeyEvents()
   }
 
   beforeDestroy() {
     this.destroyMouseEvents()
-    this.destroyKeyEvents()
   }
 
   private handlerMap: {
@@ -215,26 +201,6 @@ export default class SongList extends Vue {
       ((await window.PreferenceUtils.loadSelective('UI.columnHeaders.widths', false)) as number[]) ?? []
   }
 
-  private onKeyUp(e: KeyboardEvent) {
-    if (e.key === 'Shift' && this.keyPressed === 'Shift') this.keyPressed = undefined
-    else if (e.key === 'Control' && this.keyPressed === 'Control') this.keyPressed = undefined
-  }
-
-  private onKeyDown(e: KeyboardEvent) {
-    if (e.shiftKey || e.ctrlKey) this.keyPressed = e.key as 'Shift' | 'Control'
-    if (e.ctrlKey && e.key === 'a') this.selectAll()
-  }
-
-  private setupKeyEvents() {
-    document.addEventListener('keydown', this.onKeyDown)
-    document.addEventListener('keyup', this.onKeyUp)
-  }
-
-  private destroyKeyEvents() {
-    document.removeEventListener('keydown', this.onKeyDown)
-    document.removeEventListener('keyup', this.onKeyUp)
-  }
-
   private onRowContext(event: Event, item: Song) {
     this.$emit(
       'onRowContext',
@@ -245,32 +211,6 @@ export default class SongList extends Vue {
 
   private onRowDoubleClicked(item: Song) {
     this.$emit('onRowDoubleClicked', item)
-  }
-
-  private selectAll() {
-    this.selected = Array.from({ length: this.songList.length }, (_, i) => i)
-  }
-
-  private onRowSelected(index: number) {
-    if (this.keyPressed === 'Control') {
-      const i = this.selected.findIndex((val) => val === index)
-      if (i === -1) {
-        this.selected.push(index)
-      } else {
-        this.selected.splice(i, 1)
-      }
-    } else if (this.keyPressed === 'Shift') {
-      if (this.selected.length > 0) {
-        const lastSelected = this.selected[0]
-        const min = Math.min(lastSelected, index)
-        const max = Math.max(lastSelected, index)
-        this.selected = Array.from({ length: max - min + 1 }, (_, i) => min + i)
-      }
-    } else this.selected = [index]
-    this.$emit(
-      'onRowSelected',
-      this.selected.map((val) => this.songList[val])
-    )
   }
 
   private sortContent(): void {

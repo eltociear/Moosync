@@ -68,8 +68,9 @@
 
 <script lang="ts">
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
+import SongListMixin from '@/utils/ui/mixins/SongListMixin'
 import { mixins } from 'vue-class-component'
-import { Component, Prop, Ref, Vue } from 'vue-property-decorator'
+import { Component } from 'vue-property-decorator'
 import LowImageCol from './LowImageCol.vue'
 import Ellipsis from '@/icons/Ellipsis.vue'
 import YoutubeIcon from '../../../icons/Youtube.vue'
@@ -89,76 +90,11 @@ import { vxm } from '@/mainWindow/store'
     AddToQueue
   }
 })
-export default class SongListCompact extends mixins(ImgLoader) {
-  private refreshKey: boolean = false
-
-  private lastSelect: string = ''
-  private selected: number[] = []
-
-  @Prop({ default: [] })
-  private songList!: Song[]
-
-  @Prop({ default: false })
-  private tableBusy!: boolean
-
+export default class SongListCompact extends mixins(ImgLoader, SongListMixin) {
   private formattedDuration = convertDuration
-
-  // Clear selection after table loses focus
-  private clearSelection() {
-    this.$emit('onRowSelectionClear')
-    this.selected = []
-  }
 
   private get currentSong() {
     return vxm.player.currentSong
-  }
-
-  private keyPressed: 'Control' | 'Shift' | undefined
-
-  private getAlbumName(data: Song) {
-    if (data.album && data.album.album_name) return data.album.album_name
-    return '-'
-  }
-
-  mounted() {
-    this.setupKeyEvents()
-  }
-
-  beforeDestroy() {
-    this.destroyKeyEvents()
-  }
-
-  private handlerMap: {
-    [key: string]: {
-      handler: HTMLDivElement
-      next: HTMLDivElement
-      prev: HTMLDivElement
-      prevWidth: number
-      nextWidth: number
-      startPos: number
-    }
-  } = {}
-
-  private activeHandlerKey?: string
-
-  private onKeyUp(e: KeyboardEvent) {
-    if (e.key === 'Shift' && this.keyPressed === 'Shift') this.keyPressed = undefined
-    else if (e.key === 'Control' && this.keyPressed === 'Control') this.keyPressed = undefined
-  }
-
-  private onKeyDown(e: KeyboardEvent) {
-    if (e.shiftKey || e.ctrlKey) this.keyPressed = e.key as 'Shift' | 'Control'
-    if (e.ctrlKey && e.key === 'a') this.selectAll()
-  }
-
-  private setupKeyEvents() {
-    document.addEventListener('keydown', this.onKeyDown)
-    document.addEventListener('keyup', this.onKeyUp)
-  }
-
-  private destroyKeyEvents() {
-    document.removeEventListener('keydown', this.onKeyDown)
-    document.removeEventListener('keyup', this.onKeyUp)
   }
 
   private onRowContext(event: Event, item: Song) {
@@ -175,37 +111,6 @@ export default class SongListCompact extends mixins(ImgLoader) {
 
   private onPlayNowClicked(item: Song) {
     this.$emit('onRowPlayNowClicked', item)
-  }
-
-  private selectAll() {
-    this.selected = Array.from({ length: this.songList.length }, (_, i) => i)
-  }
-
-  private onRowSelected(index: number) {
-    if (this.keyPressed === 'Control') {
-      const i = this.selected.findIndex((val) => val === index)
-      if (i === -1) {
-        this.selected.push(index)
-      } else {
-        this.selected.splice(i, 1)
-      }
-    } else if (this.keyPressed === 'Shift') {
-      if (this.selected.length > 0) {
-        const lastSelected = this.selected[0]
-        const min = Math.min(lastSelected, index)
-        const max = Math.max(lastSelected, index)
-        this.selected = Array.from({ length: max - min + 1 }, (_, i) => min + i)
-      }
-    } else this.selected = [index]
-    this.$emit(
-      'onRowSelected',
-      this.selected.map((val) => this.songList[val])
-    )
-  }
-
-  // For some reason table isn't rerendered on window size change through maximize and minimize functions
-  private rerenderTable() {
-    this.refreshKey = !this.refreshKey
   }
 }
 </script>
