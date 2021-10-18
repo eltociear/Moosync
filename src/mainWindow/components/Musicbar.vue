@@ -5,7 +5,7 @@
         <VueSlider
           :min="0"
           :max="currentSong ? Math.ceil((currentSong.duration + 1) * 1000) : 0"
-          class="timeline"
+          class="timeline pl-2 pr-2"
           :interval="1"
           :dotSize="10"
           :value="Math.ceil(timestamp * 1000)"
@@ -119,8 +119,8 @@ export default class MusicBar extends mixins(ImgLoader) {
 .timeline
   background: transparent
   height: 0.5rem !important
-  padding: 0 !important
   width: 100%
+  padding: 0 15px 0 15px !important
 
 .musicbar
   position: relative
