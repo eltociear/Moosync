@@ -49,7 +49,14 @@ module.exports = {
       customFileProtocol: 'moosync://./',
       builderOptions: {
         ...archElectronConfig,
+        appId: 'org.moosync.Moosync',
         productName: 'Moosync',
+        artifactName: "${productName}-${version}-${os}-${arch}",
+        fileAssociations: [{
+          ext: ["mp3", "flac", "aac", "ogg", "wav", "m4a", "webm", "wv"],
+          description: "Music file extension",
+          role: "Viewer"
+        }],
         mac: {
           icon: "build/icons/512x512.png",
         },
@@ -59,8 +66,8 @@ module.exports = {
         nsis: {
           oneClick: false,
           perMachine: true,
-
         },
+
         publish: [{
           provider: 'github',
           owner: 'Moosync',
