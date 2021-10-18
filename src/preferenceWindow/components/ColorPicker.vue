@@ -4,10 +4,9 @@
       {{ title }}
     </td>
     <td class="pr-4">
-      <div class="color-box" :style="{ background: color }"></div>
+      <div class="color-box" @click="toggleColorPicker" :style="{ background: color }"></div>
     </td>
     <td>
-      <ColorPalette class="icon" @click.native="toggleColorPicker" />
       <color-picker
         v-click-outside="hideColorPicker"
         v-if="showColorPicker"
@@ -55,8 +54,10 @@ export default class ColorPicker extends Vue {
     this.showColorPicker = false
   }
 
-  private toggleColorPicker(mouseEvent: MouseEvent) {
-    this.pickerPosition = [mouseEvent.pageX + 15, mouseEvent.pageY - 15]
+  private toggleColorPicker(mouseEvent: PointerEvent) {
+    console.log(mouseEvent)
+    const parent = (mouseEvent.currentTarget as HTMLDivElement).offsetParent as HTMLDivElement
+    this.pickerPosition = [parent.offsetLeft + mouseEvent.offsetX, parent.offsetTop + mouseEvent.offsetY + 40]
     this.showColorPicker = !this.showColorPicker
   }
 
@@ -87,6 +88,6 @@ export default class ColorPicker extends Vue {
   margin-top: -8px
 
 .color-picker
-  position: fixed
+  position: absolute
   z-index: 999
 </style>
