@@ -56,17 +56,17 @@ import ImgLoader from '@/utils/ui/mixins/ImageLoader'
   }
 })
 export default class Sidebar extends mixins(PlayerControls, ImgLoader) {
-  private showSearchResults: boolean = false
+  private showSearchResults: boolean = true
   private results: Song[] = []
   private inputText: string = ''
 
   private handleInputFocus(event: FocusEvent) {
     switch (event.type) {
       case 'blur':
-        this.showSearchResults = false
+        // this.showSearchResults = false
         break
       case 'focus':
-        this.showSearchResults = this.results.length > 0 ? true : false
+        // this.showSearchResults = this.results.length > 0 ? true : false
         break
     }
   }
@@ -163,7 +163,7 @@ export default class Sidebar extends mixins(PlayerControls, ImgLoader) {
   width: 100%
   background: var(--secondary)
   border-radius: 0 0 18px 18px
-  box-shadow: 0 4px 6px rgb(32 33 36 / 28%)
+  box-shadow: -1px 12px 40px -5px rgb(0 0 0 / 50%)
   max-height: 60vh
   overflow: hidden
 
