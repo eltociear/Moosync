@@ -67,7 +67,7 @@ import { vxm } from '../store'
 })
 export default class Sidebar extends Vue {
   private roomInput: String = ''
-  private isOpen: boolean = true
+  private isOpen: boolean = false
   private showRoomsButton: boolean = true
 
   get roomID() {

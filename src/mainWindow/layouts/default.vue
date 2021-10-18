@@ -29,7 +29,7 @@ import { vxm } from '../store/index'
   }
 })
 export default class DefaultLayout extends mixins(ContextMenuMixin) {
-  private isSidebarOpen: boolean = true
+  private isSidebarOpen: boolean = false
   private refreshPage = false
 
   private toggleSidebar(isOpen: boolean) {
