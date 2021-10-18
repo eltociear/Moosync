@@ -31,7 +31,7 @@
         </b-col>
       </b-row>
       <b-row>
-        <PreferenceHeader title="Themes" tooltip="Customize the colors" class="mb-3" />
+        <PreferenceHeader title="Themes" tooltip="Customize the colors" class="mt-5 mb-3" />
       </b-row>
       <b-row no-gutters class="w-100"> </b-row>
       <b-row no-gutters class="w-100">

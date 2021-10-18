@@ -3,7 +3,7 @@
     <td class="title pr-5">
       {{ title }}
     </td>
-    <td class="pr-4">
+    <td class="pr-4" ref="parent">
       <div class="color-box" @click="toggleColorPicker" :style="{ background: color }"></div>
     </td>
     <td>
@@ -54,10 +54,16 @@ export default class ColorPicker extends Vue {
     this.showColorPicker = false
   }
 
-  private toggleColorPicker(mouseEvent: PointerEvent) {
-    console.log(mouseEvent)
-    const parent = (mouseEvent.currentTarget as HTMLDivElement).offsetParent as HTMLDivElement
-    this.pickerPosition = [parent.offsetLeft + mouseEvent.offsetX, parent.offsetTop + mouseEvent.offsetY + 40]
+  public toggleColorPicker(mouseEvent?: PointerEvent) {
+    const parent = this.$refs['parent'] as HTMLDivElement
+    this.pickerPosition = [parent.offsetLeft, parent.offsetTop + 40]
+    if (mouseEvent) {
+      this.pickerPosition[0] += mouseEvent.offsetX
+      this.pickerPosition[1] += mouseEvent.offsetY
+    } else {
+      this.pickerPosition[0] += 30
+      this.pickerPosition[1] += 15
+    }
     this.showColorPicker = !this.showColorPicker
   }
 

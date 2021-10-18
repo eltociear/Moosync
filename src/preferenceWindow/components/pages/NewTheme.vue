@@ -3,43 +3,15 @@
     <b-row no-gutters> </b-row>
     <b-row no-gutters>
       <b-col cols="auto">
-        <PreferenceHeader title="UI" tooltip="UI" />
+        <PreferenceHeader title="Colors" tooltip="Change the colors to customise UI" />
         <table>
           <ColorPicker
-            :defColor="customTheme.primary"
-            title="Primary"
-            @colorChange="onColorChange('primary', ...arguments)"
-          />
-          <ColorPicker
-            :defColor="customTheme.secondary"
-            title="Secondary"
-            @colorChange="onColorChange('secondary', ...arguments)"
-          />
-          <ColorPicker
-            :defColor="customTheme.tertiary"
-            title="Tertiary"
-            @colorChange="onColorChange('tertiary', ...arguments)"
-          />
-          <ColorPicker
-            :defColor="customTheme.accent"
-            title="Accent"
-            @colorChange="onColorChange('accent', ...arguments)"
-          />
-          <PreferenceHeader class="mt-5" title="Text" tooltip="Text" />
-          <ColorPicker
-            :defColor="customTheme.textPrimary"
-            title="Primary"
-            @colorChange="onColorChange('textPrimary', ...arguments)"
-          />
-          <ColorPicker
-            :defColor="customTheme.textSecondary"
-            title="Secondary"
-            @colorChange="onColorChange('textSecondary', ...arguments)"
-          />
-          <ColorPicker
-            :defColor="customTheme.textInverse"
-            title="Inverse"
-            @colorChange="onColorChange('textInverse', ...arguments)"
+            v-for="item in Object.keys(customTheme)"
+            :key="item"
+            :ref="item"
+            :defColor="customTheme[item]"
+            :title="getThemeTitle(item)"
+            @colorChange="onColorChange(item, ...arguments)"
           />
         </table>
       </b-col>
@@ -49,10 +21,15 @@
           <b-input v-model="author" class="theme-title" maxlength="20" placeholder="Author" />
         </b-row>
         <b-row no-gutters class="preview mb-5">
-          <ThemeComponentClassic :colors="customTheme" :id="getRandomID()" />
+          <ThemeComponentClassic :colors="customTheme" :id="getRandomID()" @colorClick="toggleColorPicker" />
         </b-row>
         <b-row no-gutters class="preview">
-          <ThemeComponentCompact class="h-100" :colors="customTheme" :id="getRandomID()" />
+          <ThemeComponentCompact
+            class="h-100"
+            :colors="customTheme"
+            :id="getRandomID()"
+            @colorClick="toggleColorPicker"
+          />
         </b-row>
       </b-col>
     </b-row>
@@ -64,14 +41,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Watch } from 'vue-property-decorator'
-import Vue from 'vue'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import ThemeComponentClassic from '../ThemeComponentClassic.vue'
 import { v1 } from 'uuid'
 import PreferenceHeader from '../PreferenceHeader.vue'
 import ThemeComponentCompact from '../ThemeComponentCompact.vue'
 import ColorPicker from '../ColorPicker.vue'
 import NavBack from '@/icons/NavBack.vue'
+import { BvComponent } from 'bootstrap-vue'
 
 @Component({
   components: {
@@ -104,6 +81,15 @@ export default class NewTheme extends Vue {
     }
   }
 
+  private getThemeTitle(key: String) {
+    let str = key.replace(/([A-Z])/g, ' $1').trim()
+    return str.charAt(0).toUpperCase() + str.slice(1)
+  }
+
+  private toggleColorPicker(type: ThemeKey) {
+    ;(this.$refs[type] as ColorPicker[])[0]?.toggleColorPicker()
+  }
+
   private onColorChange(attr: ThemeKey, color: string) {
     this.$set(this.customTheme, attr, color)
   }
@@ -134,20 +120,24 @@ export default class NewTheme extends Vue {
 
   private async parseClipboard() {
     const text = await navigator.clipboard.readText()
-    const parsed: ThemeDetails = JSON.parse(text)
-    if (parsed.name && parsed.author && parsed.theme) {
-      for (const key of Object.keys(parsed.theme)) {
-        if (parsed.theme[key as keyof ThemeItem]) {
-          const color = parsed.theme[key as keyof ThemeItem]
-          if (color.length === 7 && color.startsWith('#')) {
-            continue
+    try {
+      const parsed: ThemeDetails = JSON.parse(text)
+      if (parsed.name && parsed.author && parsed.theme) {
+        for (const key of Object.keys(parsed.theme)) {
+          if (parsed.theme[key as keyof ThemeItem]) {
+            const color = parsed.theme[key as keyof ThemeItem]
+            if (color.length === 7 && color.startsWith('#')) {
+              continue
+            }
+            parsed.theme[key as keyof ThemeItem] = this.defaultTheme[key as keyof ThemeItem]
           }
-          parsed.theme[key as keyof ThemeItem] = this.defaultTheme[key as keyof ThemeItem]
         }
+        this.customTheme = parsed.theme
+        this.title = parsed.name
+        this.author = parsed.author
       }
-      this.customTheme = parsed.theme
-      this.title = parsed.name
-      this.author = parsed.author
+    } catch (_) {
+      return
     }
   }
 
