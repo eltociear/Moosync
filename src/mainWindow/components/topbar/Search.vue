@@ -56,17 +56,17 @@ import ImgLoader from '@/utils/ui/mixins/ImageLoader'
   }
 })
 export default class Sidebar extends mixins(PlayerControls, ImgLoader) {
-  private showSearchResults: boolean = true
+  private showSearchResults: boolean = false
   private results: Song[] = []
   private inputText: string = ''
 
   private handleInputFocus(event: FocusEvent) {
     switch (event.type) {
       case 'blur':
-        // this.showSearchResults = false
+        this.showSearchResults = false
         break
       case 'focus':
-        // this.showSearchResults = this.results.length > 0 ? true : false
+        this.showSearchResults = this.results.length > 0 ? true : false
         break
     }
   }
