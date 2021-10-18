@@ -2,34 +2,38 @@
   <b-container fluid class="h-100">
     <b-row no-gutters> </b-row>
     <b-row no-gutters>
-      <b-col cols="auto">
-        <PreferenceHeader title="Colors" tooltip="Change the colors to customise UI" />
-        <table>
-          <ColorPicker
-            v-for="item in Object.keys(customTheme)"
-            :key="item"
-            :ref="item"
-            :defColor="customTheme[item]"
-            :title="getThemeTitle(item)"
-            @colorChange="onColorChange(item, ...arguments)"
-          />
-        </table>
-      </b-col>
-      <b-col class="h-100">
+      <b-col cols="auto" class="h-100">
         <b-row no-gutters class="metadata mb-3">
           <b-input v-model="title" class="theme-title" maxlength="20" placeholder="Theme Name" />
           <b-input v-model="author" class="theme-title" maxlength="20" placeholder="Author" />
         </b-row>
-        <b-row no-gutters class="preview mb-5">
-          <ThemeComponentClassic :colors="customTheme" :id="getRandomID()" @colorClick="toggleColorPicker" />
-        </b-row>
-        <b-row no-gutters class="preview">
-          <ThemeComponentCompact
-            class="h-100"
-            :colors="customTheme"
-            :id="getRandomID()"
-            @colorClick="toggleColorPicker"
-          />
+        <b-row no-gutters>
+          <b-col>
+            <b-row no-gutters class="preview mb-5">
+              <ThemeComponentClassic :colors="customTheme" :id="getRandomID()" @colorClick="toggleColorPicker" />
+            </b-row>
+            <b-row no-gutters class="preview">
+              <ThemeComponentCompact
+                class="h-100"
+                :colors="customTheme"
+                :id="getRandomID()"
+                @colorClick="toggleColorPicker"
+              />
+            </b-row>
+          </b-col>
+          <b-col cols="auto" class="color-col">
+            <PreferenceHeader title="Colors" tooltip="Change the colors to customise UI" />
+            <table>
+              <ColorPicker
+                v-for="item in Object.keys(customTheme)"
+                :key="item"
+                :ref="item"
+                :defColor="customTheme[item]"
+                :title="getThemeTitle(item)"
+                @colorChange="onColorChange(item, ...arguments)"
+              />
+            </table>
+          </b-col>
         </b-row>
       </b-col>
     </b-row>
@@ -151,25 +155,11 @@ export default class NewTheme extends Vue {
 </script>
 
 <style lang="sass">
-.metadata
-  margin-left: 151px
-  @media (max-width: 1360px)
-    margin-left: 100px
-  @media (max-width: 900px)
-    margin-left: 80px !important
-
-.preview
-  margin-left: 151px
+.preview, .metadata
   width: 600px
 
-.preview
-  @media (max-width: 1360px)
-    margin-left: 100px
-    width: 500px
-  @media (max-width: 1260px)
-    width: 400px
-  @media (max-width: 1160px)
-    display: none !important
+.color-col
+  padding-left: 130px !important
 
 .theme-title
   font-size: 18px
@@ -178,12 +168,13 @@ export default class NewTheme extends Vue {
   color: var(--textPrimary) !important
   background-color: transparent !important
   border: 0
-  border-bottom: 1px solid transparent
+  border-bottom: 1px solid var(--divider)
   border-radius: 0
   padding: 0
   &:hover
     border-bottom: 1px solid var(--accent)
   &:focus
     outline: none
+    border-bottom: 1px solid var(--accent)
     -webkit-box-shadow: none
 </style>

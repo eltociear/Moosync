@@ -56,7 +56,7 @@ export default class ColorPicker extends Vue {
 
   public toggleColorPicker(mouseEvent?: PointerEvent) {
     const parent = this.$refs['parent'] as HTMLDivElement
-    this.pickerPosition = [parent.offsetLeft, parent.offsetTop + 40]
+    this.pickerPosition = [parent.offsetLeft + 40, parent.offsetTop + 40]
     if (mouseEvent) {
       this.pickerPosition[0] += mouseEvent.offsetX
       this.pickerPosition[1] += mouseEvent.offsetY
