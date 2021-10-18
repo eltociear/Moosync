@@ -65,7 +65,11 @@ export default class AllSongs extends mixins(ContextMenuMixin) {
     this.getContextMenu(event, {
       type: 'GENERAL_SONGS',
       args: {
-        refreshCallback: this.requestSongs
+        refreshCallback: this.requestSongs,
+        sortOptions: {
+          callback: this.sort,
+          current: vxm.themes.sortBy
+        }
       }
     })
   }
