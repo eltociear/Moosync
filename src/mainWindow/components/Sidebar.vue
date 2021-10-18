@@ -119,6 +119,7 @@ export default class Sidebar extends Vue {
   height: calc(100% - (6.5rem + 32px))
 
 .b-sidebar-body
+  overflow-x: hidden
   &::-webkit-scrollbar-track
     margin-top: 0
     background: transparent !important
