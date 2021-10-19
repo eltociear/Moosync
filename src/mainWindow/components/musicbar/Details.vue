@@ -105,6 +105,7 @@ export default class MusicBar extends mixins(ImageLoader, ErrorHandler) {
   line-height: 170.19%
 
 .song-title
+  cursor: pointer
   font-size: 19.1549px
   width: fit-content
 
