@@ -37,4 +37,9 @@ export default class PLayButton extends Vue {
 <style lang="sass" scoped>
 .animate__animated.animate__fadeOut
   --animate-duration: 0.1s
+
+*
+  cursor: pointer
 </style>
+
+

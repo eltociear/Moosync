@@ -6,3 +6,9 @@
     />
   </svg>
 </template>
+
+
+<style lang="sass" scoped>
+*
+  cursor: pointer
+</style>

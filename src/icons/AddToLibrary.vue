@@ -18,3 +18,8 @@ export default class PlainPlay extends Vue {
   private title!: string
 }
 </script>
+
+<style lang="sass" scoped>
+*
+  cursor: pointer
+</style>

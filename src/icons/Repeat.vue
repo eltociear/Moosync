@@ -22,4 +22,7 @@ export default class SpotifyIcon extends Vue {
 <style lang="sass" scoped>
 .fill
   transition: fill 0.2s ease
+
+*
+  cursor: pointer
 </style>

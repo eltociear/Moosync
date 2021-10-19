@@ -31,3 +31,8 @@ export default class SpotifyIcon extends Vue {
   private filled!: boolean
 }
 </script>
+
+<style lang="sass" scoped>
+*
+  cursor: pointer
+</style>

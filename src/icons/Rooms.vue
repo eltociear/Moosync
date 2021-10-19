@@ -10,3 +10,8 @@
     <path d="M23.4128 19H28.4128M33.4128 19H28.4128M28.4128 19V14M28.4128 19V24" stroke="white" stroke-width="2" />
   </svg>
 </template>
+
+<style lang="sass" scoped>
+*
+  cursor: pointer
+</style>
