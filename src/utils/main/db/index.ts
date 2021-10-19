@@ -371,7 +371,7 @@ class SongDBInstance extends DBUtils {
         if (id) genreID.push(id)
         else {
           const id = v4()
-          this.db.insert('genre', { genre_id: id, genre_name: a })
+          this.db.insert('genre', { genre_id: id, genre_name: a.trim() })
           genreID.push(id)
         }
       }

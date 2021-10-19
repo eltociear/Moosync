@@ -74,11 +74,11 @@ export class DBUtils {
 
     return {
       _id: song._id,
-      path: song.path,
+      path: song.path?.trim(),
       size: song.size,
-      title: song.title,
-      song_coverPath_high: song.song_coverPath_high,
-      song_coverPath_low: song.song_coverPath_low,
+      title: song.title.trim(),
+      song_coverPath_high: song.song_coverPath_high?.trim(),
+      song_coverPath_low: song.song_coverPath_low?.trim(),
       date: song.date,
       year: song.year,
       lyrics: song.lyrics,
@@ -87,12 +87,12 @@ export class DBUtils {
       container: song.container,
       duration: song.duration,
       sampleRate: song.sampleRate,
-      hash: song.hash,
+      hash: song.hash?.trim(),
       inode: song.inode,
       deviceno: song.deviceno,
       type: song.type,
-      url: song.url,
-      playbackUrl: song.playbackUrl,
+      url: song.url?.trim(),
+      playbackUrl: song.playbackUrl?.trim(),
       date_added: Date.now().toString()
     }
   }
