@@ -25,12 +25,10 @@
 <script lang="ts">
 import { Component, Prop, Watch } from 'vue-property-decorator'
 import Vue from 'vue'
-import ColorPalette from '@/icons/ColorPalette.vue'
 import colorPicker from '@caohenghu/vue-colorpicker'
 
 @Component({
   components: {
-    ColorPalette,
     colorPicker
   }
 })
