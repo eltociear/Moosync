@@ -1,10 +1,10 @@
 <template>
   <b-row no-gutters class="h-100 compact-container">
-    <b-col cols="8" class="h-100 song-list-compact">
-      <SongListCompact :songList="songList" v-on="$listeners" />
-    </b-col>
     <b-col cols="4" class="h-100">
       <SongDetailsCompact :defaultDetails="defaultDetails" :currentSong="currentSong" />
+    </b-col>
+    <b-col cols="8" class="h-100 song-list-compact">
+      <SongListCompact :songList="songList" v-on="$listeners" />
     </b-col>
   </b-row>
 </template>
