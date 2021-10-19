@@ -42,7 +42,7 @@
         </div>
       </b-col>
       <b-col cols="auto" class="text-right ml-auto d-flex align-items-center">
-        <div class="ml-auto remove-button" @click="removeSong">Remove</div>
+        <div class="ml-auto remove-button" @click="removeSong"><TrashIcon /></div>
       </b-col>
     </b-row>
     <!-- <div class="divider" /> -->
@@ -59,6 +59,8 @@ import Play2 from '@/icons/Play2.vue'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import YoutubeIcon from '@/icons/Youtube.vue'
 import SpotifyIcon from '@/icons/Spotify.vue'
+import TrashIcon from '@/icons/Trash.vue'
+
 import AnimatedEqualizer from '@/icons/AnimatedEqualizer.vue'
 
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
@@ -70,7 +72,8 @@ import ErrorHandler from '@/utils/ui/mixins/errorHandler'
     Play2,
     YoutubeIcon,
     SpotifyIcon,
-    AnimatedEqualizer
+    AnimatedEqualizer,
+    TrashIcon
   }
 })
 export default class MusicInfo extends mixins(ImgLoader, PlayerControls, ContextMenuMixin, ErrorHandler) {
@@ -145,10 +148,12 @@ export default class MusicInfo extends mixins(ImgLoader, PlayerControls, Context
   width: 100%
 
 .remove-button
-  font-size: 14px
   color: var(--accent)
   cursor: pointer
   padding: 10px
+  svg
+    width: 22px
+    height: 22px
 
 .play-button, .now-playing
   width: calc(80px - (12px * 2))
