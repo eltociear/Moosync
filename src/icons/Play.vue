@@ -1,5 +1,5 @@
 <template>
-  <svg width="41" height="42" viewBox="0 0 41 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg class="button-grow" width="41" height="42" viewBox="0 0 41 42" fill="none" xmlns="http://www.w3.org/2000/svg">
     <transition
       name="custom-fade"
       enter-active-class="animate__animated animate__fadeIn"
