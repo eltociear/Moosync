@@ -53,7 +53,35 @@ module.exports = {
         productName: 'Moosync',
         artifactName: "${productName}-${version}-${os}-${arch}",
         fileAssociations: [{
-          ext: ["mp3", "flac", "aac", "ogg", "wav", "m4a", "webm", "wv"],
+          ext: "mp3",
+          description: "Music file extension",
+          role: "Viewer"
+        }, {
+          ext: "flac",
+          description: "Music file extension",
+          role: "Viewer"
+        }, {
+          ext: "aac",
+          description: "Music file extension",
+          role: "Viewer"
+        }, {
+          ext: "ogg",
+          description: "Music file extension",
+          role: "Viewer"
+        }, {
+          ext: "wav",
+          description: "Music file extension",
+          role: "Viewer"
+        }, {
+          ext: "m4a",
+          description: "Music file extension",
+          role: "Viewer"
+        }, {
+          ext: "webm",
+          description: "Music file extension",
+          role: "Viewer"
+        }, {
+          ext: "wv",
           description: "Music file extension",
           role: "Viewer"
         }],
