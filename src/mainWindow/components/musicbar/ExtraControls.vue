@@ -1,6 +1,6 @@
 <template>
-  <div class="d-flex justify-content-end">
-    <div class="slider-container d-flex">
+  <b-row align-h="end" align-v="center" no-gutters>
+    <b-col cols="auto" class="slider-container d-flex">
       <input
         type="range"
         min="0"
@@ -13,16 +13,12 @@
         aria-label="volume"
         v-model="volume"
       />
-    </div>
-    <div class="volume-icon">
-      <VolumeIcon />
-    </div>
-    <div>
-      <div class="expand-icon ml-auto" :class="{ open: sliderOpen }" @click="emitToggleSlider">
-        <ExpandIcon />
-      </div>
-    </div>
-  </div>
+    </b-col>
+    <VolumeIcon class="volume-icon" />
+    <b-col cols="auto" class="expand-icon ml-3" :class="{ open: sliderOpen }" @click="emitToggleSlider">
+      <ExpandIcon />
+    </b-col>
+  </b-row>
 </template>
 
 <script lang="ts">
@@ -30,11 +26,13 @@ import { Component, Vue } from 'vue-property-decorator'
 import VolumeIcon from '@/icons/Volume.vue'
 import ExpandIcon from '@/icons/Expand.vue'
 import { vxm } from '@/mainWindow/store'
+import Timestamp from './Timestamp.vue'
 
 @Component({
   components: {
     VolumeIcon,
-    ExpandIcon
+    ExpandIcon,
+    Timestamp
   }
 })
 export default class MusicBar extends Vue {
@@ -60,7 +58,6 @@ export default class MusicBar extends Vue {
 </script>
 
 <style lang="sass" scoped>
-
 .slider-container
   padding-right: 20px
 
@@ -81,9 +78,7 @@ export default class MusicBar extends Vue {
   background-color: var(--primary)
 
 .volume-icon
-  height: 22px
   width: 22px
-  margin-right: 15px
 
 .expand-icon
   height: 27px

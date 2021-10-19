@@ -1,6 +1,8 @@
 <template>
   <b-row align-v="center" class="justify-content-center">
-    <b-col cols="auto" class="timestamp">{{ formattedDuration(timestamp) }} / {{ formattedDuration(duration) }}</b-col>
+    <b-col cols="auto" align-self="center" class="mr-auto">
+      <Timestamp class="invisible timestamp" :duration="duration" timestamp="0" />
+    </b-col>
     <b-col cols="auto" v-on:click="prevSong()">
       <LastTrack />
     </b-col>
@@ -19,6 +21,9 @@
     <b-col cols="auto" v-on:click="shuffle()">
       <Shuffle :filled="true" />
     </b-col>
+    <b-col cols="auto" align-self="center" class="mr-auto">
+      <Timestamp class="timestamp" :duration="duration" :timestamp="timestamp" />
+    </b-col>
   </b-row>
 </template>
 
@@ -32,7 +37,7 @@ import Shuffle from '@/icons/Shuffle.vue'
 import { mixins } from 'vue-class-component'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import { vxm } from '@/mainWindow/store'
-import { convertDuration } from '@/utils/common'
+import Timestamp from './Timestamp.vue'
 
 @Component({
   components: {
@@ -40,7 +45,8 @@ import { convertDuration } from '@/utils/common'
     NextTrack,
     Play,
     Repeat,
-    Shuffle
+    Shuffle,
+    Timestamp
   }
 })
 export default class MusicBar extends mixins(PlayerControls) {
@@ -62,8 +68,6 @@ export default class MusicBar extends mixins(PlayerControls) {
     return vxm.player.loading
   }
 
-  private formattedDuration = convertDuration
-
   private toggleRepeat() {
     vxm.player.repeat = !this.repeat
   }
@@ -71,12 +75,6 @@ export default class MusicBar extends mixins(PlayerControls) {
 </script>
 
 <style lang="sass" scoped>
-.timestamp
-  color: var(--textSecondary)
-  font-size: 16px
-  overflow: hidden
-  width: 150px
-
 .invisible
   min-width: 0%
 </style>

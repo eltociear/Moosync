@@ -14,8 +14,14 @@
           @change="updateTimestmp"
         />
         <b-container fluid class="d-flex bar-container h-100 pb-2">
-          <b-row align-h="center" align-content="center" class="d-flex no-gutters w-100 control-row">
-            <b-col cols="2" lg="3" xl="4" align-self="center" class="no-gutters details-col">
+          <b-row
+            no-gutters
+            align-v="center"
+            align-h="center"
+            align-content="center"
+            class="d-flex no-gutters w-100 control-row"
+          >
+            <b-col cols="4" class="no-gutters details-col w-100">
               <Details
                 :title="currentSong ? currentSong.title : '-'"
                 :artists="currentSong ? currentSong.artists : []"
@@ -25,7 +31,7 @@
             <b-col cols="auto" align-self="center" class="no-gutters controls-col">
               <Controls :duration="currentSong ? currentSong.duration : 0" :timestamp="timestamp" />
             </b-col>
-            <b-col cols="1" lg="2" align-self="center" class="no-gutters extra-col">
+            <b-col cols="4" align-self="center" class="no-gutters extra-col">
               <ExtraControls @onToggleSlider="toggleSlider" />
             </b-col>
           </b-row>
@@ -55,6 +61,7 @@ import { mixins } from 'vue-class-component'
 import { vxm } from '../store'
 import { bus } from '@/mainWindow/main'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
+import Timestamp from './musicbar/Timestamp.vue'
 
 @Component({
   components: {
@@ -62,7 +69,8 @@ import ImgLoader from '@/utils/ui/mixins/ImageLoader'
     Controls,
     ExtraControls,
     AudioStream,
-    MusicInfo
+    MusicInfo,
+    Timestamp
   }
 })
 export default class MusicBar extends mixins(ImgLoader) {

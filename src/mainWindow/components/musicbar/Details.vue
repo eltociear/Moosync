@@ -1,16 +1,18 @@
 <template>
-  <div class="d-flex w-100">
-    <b-img
-      fluid
-      ref="cover"
-      class="coverimg"
-      v-if="imgSrc && !forceEmptyImg"
-      :src="imgSrc"
-      alt="cover art"
-      @error="handlerImageError(arguments[0], handleError)"
-    />
-    <SongDefault v-if="!imgSrc || forceEmptyImg" class="coverimg" />
-    <div class="text-container">
+  <b-row no-gutters class="w-100" align-v="center">
+    <b-col cols="auto">
+      <b-img
+        fluid
+        ref="cover"
+        class="coverimg"
+        v-if="imgSrc && !forceEmptyImg"
+        :src="imgSrc"
+        alt="cover art"
+        @error="handlerImageError(arguments[0], handleError)"
+      />
+      <SongDefault v-else class="coverimg" />
+    </b-col>
+    <b-col class="text-truncate">
       <div id="musicbar-title" :title="title" class="text song-title text-truncate" @click="onTitleClick">
         {{ title }}
       </div>
@@ -26,8 +28,8 @@
       >
         Copied!
       </b-popover>
-    </div>
-  </div>
+    </b-col>
+  </b-row>
 </template>
 
 <script lang="ts">
@@ -36,10 +38,12 @@ import { Component, Prop, Watch } from 'vue-property-decorator'
 import SongDefault from '@/icons/SongDefault.vue'
 import ImageLoader from '@/utils/ui/mixins/ImageLoader'
 import ErrorHandler from '@/utils/ui/mixins/errorHandler'
+import Timestamp from './Timestamp.vue'
 
 @Component({
   components: {
-    SongDefault
+    SongDefault,
+    Timestamp
   }
 })
 export default class MusicBar extends mixins(ImageLoader, ErrorHandler) {
@@ -109,4 +113,7 @@ export default class MusicBar extends mixins(ImageLoader, ErrorHandler) {
 
 .text-container
   width: fit-content
+
+.timestamp
+  margin-right: 0
 </style>
