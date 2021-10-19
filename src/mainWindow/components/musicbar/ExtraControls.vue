@@ -14,7 +14,7 @@
         v-model="volume"
       />
     </b-col>
-    <VolumeIcon class="volume-icon" />
+    <VolumeIcon class="volume-icon" @click.native="volumeIconClick" :cut="volume == 0" />
     <b-col cols="auto" class="expand-icon ml-3" :class="{ open: sliderOpen }" @click="emitToggleSlider">
       <ExpandIcon />
     </b-col>
@@ -37,13 +37,29 @@ import Timestamp from './Timestamp.vue'
 })
 export default class MusicBar extends Vue {
   private sliderOpen: boolean = false
+  private oldVolume = 50
 
   get volume() {
     return vxm.player.volume
   }
 
   set volume(value: number) {
+    // Fuck javascript floating precision
+    value = Math.floor(value)
     vxm.player.volume = value
+    if (value != 0) {
+      this.oldVolume = value
+    }
+  }
+
+  private volumeIconClick() {
+    if (this.volume !== 0) {
+      this.oldVolume = this.volume
+      this.volume = 0
+    } else {
+      console.log(this.oldVolume)
+      this.volume = this.oldVolume
+    }
   }
 
   private emitToggleSlider() {
