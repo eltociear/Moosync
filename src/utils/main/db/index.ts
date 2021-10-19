@@ -187,9 +187,10 @@ class SongDBInstance extends DBUtils {
       `SELECT *, ${this.addGroupConcatClause()} FROM allsongs
       ${this.addLeftJoinClause(undefined, 'allsongs')}
         ${where}
-        ${this.addExcludeWhereClause(args.length === 0, exclude)} GROUP BY allsongs._id ${this.addOrderClause(options?.sortBy)}`,
+        ${this.addExcludeWhereClause(args.length === 0, exclude)} GROUP BY allsongs._id ${this.addOrderClause(options?.sortBy)} ${args.length > 0 ? 'COLLATE NOCASE' : ''}`,
       ...args
     )
+
     return this.batchUnmarshal(songs)
   }
 

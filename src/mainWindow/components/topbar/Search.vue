@@ -80,7 +80,7 @@ export default class Sidebar extends mixins(PlayerControls, ImgLoader) {
       .push({
         name: 'search',
         query: {
-          search_term: this.inputText
+          search_term: `%${this.inputText}%`
         }
       })
       .catch(() => {})
@@ -88,6 +88,7 @@ export default class Sidebar extends mixins(PlayerControls, ImgLoader) {
   }
   private async onTextChange(value: string) {
     if (value) {
+      value = `%${value}%`
       this.showSearchResults = true
       this.results = await window.SearchUtils.searchSongsByOptions({
         album: {
