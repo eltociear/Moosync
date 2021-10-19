@@ -106,10 +106,12 @@ export default class MusicBar extends mixins(ImageLoader, ErrorHandler) {
 
 .song-title
   font-size: 19.1549px
+  width: fit-content
 
 .song-subtitle
   font-size: 12.2592px
   color: var(--textSecondary)
+  width: fit-content
 
 .text-container
   width: fit-content
