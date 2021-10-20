@@ -51,7 +51,7 @@ module.exports = {
         ...archElectronConfig,
         appId: 'org.moosync.Moosync',
         productName: 'Moosync',
-        artifactName: "${productName}-${version}-${os}-${arch}",
+        artifactName: "${productName}-${version}-${os}-${arch}.${ext}",
         fileAssociations: [{
           ext: "mp3",
           description: "Music file extension",
