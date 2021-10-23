@@ -183,11 +183,6 @@ class SongDBInstance extends DBUtils {
   public getSongByOptions(options?: SongAPIOptions, exclude?: string[]): Song[] {
     const { where, args } = this.populateWhereQuery(options)
 
-    console.log(`SELECT *, ${this.addGroupConcatClause()} FROM allsongs
-      ${this.addLeftJoinClause(undefined, 'allsongs')}
-        ${where}
-        ${this.addExcludeWhereClause(args.length === 0, exclude)} GROUP BY allsongs._id ${this.addOrderClause(options?.sortBy)}`)
-
     const songs: marshaledSong[] = this.db.query(
       `SELECT *, ${this.addGroupConcatClause()} FROM allsongs
       ${this.addLeftJoinClause(undefined, 'allsongs')}
