@@ -42,9 +42,9 @@ import System from '@/icons/System.vue'
 export default class Sidebar extends Vue {
   private componentNames = [
     { component: 'Paths', title: 'Paths', link: '/paths' },
+    { component: 'System', title: 'Themes', link: '/themes' },
     { component: 'Extensions', title: 'Extensions', link: '/extensions' },
-    { component: 'System', title: 'System', link: '/system' },
-    { component: 'System', title: 'Themes', link: '/themes' }
+    { component: 'System', title: 'System', link: '/system' }
   ]
 
   private active: ActiveTab = ActiveTab.ALLSONGS
@@ -57,7 +57,6 @@ export default class Sidebar extends Vue {
 </script>
 
 <style lang="sass" scoped>
-
 .icon
   width: 38px
   height: 38px
