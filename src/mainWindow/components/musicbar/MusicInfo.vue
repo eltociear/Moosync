@@ -9,7 +9,7 @@
       <b-img class="bg-img" v-if="computedImg" :src="computedImg" :key="computedImg"></b-img>
     </transition>
     <b-container fluid class="w-100 h-100 main-container">
-      <b-row no-gutters class="h-100 flex-nowrap">
+      <b-row no-gutters align-h="center" class="h-100 flex-nowrap">
         <b-col cols="4">
           <SongDetailsCompact :currentSong="currentSong" />
         </b-col>
