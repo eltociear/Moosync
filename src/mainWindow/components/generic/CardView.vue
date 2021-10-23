@@ -2,7 +2,7 @@
   <div>
     <div class="card mb-2 card-grow" @contextmenu="emitContext">
       <div class="card-img-top">
-        <div class="icon-container">
+        <div class="icon-container" :style="{ background: iconBgColor }">
           <slot name="icon" />
         </div>
         <div class="embed-responsive embed-responsive-1by1">
@@ -56,6 +56,9 @@ export default class CardView extends mixins(ImageLoader, ErrorHandler) {
 
   @Prop({ default: '' })
   private imgSrc!: string
+
+  @Prop({ default: 'transparent' })
+  private iconBgColor!: string
 
   private forceEmptyImg: boolean = false
 
@@ -116,8 +119,9 @@ img
 .icon-container
   z-index: 1
   position: absolute
-  top: 10px
-  left: 10px
+  top: 16px
+  left: 0px
+  padding-left: 10px
   svg
     width: 24px
     height: 24px

@@ -7,22 +7,13 @@
           :title="playlist.playlist_name"
           :imgSrc="playlist.playlist_coverPath"
           :id="playlist.playlist_id"
+          :iconBgColor="getIconBgColor(playlist)"
           @click.native="gotoPlaylist(playlist)"
           @CardContextMenu="getPlaylistMenu(arguments[0], playlist)"
         >
           <template slot="icon">
-            <SpotifyIcon
-              v-if="playlist.playlist_id.startsWith('spotify-')"
-              color="#07C330"
-              :dropShadow="true"
-              :filled="true"
-            />
-            <YoutubeIcon
-              v-if="playlist.playlist_id.startsWith('youtube-')"
-              color="#E62017"
-              :dropShadow="true"
-              :filled="true"
-            />
+            <SpotifyIcon v-if="playlist.playlist_id.startsWith('spotify-')" color="#07C330" :filled="true" />
+            <YoutubeIcon v-if="playlist.playlist_id.startsWith('youtube-')" color="#E62017" :filled="true" />
           </template>
 
           <template #defaultCover>
@@ -60,6 +51,16 @@ export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
   private allPlaylists: Playlist[] = []
 
   private playlistInAction: Playlist | undefined
+
+  private getIconBgColor(playlist: Playlist) {
+    if (playlist.playlist_id.startsWith('youtube-')) {
+      return '#E62017'
+    }
+
+    if (playlist.playlist_id.startsWith('spotify-')) {
+      return '#07C330'
+    }
+  }
 
   private async getPlaylists() {
     let localPlaylists = await window.SearchUtils.searchEntityByOptions({
