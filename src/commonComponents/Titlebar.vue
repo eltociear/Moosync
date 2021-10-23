@@ -6,7 +6,7 @@
 
     <b-row no-gutters align-h="between">
       <b-col cols="auto" class="h-100">
-        <b-row no-gutters align-v="center" class="logo-container">
+        <b-row v-if="windowType === 'main-window'" no-gutters align-v="center" class="logo-container">
           <b-col cols="auto">
             <Logo />
           </b-col>
