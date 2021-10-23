@@ -111,6 +111,8 @@ export default class NewPlaylistModal extends mixins(ImgLoader) {
     img.onload = () => this.drawImage(quad, len, ctx, img)
     img.crossOrigin = ''
     img.src = this.getImgSrc(src)
+
+    console.log(this.getImgSrc(src))
   }
 
   private isExpandedImage(quad: number, len: number) {
@@ -151,8 +153,10 @@ export default class NewPlaylistModal extends mixins(ImgLoader) {
     img.onload = () => ctx.drawImage(img, 0, 0, 800, 800)
   }
 
-  private mergeImages() {
+  private async mergeImages() {
     let mergableImages = this.getValidImages()
+
+    await this.$nextTick()
     if (mergableImages.length === 0) {
       this.forceEmptyImg = true
     } else {
