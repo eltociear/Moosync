@@ -71,7 +71,7 @@ export class SearchChannel implements IpcChannelInterface {
     }
   }
 
-  private async searchSongByOptions(event: Electron.IpcMainEvent, request: IpcRequest) {
+  private searchSongByOptions(event: Electron.IpcMainEvent, request: IpcRequest) {
     const preferences = loadPreferences()
     const data = SongDB.getSongByOptions(request.params.options, getDisabledPaths(preferences.musicPaths))
     event.reply(request.responseChannel, data)

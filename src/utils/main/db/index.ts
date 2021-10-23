@@ -167,9 +167,9 @@ class SongDBInstance extends DBUtils {
     return { where: '', args: [] }
   }
 
-  private addOrderClause(sortBy?: sortOptions) {
+  private addOrderClause(sortBy?: sortOptions, noCase: boolean = false) {
     if (sortBy) {
-      return `ORDER BY ${sortBy.type === 'name' ? 'title' : 'date_added'} ${sortBy.asc ? 'ASC' : 'DESC'}`
+      return `ORDER BY ${sortBy.type === 'name' ? 'allsongs.title' : 'allsongs.date_added'} ${noCase ? 'COLLATE NOCASE' : ''} ${sortBy.asc ? 'ASC' : 'DESC'}`
     }
     return ''
   }
@@ -183,11 +183,16 @@ class SongDBInstance extends DBUtils {
   public getSongByOptions(options?: SongAPIOptions, exclude?: string[]): Song[] {
     const { where, args } = this.populateWhereQuery(options)
 
+    console.log(`SELECT *, ${this.addGroupConcatClause()} FROM allsongs
+      ${this.addLeftJoinClause(undefined, 'allsongs')}
+        ${where}
+        ${this.addExcludeWhereClause(args.length === 0, exclude)} GROUP BY allsongs._id ${this.addOrderClause(options?.sortBy)}`)
+
     const songs: marshaledSong[] = this.db.query(
       `SELECT *, ${this.addGroupConcatClause()} FROM allsongs
       ${this.addLeftJoinClause(undefined, 'allsongs')}
         ${where}
-        ${this.addExcludeWhereClause(args.length === 0, exclude)} GROUP BY allsongs._id ${this.addOrderClause(options?.sortBy)} ${args.length > 0 ? 'COLLATE NOCASE' : ''}`,
+        ${this.addExcludeWhereClause(args.length === 0, exclude)} GROUP BY allsongs._id ${this.addOrderClause(options?.sortBy, args.length > 0)}`,
       ...args
     )
 
