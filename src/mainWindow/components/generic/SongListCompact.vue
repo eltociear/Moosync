@@ -54,7 +54,12 @@
                 <b-col cols="auto" align-self="center" class="button-icon ml-5">
                   <AddToQueue title="Add song to queue" @click.native="onRowDoubleClicked(item)"
                 /></b-col>
-                <b-col cols="auto" align-self="center" class="ml-5 mr-3" @click="onRowContext(arguments[0], item)">
+                <b-col
+                  cols="auto"
+                  align-self="center"
+                  class="ml-5 mr-3 py-2 ellipsis-icon"
+                  @click="onRowContext(arguments[0], item)"
+                >
                   <Ellipsis
                 /></b-col>
               </b-row>
@@ -152,4 +157,7 @@ export default class SongListCompact extends mixins(ImgLoader, SongListMixin) {
 .button-icon
   @media (max-width: 1213px)
     display: none
+
+.ellipsis-icon
+  cursor: pointer
 </style>
