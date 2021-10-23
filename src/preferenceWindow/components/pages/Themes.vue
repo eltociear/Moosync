@@ -7,7 +7,7 @@
       </b-row>
       <b-row no-gutters class="w-100"> </b-row>
       <b-row no-gutters class="w-100">
-        <b-col cols="3" class="p-2">
+        <b-col cols="5" xl="3" class="p-2">
           <div class="theme-component-container">
             <ThemeComponentClassic
               @click.native="setSongView('classic')"
@@ -18,7 +18,7 @@
             Classic
           </div>
         </b-col>
-        <b-col cols="3" class="p-2">
+        <b-col cols="5" xl="3" class="p-2">
           <div class="theme-component-container">
             <ThemeComponentCompact
               @click.native="setSongView('compact')"
@@ -35,7 +35,7 @@
       </b-row>
       <b-row no-gutters class="w-100"> </b-row>
       <b-row no-gutters class="w-100">
-        <b-col cols="3" class="p-2">
+        <b-col cols="5" xl="3" class="p-2">
           <div class="theme-component-container">
             <component
               :is="themesComponent"
@@ -47,7 +47,7 @@
             Default
           </div>
         </b-col>
-        <b-col cols="3" class="p-2" v-for="(value, key) in allThemes" :key="key">
+        <b-col cols="5" xl="3" class="p-2" v-for="(value, key) in allThemes" :key="key">
           <div class="theme-component-container">
             <component
               :is="themesComponent"
@@ -60,7 +60,7 @@
             {{ value.name }}
           </div>
         </b-col>
-        <b-col cols="3" class="p-2">
+        <b-col cols="5" xl="3" class="p-2">
           <div class="theme-component-container">
             <Add @click.native="createTheme" />
             Create new theme
