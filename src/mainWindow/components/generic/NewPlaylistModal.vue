@@ -219,7 +219,7 @@ export default class NewPlaylistModal extends mixins(ImgLoader) {
   padding-left: 10px
   margin-top: 15px
   border-radius: 0
-  border-left: 1px solid transparent
+  border-left: 1px solid var(--divider)
   &:focus
     -webkit-box-shadow: none
     box-shadow: none
@@ -251,7 +251,7 @@ export default class NewPlaylistModal extends mixins(ImgLoader) {
   color: var(--textPrimary)
   background-color: transparent
   border: 0
-  border-bottom: 1px solid transparent
+  border-bottom: 1px solid var(--divider)
   border-radius: 0
   padding: 0
   &:hover
