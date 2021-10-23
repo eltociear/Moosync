@@ -2,6 +2,7 @@
   <div class="w-100" @contextmenu="getGeneralSongsMenu">
     <SongView
       :detailsButtonGroup="buttonGroups"
+      :defaultDetails="defaultDetails"
       :songList="songList"
       @onRowContext="getSongMenu(arguments[0], arguments[1], undefined)"
     />
@@ -34,6 +35,12 @@ export default class AllSongs extends mixins(ContextMenuMixin) {
     return {
       enableContainer: true,
       enableLibraryStore: false
+    }
+  }
+
+  get defaultDetails(): SongDetailDefaults {
+    return {
+      defaultTitle: `${this.songList.length} Song${this.songList.length !== 1 ? 's' : ''}`
     }
   }
 
