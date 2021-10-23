@@ -4,31 +4,20 @@
     <b-popover :target="`account`" placement="bottom" triggers="focus" custom-class="accounts-popover">
       <div class="buttons">
         <IconButton
-          @click.native="handleYoutubeClick"
-          bgColor="#E62017"
-          :title="youtubeName ? youtubeName : 'Connect'"
-          :hoverText="youtube.loggedIn ? 'Sign Out' : 'Youtube'"
+          v-for="p in providers"
+          :key="`${p.name}-${p.username}`"
+          :bgColor="p.bgColor"
+          :hoverText="p.provider.loggedIn ? 'Sign out' : p.name"
+          :title="p.username ? p.username : 'Connect'"
+          @click.native="handleClick(p.name)"
         >
-          <template slot="icon"> <YoutubeIcon /> </template>
-        </IconButton>
-        <IconButton
-          @click.native="handleSpotifyClick"
-          bgColor="#1ED760"
-          :title="spotifyName ? spotifyName : 'Connect'"
-          :hoverText="spotify.loggedIn ? 'Sign Out' : 'Spotify'"
-        >
-          <template slot="icon"> <SpotifyIcon /> </template>
-        </IconButton>
-        <IconButton
-          @click.native="handleLastFmClick"
-          bgColor="#BA0000"
-          :title="lastFmName ? lastFmName : 'Connect'"
-          :hoverText="lastFm.loggedIn ? 'Sign Out' : 'LastFM'"
-        >
-          <template slot="icon"> <LastFMIcon /> </template>
+          <template slot="icon">
+            <component :is="p.icon" />
+          </template>
         </IconButton>
       </div>
     </b-popover>
+    <ConfirmationModal keyword="signout from" :itemName="activeSignout" id="signoutModal" @confirm="signout" />
   </div>
 </template>
 <script lang="ts">
@@ -39,26 +28,102 @@ import LastFMIcon from '@/icons/LastFM.vue'
 import Person from '@/icons/Person.vue'
 import { Component, Vue } from 'vue-property-decorator'
 import { vxm } from '@/mainWindow/store'
+import ConfirmationModal from '../../../commonComponents/ConfirmationModal.vue'
+import { GenericAuth } from '@/utils/ui/providers/generics/genericAuth'
+
+type Providers = 'Youtube' | 'Spotify' | 'LastFM'
 @Component({
   components: {
     IconButton,
     YoutubeIcon,
     SpotifyIcon,
     LastFMIcon,
-    Person
+    Person,
+    ConfirmationModal
   }
 })
 export default class TopBar extends Vue {
-  private youtubeName = ''
+  private activeSignout: Providers | null = null
 
-  private spotifyName = ''
+  private providers: {
+    name: Providers
+    username: string | undefined
+    bgColor: string
+    icon: string
+    provider: GenericAuth
+  }[] = [
+    {
+      name: 'Youtube',
+      bgColor: '#E62017',
+      username: '',
+      icon: 'YoutubeIcon',
+      provider: this.youtube
+    },
+    {
+      name: 'Spotify',
+      bgColor: '#1ED760',
+      username: '',
+      icon: 'SpotifyIcon',
+      provider: this.spotify
+    },
+    {
+      name: 'LastFM',
+      bgColor: '#BA0000',
+      username: '',
+      icon: 'LastFMIcon',
+      provider: this.lastFm
+    }
+  ]
 
-  private lastFmName = ''
+  private getProvider(provider: Providers) {
+    return this.providers.find((val) => val.name === provider)
+  }
+
+  private async getUserDetails(provider: Providers) {
+    const p = this.getProvider(provider)
+    if (p) {
+      const username = await p?.provider.getUserDetails()
+      this.$set(p, 'username', username)
+      if (!p.username) {
+        p.provider.signOut()
+      }
+    }
+  }
+
+  private async handleClick(provider: Providers) {
+    const p = this.getProvider(provider)
+    if (p) {
+      if (!p.provider.loggedIn) {
+        const success = await p.provider.updateConfig()
+        if (!success) {
+          window.WindowUtils.openWindow(false, { page: 'system' })
+          return
+        }
+        return this.login(provider)
+      }
+      this.showSignoutModal(provider)
+    }
+  }
+
+  private async login(provider: Providers) {
+    const p = this.getProvider(provider)
+    if (p) {
+      if (await p.provider.login()) {
+        try {
+          await this.getUserDetails(p.name)
+
+          if (p.name === 'LastFM') this.lastFm.scrobble(vxm.player.currentSong)
+        } catch (_) {
+          await p.provider.signOut()
+        }
+      }
+    }
+  }
 
   mounted() {
-    this.getUserDetailsYoutube()
-    this.getUserDetailsSpotify()
-    this.getUserDetailsLastFM()
+    this.getUserDetails('Youtube')
+    this.getUserDetails('Spotify')
+    this.getUserDetails('LastFM')
   }
 
   get youtube() {
@@ -73,115 +138,22 @@ export default class TopBar extends Vue {
     return vxm.providers.lastfmProvider
   }
 
-  private async handleSpotifyClick() {
-    if (!this.spotify.loggedIn) {
-      const success = await this.spotify.updateConfig()
-      if (!success) {
-        window.WindowUtils.openWindow(false, { page: 'system' })
-        return
-      }
-      this.loginSpotify()
-      return
-    }
-    this.signOutSpotify()
-  }
+  private async signout() {
+    if (this.activeSignout) {
+      const p = this.getProvider(this.activeSignout)
 
-  private async handleLastFmClick() {
-    if (!this.lastFm.loggedIn) {
-      const success = await this.lastFm.updateConfig()
-      if (!success) {
-        window.WindowUtils.openWindow(false, { page: 'system' })
-        return
-      }
-      this.loginLastFM()
-      return
-    }
-    this.signOutLastFM()
-  }
+      if (p) {
+        p.provider.signOut()
 
-  private async signOutLastFM() {
-    await this.lastFm.signOut()
-    this.lastFmName = ''
-  }
-
-  private async loginLastFM() {
-    if (await this.lastFm.login()) {
-      try {
-        await this.getUserDetailsLastFM()
-        this.lastFm.scrobble(vxm.player.currentSong)
-      } catch (_) {
-        await this.lastFm.signOut()
+        this.$set(p, 'username', '')
+        this.activeSignout = null
       }
     }
   }
 
-  private async loginSpotify() {
-    await this.spotify.login()
-    try {
-      await this.getUserDetailsSpotify()
-    } catch (_) {
-      await this.spotify.signOut()
-    }
-  }
-
-  private async signOutSpotify() {
-    await this.spotify.signOut()
-    this.spotifyName = ''
-  }
-
-  private async getUserDetailsSpotify() {
-    const name = await this.spotify.getUserDetails()
-    if (name) {
-      this.spotifyName = name
-      return
-    }
-    this.lastFm.signOut()
-  }
-
-  private async getUserDetailsLastFM() {
-    const name = await this.lastFm.getUserDetails()
-    if (name) {
-      this.lastFmName = name
-      return
-    }
-    this.lastFm.signOut()
-  }
-
-  private async handleYoutubeClick() {
-    if (!this.youtube.loggedIn) {
-      const success = await this.youtube.updateConfig()
-      if (!success) {
-        window.WindowUtils.openWindow(false, { page: 'system' })
-        return
-      }
-      this.loginYoutube()
-      return
-    }
-    this.signOutYoutube()
-  }
-
-  private async getUserDetailsYoutube() {
-    const name = await this.youtube.getUserDetails()
-    if (name) {
-      this.youtubeName = name
-      return
-    }
-    this.youtube.signOut()
-  }
-
-  private async loginYoutube() {
-    await this.youtube.login()
-
-    try {
-      this.getUserDetailsYoutube()
-    } catch (_) {
-      await this.youtube.signOut()
-    }
-  }
-
-  private async signOutYoutube() {
-    await this.youtube.signOut()
-    this.youtubeName = ''
+  private showSignoutModal(signout: 'Youtube' | 'Spotify' | 'LastFM') {
+    this.activeSignout = signout
+    this.$bvModal.show('signoutModal')
   }
 }
 </script>

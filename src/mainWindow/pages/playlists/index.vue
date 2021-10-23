@@ -36,7 +36,7 @@ import { vxm } from '@/mainWindow/store'
 import SpotifyIcon from '@/icons/Spotify.vue'
 import YoutubeIcon from '@/icons/Youtube.vue'
 import PlaylistDefault from '@/icons/PlaylistDefault.vue'
-import DeleteModal from '../../../commonComponents/DeleteModal.vue'
+import DeleteModal from '../../../commonComponents/ConfirmationModal.vue'
 
 @Component({
   components: {

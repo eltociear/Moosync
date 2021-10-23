@@ -4,7 +4,7 @@
       <b-container fluid class="p-0">
         <b-row no-gutters class="d-flex">
           <b-col>
-            <h4>Are you sure you want to delete {{ itemName }}?</h4>
+            <h4>Are you sure you want to {{ keyword }} {{ itemName }}?</h4>
             <h6 class="mt-3">Press Confirm if you are sure</h6>
           </b-col>
         </b-row>
@@ -22,7 +22,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { mixins } from 'vue-class-component'
 
 @Component({})
-export default class DeleteModal extends Vue {
+export default class ConfirmationModal extends Vue {
   @Prop({ default: 'DeleteDialog' })
   private id!: string
 
@@ -31,6 +31,9 @@ export default class DeleteModal extends Vue {
 
   @Prop({ default: '' })
   private description!: string
+
+  @Prop({ default: 'Delete' })
+  private keyword!: string
 
   private onCancelPressed() {
     this.$emit('cancel')
@@ -50,8 +53,6 @@ export default class DeleteModal extends Vue {
 </style>
 
 <style lang="sass" scoped>
-
-
 .topbar-container
   background: var(--primary)
   height: 70px

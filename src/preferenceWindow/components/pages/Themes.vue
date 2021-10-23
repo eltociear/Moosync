@@ -81,7 +81,7 @@ import PreferenceHeader from '../PreferenceHeader.vue'
 import ThemeComponentCompact from '../ThemeComponentCompact.vue'
 import Add from '@/icons/Add.vue'
 import { ContextMenuComponent, MenuItem } from 'vue-context-menu-popup'
-import DeleteModal from '@/commonComponents/DeleteModal.vue'
+import DeleteModal from '@/commonComponents/ConfirmationModal.vue'
 import ContextMenu from 'vue-context-menu-popup'
 import 'vue-context-menu-popup/dist/vue-context-menu-popup.css'
 
