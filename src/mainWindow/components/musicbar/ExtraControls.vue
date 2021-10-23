@@ -57,7 +57,6 @@ export default class MusicBar extends Vue {
       this.oldVolume = this.volume
       this.volume = 0
     } else {
-      console.log(this.oldVolume)
       this.volume = this.oldVolume
     }
   }
