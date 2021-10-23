@@ -230,12 +230,12 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   z-index: -9999
 
 .dark-overlay
-  height: calc(100% + 26px + 4px)
+  height: calc(100% + 28px + 5px)
   width: 100vw
   z-index: -9998
   position: absolute
   left: 0
-  top: -26px
+  top: -28px
   background: rgba(0,0,0,.75)
 
 .flip-list-move
