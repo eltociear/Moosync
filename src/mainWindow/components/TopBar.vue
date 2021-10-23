@@ -6,7 +6,7 @@
         <b-col cols="7">
           <Search />
         </b-col>
-        <b-col cols="auto" class="pr-5 ml-auto my-auto d-flex">
+        <b-col cols="auto" class="pr-5 ml-auto my-auto icons-bar d-flex">
           <b-row class="flex-grow-1">
             <b-col cols="auto"> <Notifications /> </b-col>
             <b-col cols="auto"> <Accounts /></b-col>
@@ -51,4 +51,7 @@ export default class TopBar extends Vue {
   height: 26px
   width: 26px
   margin-left: 10px
+
+.icons-bar
+  margin-right: 30px
 </style>
