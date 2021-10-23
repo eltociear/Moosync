@@ -144,6 +144,7 @@ export class WindowHandler {
 
       this.attachWindowEvents(win, isMainWindow)
     } else {
+      console.info('Window already exists, focusing')
       win = WindowHandler.getWindow(isMainWindow)!
       win.focus()
     }
