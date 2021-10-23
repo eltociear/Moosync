@@ -115,7 +115,6 @@ export default class MusicBar extends mixins(ImgLoader) {
 
 <style lang="sass" scoped>
 .background
-  background: var(--primary)
   position: fixed
   bottom: 0
   height: 6rem
@@ -132,8 +131,10 @@ export default class MusicBar extends mixins(ImgLoader) {
 
 .musicbar
   position: relative
+  background: transparent
 
 .bar-container
+  background: var(--primary)
   height: calc(100% - 1rem)
 
 .slider

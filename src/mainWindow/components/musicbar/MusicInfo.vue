@@ -211,6 +211,7 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
 
 .queue-container
   overflow-y: scroll
+  color: white !important
   &::-webkit-scrollbar-track
     background: transparent
     margin: 0
@@ -229,7 +230,7 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   z-index: -9999
 
 .dark-overlay
-  height: calc(100% + 26px)
+  height: calc(100% + 26px + 4px)
   width: 100vw
   z-index: -9998
   position: absolute

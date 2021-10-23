@@ -1,17 +1,12 @@
 <template>
   <b-container fluid class="path-container w-100">
     <b-row no-gutters v-if="title">
-      <b-col cols="auto" align-self="center" class="title d-flex">
-        <div>{{ title }}</div>
-        <div class="ml-3">
-          <Tooltip tooltipId="song-directories-tooltip" :text="tooltip" />
-        </div>
-      </b-col>
+      <PreferenceHeader v-if="title" :title="title" :tooltip="tooltip" />
       <b-col cols="auto" align-self="center" class="new-directories ml-auto">
         <div class="add-directories-button" @click="openFileBrowser">Add New Directory...</div>
       </b-col>
     </b-row>
-    <b-row no-gutters class="background w-100 mt-4 d-flex" v-if="Array.isArray(value)">
+    <b-row no-gutters class="background w-100 mt-2 d-flex" v-if="Array.isArray(value)">
       <b-row no-gutters class="mt-3 item w-100" v-for="(path, index) in value" :key="path.path">
         <b-col cols="auto" align-self="center" class="ml-4">
           <b-checkbox @change="togglePath(index)" :id="`path-${packageName}-${path.path}`" :checked="path.enabled" />
@@ -31,9 +26,11 @@
 import { Component, Prop, Vue, Mixins } from 'vue-property-decorator'
 import Tooltip from '@/commonComponents/Tooltip.vue'
 import { ExtensionPreferenceMixin } from '../mixins/extensionPreferenceMixin'
+import PreferenceHeader from './PreferenceHeader.vue'
 @Component({
   components: {
-    Tooltip
+    Tooltip,
+    PreferenceHeader
   }
 })
 export default class DirectoryGroup extends Mixins(ExtensionPreferenceMixin) {
@@ -93,11 +90,6 @@ export default class DirectoryGroup extends Mixins(ExtensionPreferenceMixin) {
 </style>
 
 <style lang="sass" scoped>
-// .container
-//   max-width: 720px
-.title
-  font-size: 20px
-
 .new-directories
   font-size: 16px
   color: var(--accent)

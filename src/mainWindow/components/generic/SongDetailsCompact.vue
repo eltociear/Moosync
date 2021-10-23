@@ -127,6 +127,7 @@ export default class SongDetailsCompact extends mixins(ImgLoader) {
 .song-info-container
   text-align: left
   margin-top: 15px
+  color: var(--textPrimary)
   .song-title
     font-weight: bold
     font-size: 24px

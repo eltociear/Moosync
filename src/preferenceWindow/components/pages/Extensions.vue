@@ -1,6 +1,6 @@
 <template>
-  <b-container fluid class="pref-container h-100">
-    <div class="h-100 d-flex flex-column">
+  <div>
+    <b-container fluid class="h-100">
       <b-row no-gutters>
         <b-col cols="8" md="8" class="tabs-col">
           <ul role="tablist" class="nav nav-tabs">
@@ -26,18 +26,16 @@
           <NextIcon class="ml-3" @click.native="nextPage"></NextIcon>
         </b-col>
       </b-row>
-      <b-row no-gutters class="mt-3 content-row flex-grow-1">
+      <b-row no-gutters class="mt-4 content-row flex-grow-1">
         <b-col>
-          <b-container fluid>
-            <b-row no-gutters class="single-pref-row">
-              <ExtensionGroup @extensionsChanged="onExtensionChanged" :extensions="extensions" />
-            </b-row>
-          </b-container>
+          <b-row no-gutters class="single-pref-row">
+            <ExtensionGroup @extensionsChanged="onExtensionChanged" :extensions="extensions" />
+          </b-row>
           <b-container fluid v-for="ext of extensionsWithPrefs" :key="ext.packageName" ref="extContent" class="mt-4">
             <b-row no-gutters>
               <div class="ext-title">{{ ext.name }}</div>
             </b-row>
-            <b-row no-gutters v-for="pref of ext.preferences" :key="pref.key" class="single-pref-row">
+            <b-row no-gutters v-for="pref of ext.preferences" :key="pref.key" class="single-pref-row mt-4">
               <component
                 v-if="isComponentExists(pref.type)"
                 :title="pref.title"
@@ -52,8 +50,8 @@
           </b-container>
         </b-col>
       </b-row>
-    </div>
-  </b-container>
+    </b-container>
+  </div>
 </template>
 
 <script lang="ts">
@@ -175,6 +173,7 @@ export default class Extensions extends Vue {
   background: var(--secondary)
   border-radius: 0px 26px 0px 0px
   border-bottom: 2px solid transparent
+  cursor: pointer
   .active
     background: var(--secondary) !important
     color: var(--textPrimary) !important
@@ -208,7 +207,6 @@ export default class Extensions extends Vue {
 .ext-title
   font-size: 26px
   font-weight: normal
-  margin-bottom: 20px
 
 .single-pref-row
   margin-bottom: 15px

@@ -1,17 +1,12 @@
 <template>
   <b-container fluid class="path-container w-100">
     <b-row no-gutters>
-      <b-col cols="auto" align-self="center" class="title d-flex">
-        <div>Extensions</div>
-        <div class="ml-3">
-          <Tooltip tooltipId="song-directories-tooltip" text="List of all installed extensions" />
-        </div>
-      </b-col>
+      <PreferenceHeader title="Extensions" tooltip="List of all installed extensions" />
       <b-col cols="auto" align-self="center" class="new-directories ml-auto">
         <div class="add-directories-button" @click="openFileBrowser">Install Extension</div>
       </b-col>
     </b-row>
-    <b-row no-gutters class="background w-100 mt-4 d-flex" v-if="Array.isArray(extensions)">
+    <b-row no-gutters class="background w-100 mt-2 d-flex" v-if="Array.isArray(extensions)">
       <b-row no-gutters class="mt-3 item w-100" v-for="(ext, index) in extensions" :key="ext.packageName">
         <b-col cols="auto" align-self="center" class="ml-4">
           <b-checkbox @change="togglePath(index)" :id="`ext-${index}`" :checked="ext.hasStarted" />
@@ -38,10 +33,11 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import Tooltip from '@/commonComponents/Tooltip.vue'
 import DeleteModal from '../../commonComponents/DeleteModal.vue'
+import PreferenceHeader from './PreferenceHeader.vue'
 @Component({
   components: {
-    Tooltip,
-    DeleteModal
+    DeleteModal,
+    PreferenceHeader
   }
 })
 export default class ExtensionGroup extends Vue {
