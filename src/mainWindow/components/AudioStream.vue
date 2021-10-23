@@ -122,8 +122,9 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   private async onSongEnded() {
     this.ignoreStateChange = true
     if (this.SongRepeat) {
-      this.activePlayer.currentTime = 0
-      this.onPlayerStateChanged('PLAYING')
+      // Re load entire audio instead of setting current time to 0
+      this.forcePlaySong = true
+      this.loadAudio(this.currentSong!, false)
     } else {
       this.forcePlaySong = true
       await vxm.player.nextSong()
