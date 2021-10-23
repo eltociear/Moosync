@@ -8,7 +8,7 @@
         </b-col>
         <b-col cols="auto" class="pr-5 ml-auto my-auto icons-bar d-flex">
           <b-row class="flex-grow-1">
-            <b-col cols="auto"> <Notifications /> </b-col>
+            <!-- <b-col cols="auto"> <Notifications /> </b-col> -->
             <b-col cols="auto"> <Accounts /></b-col>
             <b-col cols="auto"> <Gear class="gear-icon" @click.native="openSettings" /></b-col>
           </b-row>
