@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="card mb-2" @contextmenu="emitContext">
+    <div class="card mb-2 card-grow" @contextmenu="emitContext">
       <div class="card-img-top">
         <div class="icon-container">
           <slot name="icon" />
