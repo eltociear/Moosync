@@ -121,6 +121,15 @@ export default class Themes extends Vue {
     return id === this.activeView
   }
 
+  private editTheme(theme: ThemeDetails) {
+    this.$router.push({
+      name: 'new_theme',
+      params: {
+        currentTheme: theme.id
+      }
+    })
+  }
+
   private themeToRemove: ThemeDetails | null = null
   private menu: MenuItem[] = [
     {
@@ -137,6 +146,13 @@ export default class Themes extends Vue {
       label: 'Copy to clipboard',
       handler: () => {
         navigator.clipboard.writeText(JSON.stringify(theme))
+      }
+    }
+
+    this.menu[2] = {
+      label: 'Edit',
+      handler: () => {
+        this.editTheme(theme)
       }
     }
     ;(this.$refs['contextMenu'] as ContextMenuComponent).open(event)

@@ -74,9 +74,6 @@ export default class NewTheme extends Vue {
   private title: string = ''
   private author: string = ''
 
-  @Prop()
-  private currentTheme!: ThemeItem
-
   get defaultTheme() {
     return {
       primary: '#212121',
@@ -150,9 +147,11 @@ export default class NewTheme extends Vue {
     }
   }
 
-  created() {
-    if (this.currentTheme) {
-      this.customTheme = this.currentTheme
+  async created() {
+    const currentTheme = this.$route.params['currentTheme']
+    if (currentTheme) {
+      const theme = await window.ThemeUtils.getTheme(currentTheme)
+      if (theme) this.customTheme = theme.theme
     }
     this.parseClipboard()
   }
