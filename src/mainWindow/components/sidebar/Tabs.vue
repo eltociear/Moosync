@@ -15,7 +15,7 @@
       >
         <div class="whitebar" v-if="isActive && isOpen"></div>
         <div class="d-flex align-items-center icon-transition icon-padding">
-          <div class="icon d-flex">
+          <div class="icon d-flex" :title="item.title">
             <component :active="isActive" v-bind:is="item.component"></component>
           </div>
           <div
