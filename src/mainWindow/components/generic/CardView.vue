@@ -89,7 +89,7 @@ export default class CardView extends mixins(ImageLoader, ErrorHandler) {
 
 .title
   margin-bottom: 0 !important
-  font-weight: bold
+  font-weight: 300
   font-size: 20px
 
 .subtitle
