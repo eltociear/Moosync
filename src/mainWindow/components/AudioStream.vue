@@ -52,7 +52,11 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   }
 
   onPlayerStateChanged(newState: PlayerState) {
-    this.handleActivePlayerState(newState)
+    if (!this.ignoreStateChange) {
+      this.handleActivePlayerState(newState)
+    }
+
+    this.ignoreStateChange = false
     this.emitPlayerState(newState)
   }
 
@@ -78,7 +82,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
   @Watch('currentSong')
   onSongChanged(newSong: Song | null | undefined) {
-    this.ignoreStateChange = true
     if (newSong) this.loadAudio(newSong, false)
     else this.unloadAudio()
   }
@@ -120,13 +123,10 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   }
 
   private async onSongEnded() {
-    this.ignoreStateChange = true
     if (this.SongRepeat) {
       // Re load entire audio instead of setting current time to 0
-      this.forcePlaySong = true
       this.loadAudio(this.currentSong!, false)
     } else {
-      this.forcePlaySong = true
       await vxm.player.nextSong()
     }
   }
@@ -147,19 +147,15 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     this.activePlayer.onStateChange = (state) => {
       // Cued event of youtube embed seems to fire only once and is not reliable
       // Stop loading when state of player changes
-      if (this.activePlayer instanceof YoutubePlayer) {
-        vxm.player.loading = false
-      }
-
-      if (this.ignoreStateChange) {
-        this.ignoreStateChange = false
-        this.handleActivePlayerState(vxm.player.playerState)
-        return
-      }
+      vxm.player.loading = false
 
       if (state === 'STOPPED') {
         this.onSongEnded()
-      } else {
+        return
+      }
+
+      if (state !== vxm.player.playerState) {
+        this.ignoreStateChange = true
         vxm.player.playerState = state
       }
     }
@@ -228,6 +224,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   }
 
   private async loadAudio(song: Song, loadedState: boolean) {
+    this.unloadAudio()
+
     // vxm.player.state = 'PLAYING'
     if (song.type === 'LOCAL') {
       this.onPlayerTypeChanged('LOCAL')
@@ -236,8 +234,12 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
 
     vxm.player.loading = true
-    if (song.type === 'LOCAL') song.path && this.activePlayer.load('media://' + song.path, this.volume)
-    else {
+    if (song.type === 'LOCAL') {
+      if (song.path) {
+        this.activePlayer.load('media://' + song.path, this.volume)
+        vxm.player.loading = false
+      }
+    } else {
       if (!song.playbackUrl || !song.duration) {
         const res = await this.getPlaybackUrlAndDuration(song)
         if (res) {
@@ -247,6 +249,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
         }
         return
       }
+
       this.activePlayer.load(song.playbackUrl, this.volume, this.playerState === 'PLAYING')
     }
 
@@ -260,16 +263,15 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
      * local player fires "PAUSED" event right before changing tracks.
      * This is to force play if the song has just ended
      */
-    if (this.forcePlaySong) {
-      if (vxm.player.playerState !== 'PLAYING') vxm.player.playerState = 'PLAYING'
-      else this.onPlayerStateChanged('PLAYING')
+    // if (this.forcePlaySong) {
+    //   if (vxm.player.playerState !== 'PLAYING') vxm.player.playerState = 'PLAYING'
+    //   else this.onPlayerStateChanged('PLAYING')
 
-      this.forcePlaySong = false
-    }
+    //   this.forcePlaySong = false
+    // }
   }
 
   private unloadAudio() {
-    console.log('here')
     this.activePlayer.stop()
   }
 
