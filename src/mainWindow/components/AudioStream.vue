@@ -19,6 +19,7 @@ import { vxm } from '../store'
 import ErrorHandler from '@/utils/ui/mixins/errorHandler'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import Vue from 'vue'
+import { stat } from 'fs'
 
 @Component({})
 export default class AudioStream extends mixins(SyncMixin, PlayerControls, ErrorHandler) {
@@ -33,17 +34,42 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   @Prop({ default: null })
   currentSong!: Song | null | undefined
 
+  /**
+   * Player responsible for handling current song
+   * May switch between youtube and local
+   */
   private activePlayer!: Player
+
+  /**
+   * Instance of youtube embed player
+   */
   private ytPlayer!: YoutubePlayer
+
+  /**
+   * Instance of Local html audio tag player
+   */
   private localPlayer!: LocalPlayer
+
+  /**
+   * Holds type of player which is current active
+   */
   private activePlayerType!: PlayerType
 
+  /**
+   * True is page has just loaded and a new song is to be loaded into the player
+   * Otherwise false
+   */
   private isFirst: boolean = true
 
+  /**
+   * True if vuex state change is not to be reflected on active player
+   * When player is paused or played from an external source, the onStateChange event triggers
+   * and the vuex player state is changed respectively. This flag is set to true to avoid setting
+   * the same state on active player again
+   */
   private ignoreStateChange = false
-  private forcePlaySong = false
 
-  get SongRepeat() {
+  get songRepeat() {
     return vxm.player.Repeat
   }
 
@@ -51,15 +77,24 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     return vxm.player.volume
   }
 
-  onPlayerStateChanged(newState: PlayerState) {
+  /**
+   * Method called when vuex player state changes
+   * This method is responsible for reflecting that state on active player
+   */
+  async onPlayerStateChanged(newState: PlayerState) {
     if (!this.ignoreStateChange) {
-      this.handleActivePlayerState(newState)
+      await this.handleActivePlayerState(newState)
     }
 
     this.ignoreStateChange = false
     this.emitPlayerState(newState)
   }
 
+  /**
+   * Method called when player type changes
+   * This method is responsible of detaching old player
+   * and setting new player as active
+   */
   private onPlayerTypeChanged(newType: PlayerType) {
     if (this.activePlayerType !== newType) {
       this.unloadAudio()
@@ -80,16 +115,27 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
   }
 
+  /**
+   * Method triggered when currentSong prop changes
+   * This method is responsible for loading the current song in active player
+   * or unloading the player if current song is empty
+   */
   @Watch('currentSong')
   onSongChanged(newSong: Song | null | undefined) {
     if (newSong) this.loadAudio(newSong, false)
     else this.unloadAudio()
   }
 
+  /**
+   * Method triggered when vuex volume changes
+   */
   onVolumeChanged(newValue: number) {
     this.activePlayer.volume = newValue
   }
 
+  /**
+   * Method triggered when user seeks on timeline and forceSeek prop changes
+   */
   @Watch('forceSeek') onSeek(newValue: number) {
     this.activePlayer.currentTime = newValue
     this.remoteSeek(newValue)
@@ -103,13 +149,14 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     if (this.currentSong) this.loadAudio(this.currentSong, true)
   }
 
+  /**
+   * Initial setup for all players
+   */
   private setupPlayers() {
     this.ytPlayer = new YoutubePlayer(new YTPlayer('#yt-player'))
     this.localPlayer = new LocalPlayer(this.audioElement)
     this.activePlayer = this.localPlayer
     this.activePlayerType = 'LOCAL'
-
-    vxm.player.$watch('playerState', this.onPlayerStateChanged)
   }
 
   private setupSync() {
@@ -123,7 +170,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   }
 
   private async onSongEnded() {
-    if (this.SongRepeat) {
+    if (this.songRepeat) {
       // Re load entire audio instead of setting current time to 0
       this.loadAudio(this.currentSong!, false)
     } else {
@@ -131,6 +178,9 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
   }
 
+  /**
+   * Register all listeners related to players
+   */
   private registerPlayerListeners() {
     if (vxm.player.loading) {
       vxm.player.loading = false
@@ -174,14 +224,18 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   private registerListeners() {
     this.registerPlayerListeners()
     this.registerRoomListeners()
+
+    vxm.player.$watch('playerState', this.onPlayerStateChanged)
   }
 
+  /**
+   * Sets current player's state to vuex player state
+   */
   private handleFirstPlayback(loadedState: boolean) {
     if (this.isFirst) {
       if (!loadedState) vxm.player.playerState = 'PLAYING'
+      this.isFirst = false
     }
-
-    this.isFirst = false
 
     this.handleActivePlayerState(vxm.player.playerState)
   }
@@ -196,6 +250,9 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
   }
 
+  /**
+   * Set media info which is recognised by different applications and OS specific API
+   */
   private setMediaInfo(song: Song) {
     if (navigator.mediaSession) {
       const artwork: MediaImage[] = []
@@ -226,7 +283,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   private async loadAudio(song: Song, loadedState: boolean) {
     this.unloadAudio()
 
-    // vxm.player.state = 'PLAYING'
     if (song.type === 'LOCAL') {
       this.onPlayerTypeChanged('LOCAL')
     } else {
@@ -258,17 +314,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     this.handleFirstPlayback(loadedState)
 
     this.setMediaInfo(song)
-
-    /**
-     * local player fires "PAUSED" event right before changing tracks.
-     * This is to force play if the song has just ended
-     */
-    // if (this.forcePlaySong) {
-    //   if (vxm.player.playerState !== 'PLAYING') vxm.player.playerState = 'PLAYING'
-    //   else this.onPlayerStateChanged('PLAYING')
-
-    //   this.forcePlaySong = false
-    // }
   }
 
   private unloadAudio() {
