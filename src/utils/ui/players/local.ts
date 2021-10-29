@@ -19,10 +19,8 @@ export class LocalPlayer extends Player {
   }
 
   load(src?: string, volume?: number): void {
-    if (src) {
-      src && (this.playerInstance.src = src)
-      volume && (this.volume = volume);
-    }
+    src && (this.playerInstance.src = src)
+    volume && (this.volume = volume);
   }
 
   async play(): Promise<void> {

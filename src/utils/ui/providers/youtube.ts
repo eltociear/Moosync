@@ -311,7 +311,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
             _id: song.youtubeId,
             url: song.youtubeId,
             title: song.title!,
-            artists: song.artist ? [song.artist] : [],
+            artists: song.artists?.map(val => val.name) ?? [],
             duration: song.duration!.totalSeconds,
             album: {
               album_name: song.album,

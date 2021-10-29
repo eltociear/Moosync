@@ -132,7 +132,9 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Playlists':
           return `${(item as Playlist).playlist_songs} Songs`
         case 'Youtube':
-          return `${(item as ytMusic.MusicVideo).album} - ${(item as ytMusic.MusicVideo).artist}`
+          return `${(item as ytMusic.MusicVideo).album} - ${(item as ytMusic.MusicVideo).artists
+            ?.map((val) => val.name)
+            ?.join(', ')}}`
       }
     }
     return ''

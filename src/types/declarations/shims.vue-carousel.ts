@@ -1,5 +1,5 @@
 /* 
- *  shims.vue-virtual-scroll-list.ts is a part of Moosync.
+ *  shims.vue-carousel.ts is a part of Moosync.
  *  
  *  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
  *  Licensed under the GNU General Public License. 

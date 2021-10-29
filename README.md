@@ -15,7 +15,7 @@ Moosync is an [Electron](https://www.electronjs.org/) based simple music player 
     - [Setting up the project](#setting-up-the-project)
     - [Downloading dependencies](#downloading-dependencies)
     - [Setting up environment variables](#setting-up-environment-variables)
-    - [Post installation (Optional)](#post-installation-optional)
+    - [Post installation](#post-installation)
     - [Running in development environment](#running-in-development-environment)
     - [Building a production build](#building-a-production-build)
     - [Developing extensions](#developing-extensions)
@@ -93,9 +93,9 @@ yarn install
 - Add appropriate values inside sample.config.env
 - Rename sample.config.env to config.env
 
-### Post installation (Optional)
+### Post installation
 
-Native dependencies need to be compiled for electron separately. This is done automatically when you run yarn install or yarn add.
+Native dependencies need to be compiled for electron separately.
 
 Incase this does not work, you can run
 

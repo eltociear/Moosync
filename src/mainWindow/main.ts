@@ -7,11 +7,11 @@
  *  See LICENSE in the project root for license information.
  */
 
+import '@/mainWindow/plugins/carousel'
 import '@/mainWindow/plugins/recycleScroller'
+import '@/mainWindow/plugins/toasted'
 import '@/mainWindow/plugins/vueBootstrap'
 import '@/mainWindow/plugins/vueSliderBar'
-import '@/mainWindow/plugins/toasted'
-import '@/mainWindow/plugins/carousel'
 import '@/sass/global.sass'
 
 import App from '@/mainWindow/App.vue'

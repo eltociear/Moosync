@@ -14,7 +14,7 @@ import { PlayerStore } from './playerState'
 import { PlaylistStore } from '@/mainWindow/store/playlists'
 import { ProviderStore } from '@/mainWindow/store/providers'
 import { SyncStore } from '@/mainWindow/store/syncState'
-import { ThemeStore } from './themes';
+import { ThemeStore } from './themes'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { createPersist } from '@/utils/ui/store/persist'

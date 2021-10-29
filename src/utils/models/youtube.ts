@@ -23,7 +23,7 @@ export function toSong(...item: ytMusic.MusicVideo[]): Song[] {
         album_coverPath_high: s.thumbnailUrl?.replace('w60', 'w300').replace('h60', 'h300')!,
         album_coverPath_low: s.thumbnailUrl
       },
-      artists: s.artist ? s.artist.trim().split(/,|&/) : [],
+      artists: s.artists?.map(val => val.name) ?? [],
       duration: s.duration!.totalSeconds,
       url: s.youtubeId,
       date_added: Date.now().toString(),

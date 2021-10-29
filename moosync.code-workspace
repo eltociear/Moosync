@@ -75,7 +75,21 @@
     },
     "search.exclude": {
       "**/node_modules": false
-    }
+    },
+    "markdownlint.config": {
+      "MD028": false,
+      "MD025": {
+        "front_matter_title": ""
+      }
+    },
+    "license-header-manager.additionalCommentStyles": [
+      {
+        "extension": ".vue",
+        "commentStart": "<!-- ",
+        "commentMiddle": " ",
+        "commentEnd": " -->"
+      }
+    ],
   },
   "extensions": {
     "recommendations": [

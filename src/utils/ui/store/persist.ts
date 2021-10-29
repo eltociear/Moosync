@@ -28,7 +28,7 @@ function reducer(state: Object, paths: string[]) {
   return Array.isArray(paths)
     ? paths.reduce(function (substate, path) {
       return shvl.set(substate, path, shvl.get(state, path))
-    }, { })
+    }, {})
     : state
 }
 
