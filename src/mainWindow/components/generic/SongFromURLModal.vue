@@ -1,3 +1,12 @@
+<!-- 
+  SongFromURLModal.vue is a part of Moosync.
+  
+  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Licensed under the GNU General Public License. 
+  
+  See LICENSE in the project root for license information.
+-->
+
 <template>
   <b-modal class="song-url-modal" centered size="lg" :id="id" :ref="id" hide-footer hide-header>
     <div class="modal-content-container">

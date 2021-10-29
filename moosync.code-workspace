@@ -87,7 +87,7 @@
         "extension": ".vue",
         "commentStart": "<!-- ",
         "commentMiddle": " ",
-        "commentEnd": " -->"
+        "commentEnd": "-->"
       }
     ],
   },

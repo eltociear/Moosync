@@ -1,3 +1,12 @@
+<!-- 
+  ExtraControls.vue is a part of Moosync.
+  
+  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Licensed under the GNU General Public License. 
+  
+  See LICENSE in the project root for license information.
+-->
+
 <template>
   <b-row align-h="end" align-v="center" no-gutters>
     <b-col cols="auto" class="slider-container d-flex">

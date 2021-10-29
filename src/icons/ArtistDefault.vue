@@ -1,3 +1,12 @@
+<!-- 
+  ArtistDefault.vue is a part of Moosync.
+  
+  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Licensed under the GNU General Public License. 
+  
+  See LICENSE in the project root for license information.
+-->
+
 <template>
   <svg viewBox="0 0 201 201" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect width="201" height="201" fill="var(--secondary)" />

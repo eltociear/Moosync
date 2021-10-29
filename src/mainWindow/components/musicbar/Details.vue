@@ -1,3 +1,12 @@
+<!-- 
+  Details.vue is a part of Moosync.
+  
+  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Licensed under the GNU General Public License. 
+  
+  See LICENSE in the project root for license information.
+-->
+
 <template>
   <b-row no-gutters class="w-100" align-v="center">
     <b-col cols="auto">

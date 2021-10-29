@@ -1,3 +1,12 @@
+<!-- 
+  index.vue is a part of Moosync.
+  
+  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Licensed under the GNU General Public License. 
+  
+  See LICENSE in the project root for license information.
+-->
+
 <template>
   <b-container class="recommendations-container" fluid>
     <b-row no-gutters class="page-title">Explore</b-row>

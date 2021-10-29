@@ -1,3 +1,12 @@
+<!-- 
+  Fav.vue is a part of Moosync.
+  
+  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Licensed under the GNU General Public License. 
+  
+  See LICENSE in the project root for license information.
+-->
+
 <template>
   <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
     <ellipse cx="19" cy="18.999" rx="19" ry="18.6475" fill="#E98181" />
