@@ -13,6 +13,7 @@ export class ThemeStore extends VuexModule.With({ namespaced: 'themes' }) {
   private _songView: songMenu = 'compact'
   private _sortBy: sortOptions = { type: 'date', asc: true }
   private _refreshPage = false
+  private _sidebarOpen = false
 
   get sortBy() {
     return this._sortBy
@@ -36,5 +37,13 @@ export class ThemeStore extends VuexModule.With({ namespaced: 'themes' }) {
 
   set refreshPage(val: boolean) {
     this._refreshPage = val
+  }
+
+  get sidebarOpen() {
+    return this._sidebarOpen
+  }
+
+  set sidebarOpen(val: boolean) {
+    this._sidebarOpen = val
   }
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="appContainer">
     <TopBar class="topbar" :class="{ 'is-open': isSidebarOpen }" />
-    <Sidebar class="sidebar" @toggleOpen="toggleSidebar" />
+    <Sidebar class="sidebar" />
     <MusicBar class="musicbar" />
 
     <div class="d-flex main-content" :class="{ 'is-open': isSidebarOpen }">
@@ -29,11 +29,10 @@ import { vxm } from '../store/index'
   }
 })
 export default class DefaultLayout extends mixins(ContextMenuMixin) {
-  private isSidebarOpen: boolean = false
   private refreshPage = false
 
-  private toggleSidebar(isOpen: boolean) {
-    this.isSidebarOpen = isOpen
+  get isSidebarOpen() {
+    return vxm.themes.sidebarOpen
   }
 
   private listenRefreshPage() {

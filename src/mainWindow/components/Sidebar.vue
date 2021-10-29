@@ -67,11 +67,18 @@ import { vxm } from '../store'
 })
 export default class Sidebar extends Vue {
   private roomInput: String = ''
-  private isOpen: boolean = false
   private showRoomsButton: boolean = true
 
   get roomID() {
     return vxm.sync.roomID
+  }
+
+  get isOpen() {
+    return vxm.themes.sidebarOpen
+  }
+
+  set isOpen(val: boolean) {
+    vxm.themes.sidebarOpen = val
   }
 
   private toggleOpen() {
