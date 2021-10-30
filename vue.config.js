@@ -9,6 +9,9 @@ const archElectronConfig = {}
 if (fs.existsSync('/usr/lib/electron') && fs.existsSync('/usr/lib/electron/version')) {
   archElectronConfig.electronDist = '/usr/lib/electron'
   archElectronConfig.electronVersion = fs.readFileSync('/usr/lib/electron/version', { encoding: 'utf-8' }).replace('v', '')
+} else if (fs.existsSync('/usr/lib/electron15') && fs.existsSync('/usr/lib/electron15/version')) {
+  archElectronConfig.electronDist = '/usr/lib/electron15'
+  archElectronConfig.electronVersion = fs.readFileSync('/usr/lib/electron15/version', { encoding: 'utf-8' }).replace('v', '')
 }
 
 const secrets = {}
