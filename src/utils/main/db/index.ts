@@ -278,7 +278,7 @@ class SongDBInstance extends DBUtils {
    * @param coverHigh high resolution cove image path
    * @param coverLow low resolution cove image path
    */
-  public updateSongCover(id: string, coverHigh: string, coverLow: string) {
+  public updateSongCover(id: string, coverHigh: string, coverLow?: string) {
     this.db.update('allsongs', {
       song_coverPath_high: coverHigh,
       song_coverPath_low: coverLow
@@ -310,7 +310,7 @@ class SongDBInstance extends DBUtils {
   * @param coverHigh high resolution cover path
   * @param coverLow low resolution cover path
   */
-  public updateAlbumCovers(songid: string, coverHigh: string, coverLow: string) {
+  public updateAlbumCovers(songid: string, coverHigh: string, coverLow?: string) {
     this.db.transaction((songid, newHigh, newLow) => {
       const { album_id } = this.db.queryFirstRowObject(`SELECT album as album_id FROM album_bridge WHERE song = ?`, songid) as { album_id: string }
       if (album_id) {

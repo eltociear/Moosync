@@ -6,26 +6,17 @@
  *  
  *  See LICENSE in the project root for license information.
  */
-
-import { TransferDescriptor, expose } from 'threads';
-
-import Jimp from 'jimp'
 import path from 'path';
+import sharp from 'sharp'
 
-expose({
-  async writeCover(buffer: TransferDescriptor<Buffer>, basePath: string, id: string, low: boolean = false) {
-    return writeBuffer(buffer, basePath, id, low)
-  },
-})
-
-async function writeBuffer(bufferDesc: TransferDescriptor<Buffer>, basePath: string, id: string, low: boolean) {
+export async function writeBuffer(bufferDesc: Buffer, basePath: string, id: string, low: boolean) {
   try {
     const highPath = path.join(basePath, id + '-high.jpg')
-    await (await Jimp.read(Buffer.from(bufferDesc.send))).cover(800, 800).quality(80).writeAsync(highPath)
+    await sharp(Buffer.from(bufferDesc)).resize(800, 800).toFile(highPath)
 
     if (low) {
       const lowPath = path.join(basePath, id + '-low.jpg')
-      await (await Jimp.read(Buffer.from(bufferDesc.send))).cover(80, 80).quality(80).writeAsync(lowPath)
+      await sharp(Buffer.from(bufferDesc)).resize(80, 80).toFile(lowPath)
 
       return { high: highPath, low: lowPath }
     }
