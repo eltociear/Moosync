@@ -52,6 +52,9 @@ module.exports = {
         appId: 'org.moosync.Moosync',
         productName: 'Moosync',
         artifactName: "${productName}-${version}-${os}-${arch}.${ext}",
+        win: {
+          publisherName: "Moosync"
+        },
         fileAssociations: [{
           ext: "mp3",
           description: "Music file extension",
