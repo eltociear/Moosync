@@ -52,6 +52,8 @@ jobs:
       - name: yarn electron:build
         run: yarn electron:build
         env:
+          CSC_LINK: ${{ secrets.CSC_LINK_MAC }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CI: true
       - uses: actions/upload-artifact@v2
