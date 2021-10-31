@@ -269,7 +269,11 @@ class SongDBInstance extends DBUtils {
    * @returns Song
    */
   public getByHash(hash: string) {
-    return this.db.queryFirstRow(`SELECT * FROM allsongs WHERE hash = ?`, hash)! as Song
+    return this.getSongByOptions({
+      song: {
+        hash
+      }
+    })
   }
 
   /**
