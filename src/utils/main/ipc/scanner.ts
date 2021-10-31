@@ -51,15 +51,13 @@ export class ScannerChannel implements IpcChannelInterface {
     notifyRenderer({ id: 'scan-status', message: `Scanned ${song.title}`, type: 'info' })
 
     const existing = SongDB.getByHash(song.hash!)
-    if (!existing) {
+    if (existing.length === 0) {
       const res = cover && await this.storeCover(song._id!, cover)
       if (res) {
-        if (!(await this.checkAlbumCovers(song))) {
-          song.album = {
-            ...song.album,
-            album_coverPath_high: res.high,
-            album_coverPath_low: res.low
-          }
+        song.album = {
+          ...song.album,
+          album_coverPath_high: res.high,
+          album_coverPath_low: res.low
         }
         song.song_coverPath_high = res.high
         song.song_coverPath_low = res.low
@@ -67,18 +65,18 @@ export class ScannerChannel implements IpcChannelInterface {
 
       await SongDB.store(song)
     } else {
-      const albumCoverExists = await this.checkAlbumCovers(song)
-      const songCoverExists = await this.checkSongCovers(song)
+      const s = existing[0]
+      const albumCoverExists = await this.checkAlbumCovers(s)
+      const songCoverExists = await this.checkSongCovers(s)
 
-      console.log(albumCoverExists, songCoverExists)
       if (!albumCoverExists || !songCoverExists) {
         const res = cover && await this.storeCover(song._id!, cover)
         if (res) {
           if (!songCoverExists)
-            SongDB.updateSongCover(existing._id, res.high, res.low)
+            SongDB.updateSongCover(s._id, res.high, res.low)
 
           if (!albumCoverExists)
-            SongDB.updateAlbumCovers(existing._id, res.high, res.low)
+            SongDB.updateAlbumCovers(s._id, res.high, res.low)
         }
       }
     }
@@ -149,7 +147,6 @@ export class ScannerChannel implements IpcChannelInterface {
         return true
       } catch (e) {
         console.error(`${coverPath} not accessible`)
-        return false
       }
     }
     return false
