@@ -9,6 +9,9 @@ const archElectronConfig = {}
 if (fs.existsSync('/usr/lib/electron') && fs.existsSync('/usr/lib/electron/version')) {
   archElectronConfig.electronDist = '/usr/lib/electron'
   archElectronConfig.electronVersion = fs.readFileSync('/usr/lib/electron/version', { encoding: 'utf-8' }).replace('v', '')
+} else if (fs.existsSync('/usr/lib/electron15') && fs.existsSync('/usr/lib/electron15/version')) {
+  archElectronConfig.electronDist = '/usr/lib/electron15'
+  archElectronConfig.electronVersion = fs.readFileSync('/usr/lib/electron15/version', { encoding: 'utf-8' }).replace('v', '')
 }
 
 const secrets = {}
@@ -40,7 +43,9 @@ module.exports = {
         ...secrets
       }),
     ],
-    externals: { 'better-sqlite3': 'commonjs better-sqlite3', "vm2": "require('vm2')" },
+    externals: {
+      'better-sqlite3': 'commonjs better-sqlite3', "vm2": "require('vm2')", 'sharp': "require('sharp')"
+    },
     devtool: 'source-map'
   },
   pluginOptions: {
@@ -121,9 +126,22 @@ module.exports = {
       mainProcessTypeChecking: true,
       preload: 'src/utils/preload/preload.ts',
       externals: [
-        'better-sqlite3', 'vm2'
+        'better-sqlite3', 'vm2', 'sharp'
       ],
       chainWebpackMainProcess: (config) => {
+        config.module
+          .rule('babel')
+          .before('ts')
+          .exclude
+          .add(/node_modules|regenerator-runtime|core-js|webpack/)
+          .end()
+          .use('babel')
+          .loader('babel-loader')
+          .options({
+            presets: [['@babel/preset-env', { modules: false }]],
+            plugins: ['@babel/plugin-proposal-class-properties', ["@babel/plugin-transform-runtime", { "regenerator": true, }], "@babel/plugin-syntax-bigint"]
+          })
+
         config.entry("sandbox").add(__dirname + '/src/utils/extensions/sandbox/index.ts').end()
 
         config.plugin('thread')

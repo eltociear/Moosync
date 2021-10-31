@@ -15,6 +15,7 @@ import { SongDB } from '@/utils/main/db/index'
 import fs from 'fs'
 import { loadPreferences } from '@/utils/main/db/preferences'
 import { notifyRenderer } from '.'
+import { writeBuffer } from '@/utils/main/workers/covers'
 
 enum scanning {
   UNDEFINED,
@@ -26,7 +27,7 @@ export class ScannerChannel implements IpcChannelInterface {
   name = IpcEvents.SCANNER
   private scanStatus: scanning = scanning.UNDEFINED
 
-  private coverPool = Pool(() => spawn(new Worker('@/utils/main/workers/covers.ts', { type: 'module' })))
+  // private coverPool = Pool(() => spawn(new Worker('@/utils/main/workers/covers.ts', { type: 'module' })))
   private scannerWorker: any
   private scraperWorker: any
 
@@ -85,23 +86,15 @@ export class ScannerChannel implements IpcChannelInterface {
 
   private async storeCover(id: string, cover: TransferDescriptor<Buffer> | undefined) {
     if (cover) {
-      const thumbPath = (await loadPreferences()).thumbnailPath
-      if (this.coverPool) {
-        return new Promise<{ high: string, low: string }>((resolve, reject) => {
-          this.coverPool.queue(coverTask => coverTask.writeCover(cover, thumbPath, id, true).then((val) => resolve(val)).catch((e) => reject(e)))
-        })
-      }
+      const thumbPath = loadPreferences().thumbnailPath
+      return writeBuffer(cover.send, thumbPath, id, true)
     }
   }
 
-  private async storeCoverSIngle(id: string, cover: TransferDescriptor<Buffer> | undefined) {
+  private async storeCoverSingle(id: string, cover: TransferDescriptor<Buffer> | undefined) {
     if (cover) {
       const thumbPath = loadPreferences().thumbnailPath
-      if (this.coverPool) {
-        return new Promise<{ high: string }>((resolve, reject) => {
-          this.coverPool.queue(coverTask => coverTask.writeCover(cover, thumbPath, id, false).then((val) => resolve(val)).catch((e) => reject(e)))
-        })
-      }
+      return writeBuffer(cover.send, thumbPath, id, false)
     }
   }
 
@@ -197,10 +190,8 @@ export class ScannerChannel implements IpcChannelInterface {
     })
 
     await this.fetchMBID(allArtists)
-
     await this.fetchArtworks(allArtists)
 
-    await this.coverPool.completed()
     await Thread.terminate(this.scraperWorker)
     this.scraperWorker = undefined
   }
