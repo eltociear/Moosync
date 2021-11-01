@@ -141,8 +141,9 @@ export default class SongListCompact extends mixins(ImgLoader, SongListMixin) {
   background: var(--secondary)
   border-radius: 17px
   height: 80px
-  transition: border 0.2s ease
   border: 1px solid transparent
+  &:hover
+    border: 1px solid var(--divider)
   div
     user-select: none
 
