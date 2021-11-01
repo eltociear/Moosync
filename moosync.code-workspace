@@ -6,6 +6,7 @@
   ],
   "settings": {
     "eslint.validate": [
+      "typescript",
       "javascript",
       "vue"
     ],
