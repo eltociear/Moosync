@@ -11,7 +11,7 @@
   <div>
     <div ref="audioHolder">
       <div id="yt-player" class="yt-player"></div>
-      <audio ref="audio" />
+      <audio ref="audio" preload="auto" />
     </div>
   </div>
 </template>
@@ -28,7 +28,6 @@ import { vxm } from '../store'
 import ErrorHandler from '@/utils/ui/mixins/errorHandler'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import Vue from 'vue'
-import { stat } from 'fs'
 
 @Component({})
 export default class AudioStream extends mixins(SyncMixin, PlayerControls, ErrorHandler) {
@@ -77,6 +76,11 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    * the same state on active player again
    */
   private ignoreStateChange = false
+
+  /**
+   * True is playerstate is set to be 'PLAYING' ignoring its previous value on new song load
+   */
+  private forcePlay = false
 
   get songRepeat() {
     return vxm.player.Repeat
@@ -179,6 +183,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   }
 
   private async onSongEnded() {
+    this.forcePlay = true
     if (this.songRepeat) {
       // Re load entire audio instead of setting current time to 0
       this.loadAudio(this.currentSong!, false)
@@ -301,7 +306,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     vxm.player.loading = true
     if (song.type === 'LOCAL') {
       if (song.path) {
-        this.activePlayer.load('media://' + song.path, this.volume)
+        this.activePlayer.load('media://' + song.path, this.volume, this.playerState === 'PLAYING')
         vxm.player.loading = false
       }
     } else {
@@ -316,6 +321,11 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       }
 
       this.activePlayer.load(song.playbackUrl, this.volume, this.playerState === 'PLAYING')
+    }
+
+    if (this.forcePlay) {
+      this.forcePlay = false
+      vxm.player.playerState = 'PLAYING'
     }
 
     if (this.handleBroadcasterAudioLoad(song)) return
