@@ -8,19 +8,20 @@
 -->
 
 <template>
-  <b-sidebar
-    :width="isOpen ? '261px' : '70px'"
-    visible
-    id="sidebar"
-    no-header-close
-    no-close-on-route-change
-    sidebar-class="gradient sidebar-height"
-  >
-    <template #header>
-      <div class="d-flex w-100 mt-3 justify-content-between">
-        <Toggle class="toggle" @click.native="toggleOpen()" />
-        <!-- <Rooms id="rooms" v-if="showRoomsButton" /> -->
-        <!-- <b-popover
+  <div class="sidebar-container">
+    <b-sidebar
+      :width="isOpen ? '261px' : '70px'"
+      visible
+      id="sidebar"
+      no-header-close
+      no-close-on-route-change
+      sidebar-class="gradient"
+    >
+      <template #header>
+        <div class="d-flex w-100 mt-3 justify-content-between">
+          <Toggle class="toggle" @click.native="toggleOpen()" />
+          <!-- <Rooms id="rooms" v-if="showRoomsButton" /> -->
+          <!-- <b-popover
           v-if="showRoomsButton"
           :target="`rooms`"
           placement="rightbottom"
@@ -49,14 +50,15 @@
             <div></div>
           </div>
         </b-popover> -->
-      </div>
-    </template>
-    <template #default>
-      <div class="extra-margin-top">
-        <Tabs :isOpen="isOpen" />
-      </div>
-    </template>
-  </b-sidebar>
+        </div>
+      </template>
+      <template #default>
+        <div class="extra-margin-top">
+          <Tabs :isOpen="isOpen" />
+        </div>
+      </template>
+    </b-sidebar>
+  </div>
 </template>
 
 <script lang="ts">
@@ -130,8 +132,6 @@ export default class Sidebar extends Vue {
 
 .b-sidebar
   transition: 0.2s
-
-.sidebar-height
   height: calc(100% - (6.5rem + 32px))
 
 .b-sidebar-body
@@ -144,10 +144,6 @@ export default class Sidebar extends Vue {
 <style lang="sass" scoped>
 .toggle
   margin-left: 8px
-
-.sidebar
-  position: absolute
-  overflow: hidden
 
 .icon-spacing
   margin-right: 26px

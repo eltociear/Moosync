@@ -337,8 +337,8 @@ body
   color: var(--textPrimary) !important
 
 .appContainer
-  width: 100%
-  height: 100%
+  width: 100vw
+  height: 100vh
 
 .slide-fade-enter-active
   transition: all .3s ease
