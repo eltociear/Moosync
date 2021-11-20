@@ -1,0 +1,24 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "Ovenoboyo",
+      "name": "Sahil Gupte",
+      "avatar_url": "https://avatars.githubusercontent.com/u/36789504?v=4",
+      "profile": "https://github.com/Ovenoboyo",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "Moosync",
+  "projectOwner": "Moosync",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
