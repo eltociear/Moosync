@@ -6,6 +6,24 @@
   "commit": false,
   "contributors": [
     {
+      "login": "Ovenoboyo",
+      "name": "Sahil Gupte",
+      "avatar_url": "https://avatars.githubusercontent.com/u/36789504?v=4",
+      "profile": "https://github.com/Ovenoboyo",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Mercyssh",
+      "name": "Ohm",
+      "avatar_url": "https://avatars.githubusercontent.com/u/41297391?v=4",
+      "profile": "https://github.com/Mercyssh",
+      "contributions": [
+        "design"
+      ]
+    },
+    {
       "login": "AndroBuddy",
       "name": "Anirudh",
       "avatar_url": "https://avatars.githubusercontent.com/u/28799675?v=4",
