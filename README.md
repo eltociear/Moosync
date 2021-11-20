@@ -1,4 +1,7 @@
 # Moosync
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Moosync is an [Electron](https://www.electronjs.org/) based simple music player with a primary goal to provide a clean and easy interface. Through Moosync you can easily listen songs from your desktop or through Youtube and Spotify.
 
@@ -134,3 +137,23 @@ Types for Extension API can be found [here](https://github.com/Moosync/extension
 A sample extension can be found [here](https://github.com/Moosync/extension-typescript-template)
 
 More details about extension lifecycle can be found in the sample template
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/Mercyssh"><img src="https://avatars.githubusercontent.com/u/41297391?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ohm</b></sub></a><br /><a href="#design-Mercyssh" title="Design">🎨</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
