@@ -148,6 +148,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tr>
     <td align="center"><a href="https://github.com/Mercyssh"><img src="https://avatars.githubusercontent.com/u/41297391?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ohm</b></sub></a><br /><a href="#design-Mercyssh" title="Design">🎨</a></td>
+    <td align="center"><a href="http://androbuddy.github.io/studio-wingress"><img src="https://avatars.githubusercontent.com/u/28799675?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Anirudh</b></sub></a><br /><a href="#design-AndroBuddy" title="Design">🎨</a></td>
     <td align="center"><a href="https://github.com/Ovenoboyo"><img src="https://avatars.githubusercontent.com/u/36789504?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Sahil Gupte</b></sub></a><br /><a href="https://github.com/Moosync/Moosync/commits?author=Ovenoboyo" title="Code">💻</a></td>
   </tr>
 </table>
