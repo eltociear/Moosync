@@ -1,6 +1,6 @@
 # Moosync
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Moosync is an [Electron](https://www.electronjs.org/) based simple music player with a primary goal to provide a clean and easy interface. Through Moosync you can easily listen songs from your desktop or through Youtube and Spotify.
