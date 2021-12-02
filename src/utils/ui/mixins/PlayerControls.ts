@@ -60,6 +60,9 @@ export default class PlayerControls extends Vue {
 
   public shuffle() {
     vxm.player.shuffle()
+    this.$toasted.show('Shuffled', {
+      duration: 1000
+    })
   }
 
   public togglePlayerState() {

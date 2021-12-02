@@ -31,6 +31,9 @@ export class ExtensionFinder extends AbstractExtensionFinder {
   public async * findExtensions() {
     for (const searchPath of this.searchPaths) {
       try {
+        // Should proceed if file exists
+        fsP.access(searchPath)
+
         const dirents = await fsP.readdir(searchPath, { withFileTypes: true })
         const filtered = dirents.filter(val => val.isDirectory())
         for (const folder of filtered) {
@@ -46,6 +49,8 @@ export class ExtensionFinder extends AbstractExtensionFinder {
         }
       } catch (e) {
         console.error(e)
+        // Create directory if it does not exist
+        fsP.mkdir(searchPath)
       }
     }
   }

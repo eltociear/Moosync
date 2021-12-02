@@ -57,8 +57,20 @@ module.exports = {
         appId: 'org.moosync.Moosync',
         productName: 'Moosync',
         artifactName: "${productName}-${version}-${os}-${arch}.${ext}",
+        icon: "./build/icons/512x512.png",
         win: {
           publisherName: "Moosync"
+        },
+        mac: {
+          icon: "./build/icons/icon.icns"
+        },
+        linux: {
+          icon: "./build/icons/",
+          target: ['AppImage', 'deb', 'tar.gz', 'pacman']
+        },
+        nsis: {
+          oneClick: false,
+          perMachine: true,
         },
         fileAssociations: [{
           ext: "mp3",
@@ -93,17 +105,6 @@ module.exports = {
           description: "Music file extension",
           role: "Viewer"
         }],
-        mac: {
-          icon: "build/icons/512x512.png",
-        },
-        linux: {
-          target: ['AppImage', 'deb', 'tar.gz', 'pacman']
-        },
-        nsis: {
-          oneClick: false,
-          perMachine: true,
-        },
-
         publish: [{
           provider: 'github',
           owner: 'Moosync',

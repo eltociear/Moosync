@@ -24,7 +24,7 @@ export class OAuthHandler {
   // TODO: Handle extension events
   public handleEvents(data: string) {
     const url = new URL(data)
-    const registered = this.callbackRegistry.find(value => value.path === url.hostname || value.path === url.pathname.replaceAll('/', ''))
+    const registered = this.callbackRegistry.find((value) => value.path === url.hostname.toLowerCase() || value.path === url.pathname.replaceAll('/', '').toLowerCase())
     if (registered && !registered.isExtension) {
       WindowHandler.getWindow()?.webContents.send(registered.channelID, data)
     }
@@ -32,7 +32,7 @@ export class OAuthHandler {
   }
 
   public registerHandler(path: string) {
-    const index = this.callbackRegistry.findIndex(value => value.path === path)
+    const index = this.callbackRegistry.findIndex(value => value.path.toLowerCase() === path.toLowerCase())
     if (index !== -1) {
       this.callbackRegistry.splice(index, 1)
     }
