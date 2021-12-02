@@ -1,0 +1,42 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "Ovenoboyo",
+      "name": "Sahil Gupte",
+      "avatar_url": "https://avatars.githubusercontent.com/u/36789504?v=4",
+      "profile": "https://github.com/Ovenoboyo",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Mercyssh",
+      "name": "Ohm",
+      "avatar_url": "https://avatars.githubusercontent.com/u/41297391?v=4",
+      "profile": "https://github.com/Mercyssh",
+      "contributions": [
+        "design"
+      ]
+    },
+    {
+      "login": "AndroBuddy",
+      "name": "Anirudh",
+      "avatar_url": "https://avatars.githubusercontent.com/u/28799675?v=4",
+      "profile": "http://androbuddy.github.io/studio-wingress",
+      "contributions": [
+        "design"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "Moosync",
+  "projectOwner": "Moosync",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
