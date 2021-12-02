@@ -133,11 +133,14 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
   public async login() {
     if (!this._session) {
       if (!this.oAuthChannel) {
+        console.log('registering')
         this.oAuthChannel = await window.WindowUtils.registerOAuthCallback('lastfmcallback')
       }
 
       return new Promise<boolean>((resolve) => {
         window.WindowUtils.listenOAuth(this.oAuthChannel!, async (data) => {
+          console.log(data)
+
           const url = new URL(data)
           const token = url.searchParams.get('token')
           const resp = await this.populateRequest('GET', 'auth.getSession', undefined, token!)
@@ -152,7 +155,7 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
           resolve(false)
         })
 
-        window.WindowUtils.openExternal(AUTH_BASE_URL + `auth/?api_key=${this._config?.key}&cb=https://moosync.cf/lastfm`)
+        window.WindowUtils.openExternal(AUTH_BASE_URL + `auth/?api_key=${this._config?.key}&cb=https://moosync.app/lastfm`)
       })
     } else {
       return true

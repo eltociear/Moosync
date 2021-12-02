@@ -53,11 +53,11 @@ Click on **Edit Settings** button on top-right and add the following URLs into *
 
 - <http://localhost:8080>
 - <http://localhost>
-- <https://moosync.cf/spotify>
+- <https://moosync.app/spotify>
 
 These URLs are required to allow fetching a token from the Spotify OAuth2 code.
 
-If you feel moosync.cf is suspicious, don't worry you can check out its code [here](https://github.com/Moosync/Moosync.github.io)
+If you feel moosync.app is suspicious, don't worry you can check out its code [here](https://github.com/Moosync/Moosync.github.io)
 
 Now you can head over to Moosync app and click on Settings. Under Settings > System you will find text fields for **Spotify Client ID** and **Spotify Client Secret**.
 

@@ -52,7 +52,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       openIdConnectUrl: 'https://accounts.spotify.com/authorize',
       clientId: id,
       clientSecret: secret,
-      redirectUri: "https://moosync.cf/spotify",
+      redirectUri: "https://moosync.app/spotify",
       scope: "playlist-read-private user-top-read",
       keytarService: 'MoosyncSpotifyRefreshToken',
       oAuthChannel: oauthChannel,

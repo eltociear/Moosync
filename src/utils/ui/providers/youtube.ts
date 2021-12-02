@@ -39,7 +39,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
       clientId: id,
       clientSecret: secret,
       redirectUri:
-        "https://moosync.cf/youtube",
+        "https://moosync.app/youtube",
       scope: "https://www.googleapis.com/auth/youtube.readonly",
       keytarService: 'MoosyncYoutubeRefreshToken',
       oAuthChannel: oauthChannel,
