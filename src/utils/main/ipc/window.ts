@@ -12,7 +12,9 @@ import { _windowHandler, oauthHandler } from './../../../background';
 
 import { WindowHandler } from '../windowManager';
 import { mainWindowHasMounted } from '../../../background';
-import { shell } from 'electron';
+import { app, shell } from 'electron';
+import path from 'path';
+import { downloadFile } from '@/utils/common';
 
 export class BrowserWindowChannel implements IpcChannelInterface {
   name = IpcEvents.BROWSER_WINDOWS
@@ -51,6 +53,10 @@ export class BrowserWindowChannel implements IpcChannelInterface {
         break
       case WindowEvents.DEREGISTER_OAUTH_CALLBACK:
         this.deregisterOauth(event, request)
+        break
+      case WindowEvents.DRAG_FILE:
+        console.log('here')
+        this.dragFile(event, request)
         break
     }
   }
@@ -116,6 +122,33 @@ export class BrowserWindowChannel implements IpcChannelInterface {
   private deregisterOauth(event: Electron.IpcMainEvent, request: IpcRequest) {
     if (request.params.path) {
       oauthHandler.deregisterHandler(request.params.path)
+    }
+    event.reply(request.responseChannel)
+  }
+
+  private async dragFile(event: Electron.IpcMainEvent, request: IpcRequest) {
+    let filePath: string = request.params.path
+    if (filePath) {
+      if (filePath.startsWith('http')) {
+        let destPath = path.join(app.getPath('temp'), path.basename(filePath))
+        if (!path.extname(destPath)) {
+          destPath += ".jpg"
+        }
+
+        await downloadFile(filePath, destPath)
+        filePath = destPath
+      }
+
+      if (filePath.startsWith('media')) {
+        filePath = filePath.replace('media://', '')
+      }
+
+      console.log(filePath)
+
+      event.sender.startDrag({
+        file: filePath,
+        icon: path.join(__static, 'logo.png')
+      })
     }
     event.reply(request.responseChannel)
   }

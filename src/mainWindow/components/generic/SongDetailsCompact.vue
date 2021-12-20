@@ -19,7 +19,13 @@
                 enter-active-class="animate__animated animate__fadeIn"
                 leave-active-class="animate__animated animate__fadeOut animate__faster"
               >
-                <b-img class="h-100 w-100 albumart" v-if="computedImg" :src="computedImg" :key="computedImg" />
+                <b-img
+                  @dragstart="dragFile"
+                  class="h-100 w-100 albumart"
+                  v-if="computedImg"
+                  :src="computedImg"
+                  :key="computedImg"
+                />
                 <SongDefault class="albumart w-100" v-if="!computedImg" />
               </transition>
             </div>
@@ -44,6 +50,8 @@
 
 <script lang="ts">
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
+import FileMixin from '@/utils/ui/mixins/FileMixin'
+
 import Component, { mixins } from 'vue-class-component'
 import { Prop, Watch } from 'vue-property-decorator'
 import SongDefault from '@/icons/SongDefault.vue'
@@ -54,7 +62,7 @@ import { convertDuration } from '@/utils/common'
     SongDefault
   }
 })
-export default class SongDetailsCompact extends mixins(ImgLoader) {
+export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   @Prop({ default: null })
   private currentSong!: Song | null | undefined
 

@@ -75,6 +75,8 @@ export enum WindowEvents {
   DEREGISTER_OAUTH_CALLBACK = 'deregisterOAuthCallback',
   MAIN_WINDOW_HAS_MOUNTED = 'mainWindowsHasMounted',
 
+  DRAG_FILE = 'dragFile',
+
   IS_MAXIMIZED = 'isMaximized',
 
   GOT_EXTRA_ARGS = 'gotExtraArgs'

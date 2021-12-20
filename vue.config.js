@@ -50,7 +50,7 @@ module.exports = {
   },
   pluginOptions: {
     electronBuilder: {
-      mainProcessWatch: ['src/utils/main', 'src/utils/extensions'],
+      mainProcessWatch: ['src/utils/main', 'src/utils/extensions', 'src/utils/common.ts'],
       customFileProtocol: 'moosync://./',
       builderOptions: {
         ...archElectronConfig,

@@ -25,7 +25,8 @@ Vue.directive('click-outside', {
     // Define Handler and cache it on the element
     const bubble = binding.modifiers.bubble
     const handler = (e: Event) => {
-      if (bubble || (!el.contains(e.target) && el !== e.target)) {
+      const isImage = !!(e.target as HTMLElement).parentElement?.querySelector('img')
+      if ((bubble || (!el.contains(e.target) && el !== e.target)) && !isImage) {
         binding.value(e)
       }
     }

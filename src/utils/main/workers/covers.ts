@@ -10,19 +10,11 @@ import path from 'path';
 import sharp from 'sharp'
 
 export async function writeBuffer(bufferDesc: Buffer, basePath: string, id: string, low: boolean) {
-  try {
-    const highPath = path.join(basePath, id + '-high.jpg')
-    await sharp(Buffer.from(bufferDesc)).resize(800, 800).toFile(highPath)
+  const highPath = path.join(basePath, id + '-high.jpg')
+  await sharp(Buffer.from(bufferDesc)).resize(800, 800).toFile(highPath)
 
-    if (low) {
-      const lowPath = path.join(basePath, id + '-low.jpg')
-      await sharp(Buffer.from(bufferDesc)).resize(80, 80).toFile(lowPath)
+  const lowPath = path.join(basePath, id + '-low.jpg')
+  await sharp(Buffer.from(bufferDesc)).resize(80, 80).toFile(lowPath)
 
-      return { high: highPath, low: lowPath }
-    }
-
-    return { high: highPath }
-  } catch (e) {
-    console.error(e)
-  }
+  return { high: highPath, low: lowPath }
 }
