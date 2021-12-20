@@ -150,7 +150,6 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
       let nextPageToken: string | undefined
       const parsed: YoutubeResponses.UserPlaylists.Item[] = []
       do {
-
         const resp = await this.populateRequest(ApiResources.PLAYLISTS, {
           params: {
             part: ['id', 'contentDetails', 'snippet'],

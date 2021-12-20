@@ -155,14 +155,29 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   public async getUserPlaylists(): Promise<Playlist[]> {
+    const limit = 20
+    let offset = 0
+    let hasNext = true
+
     const validRefreshToken = await this.auth?.hasValidRefreshToken()
-    if (this.auth?.loggedIn() || validRefreshToken) {
-      const resp = await this.populateRequest(ApiResources.PLAYLISTS, {
-        params: {}
-      })
-      return this.parsePlaylists(resp.items)
+    const playlists: Playlist[] = []
+
+    while (hasNext) {
+      if (this.auth?.loggedIn() || validRefreshToken) {
+        const resp = await this.populateRequest(ApiResources.PLAYLISTS, {
+          params: { limit, offset }
+        })
+
+        if (resp.next) {
+          offset += limit
+        } else {
+          hasNext = false
+        }
+
+        playlists.push(...this.parsePlaylists(resp.items))
+      }
     }
-    return []
+    return playlists
   }
 
   public async spotifyToYoutube(item: Song) {
@@ -233,7 +248,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
           const resp = await this.populateRequest(ApiResources.PLAYLIST_ITEMS, {
             params: {
               playlist_id: id,
-              limit: limit,
+              limit,
               offset: nextOffset
             }
           })
