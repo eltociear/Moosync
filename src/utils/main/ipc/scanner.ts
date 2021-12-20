@@ -91,7 +91,12 @@ export class ScannerChannel implements IpcChannelInterface {
       } catch (e) {
         await mkdir(thumbPath, { recursive: true })
       }
-      return writeBuffer(cover.send, thumbPath, id, true)
+
+      try {
+        return writeBuffer(cover.send, thumbPath, id, true)
+      } catch (e) {
+        console.log(e)
+      }
     }
   }
 
