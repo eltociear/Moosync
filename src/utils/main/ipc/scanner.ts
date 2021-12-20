@@ -16,6 +16,7 @@ import fs from 'fs'
 import { loadPreferences } from '@/utils/main/db/preferences'
 import { notifyRenderer } from '.'
 import { writeBuffer } from '@/utils/main/workers/covers'
+import { access, mkdir } from 'fs/promises'
 
 enum scanning {
   UNDEFINED,
@@ -85,14 +86,12 @@ export class ScannerChannel implements IpcChannelInterface {
   private async storeCover(id: string, cover: TransferDescriptor<Buffer> | undefined) {
     if (cover) {
       const thumbPath = loadPreferences().thumbnailPath
+      try {
+        await access(thumbPath)
+      } catch (e) {
+        await mkdir(thumbPath, { recursive: true })
+      }
       return writeBuffer(cover.send, thumbPath, id, true)
-    }
-  }
-
-  private async storeCoverSingle(id: string, cover: TransferDescriptor<Buffer> | undefined) {
-    if (cover) {
-      const thumbPath = loadPreferences().thumbnailPath
-      return writeBuffer(cover.send, thumbPath, id, false)
     }
   }
 
