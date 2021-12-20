@@ -13,6 +13,7 @@
       <b-col class="h-100" cols="auto">
         <div class="h-100">
           <b-img
+            @dragstart="dragFile"
             v-if="(getImgSrc(imgSrc) || getImgSrc(defaultImgSrc)) && !forceEmptyImg"
             class="image h-100"
             :src="getImgSrc(imgSrc) ? getImgSrc(imgSrc) : getImgSrc(defaultImgSrc)"
@@ -88,6 +89,7 @@ import YoutubeIcon from '@/icons/Youtube.vue'
 import SpotifyIcon from '@/icons/Spotify.vue'
 import ErrorHandler from '@/utils/ui/mixins/errorHandler'
 import ImageLoader from '@/utils/ui/mixins/ImageLoader'
+import FileMixin from '@/utils/ui/mixins/FileMixin'
 
 @Component({
   components: {
@@ -99,7 +101,7 @@ import ImageLoader from '@/utils/ui/mixins/ImageLoader'
     SpotifyIcon
   }
 })
-export default class SongDetails extends mixins(ImageLoader, ErrorHandler) {
+export default class SongDetails extends mixins(ImageLoader, ErrorHandler, FileMixin) {
   @Prop({ default: '' })
   private currentTitle!: string
 

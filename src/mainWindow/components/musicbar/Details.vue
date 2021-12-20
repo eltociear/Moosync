@@ -18,6 +18,7 @@
         :src="imgSrc"
         alt="cover art"
         @error="handlerImageError(arguments[0], handleError)"
+        @dragstart="dragFile"
       />
       <SongDefault v-else class="coverimg" />
     </b-col>
@@ -48,6 +49,7 @@ import SongDefault from '@/icons/SongDefault.vue'
 import ImageLoader from '@/utils/ui/mixins/ImageLoader'
 import ErrorHandler from '@/utils/ui/mixins/errorHandler'
 import Timestamp from './Timestamp.vue'
+import FileMixin from '@/utils/ui/mixins/FileMixin'
 
 @Component({
   components: {
@@ -55,7 +57,7 @@ import Timestamp from './Timestamp.vue'
     Timestamp
   }
 })
-export default class MusicBar extends mixins(ImageLoader, ErrorHandler) {
+export default class MusicBar extends mixins(ImageLoader, ErrorHandler, FileMixin) {
   @Prop({ default: '-' })
   title!: string
 
