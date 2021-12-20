@@ -175,6 +175,7 @@ interface windowUtils {
   listenArgs: (callback: (args: any | undefined) => void) => void
   mainWindowHasMounted: () => Promise<void>
   isWindowMaximized: (isMainWindow: boolean) => Promise<boolean>
+  dragFile: (path: string) => void
 }
 
 /**

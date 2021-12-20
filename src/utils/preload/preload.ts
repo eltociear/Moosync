@@ -111,7 +111,8 @@ contextBridge.exposeInMainWorld('WindowUtils', {
   deregisterOAuthCallback: (path: string) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.DEREGISTER_OAUTH_CALLBACK, params: { path } }),
   listenOAuth: (channelID: string, callback: (data: URL) => void) => ipcRendererHolder.once(channelID, callback),
   listenArgs: (callback: (args: any) => void) => ipcRendererHolder.once(WindowEvents.GOT_EXTRA_ARGS, callback),
-  mainWindowHasMounted: () => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.MAIN_WINDOW_HAS_MOUNTED })
+  mainWindowHasMounted: () => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.MAIN_WINDOW_HAS_MOUNTED }),
+  dragFile: (path: string) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.DRAG_FILE, params: { path } })
 })
 
 contextBridge.exposeInMainWorld('LoggerUtils', {
