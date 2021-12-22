@@ -49,6 +49,13 @@ class ExtensionHostIPCHandler {
     process.on('message', (message: extensionHostMessage) => {
       this.parseMessage(message)
     })
+
+    process.on('exit', () => this.extensionHandler.stopAllExtensions())
+    process.on('SIGQUIT', () => this.extensionHandler.stopAllExtensions())
+    process.on('SIGINT', () => this.extensionHandler.stopAllExtensions())
+    process.on('SIGUSR1', () => this.extensionHandler.stopAllExtensions())
+    process.on('SIGUSR2', () => this.extensionHandler.stopAllExtensions())
+    process.on('uncaughtException', (e) => console.error('Asynchronous error caught.', e))
   }
 
   private parseMessage(message: extensionHostMessage) {
@@ -75,7 +82,7 @@ class MainRequestHandler {
     if (message.type === 'find-new-extensions') {
       this.handler.registerPlugins()
         .then(() => this.handler.startAll())
-        .finally(() => this.sendToMain(message.channel))
+        .then(() => this.sendToMain(message.channel))
       return
     }
 
@@ -86,12 +93,15 @@ class MainRequestHandler {
 
     if (message.type === 'toggle-extension-status') {
       this.handler.toggleExtStatus(message.data.packageName, message.data.enabled)
-      this.sendToMain(message.channel)
+        .then(() => {
+          this.sendToMain(message.channel)
+        })
       return
     }
 
     if (message.type === 'remove-extension') {
-      this.sendToMain(message.channel, this.handler.removeExt(message.data.packageName))
+      this.handler.removeExt(message.data.packageName)
+        .then(val => this.sendToMain(message.channel, val))
       return
     }
   }

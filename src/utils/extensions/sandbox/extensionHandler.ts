@@ -55,48 +55,37 @@ export class ExtensionHandler {
   public async registerPlugins(): Promise<void> {
     for await (const ext of this.extensionFinder.findExtensions()) {
       if (!this.isDuplicateExtension(ext)) {
-        this.extensionManager.instantiateAndRegister(ext)
+        await this.extensionManager.instantiateAndRegister(ext)
       }
     }
   }
 
-  public startAll() {
+  public async startAll() {
     if (this.initialized) {
       for (const ext of this.extensionManager.getExtensions({ started: false })) {
-        try {
-          if (ext.instance.onStarted)
-            ext.instance.onStarted()
-          this.extensionManager.setStarted(ext.packageName, true)
-        } catch (e) {
-          console.error(e)
-        }
+        await this.toggleExtStatus(ext.packageName, true)
       }
     } else {
       this.preInitializedCalls.push({ func: this.startAll })
     }
   }
 
-  public toggleExtStatus(packageName: string, enabled: boolean) {
+  public async toggleExtStatus(packageName: string, enabled: boolean) {
     const ext = this.extensionManager.getExtensions({ packageName })
-    try {
-      for (const e of ext) {
-        if (enabled) {
-          if (e.instance.onStarted)
-            e.instance.onStarted()
-        } else {
-          if (e.instance.onStopped)
-            e.instance.onStopped()
-        }
-        this.extensionManager.setStarted(packageName, enabled)
+    for (const e of ext) {
+      if (enabled) {
+        e.instance.onStarted && await e.instance.onStarted()
+      } else {
+        e.instance.onStopped && await e.instance.onStopped()
       }
-    } catch (e) {
-      console.error(e)
+      this.extensionManager.setStarted(packageName, enabled)
     }
   }
 
-  public removeExt(packageName: string) {
+  public async removeExt(packageName: string) {
     // Shut down extension before removing
-    this.toggleExtStatus(packageName, false)
+    await this.toggleExtStatus(packageName, false)
+
     this.extensionManager.deregister(packageName)
   }
 
@@ -131,7 +120,7 @@ export class ExtensionHandler {
     return parsed
   }
 
-  public sendToExtensions(packageName: string | undefined, method: keyof MoosyncExtensionTemplate, args: any) {
+  public sendToExtensions(packageName: string | undefined, method: keyof MoosyncExtensionTemplate, args?: any) {
     for (const ext of this.extensionManager.getExtensions({ started: true, packageName })) {
       try {
         if (ext.instance[method])
@@ -139,6 +128,12 @@ export class ExtensionHandler {
       } catch (e) {
         console.error(e)
       }
+    }
+  }
+
+  public stopAllExtensions() {
+    for (const ext of this.getInstalledExtensions()) {
+      this.sendToExtensions(ext.packageName, 'onStopped')
     }
   }
 }

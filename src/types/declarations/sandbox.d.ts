@@ -67,7 +67,7 @@ interface ExtensionDetails {
 interface ExtensionItem extends ExtensionDetails {
   instance: import('@moosync/moosync-types/index').MoosyncExtensionTemplate
   preferences: import('@moosync/moosync-types/index').ExtensionPreferenceGroup[]
-  vm: import('vm')
+  vm: import('vm2').NodeVM
 }
 
 interface UnInitializedExtensionItem {

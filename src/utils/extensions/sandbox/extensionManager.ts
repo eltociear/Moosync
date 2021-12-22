@@ -14,6 +14,7 @@ import { NodeVM } from 'vm2';
 import log from 'loglevel'
 import path from 'path';
 import { prefixLogger } from '../../main/logger/index';
+import { readFile } from 'fs/promises';
 
 export abstract class AbstractExtensionManager {
   abstract instantiateAndRegister(extension: UnInitializedExtensionItem): Promise<void>
@@ -72,10 +73,15 @@ export class ExtensionManager extends AbstractExtensionManager {
     }
   }
 
-  private checkExtValidityAndGetInstance(modulePath: string): { vm: NodeVM, factory: ExtensionFactory } | undefined {
+  private readFileNoCache(path: string) {
+    return readFile(path, { flag: 'rs', encoding: 'utf-8' })
+  }
+
+  private async checkExtValidityAndGetInstance(modulePath: string): Promise<{ vm: NodeVM, factory: ExtensionFactory } | undefined> {
     try {
+      const file = await this.readFileNoCache(modulePath)
       const vm = this.getVM(modulePath)
-      const extension = vm.runFile(modulePath)
+      const extension = vm.run(file)
 
       if (typeof extension !== 'function') {
         return
@@ -97,14 +103,14 @@ export class ExtensionManager extends AbstractExtensionManager {
     }
   }
 
-  private setGlobalObjectToVM(vm: NodeVM, packageName: string, entryFilePath: string) {
+  private async setGlobalObjectToVM(vm: NodeVM, packageName: string, entryFilePath: string) {
     const globalObj = this.getGlobalObject(packageName, entryFilePath)
     vm.freeze(globalObj.api, 'api')
     vm.freeze(globalObj.logger, 'logger')
   }
 
   async instantiateAndRegister(extension: UnInitializedExtensionItem) {
-    const vmObj = this.checkExtValidityAndGetInstance(extension.entry)
+    const vmObj = await this.checkExtValidityAndGetInstance(extension.entry)
     if (vmObj) {
       this.setGlobalObjectToVM(vmObj.vm, extension.packageName, extension.entry)
 
