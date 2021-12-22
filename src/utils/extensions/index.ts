@@ -34,29 +34,37 @@ class MainHostIPCHandler {
   public mainRequestGenerator: MainRequestGenerator
   public extensionEventGenerator: ExtensionEventGenerator
 
+  private isAlive = false
+
   constructor() {
     this.sandboxProcess = this.createExtensionHost()
-    this.mainRequestGenerator = new MainRequestGenerator(this.sandboxProcess)
-    this.extensionEventGenerator = new ExtensionEventGenerator(this.sandboxProcess)
+    this.mainRequestGenerator = new MainRequestGenerator(this.sandboxProcess, this.sendToExtensionHost.bind(this))
+    this.extensionEventGenerator = new ExtensionEventGenerator(this.sendToExtensionHost.bind(this))
     this.registerListeners()
+  }
+
+  private reSpawnProcess() {
+    try {
+      this.sandboxProcess.kill()
+      this.sandboxProcess = this.createExtensionHost()
+      this.registerListeners()
+      this.mainRequestGenerator.reAssignSandbox(this.sandboxProcess)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   private registerListeners() {
     this.sandboxProcess.on("message", this.parseMessage.bind(this))
-    this.sandboxProcess.on("error", console.error)
-    this.sandboxProcess.on('close', () => {
-      try {
-        this.sandboxProcess.kill()
-        this.sandboxProcess = this.createExtensionHost()
-        this.registerListeners()
-      } catch (e) {
-        console.error(e)
-      }
-    })
+    this.sandboxProcess.on("error", (e) => console.log('got error', e))
+    this.sandboxProcess.on('exit', () => { this.isAlive = false; console.log('dead') })
+    this.sandboxProcess.on('close', () => this.isAlive = false)
   }
 
   private createExtensionHost() {
-    return fork(__dirname + '/sandbox.js', ['extensionPath', defaultExtensionPath, 'logPath', defaultLogPath])
+    const process = fork(__dirname + '/sandbox.js', ['extensionPath', defaultExtensionPath, 'logPath', defaultLogPath])
+    this.isAlive = true
+    return process
   }
 
   public mainWindowCreated() {
@@ -76,18 +84,30 @@ class MainHostIPCHandler {
   public async uninstallExtension(packageName: string): Promise<void> {
     await this.mainRequestGenerator.removeExtension(packageName)
     await this.extensionResourceHandler.uninstallExtension(packageName)
+
+    console.log('removed ext')
   }
 
   private sendToExtensionHost(data: any) {
+    if (!this.isAlive || !this.sandboxProcess.connected || this.sandboxProcess.killed) {
+      this.reSpawnProcess()
+    }
+    this.sandboxProcess.killed
     this.sandboxProcess.send(data)
   }
 }
 
 class MainRequestGenerator {
   private sandboxProcess: ChildProcess
+  private _sendSync: (data: any) => void
 
-  constructor(process: ChildProcess) {
+  constructor(process: ChildProcess, sendSync: (data: any) => void) {
     this.sandboxProcess = process
+    this._sendSync = sendSync
+  }
+
+  public reAssignSandbox(sandbox: ChildProcess) {
+    this.sandboxProcess = sandbox
   }
 
   public async findNewExtensions() {
@@ -108,6 +128,7 @@ class MainRequestGenerator {
 
   private sendAsync<T>(type: mainRequests, data?: any): Promise<T> {
     const channel = v4()
+
     return new Promise<T>(resolve => {
       let listener: (data: mainReplyMessage) => void
       this.sandboxProcess.on('message', listener = (data: mainReplyMessage) => {
@@ -116,20 +137,20 @@ class MainRequestGenerator {
           resolve(data.data)
         }
       })
-      this.sandboxProcess.send({ type, channel, data } as mainRequestMessage)
+      this._sendSync({ type, channel, data } as mainRequestMessage)
     })
   }
 }
 
 class ExtensionEventGenerator {
-  private sandboxProcess: ChildProcess
+  private _sendSync: (data: any) => void
 
-  constructor(process: ChildProcess) {
-    this.sandboxProcess = process
+  constructor(sendSync: (data: any) => void) {
+    this._sendSync = sendSync
   }
 
   public send(data: extensionEventMessage) {
-    this.sandboxProcess.send(data)
+    this._sendSync(data)
   }
 }
 

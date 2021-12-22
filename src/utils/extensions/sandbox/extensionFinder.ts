@@ -39,7 +39,7 @@ export class ExtensionFinder extends AbstractExtensionFinder {
         for (const folder of filtered) {
           const extDir = await fsP.readdir(path.join(searchPath, folder.name), { withFileTypes: true })
           const possibleManifests = extDir.filter(val => val.isFile() && val.name === 'package.json')
-          if (possibleManifests.length > 0) {
+          if (possibleManifests && possibleManifests.length > 0) {
             const manifest = await this.parseJson(path.join(searchPath, folder.name, possibleManifests[0].name))
             if (manifest.moosyncExtension) {
               const modulePath = path.join(searchPath, folder.name, manifest.extensionEntry)
