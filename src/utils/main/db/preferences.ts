@@ -15,7 +15,8 @@ import { scannerChannel } from '../ipc';
 import { setMinimizeToTray } from '@/utils/main/windowManager';
 
 const defaultPreferences: Preferences = {
-  musicPaths: [],
+  isFirstLaunch: true,
+  musicPaths: [{ path: getDefaultMusicPaths(), enabled: true }],
   thumbnailPath: path.join(app.getPath('appData'), app.getName(), '.thumbnails'),
   artworkPath: path.join(app.getPath('appData'), app.getName(), '.thumbnails'),
   systemSettings: [],
@@ -23,7 +24,7 @@ const defaultPreferences: Preferences = {
 }
 
 const store = new Store({
-  defaults: defaultPreferences,
+  defaults: { prefs: defaultPreferences },
   serialize: value => JSON.stringify(value)
 })
 
@@ -271,6 +272,10 @@ function setupDefaultThemes() {
       saveTheme(themes[key])
     }
   }
+}
+
+function getDefaultMusicPaths() {
+  return app.getPath('music')
 }
 
 savePreferences(loadPreferences())

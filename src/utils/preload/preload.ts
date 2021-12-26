@@ -44,7 +44,7 @@ contextBridge.exposeInMainWorld('DBUtils', {
 
 contextBridge.exposeInMainWorld('PreferenceUtils', {
   saveSelective: (key: string, value: any, isExtension?: boolean) => ipcRendererHolder.send(IpcEvents.PREFERENCES, { type: PreferenceEvents.SAVE_SELECTIVE_PREFERENCES, params: { key, value, isExtension } }),
-  loadSelective: (key: string, isExtension?: boolean) => ipcRendererHolder.send(IpcEvents.PREFERENCES, { type: PreferenceEvents.LOAD_SELECTIVE_PREFERENCES, params: { key, isExtension } }),
+  loadSelective: <T>(key: string, isExtension?: boolean, defaultValue?: T) => ipcRendererHolder.send(IpcEvents.PREFERENCES, { type: PreferenceEvents.LOAD_SELECTIVE_PREFERENCES, params: { key, isExtension, defaultValue } }),
   notifyPreferenceChanged: (key: string, value: any) => ipcRendererHolder.send(IpcEvents.PREFERENCES, { type: PreferenceEvents.PREFERENCE_REFRESH, params: { key, value } }),
 })
 
