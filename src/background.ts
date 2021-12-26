@@ -12,15 +12,13 @@
 import 'threads/register';
 
 import { BrowserWindow, app, nativeTheme, protocol, session } from 'electron';
-import { WindowHandler, setIsQuitting } from './utils/main/windowManager';
+import { WindowHandler, setIsQuitting, _windowHandler } from './utils/main/windowManager';
 import path, { resolve } from 'path';
 
-import EventEmitter from 'events';
-import { OAuthHandler } from '@/utils/main/oauth/handler';
+import { oauthHandler } from '@/utils/main/oauth/handler';
 import { autoUpdater } from 'electron-updater';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import { extensionHost } from '@/utils/extensions';
-import fs from 'fs';
 import log from 'loglevel'
 import pie from 'puppeteer-in-electron';
 import { prefixLogger } from './utils/main/logger';
@@ -28,39 +26,47 @@ import { registerIpcChannels } from '@/utils/main/ipc'; // Import for side effec
 import { setInitialInterfaceSettings } from './utils/main/db/preferences';
 import { setupScanTask } from '@/utils/main/scheduler/index';
 
-// Override console.info and console.error with custom logging
-overrideConsole()
-
 const isDevelopment = process.env.NODE_ENV !== 'production'
-
-export const oauthHandler = new OAuthHandler()
-export const oauthEventEmitter = new EventEmitter()
-export const _windowHandler = new WindowHandler()
 
 pie.initialize(app);
 
-
 nativeTheme.themeSource = 'dark'
 
-// Since in development mode, it is valid to have multiple processes open,
-// Quit the app if it is supposed to be launched for oauth
-// The argv/s will be passed to the original instance
-if (isDevelopment && process.argv.findIndex((arg) => arg.startsWith('moosync')) !== -1) {
-  app.quit()
-}
-
 if (!app.requestSingleInstanceLock()) {
-  if (!isDevelopment)
-    app.quit()
+  if (!isDevelopment) {
+    app.exit()
+  }
+
+  // Since in development mode, it is valid to have multiple processes open,
+  // Quit the app if it is supposed to be launched for oauth
+  // The argv/s will be passed to the original instance
+  if (isDevelopment && process.argv.findIndex((arg) => arg.startsWith('moosync')) !== -1) {
+    app.exit()
+  }
 } else {
   autoUpdater.autoInstallOnAppQuit = true
   autoUpdater.autoDownload = true
-  autoUpdater.checkForUpdatesAndNotify()
-}
 
-// Scheme must be registered before the app is ready
-protocol.registerSchemesAsPrivileged([{ scheme: 'moosync', privileges: { secure: true, standard: true } }])
-protocol.registerSchemesAsPrivileged([{ scheme: 'media', privileges: { corsEnabled: true, supportFetchAPI: true } }])
+  // TODO: Figure out a better way to notify the user about update and wait for confirmation
+  autoUpdater.on('update-downloaded', () => {
+    autoUpdater.quitAndInstall()
+  });
+
+  // autoUpdater.checkForUpdatesAndNotify()
+
+  // Override console.info and console.error with custom logging
+  overrideConsole()
+  registerProtocols()
+
+  // Quit when all windows are closed.
+  app.on('window-all-closed', windowsClosed)
+  app.on('activate', activateMac)
+  app.on('before-quit', beforeQuit)
+  app.on('ready', onReady)
+  app.on('open-url', openURL)
+  app.on('second-instance', handleSecondInstance)
+
+}
 
 function interceptHttp() {
   // Youtube images don't have a CORS header set [Access-Control-Allow-Origin]
@@ -105,53 +111,55 @@ function interceptHttp() {
   }
 }
 
-// Quit when all windows are closed.
-app.on('window-all-closed', () => {
+function windowsClosed() {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    app.quit()
+    app.quit();
   }
-})
+}
 
-app.on('activate', () => {
+function activateMac() {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) _windowHandler.createWindow(true)
-})
+  if (BrowserWindow.getAllWindows().length === 0)
+    _windowHandler.createWindow(true);
+}
+function beforeQuit() {
+  setIsQuitting(true);
+}
 
-app.on('before-quit', () => {
-  setIsQuitting(true)
-})
+function openURL(event: Electron.Event, data: any) {
+  event.preventDefault();
+  oauthHandler.handleEvents(data);
+}
 
-// TODO: Figure out a better way to notify the user about update and wait for confirmation
-autoUpdater.on('update-downloaded', () => {
-  autoUpdater.quitAndInstall()
-});
+async function onReady() {
+  registerIpcChannels();
+  setInitialInterfaceSettings();
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', async () => {
-  registerIpcChannels()
-  setInitialInterfaceSettings()
+  await _windowHandler.installExtensions();
+  _windowHandler.registerProtocol('media');
+  createProtocol('moosync');
 
-  await _windowHandler.installExtensions()
-  _windowHandler.registerProtocol('media')
-  createProtocol('moosync')
+  interceptHttp();
 
-  interceptHttp()
-
-  await _windowHandler.createWindow(true)
+  await _windowHandler.createWindow(true);
 
   // Notify extension host of main window creation
-  extensionHost.mainWindowCreated()
+  extensionHost.mainWindowCreated();
 
-  _windowHandler.handleFileOpen()
+  _windowHandler.handleFileOpen();
 
   // Setup scan scheduler
-  setupScanTask()
-})
+  setupScanTask();
+}
+
+function registerProtocols() {
+  // Scheme must be registered before the app is ready
+  protocol.registerSchemesAsPrivileged([{ scheme: 'moosync', privileges: { secure: true, standard: true } }]);
+  protocol.registerSchemesAsPrivileged([{ scheme: 'media', privileges: { corsEnabled: true, supportFetchAPI: true } }]);
+}
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
@@ -168,25 +176,18 @@ if (isDevelopment) {
   }
 }
 
-app.on('open-url', function (event, data) {
-  event.preventDefault()
-
-  // TODO: Test this properly
-  oauthHandler.handleEvents(data)
-})
-
-if (isDevelopment && process.platform === 'win32') {
-  // Set the path of electron.exe and your app.
-  // These two additional parameters are only available on windows.
-  // Setting this is required to get this working in dev mode.
-  app.setAsDefaultProtocolClient('moosync', process.execPath, [
-    resolve(process.argv[1])
-  ])
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    // Set the path of electron.exe and your app.
+    // These two additional parameters are only available on windows.
+    // Setting this is required to get this working in dev mode.
+    app.setAsDefaultProtocolClient('moosync', process.execPath, [
+      resolve(process.argv[1])
+    ])
+  }
 } else {
   app.setAsDefaultProtocolClient('moosync')
 }
-
-app.on('second-instance', handleSecondInstance)
 
 /**
  * Parses process.argv to find if app was started by protocol

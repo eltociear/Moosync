@@ -7,7 +7,6 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { WindowEvents } from "@/utils/main/ipc/constants";
 import { WindowHandler } from '../windowManager';
 import { v1 } from 'uuid';
 
@@ -52,3 +51,5 @@ export class OAuthHandler {
       this.callbackRegistry.splice(handler, 1)
   }
 }
+
+export const oauthHandler = new OAuthHandler()
