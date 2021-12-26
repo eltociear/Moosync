@@ -33,7 +33,7 @@ function reducer(state: Object, paths: string[]) {
 }
 
 async function setInitialState(store: Store<any>) {
-  const savedState = await window.PreferenceUtils.loadSelective('persisted', false)
+  const savedState = await window.PreferenceUtils.loadSelective<any>('persisted', false)
   if (savedState) {
     store.replaceState(
       merge(store.state, savedState, {

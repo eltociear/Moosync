@@ -286,3 +286,5 @@ export function setMinimizeToTray(enabled: boolean) {
 export function setIsQuitting(val: boolean) {
   AppExitHandler._isQuitting = val
 }
+
+export const _windowHandler = new WindowHandler()

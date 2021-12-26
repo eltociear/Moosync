@@ -157,7 +157,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   public async getUserPlaylists(): Promise<Playlist[]> {
     const limit = 20
     let offset = 0
-    let hasNext = true
+    let hasNext = false
 
     const validRefreshToken = await this.auth?.hasValidRefreshToken()
     const playlists: Playlist[] = []
@@ -169,9 +169,8 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
         })
 
         if (resp.next) {
+          hasNext = true
           offset += limit
-        } else {
-          hasNext = false
         }
 
         playlists.push(...this.parsePlaylists(resp.items))

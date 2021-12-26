@@ -12,6 +12,7 @@ type togglePaths = { path: string, enabled: boolean }[]
 type songMenu = "compact" | "classic"
 
 interface Preferences {
+  isFirstLaunch: boolean
   musicPaths: togglePaths
   thumbnailPath: string
   artworkPath: string,

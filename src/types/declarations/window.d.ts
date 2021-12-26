@@ -145,7 +145,7 @@ interface preferenceUtils {
   load: () => Promise<Preferences>
   save: (preference: Preferences) => Promise<void>
   saveSelective: (key: string, value: any, isExtension?: boolean) => Promise<void>
-  loadSelective: (key: string, isExtension?: boolean) => Promise<Object>
+  loadSelective: <T>(key: string, isExtension?: boolean, defaultValue?: T) => Promise<T>
   notifyPreferenceChanged: (key: string, value: any) => Promise<void>
 }
 

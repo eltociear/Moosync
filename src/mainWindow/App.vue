@@ -63,6 +63,7 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     this.populatePlaylists()
     this.registerDevTools()
     this.registerFileDragListener()
+    this.runInitialScan()
     // this.testStun()
   }
 
@@ -312,6 +313,14 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
   private listenThemeChanges() {
     window.ThemeUtils.listenThemeChanged((theme) => this.setColorsToRoot(theme))
     window.ThemeUtils.listenSongViewChanged((menu) => (vxm.themes.songView = menu))
+  }
+
+  private async runInitialScan() {
+    const scanRequested = await window.PreferenceUtils.loadSelective<boolean>('isFirstLaunch', false, true)
+    if (scanRequested) {
+      await window.FileUtils.scan()
+      await window.PreferenceUtils.saveSelective('isFirstLaunch', false, false)
+    }
   }
 }
 </script>

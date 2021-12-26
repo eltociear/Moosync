@@ -7,7 +7,6 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { _windowHandler } from '../../../background';
 import { app } from 'electron';
 import { promises as fsP } from 'fs';
 import https from 'https'
