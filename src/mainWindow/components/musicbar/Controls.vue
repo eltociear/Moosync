@@ -12,8 +12,8 @@
     <b-col cols="auto" align-self="center" class="mr-auto">
       <Timestamp class="invisible timestamp" :duration="duration" timestamp="0" />
     </b-col>
-    <b-col cols="auto" v-on:click="prevSong()">
-      <LastTrack />
+    <b-col cols="auto" v-on:click="prevSongWrapper()">
+      <PrevTrack :disabled="!enableTrackControls" />
     </b-col>
     <b-col cols="auto" v-on:click="toggleRepeat()">
       <Repeat :filled="repeat" />
@@ -24,8 +24,8 @@
     <b-col cols="auto" v-else v-on:click="togglePlayerState()">
       <Play :play="playerState === 'PLAYING'" />
     </b-col>
-    <b-col cols="auto" v-on:click="nextSong()">
-      <NextTrack />
+    <b-col cols="auto" v-on:click="nextSongWrapper()">
+      <NextTrack :disabled="!enableTrackControls" />
     </b-col>
     <b-col cols="auto" v-on:click="shuffle()">
       <Shuffle :filled="true" />
@@ -38,7 +38,7 @@
 
 <script lang="ts">
 import { Component, Prop } from 'vue-property-decorator'
-import LastTrack from '@/icons/LastTrack.vue'
+import PrevTrack from '@/icons/PrevTrack.vue'
 import NextTrack from '@/icons/NextTrack.vue'
 import Play from '@/icons/Play.vue'
 import Repeat from '@/icons/Repeat.vue'
@@ -50,7 +50,7 @@ import Timestamp from './Timestamp.vue'
 
 @Component({
   components: {
-    LastTrack,
+    PrevTrack,
     NextTrack,
     Play,
     Repeat,
@@ -71,6 +71,18 @@ export default class MusicBar extends mixins(PlayerControls) {
 
   get playerState() {
     return vxm.player.playerState
+  }
+
+  get enableTrackControls() {
+    return vxm.player.queue.order.length > 1
+  }
+
+  private nextSongWrapper() {
+    if (this.enableTrackControls) this.nextSong()
+  }
+
+  private prevSongWrapper() {
+    if (this.enableTrackControls) this.prevSong()
   }
 
   get isLoading() {
