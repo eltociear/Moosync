@@ -93,25 +93,3 @@ export default class DefaultLayout extends mixins(ContextMenuMixin) {
   &.is-open
     left: calc(261px + 30px)
 </style>
-
-<style lang="sass">
-*::-webkit-scrollbar,
-*::-webkit-scrollbar-thumb
-  width: 26px
-  border-radius: 13px
-  background-clip: padding-box
-  border: 10px solid transparent
-  min-height: 50px
-
-*::-webkit-scrollbar-thumb
-  box-shadow: inset 0 0 0 10px
-  min-height: 40px
-
-*::-webkit-scrollbar-track
-  margin-top: calc( 0.75rem * 2 + 18px)
-  background: var(--primary)
-
-.modal-content
-  background-color: var(--primary) !important
-  color: var(--textPrimary) !important
-</style>

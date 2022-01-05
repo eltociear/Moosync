@@ -211,9 +211,6 @@ export default class NewPlaylistModal extends mixins(ImgLoader) {
   height: 70px
   padding-left: calc(261px + 30px + 7.5px)
 
-.modal-content-container
-  margin: 35px 35px 35px 35px
-
 .playlist-cover
   width: 157px
   height: 157px
@@ -234,8 +231,6 @@ export default class NewPlaylistModal extends mixins(ImgLoader) {
     box-shadow: none
   &:hover
     border-left: 1px solid var(--accent)
-  &::-webkit-scrollbar-track
-    margin-top: 0
 
 .playlist-details
   margin-left: 40px

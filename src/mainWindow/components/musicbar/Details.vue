@@ -92,15 +92,6 @@ export default class MusicBar extends mixins(ImageLoader, ErrorHandler, FileMixi
 }
 </script>
 
-<style lang="sass">
-#clipboard-popover
-  background: var(--accent)
-  .arrow::after
-    border-top-color: var(--accent)
-  .popover-body
-    color: var(--textInverse) !important
-</style>
-
 <style lang="sass" scoped>
 .coverimg
   height: 56px
@@ -124,10 +115,4 @@ export default class MusicBar extends mixins(ImageLoader, ErrorHandler, FileMixi
   font-size: 14.2592px
   color: var(--textSecondary)
   width: fit-content
-
-.text-container
-  width: fit-content
-
-.timestamp
-  margin-right: 0
 </style>

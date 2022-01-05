@@ -188,9 +188,6 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   transition: color 0.3s ease
   color: transparent
   text-shadow: 0 0 white
-  &::-webkit-scrollbar-track
-    background: transparent
-    margin-top: 0 !important
   &:hover
     color: white
 
@@ -206,10 +203,6 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   .song-timestamp
     font-weight: 600
     font-size: 16px
-.scroller
-  height: 100%
-  &::-webkit-scrollbar-track
-    margin: 0
 
 .main-container
   position: absolute
@@ -221,9 +214,6 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
 .queue-container
   overflow-y: scroll
   color: white !important
-  &::-webkit-scrollbar-track
-    background: transparent
-    margin: 0
 
 .right-container
   margin-left: 5rem

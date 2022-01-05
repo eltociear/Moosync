@@ -181,9 +181,6 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
   height: 70px
   padding-left: calc(261px + 30px + 7.5px)
 
-.modal-content-container
-  margin: 35px 35px 35px 35px
-
 .playlist-url-cover
   width: 157px
   height: 157px
@@ -205,8 +202,6 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
     box-shadow: none
   &:hover
     border-left: 1px solid var(--accent)
-  &::-webkit-scrollbar-track
-    margin-top: 0
 
 .playlist-url-details
   margin-top: -10px
@@ -266,9 +261,6 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
   margin-bottom: 8px
 
 .scroller
-  height: 100% !important
   margin-right: -10px
   margin-left: -10px
-  &::-webkit-scrollbar-track
-    margin-top: 0
 </style>

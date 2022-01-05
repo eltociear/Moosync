@@ -56,19 +56,11 @@ export default class ConfirmationModal extends Vue {
 }
 </script>
 
-<style lang="sass">
-.delete-modal
-  background: var(--primary)
-</style>
-
 <style lang="sass" scoped>
 .topbar-container
   background: var(--primary)
   height: 70px
   padding-left: calc(261px + 30px + 7.5px)
-
-.modal-content-container
-  margin: 35px 35px 10px 35px
 
 .confirm-button, .cancel-button
   font-size: 16px

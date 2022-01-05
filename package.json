@@ -134,7 +134,7 @@
       "no-unused-vars": "off",
       "semi": "off",
       "no-extra-semi": 1,
-      "no-undef": "off"
+      "no-undef": 1
     }
   },
   "browserslist": [

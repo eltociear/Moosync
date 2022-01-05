@@ -125,9 +125,6 @@ export default class SongFromUrlModal extends Vue {
   height: 70px
   padding-left: calc(261px + 30px + 7.5px)
 
-.modal-content-container
-  margin: 35px 35px 35px 35px
-
 .song-url-cover
   width: 157px
   height: 157px
@@ -149,8 +146,6 @@ export default class SongFromUrlModal extends Vue {
     box-shadow: none
   &:hover
     border-left: 1px solid var(--accent)
-  &::-webkit-scrollbar-track
-    margin-top: 0
 
 .song-url-details
   margin-top: -10px

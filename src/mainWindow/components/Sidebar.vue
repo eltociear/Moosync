@@ -124,23 +124,6 @@ export default class Sidebar extends Vue {
 }
 </script>
 
-<style lang="sass">
-.gradient
-  background: linear-gradient(176.27deg, var(--secondary) 1.69%, var(--primary) 72.01%)
-  border-radius: 0px 30px 0px 0px
-  top: 34px !important
-
-.b-sidebar
-  transition: 0.2s
-  height: calc(100% - (6.5rem + 32px))
-
-.b-sidebar-body
-  overflow-x: hidden
-  &::-webkit-scrollbar-track
-    margin-top: 0
-    background: transparent !important
-</style>
-
 <style lang="sass" scoped>
 .toggle
   margin-left: 8px

@@ -160,23 +160,3 @@ export default class MusicBar extends mixins(ImgLoader) {
 .close
   transform: translateY(100vh)
 </style>
-
-<style lang="sass">
-.vue-slider-process
-  background-color: var(--accent)
-
-.vue-slider-rail
-  background-color: var(--tertiary)
-
-.control-row
-  position: relative
-
-.details-col, .extra-col
-  position: absolute
-
-.details-col
-  left: 0
-
-.extra-col
-  right: 0
-</style>

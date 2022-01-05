@@ -34,7 +34,7 @@
         </div>
       </div>
       <div class="card-body">
-        <p class="title text-truncate" :title="title">{{ title }}</p>
+        <p class="card-title text-truncate" :title="title">{{ title }}</p>
         <p v-if="subtitle" class="subtitle text-truncate" :title="subtitle">{{ subtitle }}</p>
       </div>
     </div>
@@ -89,65 +89,3 @@ export default class CardView extends mixins(ImageLoader, ErrorHandler) {
   }
 }
 </script>
-
-<style lang="sass">
-.card
-  background-color: transparent
-  border: none
-  text-align: left
-  padding-left: 0
-  padding-right: 0
-  max-width: 200px
-
-.title
-  margin-bottom: 0 !important
-  font-weight: 300
-  font-size: 20px
-
-.subtitle
-  margin-bottom: 0 !important
-  font-size: 16px
-
-.default-icon
-  svg
-    border-radius: 16px
-
-img
-  mix-blend-mode: normal
-  border-radius: 16px
-  height: 100%
-  width: 100%
-  object-fit: cover
-
-.card
-  background-color: transparent
-
-.card-body
-  padding: 12px
-
-.icon-container
-  z-index: 1
-  position: absolute
-  top: 16px
-  left: 0px
-  padding-left: 2px
-  padding-right: 4px
-  border-radius: 0 8px 8px 0
-  box-shadow: 0px 2px 4px 2px rgba(0, 0, 0, 0.2)
-  svg
-    width: 24px
-    height: 24px
-
-.overlay
-  position: absolute
-  top: 0
-  opacity: 0
-
-.img-container
-  position: relative
-  &:hover
-    .overlay-base
-      opacity: 0.2
-    .overlay
-      opacity: 1
-</style>
