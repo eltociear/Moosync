@@ -32,6 +32,21 @@ pie.initialize(app);
 
 nativeTheme.themeSource = 'dark'
 
+import { flipFuses, FuseVersion, FuseV1Options } from '@electron/fuses';
+
+flipFuses(
+  require('electron') as unknown as string, // Returns the path to the electron binary
+  {
+    version: FuseVersion.V1,
+    [FuseV1Options.RunAsNode]: false,
+    [FuseV1Options.EnableCookieEncryption]: true,
+    [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
+    [FuseV1Options.EnableNodeCliInspectArguments]: false,
+    [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
+    [FuseV1Options.OnlyLoadAppFromAsar]: true,
+  },
+);
+
 if (!app.requestSingleInstanceLock()) {
   if (!isDevelopment) {
     app.exit()
