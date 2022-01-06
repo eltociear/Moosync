@@ -17,7 +17,13 @@
       v-slot="{ navigate, isActive }"
     >
       <div class="d-flex button-bar" v-on:click="navigate" v-bind:class="{ 'button-active': isActive }">
-        <div class="whitebar" v-if="isActive"></div>
+        <div
+          class="whitebar"
+          v-bind:class="{
+            'whitebar-active': isActive
+          }"
+          v-if="isActive"
+        ></div>
         <div
           class="d-flex align-items-center icon-transition icon-padding-open"
           v-bind:class="{
@@ -110,10 +116,13 @@ export default class Sidebar extends Vue {
 .whitebar
   width: 3px
   height: auto
-  background: #FFFFFF
+  background: var(--textPrimary)
+
+.whitebar-active
+  background: var(--accent)
 
 .button-active
-  background: linear-gradient(270deg, rgba(55, 60, 66, 0) 0%, #373C42 100%)
+  background: linear-gradient(270deg, rgba(var(--secondary-rgb), 0) 0%, rgba(var(--accent-rgb), 0.22) 100%)
 
 .icon-active
   padding-left: calc(1.8rem - 3px)
