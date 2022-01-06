@@ -18,7 +18,6 @@
             :defaultValue="[]"
             prefKey="musicPaths"
           />
-          <button @click="forceRescan">Force rescan</button>
           <FilePicker
             title="Downloaded Artwork Path"
             tooltip="Directory where downloaded artworks are stored"

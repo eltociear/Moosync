@@ -37,16 +37,6 @@ export default class Notifications extends Vue {
 }
 </script>
 
-<style lang="sass">
-.notification-popover
-  background-color: var(--tertiary)
-  border-radius: 16px
-  border: none
-  .arrow
-    &::after
-      border-bottom-color: var(--tertiary)
-</style>
-
 <style lang="sass" scoped>
 .notification-icon
   height: 26px

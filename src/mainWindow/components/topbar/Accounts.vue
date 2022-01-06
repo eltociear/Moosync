@@ -167,17 +167,6 @@ export default class TopBar extends Vue {
 }
 </script>
 
-<style lang="sass">
-.accounts-popover
-  background-color: var(--tertiary)
-  border-radius: 16px
-  width: 300px
-  border: none
-  .arrow
-    &::after
-      border-bottom-color: var(--tertiary)
-</style>
-
 <style lang="sass" scoped>
 .accounts-icon
   height: 22px

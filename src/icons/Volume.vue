@@ -44,9 +44,4 @@ export default class SpotifyIcon extends Vue {
 }
 </script>
 
-<style lang="sass">
-.vol-icon
-  cursor: pointer
-</style>
-
 

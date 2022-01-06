@@ -125,13 +125,6 @@ export default class Sidebar extends mixins(PlayerControls, ImgLoader) {
 </script>
 
 <style lang="sass" scoped>
-.scroller
-  height: 100%
-  &::-webkit-scrollbar-track
-    margin-top: 0
-    margin-bottom: 18px
-    background: var(--secondary)
-
 .searchbar
   color: var(--textPrimary) !important
   background: rgba(0, 0, 0, 0)

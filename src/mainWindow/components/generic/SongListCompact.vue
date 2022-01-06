@@ -133,9 +133,6 @@ export default class SongListCompact extends mixins(ImgLoader, SongListMixin) {
 .scroller
   color: var(--textPrimary)
   transition: color 0.3s ease
-  &::-webkit-scrollbar-track
-    background: transparent
-    margin: 0
 
 .wrapper
   background: var(--secondary)

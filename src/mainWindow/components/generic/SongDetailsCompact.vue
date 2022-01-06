@@ -135,9 +135,6 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   transition: color 0.3s ease
   color: transparent
   text-shadow: 0 0 white
-  &::-webkit-scrollbar-track
-    background: transparent
-    margin-top: 0 !important
   &:hover
     color: white
 
@@ -154,10 +151,6 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   .song-timestamp
     font-weight: 600
     font-size: 16px
-.scroller
-  height: 100%
-  &::-webkit-scrollbar-track
-    margin: 0
 
 .main-container
   position: absolute
@@ -168,9 +161,6 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
 
 .queue-container
   overflow-y: scroll
-  &::-webkit-scrollbar-track
-    background: transparent
-    margin: 0
 
 .right-container
   margin-left: 5rem

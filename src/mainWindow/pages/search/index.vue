@@ -277,36 +277,3 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   }
 }
 </script>
-
-<style lang="sass">
-.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link
-  background-color: var(--accent)
-  color: var(--textPrimary)
-
-.nav-tabs .nav-link
-  color: var(--textPrimary)
-
-.nav-tabs .nav-link
-  border: none
-
-.tab-container
-  height: 100%
-
-.tab-inner-container
-  height: 100%
-  overflow: scroll
-
-.tab-content
-  height: 100%
-
-.search-content
-  margin-left: 30px
-  margin-top: 30px
-  overflow: hidden
-
-.scroller
-  height: 100%
-  &::-webkit-scrollbar-track
-    margin-top: 0
-    background: var(--primary)
-</style>

@@ -74,13 +74,6 @@ export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
 }
 </script>
 
-<style lang="sass">
-.VueCarousel-dot-container
-  margin-top: 0 !important
-  .VueCarousel-dot
-    margin-top: 0 !important
-</style>
-
 <style lang="sass" scoped>
 .title
   font-weight: bold
