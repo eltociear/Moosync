@@ -10,7 +10,8 @@
 import * as mm from 'music-metadata'
 
 import { Observable, SubscriptionObserver } from 'observable-fns'
-import { Transfer, TransferDescriptor, expose } from 'threads'
+import { Transfer, TransferDescriptor } from 'threads'
+import { expose } from 'threads/worker';
 import fs, { promises as fsP } from 'fs'
 
 import crypto from 'crypto'

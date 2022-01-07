@@ -18,6 +18,11 @@ import { notifyRenderer } from '.'
 import { writeBuffer } from '@/utils/main/workers/covers'
 import { access, mkdir } from 'fs/promises'
 
+// @ts-expect-error it don't want .ts
+import scannerWorker from 'threads-plugin/dist/loader?name=0!/src/utils/main/workers/scanner.ts';
+// @ts-expect-error it don't want .ts
+import scraperWorker from 'threads-plugin/dist/loader?name=1!/src/utils/main/workers/scraper.ts';
+
 enum scanning {
   UNDEFINED,
   SCANNING,
@@ -185,7 +190,13 @@ export class ScannerChannel implements IpcChannelInterface {
   // TODO: Add queueing for scraping artworks
   private async scrapeArtists() {
     console.log('scraping')
-    this.scraperWorker = await spawn(new Worker('@/utils/main/workers/scraper.ts', { type: 'module' }))
+    try {
+      this.scraperWorker = await spawn(new Worker(`./${scraperWorker}`), { timeout: 5000 })
+    } catch (e) {
+      console.log(e)
+      return
+    }
+
     const allArtists = SongDB.getEntityByOptions<artists>({
       artist: true
     })
@@ -231,7 +242,14 @@ export class ScannerChannel implements IpcChannelInterface {
       await Thread.terminate(this.scannerWorker)
       this.scannerWorker = undefined
     }
-    this.scannerWorker = await spawn(new Worker('@/utils/main/workers/scanner.ts', { type: 'module' }))
+
+    try {
+      this.scannerWorker = await spawn(new Worker(`./${scannerWorker}`), { timeout: 5000 })
+    } catch (e) {
+      console.log(e)
+      event?.reply(request?.responseChannel, e)
+      return
+    }
 
     await this.destructiveScan(preferences.musicPaths)
     await this.scanSongs(preferences)
