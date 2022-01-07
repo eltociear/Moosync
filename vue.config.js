@@ -33,11 +33,29 @@ module.exports = {
         'process.browser': 'true',
         ...secrets
       }),
+
+      new webpack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer'],
+      }),
     ],
     externals: {
       'better-sqlite3': 'commonjs better-sqlite3', "vm2": "require('vm2')", 'sharp': "require('sharp')"
     },
-    devtool: 'source-map'
+    devtool: 'source-map',
+    resolve: {
+      fallback: {
+        stream: require.resolve("stream-browserify"),
+        fs: false,
+        util: false,
+        os: false,
+        url: false,
+        net: false,
+        assert: false,
+        crypto: false,
+        dgram: false,
+        buffer: require.resolve("buffer")
+      }
+    }
   },
   pluginOptions: {
     electronBuilder: {
@@ -134,9 +152,9 @@ module.exports = {
           })
 
         config.entry("sandbox").add(__dirname + '/src/utils/extensions/sandbox/index.ts').end()
-
         config.plugin('thread')
           .use(ThreadsPlugin, [{ target: 'electron-node-worker' }]);
+        
       },
     },
     autoRouting: {
