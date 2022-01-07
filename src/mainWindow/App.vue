@@ -17,6 +17,7 @@
     <NewPlaylistModal />
     <SongFromUrlModal />
     <PlaylistFromUrlModal />
+    <SetupModal />
   </div>
 </template>
 
@@ -29,6 +30,7 @@ import ContextMenu from './components/generic/Context.vue'
 import NewPlaylistModal from '@/mainWindow/components/generic/NewPlaylistModal.vue'
 import SongFromUrlModal from './components/generic/SongFromURLModal.vue'
 import PlaylistFromUrlModal from './components/generic/PlaylistFromURLModal.vue'
+import SetupModal from './components/setupModal/SetupModal.vue'
 
 import { vxm } from './store'
 import { bus } from './main'
@@ -36,6 +38,7 @@ import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import { v1 } from 'uuid'
 import 'animate.css'
 import Vue from 'vue'
+import { EventBus } from '@/utils/main/ipc/constants'
 
 const stun = require('stun')
 
@@ -45,7 +48,8 @@ const stun = require('stun')
     ContextMenu,
     NewPlaylistModal,
     SongFromUrlModal,
-    PlaylistFromUrlModal
+    PlaylistFromUrlModal,
+    SetupModal
   }
 })
 export default class App extends mixins(ThemeHandler, PlayerControls) {
@@ -63,7 +67,7 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     this.populatePlaylists()
     this.registerDevTools()
     this.registerFileDragListener()
-    this.runInitialScan()
+    this.handleInitialSetup()
     // this.testStun()
   }
 
@@ -315,9 +319,10 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     window.ThemeUtils.listenSongViewChanged((menu) => (vxm.themes.songView = menu))
   }
 
-  private async runInitialScan() {
-    const scanRequested = await window.PreferenceUtils.loadSelective<boolean>('isFirstLaunch', false, true)
-    if (scanRequested) {
+  private async handleInitialSetup() {
+    const isFirstLaunch = await window.PreferenceUtils.loadSelective<boolean>('isFirstLaunch', false, true)
+    if (isFirstLaunch) {
+      bus.$emit(EventBus.SHOW_SETUP_MODAL)
       await window.FileUtils.scan()
       await window.PreferenceUtils.saveSelective('isFirstLaunch', false, false)
     }

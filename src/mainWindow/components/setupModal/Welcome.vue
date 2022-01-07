@@ -1,0 +1,79 @@
+<template>
+  <b-container fluid class="p-0">
+    <b-row>
+      <b-col class="d-flex justify-content-center"> <Logo class="logo" /> </b-col>
+    </b-row>
+    <b-row>
+      <b-col class="welcome-text"> Welcome to </b-col>
+    </b-row>
+    <b-row>
+      <b-col class="moosync-text"> Moosync </b-col>
+    </b-row>
+    <b-row>
+      <b-col class="d-flex justify-content-center">
+        <div @click="beginSetup" class="start-button button-grow mt-4 d-flex justify-content-center align-items-center">
+          Begin Setup
+        </div>
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-col class="d-flex justify-content-center">
+        <div @click="skip" class="skip-button mt-2 d-flex justify-content-center align-items-center">Skip</div>
+      </b-col>
+    </b-row>
+  </b-container>
+</template>
+
+<script lang="ts">
+import Vue from 'vue'
+import { Component } from 'vue-property-decorator'
+import Logo from '@/icons/Logo.vue'
+
+@Component({
+  components: {
+    Logo
+  }
+})
+export default class Welcome extends Vue {
+  private beginSetup() {
+    this.$emit('next')
+  }
+
+  private skip() {
+    this.$emit('prev')
+  }
+}
+</script>
+
+<style lang="sass" scoped>
+.welcome-text
+  font-size: 16px
+  text-align: center
+
+.moosync-text
+  font-family: Poppins
+  font-style: normal
+  font-weight: 600
+  font-size: 42px
+  text-align: center
+  margin-top: -8px
+
+.logo
+  width: 100px
+  height: 100px
+  margin-bottom: 16px
+
+.start-button
+  width: 135px
+  height: 36px
+  border: 1px solid #65CB88
+  border-radius: 6px
+  font-size: 16px
+
+.skip-button
+  font-size: 16px
+  color: var(--textSecondary)
+  cursor: pointer
+</style>
+
+

@@ -166,7 +166,7 @@ interface windowUtils {
   closeWindow: (isMainWindow: boolean) => Promise<void>
   minWindow: (isMainWindow: boolean) => Promise<void>
   maxWindow: (isMainWindow: boolean) => Promise<boolean>
-  openFileBrowser: (file: boolean, filters?: Electron.FileFilter[]) => Promise<Electron.OpenDialogReturnValue>
+  openFileBrowser: (isMainWindow: boolean, file: boolean, filters?: Electron.FileFilter[]) => Promise<Electron.OpenDialogReturnValue>
   toggleDevTools: (isMainWindow: boolean) => Promise<void>
   openExternal: (url: string) => Promise<void>
   registerOAuthCallback: (path: string) => Promise<string>

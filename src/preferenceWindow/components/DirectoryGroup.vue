@@ -9,24 +9,41 @@
 
 <template>
   <b-container fluid class="path-container w-100">
-    <b-row no-gutters v-if="title">
+    <b-row no-gutters>
       <PreferenceHeader v-if="title" :title="title" :tooltip="tooltip" />
       <b-col cols="auto" align-self="center" class="new-directories ml-auto">
-        <div class="add-directories-button" @click="openFileBrowser">Add New Directory...</div>
+        <div class="add-directories-button" v-if="!bottomButton" @click="openFileBrowser">Add Folder...</div>
       </b-col>
     </b-row>
-    <b-row no-gutters class="background w-100 mt-2 d-flex" v-if="Array.isArray(value)">
+    <b-row
+      no-gutters
+      :style="{ height: height * 51 + 'px' }"
+      class="background w-100 mt-2 d-flex"
+      v-if="Array.isArray(value)"
+    >
       <b-row no-gutters class="mt-3 item w-100" v-for="(path, index) in value" :key="path.path">
-        <b-col cols="auto" align-self="center" class="ml-4">
+        <b-col v-if="enableCheckbox" cols="auto" align-self="center" class="ml-4">
           <b-checkbox @change="togglePath(index)" :id="`path-${packageName}-${path.path}`" :checked="path.enabled" />
         </b-col>
-        <b-col col md="8" lg="9" align-self="center" class="ml-3 justify-content-start">
+        <b-col
+          col
+          md="8"
+          lg="9"
+          align-self="center"
+          :class="{ 'no-checkbox-margin': !enableCheckbox, 'ml-3': enableCheckbox }"
+          class="justify-content-start"
+        >
           <div class="item-text text-truncate">{{ path.path }}</div>
         </b-col>
         <b-col cols="auto" align-self="center" class="ml-auto">
           <div class="remove-button w-100" @click="removePath(index)">Remove</div>
         </b-col>
       </b-row>
+    </b-row>
+    <b-row>
+      <b-col cols="auto" align-self="center" class="new-directories mt-3">
+        <div class="add-directories-button" v-if="bottomButton" @click="openFileBrowser">Add Folder...</div>
+      </b-col>
     </b-row>
   </b-container>
 </template>
@@ -43,6 +60,18 @@ import PreferenceHeader from './PreferenceHeader.vue'
   }
 })
 export default class DirectoryGroup extends Mixins(ExtensionPreferenceMixin) {
+  @Prop({ default: 5 })
+  private height!: number
+
+  @Prop({ default: true })
+  private enableCheckbox!: boolean
+
+  @Prop({ default: false })
+  private bottomButton!: boolean
+
+  @Prop({ default: false })
+  private isMainWindow!: boolean
+
   @Prop()
   private title!: string
 
@@ -67,7 +96,7 @@ export default class DirectoryGroup extends Mixins(ExtensionPreferenceMixin) {
   }
 
   private openFileBrowser() {
-    window.WindowUtils.openFileBrowser(false).then((data) => {
+    window.WindowUtils.openFileBrowser(this.isMainWindow, false).then((data) => {
       if (!data.canceled) {
         for (const path of data.filePaths) {
           this.value.push({ path, enabled: true })
@@ -111,7 +140,6 @@ export default class DirectoryGroup extends Mixins(ExtensionPreferenceMixin) {
 .background
   align-content: flex-start
   background-color: var(--tertiary)
-  height: 220px
   overflow-y: scroll
   overflow-x: hidden
 
@@ -133,4 +161,7 @@ export default class DirectoryGroup extends Mixins(ExtensionPreferenceMixin) {
   user-select: none
   &:hover
     cursor: pointer
+
+.no-checkbox-margin
+  margin-left: 25px
 </style>
