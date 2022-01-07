@@ -89,6 +89,8 @@
     "vuedraggable": "^2.24.3",
     "vuex": "^3.0.1",
     "vuex-class-component": "^2.3.6",
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.9.1",
     "yarn": "^1.22.17",
     "yt-player": "^3.5.0"
   },
@@ -118,7 +120,8 @@
   },
   "resolutions": {
     "electron-builder": "22.14.5",
-    "node-abi": "^3.2.0"
+    "node-abi": "^3.2.0",
+    "webpack": "^5.65.0"
   },
   "browserslist": [
     "> 1%",
