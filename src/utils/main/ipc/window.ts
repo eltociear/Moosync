@@ -87,7 +87,7 @@ export class BrowserWindowChannel implements IpcChannelInterface {
   }
 
   private openFileBrowser(event: Electron.IpcMainEvent, request: IpcRequest) {
-    _windowHandler.openFileBrowser(false, {
+    _windowHandler.openFileBrowser(request.params.isMainWindow, {
       properties: [request.params.file ? 'openFile' : 'openDirectory'],
       filters: request.params.filters
     }).then((data) => event.reply(request.responseChannel, data))

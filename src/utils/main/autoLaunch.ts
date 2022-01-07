@@ -8,7 +8,7 @@
  */
 
 import { app } from 'electron'
-import { promises as fsP } from 'fs';
+import { promises as fsP, existsSync } from 'fs';
 import os from 'os';
 import path from 'path';
 
@@ -20,7 +20,8 @@ export function enableStartup(enabled: boolean) {
     })
   } else if (process.platform === 'linux') {
     const directory = path.resolve(os.homedir(), '.config/autostart')
-    const fileName = path.join(directory, `moosync.desktop-${process.env.NODE_ENV}`)
+
+    const fileName = path.join(directory, `moosync.desktop`)
     if (enabled) {
       writeLinuxDesktopFile(directory, fileName)
     } else {
@@ -40,6 +41,19 @@ async function writeLinuxDesktopFile(directory: string, fileName: string) {
     await fsP.mkdir(directory, { recursive: true })
   }
 
+  const desktopFileSearchPaths = ['/usr/share/applications/', '/usr/local/share/applications/', path.resolve(os.homedir(), '.local/share/applications/')]
+
+  for (const searchPath of desktopFileSearchPaths) {
+    const desktopFile = path.join(searchPath, 'moosync.desktop')
+    console.log(desktopFile)
+    if (existsSync(desktopFile)) {
+      console.log('found file at', desktopFile)
+      await fsP.copyFile(desktopFile, fileName)
+      return
+    }
+  }
+
+  // Create a new desktop file if existing one isn't found
   await fsP.writeFile(fileName,
     `[Desktop Entry]
 Type=Application
@@ -48,5 +62,6 @@ Name=Moosync
 Comment=Moosync music player startup script
 Exec=${process.execPath} ${process.env.NODE_ENV !== 'production' ? path.resolve(process.argv[1]) : ''}
 StartupNotify=false
-Terminal=false`)
+Terminal=false
+X-GNOME-Autostart-enabled=true`)
 }

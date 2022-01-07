@@ -104,7 +104,7 @@ contextBridge.exposeInMainWorld('WindowUtils', {
   minWindow: (isMainWindow: boolean) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.MIN_WIN, params: { isMainWindow } }),
   maxWindow: (isMainWindow: boolean) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.MAX_WIN, params: { isMainWindow } }),
   isWindowMaximized: (isMainWindow: boolean) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.IS_MAXIMIZED, params: { isMainWindow } }),
-  openFileBrowser: (file: boolean, filters?: Electron.FileFilter[]) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.OPEN_FILE_BROWSER, params: { file, filters } }),
+  openFileBrowser: (isMainWindow: boolean, file: boolean, filters?: Electron.FileFilter[]) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.OPEN_FILE_BROWSER, params: { file, filters, isMainWindow } }),
   toggleDevTools: (isMainWindow: boolean) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.TOGGLE_DEV_TOOLS, params: { isMainWindow } }),
   openExternal: (url: string) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.OPEN_URL_EXTERNAL, params: { url: url } }),
   registerOAuthCallback: (path: string) => ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.REGISTER_OAUTH_CALLBACK, params: { path } }),

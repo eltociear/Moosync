@@ -1,0 +1,94 @@
+<!-- 
+  SongFromURLModal.vue is a part of Moosync.
+  
+  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Licensed under the GNU General Public License. 
+  
+  See LICENSE in the project root for license information.
+-->
+
+<template>
+  <b-modal
+    class="setup-modal"
+    no-close-on-backdrop
+    centered
+    :size="getWidth()"
+    :id="id"
+    :ref="id"
+    hide-footer
+    hide-header
+  >
+    <div class="modal-content-container">
+      <transition name="fade" mode="out-in">
+        <Welcome key="welcome" v-if="state === SetupModalState.WELCOME" @next="nextState" @prev="close" />
+        <PathSetup key="paths" v-if="state === SetupModalState.PATHS" @next="nextState" @prev="prevState" />
+        <AccountsSetup key="accounts" v-if="state === SetupModalState.ACCOUNTS" @next="close" @prev="prevState" />
+      </transition>
+    </div>
+  </b-modal>
+</template>
+
+<script lang="ts">
+import { Component, Prop, Vue } from 'vue-property-decorator'
+import { bus } from '@/mainWindow/main'
+import { EventBus } from '@/utils/main/ipc/constants'
+import { vxm } from '@/mainWindow/store'
+import Welcome from './Welcome.vue'
+import PathSetup from './PathSetup.vue'
+import AccountsSetup from './AccountsSetup.vue'
+
+enum SetupModalStates {
+  WELCOME,
+  PATHS,
+  ACCOUNTS
+}
+
+@Component({
+  components: {
+    Welcome,
+    PathSetup,
+    AccountsSetup
+  }
+})
+export default class SetupModal extends Vue {
+  private state: SetupModalStates = SetupModalStates.WELCOME
+  private SetupModalState = SetupModalStates
+
+  @Prop({ default: 'SetupModal' })
+  private id!: string
+
+  private close() {
+    this.$bvModal.hide(this.id)
+  }
+
+  private nextState() {
+    if (this.state < SetupModalStates.ACCOUNTS) this.state += 1
+  }
+
+  private prevState() {
+    if (this.state > SetupModalStates.WELCOME) this.state -= 1
+  }
+
+  private getWidth() {
+    switch (this.state) {
+      case SetupModalStates.WELCOME:
+        return 'sm'
+      case SetupModalStates.PATHS:
+        return 'lg'
+      case SetupModalStates.ACCOUNTS:
+        return 'md'
+    }
+  }
+
+  mounted() {
+    bus.$on(EventBus.SHOW_SETUP_MODAL, () => {
+      this.$bvModal.show(this.id)
+    })
+  }
+}
+</script>
+
+<style lang="sass" scoped>
+.modal-content-container
+  user-select: none
+</style>

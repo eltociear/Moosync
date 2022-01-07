@@ -25,6 +25,8 @@ import { prefixLogger } from './utils/main/logger';
 import { registerIpcChannels } from '@/utils/main/ipc'; // Import for side effects
 import { setInitialInterfaceSettings } from './utils/main/db/preferences';
 import { setupScanTask } from '@/utils/main/scheduler/index';
+import { flipFuses, FuseVersion, FuseV1Options } from '@electron/fuses';
+
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -32,7 +34,6 @@ pie.initialize(app);
 
 nativeTheme.themeSource = 'dark'
 
-import { flipFuses, FuseVersion, FuseV1Options } from '@electron/fuses';
 
 flipFuses(
   require('electron') as unknown as string, // Returns the path to the electron binary
@@ -48,16 +49,7 @@ flipFuses(
 );
 
 if (!app.requestSingleInstanceLock()) {
-  if (!isDevelopment) {
-    app.exit()
-  }
-
-  // Since in development mode, it is valid to have multiple processes open,
-  // Quit the app if it is supposed to be launched for oauth
-  // The argv/s will be passed to the original instance
-  if (isDevelopment && process.argv.findIndex((arg) => arg.startsWith('moosync')) !== -1) {
-    app.exit()
-  }
+  app.exit()
 } else {
   autoUpdater.autoInstallOnAppQuit = true
   autoUpdater.autoDownload = true

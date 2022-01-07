@@ -51,7 +51,7 @@ export default class FilePicker extends Mixins(ExtensionPreferenceMixin) {
   private tooltip!: string
 
   private openFileBrowser() {
-    window.WindowUtils.openFileBrowser(false).then((data) => {
+    window.WindowUtils.openFileBrowser(false, false).then((data) => {
       if (!data.canceled && data.filePaths.length > 0) {
         this.value = data.filePaths[0]
         this.onInputChange()
