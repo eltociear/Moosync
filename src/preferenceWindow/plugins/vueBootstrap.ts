@@ -7,9 +7,14 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
+import { LayoutPlugin, SidebarPlugin, TooltipPlugin, FormCheckboxPlugin, ModalPlugin, FormInputPlugin, ButtonPlugin } from 'bootstrap-vue'
 
 import Vue from 'vue'
 
-Vue.use(BootstrapVue)
-Vue.use(BootstrapVueIcons)
+Vue.use(LayoutPlugin)
+Vue.use(SidebarPlugin)
+Vue.use(TooltipPlugin)
+Vue.use(FormCheckboxPlugin)
+Vue.use(ModalPlugin)
+Vue.use(FormInputPlugin)
+Vue.use(ButtonPlugin)
