@@ -14,10 +14,10 @@ import { AuthorizationServiceConfiguration } from '@openid/appauth';
 import { GenericAuth } from './generics/genericAuth';
 import { GenericRecommendation } from './generics/genericRecommendations';
 import axios from 'axios';
-import moment from 'moment';
 import { once } from 'events';
 import qs from 'qs';
 import { vxm } from '../../../mainWindow/store/index';
+import { parseISO8601Duration } from '@/utils/common';
 
 const BASE_URL = 'https://youtube.googleapis.com/youtube/v3/'
 
@@ -228,7 +228,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
           },
           date: new Date(v.snippet.publishedAt).toISOString().slice(0, 10),
           date_added: Date.now().toString(),
-          duration: moment.duration(v.contentDetails.duration).asSeconds(),
+          duration: parseISO8601Duration(v.contentDetails.duration),
           url: v.id,
           type: 'YOUTUBE'
         })
