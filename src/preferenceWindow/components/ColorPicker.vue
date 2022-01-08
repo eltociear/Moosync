@@ -9,7 +9,7 @@
 
 <template>
   <tr height="60">
-    <td class="title pr-5">
+    <td class="color-title pr-5">
       {{ title }}
     </td>
     <td class="pr-4" ref="parent">
@@ -92,7 +92,7 @@ export default class ColorPicker extends Vue {
   border-radius: 4px
   border: 0.61px solid var(--textPrimary)
 
-.title
+.color-title
   text-align: left
 
 .icon
