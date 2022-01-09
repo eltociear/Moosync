@@ -129,7 +129,8 @@ module.exports = {
               "moosync"
             ]
           }
-        ]
+        ],
+        beforeBuild: "scripts/fontFix.js",
       },
       nodeIntegration: false,
       disableMainProcessTypescript: false,
