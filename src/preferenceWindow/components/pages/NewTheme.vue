@@ -59,14 +59,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
 import ThemeComponentClassic from '../ThemeComponentClassic.vue'
 import { v1 } from 'uuid'
 import PreferenceHeader from '../PreferenceHeader.vue'
 import ThemeComponentCompact from '../ThemeComponentCompact.vue'
 import ColorPicker from '../ColorPicker.vue'
 import NavBack from '@/icons/NavBack.vue'
-import { BvComponent } from 'bootstrap-vue'
 
 @Component({
   components: {

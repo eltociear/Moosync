@@ -1,7 +1,6 @@
 const webpack = require('webpack');
 const ThreadsPlugin = require('threads-plugin')
 const dotenv = require('dotenv').config({ path: __dirname + '/config.env' });
-const fs = require('fs')
 
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
@@ -37,6 +36,8 @@ module.exports = {
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
       }),
+
+      // new BundleAnalyzerPlugin()
     ],
     externals: {
       'better-sqlite3': 'commonjs better-sqlite3', "vm2": "require('vm2')", 'sharp': "require('sharp')"
