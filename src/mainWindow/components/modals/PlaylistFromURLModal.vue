@@ -82,7 +82,7 @@ import { mixins } from 'vue-class-component'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 import SingleSearchResult from '@/mainWindow/components/generic/SingleSearchResult.vue'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
-import InputGroup from './InputGroup.vue'
+import InputGroup from '../generic/InputGroup.vue'
 
 @Component({
   components: {

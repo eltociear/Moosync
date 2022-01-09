@@ -76,7 +76,7 @@ import QueueItem from './QueueItem.vue'
 import draggable from 'vuedraggable'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
-import SongDetailsCompact from '../generic/SongDetailsCompact.vue'
+import SongDetailsCompact from '../songView/SongDetailsCompact.vue'
 
 @Component({
   components: {
