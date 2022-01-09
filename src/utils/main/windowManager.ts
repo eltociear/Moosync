@@ -18,6 +18,7 @@ import path from 'path';
 export class WindowHandler {
   private static mainWindow: number
   private static preferenceWindow: number
+  private static _hasFrame = false
 
   private trayHandler = new TrayHandler()
   private isDevelopment = process.env.NODE_ENV !== 'production'
@@ -33,11 +34,19 @@ export class WindowHandler {
     }
   }
 
+  public static get hasFrame() {
+    return this._hasFrame
+  }
+
+  private static set hasFrame(f: boolean) {
+    this._hasFrame = f
+  }
+
   private get baseWindowProps(): BrowserWindowConstructorOptions {
     return {
       backgroundColor: '#212121',
       titleBarStyle: 'hidden',
-      frame: false,
+      frame: WindowHandler.hasFrame,
       show: true,
       icon: path.join(__static, 'logo.png'),
       webPreferences: {
@@ -127,6 +136,10 @@ export class WindowHandler {
   }
 
   public async createWindow(isMainWindow: boolean = true, args?: any) {
+    if (process.platform === 'linux') {
+      WindowHandler.hasFrame = true
+    }
+
     let win: BrowserWindow
     if (!WindowHandler.getWindow(isMainWindow) || WindowHandler.getWindow(isMainWindow)?.isDestroyed()) {
       win = new BrowserWindow(isMainWindow ? this.mainWindowProps : this.prefWindowProps)

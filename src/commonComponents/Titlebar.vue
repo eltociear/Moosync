@@ -8,7 +8,7 @@
 -->
 
 <template>
-  <b-container fluid class="titlebar">
+  <b-container v-if="!hasFrame" fluid class="titlebar">
     <div class="titlebar-resize-handle top"></div>
     <div class="titlebar-resize-handle right"></div>
     <div class="titlebar-resize-handle left"></div>
@@ -91,6 +91,8 @@ export default class Sidebar extends Vue {
   private isMaximized: boolean = false
   private resizedFinished: NodeJS.Timeout | undefined
 
+  private hasFrame = false
+
   private onMinimize() {
     window.WindowUtils.minWindow(this.windowType == 'main-window')
   }
@@ -101,6 +103,10 @@ export default class Sidebar extends Vue {
 
   private onClose() {
     window.WindowUtils.closeWindow(this.windowType == 'main-window')
+  }
+
+  async created() {
+    this.hasFrame = await window.WindowUtils.hasFrame()
   }
 
   mounted() {

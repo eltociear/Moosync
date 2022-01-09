@@ -78,6 +78,7 @@ export enum WindowEvents {
   DRAG_FILE = 'dragFile',
 
   IS_MAXIMIZED = 'isMaximized',
+  HAS_FRAME = 'hasFrame',
 
   GOT_EXTRA_ARGS = 'gotExtraArgs'
 }
@@ -150,5 +151,6 @@ export enum EventBus {
   SHOW_SONG_FROM_URL_MODAL = 'show-song-from-url',
   SHOW_PLAYLIST_FROM_URL_MODAL = 'show-playlist-from-url',
   SHOW_SETUP_MODAL = 'show-setup-modal',
+  SHOW_SONG_INFO_MODAL = 'show-song-info-modal',
   REFRESH_USERNAMES = 'refresh-usernames'
 }

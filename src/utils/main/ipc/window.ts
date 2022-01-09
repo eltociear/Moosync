@@ -55,9 +55,10 @@ export class BrowserWindowChannel implements IpcChannelInterface {
         this.deregisterOauth(event, request)
         break
       case WindowEvents.DRAG_FILE:
-        console.log('here')
         this.dragFile(event, request)
         break
+      case WindowEvents.HAS_FRAME:
+        this.hasFrame(event, request)
     }
   }
 
@@ -151,5 +152,9 @@ export class BrowserWindowChannel implements IpcChannelInterface {
       })
     }
     event.reply(request.responseChannel)
+  }
+
+  private hasFrame(event: Electron.IpcMainEvent, request: IpcRequest) {
+    event.reply(request.responseChannel, WindowHandler.hasFrame)
   }
 }
