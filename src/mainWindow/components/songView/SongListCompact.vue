@@ -37,7 +37,7 @@
                 />
                 <b-col cols="5" class="ml-2" align-self="center">
                   <b-row no-gutters align-v="center">
-                    <b-col class="title text-truncate mr-2"> {{ item.title }} </b-col>
+                    <b-col cols="auto" class="title text-truncate mr-2"> {{ item.title }} </b-col>
                     <YoutubeIcon
                       v-if="item.type === 'YOUTUBE'"
                       :color="'#E62017'"

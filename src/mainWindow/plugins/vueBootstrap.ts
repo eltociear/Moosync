@@ -7,7 +7,7 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { ModalPlugin, LayoutPlugin, ButtonPlugin, SidebarPlugin, PopoverPlugin, TabsPlugin, ImagePlugin, FormInputPlugin, LinkPlugin } from 'bootstrap-vue'
+import { ModalPlugin, LayoutPlugin, ButtonPlugin, SidebarPlugin, PopoverPlugin, TabsPlugin, ImagePlugin, FormInputPlugin, LinkPlugin, SpinnerPlugin } from 'bootstrap-vue'
 import Vue from 'vue'
 
 Vue.use(ModalPlugin)
@@ -19,4 +19,5 @@ Vue.use(TabsPlugin)
 Vue.use(ImagePlugin)
 Vue.use(FormInputPlugin)
 Vue.use(LinkPlugin)
+Vue.use(SpinnerPlugin)
 
