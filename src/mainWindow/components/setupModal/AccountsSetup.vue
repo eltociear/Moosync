@@ -67,7 +67,6 @@ export default class AccountsSetup extends mixins(AccountsMixin) {
 
   mounted() {
     this.signoutMethod = this.showSignoutModal
-    console.log(this.providers[0].provider.loggedIn)
   }
 
   private next() {

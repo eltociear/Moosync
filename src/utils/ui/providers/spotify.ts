@@ -176,8 +176,6 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
           hasNext = false
         }
 
-        console.log(invalidateCache)
-
         playlists.push(...this.parsePlaylists(resp.items))
       }
     }

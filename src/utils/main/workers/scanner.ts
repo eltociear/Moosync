@@ -90,7 +90,6 @@ async function scanDir(directory: string, observer: SubscriptionObserver<{ song:
   if (fs.existsSync(directory)) {
     const files = fs.readdirSync(directory)
     for (const file of files) {
-      console.log(file)
       if (fs.statSync(path.join(directory, file)).isDirectory()) {
         await scanDir(path.join(directory, file), observer)
       }
