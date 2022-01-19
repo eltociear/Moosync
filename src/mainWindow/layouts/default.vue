@@ -9,13 +9,13 @@
 
 <template>
   <div class="appContainer">
-    <TopBar class="topbar" :class="{ 'is-open': isSidebarOpen }" />
+    <TopBar :showRefreshIcon="showRefreshIcon" class="topbar" :class="{ 'is-open': isSidebarOpen }" />
     <Sidebar class="sidebar" />
     <MusicBar class="musicbar" />
 
     <div class="d-flex main-content" :class="{ 'is-open': isSidebarOpen }">
       <transition name="slide-fade">
-        <router-view :key="refreshPage"></router-view>
+        <router-view :enableRefresh="enableRefreshIcon" :key="refreshPage"></router-view>
       </transition>
     </div>
   </div>
@@ -39,9 +39,14 @@ import { vxm } from '../store/index'
 })
 export default class DefaultLayout extends mixins(ContextMenuMixin) {
   private refreshPage = false
+  private showRefreshIcon = false
 
   get isSidebarOpen() {
     return vxm.themes.sidebarOpen
+  }
+
+  private enableRefreshIcon() {
+    this.showRefreshIcon = true
   }
 
   private listenRefreshPage() {
@@ -55,6 +60,10 @@ export default class DefaultLayout extends mixins(ContextMenuMixin) {
 
   mounted() {
     this.listenRefreshPage()
+    this.$router.beforeEach((to, from, next) => {
+      this.showRefreshIcon = false
+      next()
+    })
   }
 }
 </script>

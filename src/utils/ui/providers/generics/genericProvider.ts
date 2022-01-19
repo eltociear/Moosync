@@ -34,24 +34,22 @@ export abstract class GenericProvider {
    * Get user playlists
    * @returns Array of playlist fetched from users profile
    */
-  public abstract getUserPlaylists(): Promise<Playlist[]>
+  public abstract getUserPlaylists(invalidateCache?: boolean): Promise<Playlist[]>
 
   /**
    * Gets details of single playlist.
    * 
    * @param id id of playlist
-   * @param [isUrl] true if id is to be fetched from url. Considered as false by default.
    * @returns Playlist if data is found otherwise undefined
    */
-  public abstract getPlaylistDetails(id: string, isUrl?: boolean): Promise<Playlist | undefined>
+  public abstract getPlaylistDetails(id: string, invalidateCache?: boolean): Promise<Playlist | undefined>
 
   /**
    * Gets songs present in playlist
    * @param id 
-   * @param [isUrl] 
    * @returns Generator of array {@link Song}
    */
-  public abstract getPlaylistContent(id: string, isUrl?: boolean): AsyncGenerator<Song[]>
+  public abstract getPlaylistContent(id: string, invalidateCache?: boolean): AsyncGenerator<Song[]>
 
   /**
    * Matches playlist link to verify if current provider is suitable for given link
@@ -72,5 +70,5 @@ export abstract class GenericProvider {
    * @param url of song
    * @returns {@link Song} details
    */
-  public abstract getSongDetails(url: string): Promise<Song | undefined>
+  public abstract getSongDetails(url: string, invalidateCache?: boolean): Promise<Song | undefined>
 }

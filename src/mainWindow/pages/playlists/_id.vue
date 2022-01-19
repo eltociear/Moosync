@@ -35,6 +35,8 @@ import { mixins } from 'vue-class-component'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import { vxm } from '@/mainWindow/store'
 import { arrayDiff } from '@/utils/common'
+import { bus } from '@/mainWindow/main'
+import { EventBus } from '@/utils/main/ipc/constants'
 
 @Component({
   components: {
@@ -42,6 +44,9 @@ import { arrayDiff } from '@/utils/common'
   }
 })
 export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
+  @Prop({ default: () => () => {} })
+  private enableRefresh!: () => void
+
   private songList: Song[] = []
 
   private tableBusy: boolean = false
@@ -75,17 +80,35 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     return this.isYoutube || this.isSpotify
   }
 
-  async created() {
-    this.fetchPlaylist()
-    await this.fetchSongList()
-    await this.fetchAsyncGen()
+  private async refresh(invalidateCache = false) {
+    this.fetchPlaylist(invalidateCache)
+
+    this.songList = []
+    if (!this.isYoutube && !this.isSpotify) await this.fetchLocalSongList()
+
+    await this.fetchAsyncGen(invalidateCache)
   }
 
-  private async fetchPlaylist() {
+  created() {
+    this.refresh()
+  }
+
+  mounted() {
+    this.enableRefresh()
+    this.listenGlobalRefresh()
+  }
+
+  private listenGlobalRefresh() {
+    bus.$on(EventBus.REFRESH_PAGE, () => {
+      this.refresh(true)
+    })
+  }
+
+  private async fetchPlaylist(invalidateCache = false) {
     if (this.isYoutube) {
-      await this.fetchPlaylistYoutube()
+      this.playlist = await this.fetchPlaylistYoutube(invalidateCache)
     } else if (this.isSpotify) {
-      await this.fetchPlaylistSpotify()
+      this.playlist = await this.fetchPlaylistSpotify(invalidateCache)
     } else {
       this.playlist = (
         await window.SearchUtils.searchEntityByOptions({
@@ -97,17 +120,25 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     }
   }
 
-  private async fetchPlaylistYoutube() {
-    this.playlist =
-      (await vxm.providers.youtubeProvider.getPlaylistDetails(this.$route.params.id.replace('youtube-', ''))) ?? null
+  private async fetchPlaylistYoutube(invalidateCache = false) {
+    return (
+      (await vxm.providers.youtubeProvider.getPlaylistDetails(
+        this.$route.params.id.replace('youtube-', ''),
+        invalidateCache
+      )) ?? null
+    )
   }
 
-  private async fetchPlaylistSpotify() {
-    this.playlist =
-      (await vxm.providers.spotifyProvider.getPlaylistDetails(this.$route.params.id.replace('spotify-', ''))) ?? null
+  private async fetchPlaylistSpotify(invalidateCache = false) {
+    return (
+      (await vxm.providers.spotifyProvider.getPlaylistDetails(
+        this.$route.params.id.replace('spotify-', ''),
+        invalidateCache
+      )) ?? null
+    )
   }
 
-  private async fetchSongList() {
+  private async fetchLocalSongList() {
     this.songList = await window.SearchUtils.searchSongsByOptions({
       playlist: {
         playlist_id: this.$route.params.id
@@ -116,12 +147,18 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     })
   }
 
-  private async fetchAsyncGen() {
+  private async fetchAsyncGen(invalidateCache = false) {
     let generator
     if (this.isYoutube)
-      generator = vxm.providers.youtubeProvider.getPlaylistContent(this.$route.params.id.replace('youtube-', ''))
+      generator = vxm.providers.youtubeProvider.getPlaylistContent(
+        this.$route.params.id.replace('youtube-', ''),
+        invalidateCache
+      )
     else if (this.isSpotify)
-      generator = vxm.providers.spotifyProvider.getPlaylistContent(this.$route.params.id.replace('spotify-', ''))
+      generator = vxm.providers.spotifyProvider.getPlaylistContent(
+        this.$route.params.id.replace('spotify-', ''),
+        invalidateCache
+      )
 
     if (generator)
       for await (const items of generator) {

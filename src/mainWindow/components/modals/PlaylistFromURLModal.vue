@@ -116,12 +116,12 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
     this.playlist = null
 
     if (vxm.providers.youtubeProvider.matchPlaylist(url)) {
-      this.playlist = (await vxm.providers.youtubeProvider.getPlaylistDetails(url, true)) ?? null
+      this.playlist = (await vxm.providers.youtubeProvider.getPlaylistDetails(url)) ?? null
       generator = vxm.providers.youtubeProvider.getPlaylistContent(url, true)
     }
 
     if (vxm.providers.spotifyProvider.matchPlaylist(url)) {
-      this.playlist = (await vxm.providers.spotifyProvider.getPlaylistDetails(url, true)) ?? null
+      this.playlist = (await vxm.providers.spotifyProvider.getPlaylistDetails(url)) ?? null
       generator = vxm.providers.spotifyProvider.getPlaylistContent(url, true)
     }
 

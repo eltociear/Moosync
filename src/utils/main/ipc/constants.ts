@@ -152,5 +152,6 @@ export enum EventBus {
   SHOW_PLAYLIST_FROM_URL_MODAL = 'show-playlist-from-url',
   SHOW_SETUP_MODAL = 'show-setup-modal',
   SHOW_SONG_INFO_MODAL = 'show-song-info-modal',
-  REFRESH_USERNAMES = 'refresh-usernames'
+  REFRESH_USERNAMES = 'refresh-usernames',
+  REFRESH_PAGE = 'refresh-page',
 }
