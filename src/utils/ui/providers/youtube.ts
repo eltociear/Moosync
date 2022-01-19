@@ -103,27 +103,34 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     this.auth?.signOut()
   }
 
-  private async populateRequest<K extends ApiResources>(resource: K, search: YoutubeResponses.SearchObject<K>): Promise<YoutubeResponses.ResponseType<K>> {
+  private async populateRequest<K extends ApiResources>(resource: K, search: YoutubeResponses.SearchObject<K>, invalidateCache = false): Promise<YoutubeResponses.ResponseType<K>> {
     const accessToken = await this.auth?.performWithFreshTokens()
     const resp = await this.api(resource, {
       params: search.params,
       method: 'GET',
       headers: { 'Authorization': `Bearer ${accessToken}` },
+      clearCacheEntry: invalidateCache
     })
 
     return resp.data
   }
 
-  public async getUserDetails(): Promise<string | undefined> {
+  public async getUserDetails(invalidateCache = false, retries = 0): Promise<string | undefined> {
     const validRefreshToken = await this.auth?.hasValidRefreshToken()
     if (this.auth?.loggedIn() || validRefreshToken) {
       const resp = await this.populateRequest(ApiResources.CHANNELS, {
         params: {
           part: ['id', 'snippet'],
           mine: true,
-        }
-      })
-      return resp.items[0].snippet!.title
+        },
+      }, invalidateCache)
+
+      const username = resp?.items?.at(0)?.snippet!.title
+      if (username || retries > 0) {
+        return username
+      }
+
+      return this.getUserDetails(true, retries + 1)
     }
   }
 

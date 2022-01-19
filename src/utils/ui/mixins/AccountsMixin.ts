@@ -97,7 +97,8 @@ export default class AccountsMixin extends Vue {
           bus.$emit(EventBus.REFRESH_USERNAMES, provider)
 
           if (p.name === 'LastFM') this.lastFm.scrobble(vxm.player.currentSong)
-        } catch (_) {
+        } catch (e) {
+          console.error(e)
           await p.provider.signOut()
         }
       }

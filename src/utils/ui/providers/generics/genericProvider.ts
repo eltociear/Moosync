@@ -20,7 +20,12 @@ export const forageStore = localforage.createInstance({
 export const cache = setupCache({
   maxAge: 15 * 60 * 1000,
   store: forageStore,
-  exclude: { query: false }
+  exclude: { query: false },
+  invalidate: async (config, request) => {
+    if (request.clearCacheEntry) {
+      await (config.store as any)?.removeItem((config as any).uuid)
+    }
+  }
 })
 
 
