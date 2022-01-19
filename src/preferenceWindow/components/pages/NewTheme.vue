@@ -11,13 +11,13 @@
   <b-container fluid class="h-100">
     <b-row no-gutters> </b-row>
     <b-row no-gutters>
-      <b-col cols="auto" class="h-100">
+      <b-col class="h-100">
         <b-row no-gutters class="metadata mb-3">
           <b-input v-model="title" class="theme-title" maxlength="20" placeholder="Theme Name" />
           <b-input v-model="author" class="theme-title" maxlength="20" placeholder="Author" />
         </b-row>
         <b-row no-gutters>
-          <b-col class="preview-col">
+          <b-col cols="6" class="preview-col">
             <b-row no-gutters class="preview mb-5">
               <ThemeComponentClassic
                 class="h-100"
@@ -35,7 +35,7 @@
               />
             </b-row>
           </b-col>
-          <b-col cols="auto" class="color-col">
+          <b-col cols="auto" class="color-col ml-5">
             <PreferenceHeader title="Colors" tooltip="Change the colors to customise UI" />
             <table>
               <ColorPicker
@@ -47,13 +47,13 @@
                 @colorChange="onColorChange(item, ...arguments)"
               />
             </table>
+            <b-row class="mt-5 mr-4" align-h="end">
+              <b-button class="cancel-button mr-4" @click="dismiss">Cancel</b-button>
+              <b-button class="confirm-button" @click="saveTheme">Save</b-button>
+            </b-row>
           </b-col>
         </b-row>
       </b-col>
-    </b-row>
-    <b-row class="mt-5 mr-5" align-h="end">
-      <b-button class="cancel-button mr-4" @click="dismiss">Cancel</b-button>
-      <b-button class="confirm-button" @click="saveTheme">Save</b-button>
     </b-row>
   </b-container>
 </template>
@@ -168,24 +168,19 @@ export default class NewTheme extends Vue {
 
 <style lang="sass">
 .preview, .metadata
-  width: 600px
+  min-width: 320px
+  max-width: 600px
 
-.preview
-  @media (max-width: 1360px)
-    width: 500px
-  @media (max-width: 1260px)
-    width: 400px
-  @media (max-width: 1160px)
+.preview-col
+  @media (max-width: 996px)
     display: none !important
 
 .preview-col
-  @media (max-width: 1160px)
-    display: none !important
+  max-width: 600px
 
 .color-col
-  padding-left: 130px !important
-  @media (max-width: 1160px)
-    padding-left: 0 !important
+  @media (max-width: 996px)
+    margin-left: 0 !important
 
 .theme-title
   font-size: 18px
