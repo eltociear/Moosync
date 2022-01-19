@@ -70,3 +70,24 @@ export function parseISO8601Duration(duration: string): number {
   }
   return 0
 }
+
+export function humanByteSize(size: number, bitrate = false): string {
+  const thresh = bitrate ? 1000 : 1024;
+  const dp = 2
+
+  if (Math.abs(size) < thresh) {
+    return size + ' B';
+  }
+
+  const units = bitrate ? ['kbps', 'Mbps', 'Gbps', 'Tbps', 'Pbps', 'Ebps', 'Zbps', 'Ybps'] : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+  let u = -1;
+  const r = 10 ** dp;
+
+  do {
+    size /= thresh;
+    ++u;
+  } while (Math.round(Math.abs(size) * r) / r >= thresh && u < units.length - 1);
+
+
+  return size.toFixed(dp) + ' ' + units[u];
+}

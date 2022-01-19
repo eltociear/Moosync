@@ -124,6 +124,13 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
         handler: () => bus.$emit(EventBus.SHOW_SONG_FROM_URL_MODAL, refreshCallback)
       }])
     }
+
+    items.push({
+      label: 'More Info',
+      handler: () => {
+        bus.$emit(EventBus.SHOW_SONG_INFO_MODAL, item[0])
+      }
+    })
     return items
   }
 
