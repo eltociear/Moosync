@@ -8,7 +8,8 @@
  */
 
 import { Observable, SubscriptionObserver } from 'observable-fns'
-import { Transfer, TransferDescriptor, expose } from 'threads'
+import { Transfer, TransferDescriptor } from 'threads'
+import { expose } from 'threads/worker';
 
 import axios from 'axios'
 import axiosRetry from 'axios-retry'

@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator'
+import { Component, Prop } from 'vue-property-decorator'
 import CardView from '@/mainWindow/components/generic/CardView.vue'
 import { mixins } from 'vue-class-component'
 import RouterPushes from '@/utils/ui/mixins/RouterPushes'
@@ -46,6 +46,8 @@ import SpotifyIcon from '@/icons/Spotify.vue'
 import YoutubeIcon from '@/icons/Youtube.vue'
 import PlaylistDefault from '@/icons/PlaylistDefault.vue'
 import DeleteModal from '../../../commonComponents/ConfirmationModal.vue'
+import { bus } from '@/mainWindow/main'
+import { EventBus } from '@/utils/main/ipc/constants'
 
 @Component({
   components: {
@@ -57,6 +59,9 @@ import DeleteModal from '../../../commonComponents/ConfirmationModal.vue'
   }
 })
 export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
+  @Prop({ default: () => () => {} })
+  private enableRefresh!: () => void
+
   private allPlaylists: Playlist[] = []
 
   private playlistInAction: Playlist | undefined
@@ -71,14 +76,14 @@ export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
     }
   }
 
-  private async getPlaylists() {
+  private async getPlaylists(invalidateCache = false) {
     let localPlaylists = await window.SearchUtils.searchEntityByOptions({
       playlist: true
     })
     this.allPlaylists = [...localPlaylists]
 
-    vxm.providers.youtubeProvider.getUserPlaylists().then((data) => this.allPlaylists.push(...data))
-    vxm.providers.spotifyProvider.getUserPlaylists().then((data) => this.allPlaylists.push(...data))
+    vxm.providers.youtubeProvider.getUserPlaylists(invalidateCache).then((data) => this.allPlaylists.push(...data))
+    vxm.providers.spotifyProvider.getUserPlaylists(invalidateCache).then((data) => this.allPlaylists.push(...data))
   }
 
   private contextHandler(event: MouseEvent) {
@@ -96,11 +101,19 @@ export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
   }
 
   mounted() {
+    this.enableRefresh()
     this.getPlaylists()
+    this.listenGlobalRefresh()
   }
 
-  private refresh() {
-    this.getPlaylists().then(() => (vxm.playlist.updated = true))
+  private refresh(invalidateCache = false) {
+    this.getPlaylists(invalidateCache).then(() => (vxm.playlist.updated = true))
+  }
+
+  private listenGlobalRefresh() {
+    bus.$on(EventBus.REFRESH_PAGE, () => {
+      this.refresh(true)
+    })
   }
 
   private getPlaylistMenu(event: Event, playlist: Playlist) {

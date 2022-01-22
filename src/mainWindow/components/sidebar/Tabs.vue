@@ -90,15 +90,8 @@ export default class Sidebar extends Vue {
     return vxm.providers.loggedInSpotify || vxm.providers.loggedInYoutube || vxm.providers.loggedInLastFM
   }
 
-  private active: ActiveTab = ActiveTab.ALLSONGS
-
   @Prop({ default: true })
   private isOpen!: boolean
-
-  private setActive(i: number, navigate: Function): void {
-    this.active = i
-    navigate(this)
-  }
 }
 </script>
 

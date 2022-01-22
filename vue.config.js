@@ -1,7 +1,6 @@
 const webpack = require('webpack');
 const ThreadsPlugin = require('threads-plugin')
 const dotenv = require('dotenv').config({ path: __dirname + '/config.env' });
-const fs = require('fs')
 
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
@@ -33,11 +32,31 @@ module.exports = {
         'process.browser': 'true',
         ...secrets
       }),
+
+      new webpack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer'],
+      }),
+
+      // new BundleAnalyzerPlugin()
     ],
     externals: {
       'better-sqlite3': 'commonjs better-sqlite3', "vm2": "require('vm2')", 'sharp': "require('sharp')"
     },
-    devtool: 'source-map'
+    devtool: 'source-map',
+    resolve: {
+      fallback: {
+        stream: require.resolve("stream-browserify"),
+        fs: false,
+        util: false,
+        os: false,
+        url: false,
+        net: false,
+        assert: false,
+        crypto: false,
+        dgram: false,
+        buffer: require.resolve("buffer")
+      }
+    }
   },
   pluginOptions: {
     electronBuilder: {
@@ -110,7 +129,8 @@ module.exports = {
               "moosync"
             ]
           }
-        ]
+        ],
+        beforeBuild: "scripts/fontFix.js",
       },
       nodeIntegration: false,
       disableMainProcessTypescript: false,
@@ -134,9 +154,9 @@ module.exports = {
           })
 
         config.entry("sandbox").add(__dirname + '/src/utils/extensions/sandbox/index.ts').end()
-
         config.plugin('thread')
           .use(ThreadsPlugin, [{ target: 'electron-node-worker' }]);
+        
       },
     },
     autoRouting: {

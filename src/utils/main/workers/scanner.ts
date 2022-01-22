@@ -10,7 +10,8 @@
 import * as mm from 'music-metadata'
 
 import { Observable, SubscriptionObserver } from 'observable-fns'
-import { Transfer, TransferDescriptor, expose } from 'threads'
+import { Transfer, TransferDescriptor } from 'threads'
+import { expose } from 'threads/worker';
 import fs, { promises as fsP } from 'fs'
 
 import crypto from 'crypto'
@@ -89,7 +90,6 @@ async function scanDir(directory: string, observer: SubscriptionObserver<{ song:
   if (fs.existsSync(directory)) {
     const files = fs.readdirSync(directory)
     for (const file of files) {
-      console.log(file)
       if (fs.statSync(path.join(directory, file)).isDirectory()) {
         await scanDir(path.join(directory, file), observer)
       }

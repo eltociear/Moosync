@@ -17,6 +17,7 @@
     <NewPlaylistModal />
     <SongFromUrlModal />
     <PlaylistFromUrlModal />
+    <SongInfoModal />
     <SetupModal />
   </div>
 </template>
@@ -27,10 +28,11 @@ import Titlebar from '@/commonComponents/Titlebar.vue'
 import { mixins } from 'vue-class-component'
 import ThemeHandler from '@/utils/ui/mixins/ThemeHandler'
 import ContextMenu from './components/generic/Context.vue'
-import NewPlaylistModal from '@/mainWindow/components/generic/NewPlaylistModal.vue'
-import SongFromUrlModal from './components/generic/SongFromURLModal.vue'
-import PlaylistFromUrlModal from './components/generic/PlaylistFromURLModal.vue'
+import NewPlaylistModal from '@/mainWindow/components/modals/NewPlaylistModal.vue'
+import SongFromUrlModal from './components/modals/SongFromURLModal.vue'
+import PlaylistFromUrlModal from './components/modals/PlaylistFromURLModal.vue'
 import SetupModal from './components/setupModal/SetupModal.vue'
+import SongInfoModal from './components/modals/SongInfoModal.vue'
 
 import { vxm } from './store'
 import { bus } from './main'
@@ -49,7 +51,8 @@ const stun = require('stun')
     NewPlaylistModal,
     SongFromUrlModal,
     PlaylistFromUrlModal,
-    SetupModal
+    SetupModal,
+    SongInfoModal
   }
 })
 export default class App extends mixins(ThemeHandler, PlayerControls) {

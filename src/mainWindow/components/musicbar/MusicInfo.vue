@@ -9,7 +9,7 @@
 
 <template>
   <div>
-    <div v-if="computedImg" class="dark-overlay"></div>
+    <div v-if="computedImg" class="dark-overlay" :style="{ top: !hasFrame ? '-28px' : '0px' }"></div>
     <transition
       name="custom-fade"
       enter-active-class="animate__animated animate__fadeIn"
@@ -76,7 +76,7 @@ import QueueItem from './QueueItem.vue'
 import draggable from 'vuedraggable'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
-import SongDetailsCompact from '../generic/SongDetailsCompact.vue'
+import SongDetailsCompact from '../songView/SongDetailsCompact.vue'
 
 @Component({
   components: {
@@ -91,6 +91,8 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
     return vxm.player.queueOrder
   }
 
+  private hasFrame = false
+
   private scrollToActive() {
     const elem = this.$refs[`queue-item-${this.queueOrder[this.currentIndex]?.id}`]
     if (elem) {
@@ -98,6 +100,10 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
         behavior: 'smooth'
       })
     }
+  }
+
+  async created() {
+    this.hasFrame = await window.WindowUtils.hasFrame()
   }
 
   mounted() {
@@ -229,12 +235,11 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   z-index: -9999
 
 .dark-overlay
-  height: calc(100% + 28px + 5px)
+  height: calc(100% + 28px + 5px + 3px)
   width: 100vw
   z-index: -9998
   position: absolute
   left: 0
-  top: -28px
   background: rgba(0,0,0,.75)
 
 .flip-list-move

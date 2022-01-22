@@ -54,7 +54,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import SongDefault from '@/icons/SongDefault.vue'
-import InputGroup from './InputGroup.vue'
+import InputGroup from '../generic/InputGroup.vue'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
 import { vxm } from '@/mainWindow/store'

@@ -37,7 +37,7 @@
                 />
                 <b-col cols="5" class="ml-2" align-self="center">
                   <b-row no-gutters align-v="center">
-                    <b-col class="title text-truncate mr-2"> {{ item.title }} </b-col>
+                    <b-col cols="auto" class="title text-truncate mr-2"> {{ item.title }} </b-col>
                     <YoutubeIcon
                       v-if="item.type === 'YOUTUBE'"
                       :color="'#E62017'"
@@ -85,7 +85,7 @@ import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 import SongListMixin from '@/utils/ui/mixins/SongListMixin'
 import { mixins } from 'vue-class-component'
 import { Component } from 'vue-property-decorator'
-import LowImageCol from './LowImageCol.vue'
+import LowImageCol from '@/mainWindow/components/generic/LowImageCol.vue'
 import Ellipsis from '@/icons/Ellipsis.vue'
 import YoutubeIcon from '../../../icons/Youtube.vue'
 import SpotifyIcon from '../../../icons/Spotify.vue'

@@ -14,10 +14,10 @@ import { AuthorizationServiceConfiguration } from '@openid/appauth';
 import { GenericAuth } from './generics/genericAuth';
 import { GenericRecommendation } from './generics/genericRecommendations';
 import axios from 'axios';
-import moment from 'moment';
 import { once } from 'events';
 import qs from 'qs';
 import { vxm } from '../../../mainWindow/store/index';
+import { parseISO8601Duration } from '@/utils/common';
 
 const BASE_URL = 'https://youtube.googleapis.com/youtube/v3/'
 
@@ -103,27 +103,34 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     this.auth?.signOut()
   }
 
-  private async populateRequest<K extends ApiResources>(resource: K, search: YoutubeResponses.SearchObject<K>): Promise<YoutubeResponses.ResponseType<K>> {
+  private async populateRequest<K extends ApiResources>(resource: K, search: YoutubeResponses.SearchObject<K>, invalidateCache = false): Promise<YoutubeResponses.ResponseType<K>> {
     const accessToken = await this.auth?.performWithFreshTokens()
     const resp = await this.api(resource, {
       params: search.params,
       method: 'GET',
       headers: { 'Authorization': `Bearer ${accessToken}` },
+      clearCacheEntry: invalidateCache
     })
 
     return resp.data
   }
 
-  public async getUserDetails(): Promise<string | undefined> {
+  public async getUserDetails(invalidateCache = false, retries = 0): Promise<string | undefined> {
     const validRefreshToken = await this.auth?.hasValidRefreshToken()
     if (this.auth?.loggedIn() || validRefreshToken) {
       const resp = await this.populateRequest(ApiResources.CHANNELS, {
         params: {
           part: ['id', 'snippet'],
           mine: true,
-        }
-      })
-      return resp.items[0].snippet!.title
+        },
+      }, invalidateCache)
+
+      const username = resp?.items?.at(0)?.snippet!.title
+      if (username || retries > 0) {
+        return username
+      }
+
+      return this.getUserDetails(true, retries + 1)
     }
   }
 
@@ -144,7 +151,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     return playlists
   }
 
-  public async getUserPlaylists() {
+  public async getUserPlaylists(invalidateCache = false) {
     const validRefreshToken = await this.auth?.hasValidRefreshToken()
     if (this.auth?.loggedIn() || validRefreshToken) {
       let nextPageToken: string | undefined
@@ -157,7 +164,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
             maxResults: 50,
             pageToken: nextPageToken
           }
-        })
+        }, invalidateCache)
         parsed.push(...resp.items)
       } while (nextPageToken)
       return this.parsePlaylists(parsed)
@@ -165,11 +172,11 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     return []
   }
 
-  private async parsePlaylistItems(items: YoutubeResponses.PlaylistItems.Items[]): Promise<Song[]> {
+  private async parsePlaylistItems(items: YoutubeResponses.PlaylistItems.Items[], invalidateCache = false): Promise<Song[]> {
     const songs: Song[] = []
     if (items.length > 0) {
       const ids = items.map(s => s.snippet!.resourceId.videoId)
-      const details = await this.getSongDetailsFromID(...ids)
+      const details = await this.getSongDetailsFromID(invalidateCache, ...ids)
       songs.push(...details)
     }
     return songs
@@ -180,15 +187,15 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   private getIDFromURL(url: string) {
-    return new URL(url)?.searchParams?.get('list') ?? undefined
+    try {
+      return new URL(url)?.searchParams?.get('list') ?? undefined
+    } catch (_) {
+      return url
+    }
   }
 
-  public async * getPlaylistContent(str: string, isUrl = false): AsyncGenerator<Song[]> {
-    let id: string | undefined = str
-
-    if (isUrl) {
-      id = this.getIDFromURL(str)
-    }
+  public async * getPlaylistContent(str: string, invalidateCache = false): AsyncGenerator<Song[]> {
+    const id: string | undefined = this.getIDFromURL(str)
 
     if (id) {
       const validRefreshToken = await this.auth?.hasValidRefreshToken()
@@ -202,9 +209,9 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
               maxResults: 50,
               pageToken: nextPageToken
             }
-          })
+          }, invalidateCache)
           nextPageToken = resp.nextPageToken
-          const parsed = await this.parsePlaylistItems(resp.items)
+          const parsed = await this.parsePlaylistItems(resp.items, invalidateCache)
           yield parsed
         } while (nextPageToken)
       }
@@ -228,7 +235,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
           },
           date: new Date(v.snippet.publishedAt).toISOString().slice(0, 10),
           date_added: Date.now().toString(),
-          duration: moment.duration(v.contentDetails.duration).asSeconds(),
+          duration: parseISO8601Duration(v.contentDetails.duration),
           url: v.id,
           type: 'YOUTUBE'
         })
@@ -236,7 +243,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     return songs
   }
 
-  private async getSongDetailsFromID(...id: string[]) {
+  private async getSongDetailsFromID(invalidateCache: boolean, ...id: string[]) {
     const validRefreshToken = await this.auth?.hasValidRefreshToken()
     if (this.auth?.loggedIn() || validRefreshToken) {
       const resp = await this.populateRequest(ApiResources.VIDEO_DETAILS, {
@@ -245,7 +252,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
           id: id,
           maxResults: 50,
         }
-      })
+      }, invalidateCache)
       return this.parseVideo(resp.items)
     }
     return []
@@ -256,11 +263,8 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
       return { url: song.url!, duration: song.duration }
   }
 
-  public async getPlaylistDetails(str: string, isUrl = false) {
-    let id: string | undefined = str
-    if (isUrl) {
-      id = this.getIDFromURL(str)
-    }
+  public async getPlaylistDetails(str: string, isUrl = false, invalidateCache = false) {
+    const id = this.getIDFromURL(str)
 
     if (id) {
       const resp = await this.populateRequest(ApiResources.PLAYLISTS, {
@@ -269,18 +273,18 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
           part: ['id', 'contentDetails', 'snippet'],
           maxResults: 1,
         }
-      })
+      }, invalidateCache)
       return (await this.parsePlaylists(resp.items))[0]
     }
   }
 
-  public async getSongDetails(url: string): Promise<Song | undefined> {
+  public async getSongDetails(url: string, invalidateCache = false): Promise<Song | undefined> {
     if (url.match(/^((?:https?:)?\/\/)?((?:www|m|music)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/)) {
       const parsedUrl = new URL(url)
       const videoID = parsedUrl.searchParams.get('v')
 
       if (videoID) {
-        const details = await this.getSongDetailsFromID(videoID)
+        const details = await this.getSongDetailsFromID(invalidateCache, videoID)
         if (details && details.length > 0) {
           return details[0]
         }
@@ -340,7 +344,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
         })).items.forEach((val) => resp.push(val.id.videoId))
       }
 
-      yield await this.getSongDetailsFromID(...resp)
+      yield await this.getSongDetailsFromID(false, ...resp)
     }
   }
 }

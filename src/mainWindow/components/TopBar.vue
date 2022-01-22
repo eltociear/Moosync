@@ -11,12 +11,13 @@
   <div class="topbar-container d-flex align-items-center">
     <b-container fluid class="d-flex">
       <b-row align-h="start" class="flex-grow-1">
-        <b-col cols="auto my-auto"> <Navigation /> </b-col>
-        <b-col cols="7">
-          <Search />
-        </b-col>
+        <b-col cols="auto" class="my-auto"> <Navigation /> </b-col>
+        <b-col> <Search /> </b-col>
         <b-col cols="auto" class="pr-5 ml-auto my-auto icons-bar d-flex">
           <b-row class="flex-grow-1">
+            <b-col cols="auto" v-if="showRefreshIcon">
+              <Refresh @click.native="refreshPage" class="refresh-icon button-grow" />
+            </b-col>
             <!-- <b-col cols="auto"> <Notifications /> </b-col> -->
             <b-col cols="auto"> <Accounts /></b-col>
             <b-col cols="auto"> <Gear class="gear-icon" @click.native="openSettings" /></b-col>
@@ -30,10 +31,15 @@
 <script lang="ts">
 import Navigation from '@/mainWindow/components/topbar/Navigation.vue'
 import Search from '@/mainWindow/components/topbar/Search.vue'
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import Accounts from '@/mainWindow/components/topbar/Accounts.vue'
 import Notifications from '@/mainWindow/components/topbar/Notifications.vue'
+import Refresh from '@/icons/Refresh.vue'
+
 import Gear from '@/icons/Gear.vue'
+import { EventBus } from '@/utils/main/ipc/constants'
+import { bus } from '../main'
+import EventEmitter from 'events'
 
 @Component({
   components: {
@@ -41,12 +47,20 @@ import Gear from '@/icons/Gear.vue'
     Navigation,
     Accounts,
     Notifications,
-    Gear
+    Gear,
+    Refresh
   }
 })
 export default class TopBar extends Vue {
+  @Prop({ default: false })
+  private showRefreshIcon!: boolean
+
   private openSettings() {
     window.WindowUtils.openWindow(false)
+  }
+
+  private refreshPage() {
+    bus.$emit(EventBus.REFRESH_PAGE)
   }
 }
 </script>
@@ -63,4 +77,8 @@ export default class TopBar extends Vue {
 
 .icons-bar
   margin-right: 30px
+
+.refresh-icon
+  height: 22px
+  width: 22px
 </style>

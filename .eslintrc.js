@@ -14,9 +14,9 @@ module.exports = {
       parser: "@typescript-eslint/parser",
     },
     rules: {
-      'no-unused-vars': "off",
+      'no-unused-vars': 0,
       semi: "off",
-      'no-extra-semi': 1,
+      'no-extra-semi': 0,
       'no-undef': 0
     }
 }

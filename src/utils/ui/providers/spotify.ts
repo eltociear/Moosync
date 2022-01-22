@@ -102,7 +102,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     this.auth?.signOut()
   }
 
-  private async populateRequest<K extends ApiResources>(resource: K, search: SpotifyResponses.SearchObject<K>): Promise<SpotifyResponses.ResponseType<K>> {
+  private async populateRequest<K extends ApiResources>(resource: K, search: SpotifyResponses.SearchObject<K>, invalidateCache = false): Promise<SpotifyResponses.ResponseType<K>> {
     const accessToken = await this.auth?.performWithFreshTokens()
 
     let url: string = resource
@@ -124,6 +124,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       params: search.params,
       method: 'GET',
       headers: { 'Authorization': `Bearer ${accessToken}` },
+      clearCacheEntry: invalidateCache
     })
 
     return resp.data
@@ -154,23 +155,25 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     return parsed
   }
 
-  public async getUserPlaylists(): Promise<Playlist[]> {
+  public async getUserPlaylists(invalidateCache = false): Promise<Playlist[]> {
     const limit = 20
     let offset = 0
-    let hasNext = false
+    let hasNext = true
 
     const validRefreshToken = await this.auth?.hasValidRefreshToken()
     const playlists: Playlist[] = []
 
-    while (hasNext) {
-      if (this.auth?.loggedIn() || validRefreshToken) {
+    if (this.auth?.loggedIn() || validRefreshToken) {
+      while (hasNext) {
         const resp = await this.populateRequest(ApiResources.PLAYLISTS, {
           params: { limit, offset }
-        })
+        }, invalidateCache)
 
         if (resp.next) {
           hasNext = true
           offset += limit
+        } else {
+          hasNext = false
         }
 
         playlists.push(...this.parsePlaylists(resp.items))
@@ -217,28 +220,20 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   private getIDFromURL(url: string) {
-    const split = new URL(url).pathname.split('/')
-    return split[split.length - 1]
+    try {
+      const split = new URL(url).pathname.split('/')
+      return split[split.length - 1]
+    } catch (_) {
+      return url
+    }
   }
 
-  public async * getPlaylistContent(str: string, isUrl = false): AsyncGenerator<Song[]> {
-    let id: string | undefined = str
-
-    if (isUrl) {
-      id = this.getIDFromURL(str)
-    }
+  public async * getPlaylistContent(str: string, invalidateCache = false): AsyncGenerator<Song[]> {
+    const id: string | undefined = this.getIDFromURL(str)
 
     if (id) {
       const validRefreshToken = await this.auth?.hasValidRefreshToken()
       if (this.auth?.loggedIn() || validRefreshToken) {
-
-        // Return directly from cache
-        const content = await this.getCachePlaylistContent(id)
-        if (content) {
-          yield content
-          return
-        }
-
         let nextOffset: number = 0
         let isNext = false
         const limit = 100
@@ -250,7 +245,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
               limit,
               offset: nextOffset
             }
-          })
+          }, invalidateCache)
           const items = await this.parsePlaylistItems(resp.items)
           parsed.push(...items)
           isNext = !!resp.next
@@ -259,22 +254,9 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
           }
           yield items;
         } while (isNext)
-        this.setCachePlaylistContent(id, parsed)
       }
     }
     return
-  }
-
-  private async getCachePlaylistContent(playlist_id: string) {
-    const content = await forageStore.getItem<{ expires: number, data: Song[] }>(`spotify-playlist-${playlist_id}`)
-    if (content && content.expires > Date.now())
-      return content.data;
-    return null
-  }
-
-  private async setCachePlaylistContent(playlist_id: string, items: Song[]) {
-    // Cache for 1hr
-    await forageStore.setItem(`spotify-playlist-${playlist_id}`, { expires: Date.now() + 1 * 60 * 60 * 5 * 1000, data: items })
   }
 
   public async getPlaybackUrlAndDuration(song: Song) {
@@ -284,11 +266,8 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     }
   }
 
-  public async getPlaylistDetails(str: string, isUrl = false) {
-    let id: string | undefined = str
-    if (isUrl) {
-      id = this.getIDFromURL(str)
-    }
+  public async getPlaylistDetails(str: string, invalidateCache = false) {
+    const id = this.getIDFromURL(str)
 
     if (id) {
       const validRefreshToken = await this.auth?.hasValidRefreshToken()
@@ -297,7 +276,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
           params: {
             playlist_id: id,
           }
-        })
+        }, invalidateCache)
 
         return this.parsePlaylists([resp])[0]
       }
