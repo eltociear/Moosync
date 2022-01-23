@@ -136,7 +136,7 @@ export class WindowHandler {
   }
 
   public async createWindow(isMainWindow: boolean = true, args?: any) {
-    if (process.platform === 'linux') {
+    if (process.platform === 'linux' || process.platform === 'darwin') {
       WindowHandler.hasFrame = true
     }
 
