@@ -289,7 +289,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
         album: song.album?.album_name,
         artwork
       })
-
+      navigator.mediaSession.setActionHandler('nexttrack', () => this.nextSong())
+      navigator.mediaSession.setActionHandler('previoustrack', () => this.prevSong())
       navigator.mediaSession.setActionHandler('seekto', (data) => data.seekTime && (this.forceSeek = data.seekTime))
     }
   }
