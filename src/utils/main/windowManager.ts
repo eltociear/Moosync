@@ -136,7 +136,7 @@ export class WindowHandler {
   }
 
   public async createWindow(isMainWindow: boolean = true, args?: any) {
-    if (process.platform === 'linux') {
+    if (process.platform === 'linux' || process.platform === 'darwin') {
       WindowHandler.hasFrame = true
     }
 
@@ -248,7 +248,7 @@ class TrayHandler {
 
   public createTray() {
     if (!this._tray || this._tray?.isDestroyed())
-      this._tray = new Tray(path.join(__static, 'logo.png'))
+      this._tray = new Tray(path.join(__static, process.platform === 'darwin' ? 'logo_osx.png' : 'logo.png'))
     this.setupListeners()
     this.setupContextMenu()
   }
