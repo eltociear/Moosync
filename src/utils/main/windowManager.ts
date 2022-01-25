@@ -42,6 +42,10 @@ export class WindowHandler {
     this._hasFrame = f
   }
 
+  public static get showTitlebarIcons() {
+    return process.platform === 'darwin' || process.platform === 'linux'
+  }
+
   private get baseWindowProps(): BrowserWindowConstructorOptions {
     return {
       backgroundColor: '#212121',

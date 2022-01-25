@@ -13,7 +13,7 @@
     <div class="titlebar-resize-handle right"></div>
     <div class="titlebar-resize-handle left"></div>
 
-    <b-row no-gutters align-h="between">
+    <b-row no-gutters align-h="between" v-if="showTitlebarIcons">
       <b-col cols="auto" class="h-100">
         <b-row v-if="windowType === 'main-window'" no-gutters align-v="center" class="logo-container">
           <b-col cols="auto" class="logo-title"> Moosync </b-col>
@@ -92,6 +92,7 @@ export default class Sidebar extends Vue {
   private resizedFinished: NodeJS.Timeout | undefined
 
   private hasFrame = false
+  private showTitlebarIcons = false
 
   private onMinimize() {
     window.WindowUtils.minWindow(this.windowType == 'main-window')
@@ -107,6 +108,7 @@ export default class Sidebar extends Vue {
 
   async created() {
     this.hasFrame = await window.WindowUtils.hasFrame()
+    this.showTitlebarIcons = await window.WindowUtils.showTitlebarIcons()
   }
 
   mounted() {

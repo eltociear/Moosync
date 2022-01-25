@@ -79,6 +79,7 @@ export enum WindowEvents {
 
   IS_MAXIMIZED = 'isMaximized',
   HAS_FRAME = 'hasFrame',
+  SHOW_TITLEBAR_ICONS = 'showTitlebarIcons',
 
   GOT_EXTRA_ARGS = 'gotExtraArgs'
 }

@@ -167,6 +167,7 @@ interface windowUtils {
   minWindow: (isMainWindow: boolean) => Promise<void>
   maxWindow: (isMainWindow: boolean) => Promise<boolean>
   hasFrame: () => Promise<boolean>
+  showTitlebarIcons: () => Promise<boolean>
   openFileBrowser: (isMainWindow: boolean, file: boolean, filters?: Electron.FileFilter[]) => Promise<Electron.OpenDialogReturnValue>
   toggleDevTools: (isMainWindow: boolean) => Promise<void>
   openExternal: (url: string) => Promise<void>

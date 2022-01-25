@@ -59,6 +59,10 @@ export class BrowserWindowChannel implements IpcChannelInterface {
         break
       case WindowEvents.HAS_FRAME:
         this.hasFrame(event, request)
+        break
+      case WindowEvents.SHOW_TITLEBAR_ICONS:
+        this.showTitlebarIcons(event, request)
+        break
     }
   }
 
@@ -156,5 +160,9 @@ export class BrowserWindowChannel implements IpcChannelInterface {
 
   private hasFrame(event: Electron.IpcMainEvent, request: IpcRequest) {
     event.reply(request.responseChannel, WindowHandler.hasFrame)
+  }
+
+  private showTitlebarIcons(event: Electron.IpcMainEvent, request: IpcRequest) {
+    event.reply(request.responseChannel, WindowHandler.showTitlebarIcons)
   }
 }
