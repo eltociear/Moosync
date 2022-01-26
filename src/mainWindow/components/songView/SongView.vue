@@ -40,9 +40,9 @@ import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import ModelHelper from '@/utils/ui/mixins/ModelHelper'
 import RemoteSong from '@/utils/ui/mixins/remoteSongMixin'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
-import { vxm } from '../store'
-import SongViewClassic from '@/mainWindow/components/songView/SongViewClassic.vue'
-import SongViewCompact from '@/mainWindow/components/songView/SongViewCompact.vue'
+import { vxm } from '@/mainWindow/store'
+import SongViewClassic from '@/mainWindow/components/songView/components/SongViewClassic.vue'
+import SongViewCompact from '@/mainWindow/components/songView/components/SongViewCompact.vue'
 import { sortSongList } from '@/utils/common'
 
 @Component({

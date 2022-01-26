@@ -64,10 +64,10 @@
 <script lang="ts">
 import Rooms from '@/icons/Rooms.vue'
 import Toggle from '@/icons/Toggle.vue'
-import Tabs from '@/mainWindow/components/sidebar/Tabs.vue'
+import Tabs from '@/mainWindow/components/sidebar/components/Tabs.vue'
 import { PeerMode } from '@/mainWindow/store/syncState'
 import { Component, Vue } from 'vue-property-decorator'
-import { vxm } from '../store'
+import { vxm } from '@/mainWindow/store'
 
 @Component({
   components: {

@@ -46,7 +46,7 @@ import Shuffle from '@/icons/Shuffle.vue'
 import { mixins } from 'vue-class-component'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import { vxm } from '@/mainWindow/store'
-import Timestamp from './Timestamp.vue'
+import Timestamp from '@/mainWindow/components/musicbar/components/Timestamp.vue'
 
 @Component({
   components: {

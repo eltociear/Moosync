@@ -60,17 +60,17 @@
 </template>
 
 <script lang="ts">
-import AudioStream from '@/mainWindow/components/AudioStream.vue'
-import Controls from '@/mainWindow/components/musicbar/Controls.vue'
-import Details from '@/mainWindow/components/musicbar/Details.vue'
-import ExtraControls from '@/mainWindow/components/musicbar/ExtraControls.vue'
-import MusicInfo from '@/mainWindow/components/musicbar/MusicInfo.vue'
+import AudioStream from '@/mainWindow/components/musicbar/components/AudioStream.vue'
+import Controls from '@/mainWindow/components/musicbar/components/Controls.vue'
+import Details from '@/mainWindow/components/musicbar/components/Details.vue'
+import ExtraControls from '@/mainWindow/components/musicbar/components/ExtraControls.vue'
+import MusicInfo from '@/mainWindow/components/musicbar/components/MusicInfo.vue'
 import { Component } from 'vue-property-decorator'
 import { mixins } from 'vue-class-component'
-import { vxm } from '../store'
+import { vxm } from '@/mainWindow/store'
 import { bus } from '@/mainWindow/main'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
-import Timestamp from './musicbar/Timestamp.vue'
+import Timestamp from '@/mainWindow/components/musicbar/components/Timestamp.vue'
 
 @Component({
   components: {

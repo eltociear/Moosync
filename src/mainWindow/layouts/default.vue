@@ -22,9 +22,9 @@
 </template>
 
 <script lang="ts">
-import MusicBar from '@/mainWindow/components/Musicbar.vue'
-import Sidebar from '@/mainWindow/components/Sidebar.vue'
-import TopBar from '@/mainWindow/components/TopBar.vue'
+import MusicBar from '@/mainWindow/components/musicbar/Musicbar.vue'
+import Sidebar from '@/mainWindow/components/sidebar/Sidebar.vue'
+import TopBar from '@/mainWindow/components/topbar/TopBar.vue'
 import { Component } from 'vue-property-decorator'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import { mixins } from 'vue-class-component'

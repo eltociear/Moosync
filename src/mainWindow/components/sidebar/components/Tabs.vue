@@ -50,7 +50,6 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { ActiveTab } from '@/utils/ui/enums'
 import Playlists from '@/icons/Playlists.vue'
 import AllSongs from '@/icons/AllSongs.vue'
 import Artists from '@/icons/Artists.vue'
@@ -59,7 +58,7 @@ import Genre from '@/icons/Genre.vue'
 import Albums from '@/icons/Albums.vue'
 import Toggle from '@/icons/Toggle.vue'
 import Rooms from '@/icons/Rooms.vue'
-import Explore from '../../../icons/Explore.vue'
+import Explore from '@/icons/Explore.vue'
 import { vxm } from '@/mainWindow/store'
 
 @Component({

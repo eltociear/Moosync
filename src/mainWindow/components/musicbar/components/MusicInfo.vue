@@ -72,11 +72,11 @@ import ImageLoader from '@/utils/ui/mixins/ImageLoader'
 import ModelHelper from '@/utils/ui/mixins/ModelHelper'
 import { vxm } from '@/mainWindow/store'
 import { convertDuration } from '@/utils/common'
-import QueueItem from './QueueItem.vue'
+import QueueItem from '@/mainWindow/components/musicbar/components/QueueItem.vue'
 import draggable from 'vuedraggable'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
-import SongDetailsCompact from '../songView/SongDetailsCompact.vue'
+import SongDetailsCompact from '@/mainWindow/components/songView/components/SongDetailsCompact.vue'
 
 @Component({
   components: {
