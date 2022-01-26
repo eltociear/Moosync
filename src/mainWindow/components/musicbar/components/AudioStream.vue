@@ -82,6 +82,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    */
   private forcePlay = false
 
+  private _bufferTrap: ReturnType<typeof setTimeout> | undefined
+
   get songRepeat() {
     return vxm.player.Repeat
   }
@@ -212,6 +214,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       // Cued event of youtube embed seems to fire only once and is not reliable
       // Stop loading when state of player changes
       vxm.player.loading = false
+      this.cancelBufferTrap()
 
       if (state === 'STOPPED') {
         this.onSongEnded()
@@ -226,13 +229,33 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
     this.activePlayer.onLoad = () => {
       vxm.player.loading = false
+      this.cancelBufferTrap()
     }
 
     this.activePlayer.onBuffer = () => {
       vxm.player.loading = true
+      this.setBufferTrap()
     }
 
     vxm.player.$watch('volume', this.onVolumeChanged)
+  }
+
+  /**
+   * If the player is buffering for a long time then try changing its playback quality
+   */
+  private setBufferTrap() {
+    this._bufferTrap = setTimeout(() => {
+      if (this.activePlayerType === 'YOUTUBE' && this.activePlayer instanceof YoutubePlayer) {
+        this.activePlayer.setPlaybackQuality('small')
+      }
+    }, 10000)
+  }
+
+  private cancelBufferTrap() {
+    if (this._bufferTrap) {
+      clearTimeout(this._bufferTrap)
+      this._bufferTrap = undefined
+    }
   }
 
   private registerListeners() {
@@ -321,7 +344,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
         return
       }
 
-      this.activePlayer.load(song.playbackUrl, this.volume, this.playerState === 'PLAYING')
+      this.activePlayer.load(song.playbackUrl, this.volume, this.playerState !== 'PAUSED')
     }
 
     if (this.forcePlay) {

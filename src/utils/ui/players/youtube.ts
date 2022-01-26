@@ -10,6 +10,8 @@
 import { Player } from './player'
 import YTPlayer from 'yt-player'
 
+type YouTubePlayerQuality = 'small' | 'medium' | 'large' | 'hd720' | 'hd1080' | 'highres' | 'default';
+
 export class YoutubePlayer extends Player {
   playerInstance: YTPlayer
 
@@ -80,5 +82,9 @@ export class YoutubePlayer extends Player {
 
   removeAllListeners(): void {
     this.playerInstance.removeAllListeners()
+  }
+
+  public setPlaybackQuality(quality: YouTubePlayerQuality) {
+    this.playerInstance.setPlaybackQuality(quality)
   }
 }
