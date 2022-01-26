@@ -76,7 +76,7 @@ interface UnInitializedExtensionItem {
   desc: string,
   author: string
   version: string
-  entry: string
+  entry: string,
 }
 
 interface getExtensionOptions {
