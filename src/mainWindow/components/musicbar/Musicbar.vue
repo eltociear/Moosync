@@ -53,7 +53,11 @@
         :forceSeek="forceSeek"
       />
     </div>
-    <div class="slider" :class="{ open: sliderPosition, close: !sliderPosition }">
+    <div
+      class="slider"
+      :class="{ open: sliderPosition, close: !sliderPosition }"
+      :style="{ height: `calc(100% - ${!hasFrame ? '7.5rem' : '6rem'})` }"
+    >
       <MusicInfo :currentSong="currentSong" />
     </div>
   </div>
@@ -86,6 +90,7 @@ export default class MusicBar extends mixins(ImgLoader) {
   private forceSeek: number = 0
   private PlayerState: PlayerState = 'PAUSED'
   private sliderPosition: boolean = false
+  private hasFrame: boolean = false
 
   get timestamp() {
     return vxm.player.currentTime
@@ -119,6 +124,10 @@ export default class MusicBar extends mixins(ImgLoader) {
   private updateTimestamp(timestamp: number) {
     vxm.player.currentTime = timestamp
   }
+
+  async mounted() {
+    this.hasFrame = await window.WindowUtils.hasFrame()
+  }
 }
 </script>
 
@@ -149,7 +158,6 @@ export default class MusicBar extends mixins(ImgLoader) {
 .slider
   position: fixed
   background: var(--primary)
-  height: calc(100% - 7.5rem)
   width: 100%
   // animation: 0.2s linear 0s slide
   transition: transform 0.3s ease

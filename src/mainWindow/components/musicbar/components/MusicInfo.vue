@@ -8,7 +8,7 @@
 -->
 
 <template>
-  <div>
+  <div class="h-100 w-100">
     <div v-if="computedImg" class="dark-overlay" :style="{ top: !hasFrame ? '-28px' : '0px' }"></div>
     <transition
       name="custom-fade"
