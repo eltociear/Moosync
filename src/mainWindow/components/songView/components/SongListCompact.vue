@@ -37,21 +37,26 @@
                 />
                 <b-col cols="5" class="ml-2" align-self="center">
                   <b-row no-gutters align-v="center">
-                    <b-col cols="auto" class="title text-truncate mr-2"> {{ item.title }} </b-col>
-                    <YoutubeIcon
-                      v-if="item.type === 'YOUTUBE'"
-                      :color="'#E62017'"
-                      :filled="true"
-                      :dropShadow="true"
-                      class="provider-icon"
-                    />
-                    <SpotifyIcon
-                      v-if="item.type === 'SPOTIFY'"
-                      :color="'#1ED760'"
-                      :filled="true"
-                      :dropShadow="true"
-                      class="provider-icon"
-                    />
+                    <b-col cols="auto" class="d-flex">
+                      <div class="title text-truncate mr-2">
+                        {{ item.title }}
+                      </div>
+
+                      <YoutubeIcon
+                        v-if="item.type === 'YOUTUBE'"
+                        :color="'#E62017'"
+                        :filled="true"
+                        :dropShadow="true"
+                        class="provider-icon"
+                      />
+                      <SpotifyIcon
+                        v-if="item.type === 'SPOTIFY'"
+                        :color="'#1ED760'"
+                        :filled="true"
+                        :dropShadow="true"
+                        class="provider-icon"
+                      />
+                    </b-col>
                   </b-row>
                   <b-row no-gutters>
                     <b-col class="subtitle text-truncate"> {{ item.artists.join(', ') }} </b-col>
@@ -160,6 +165,8 @@ export default class SongListCompact extends mixins(ImgLoader, SongListMixin) {
 .timestamp
   font-size: 14px
   color: var(--textSecondary)
+  @media (max-width: 1054px)
+    padding-right: 30px
 
 .button-icon
   @media (max-width: 1213px)
@@ -167,4 +174,6 @@ export default class SongListCompact extends mixins(ImgLoader, SongListMixin) {
 
 .ellipsis-icon
   cursor: pointer
+  @media (max-width: 1054px)
+    display: none
 </style>
