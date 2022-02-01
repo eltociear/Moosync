@@ -18,6 +18,8 @@ import { once } from 'events';
 import qs from 'qs';
 import { vxm } from '../../../mainWindow/store/index';
 import { parseISO8601Duration } from '@/utils/common';
+import { bus } from '@/mainWindow/main';
+import { EventBus } from '@/utils/main/ipc/constants';
 
 const BASE_URL = 'https://youtube.googleapis.com/youtube/v3/'
 
@@ -94,8 +96,13 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
         await this.auth.performWithFreshTokens()
         return
       }
+      bus.$emit(EventBus.SHOW_OAUTH_MODAL, 'Youtube')
+
       await this.auth.makeAuthorizationRequest()
-      return once(this.auth.authStateEmitter!, AuthStateEmitter.ON_TOKEN_RESPONSE)
+      await once(this.auth.authStateEmitter!, AuthStateEmitter.ON_TOKEN_RESPONSE)
+
+      bus.$emit(EventBus.HIDE_OAUTH_MODAL)
+      return true
     }
   }
 

@@ -18,6 +18,8 @@ import { forageStore } from './generics/genericProvider';
 import { once } from 'events';
 import qs from 'qs';
 import { vxm } from '@/mainWindow/store';
+import { bus } from '@/mainWindow/main';
+import { EventBus } from '@/utils/main/ipc/constants';
 
 /**
  * Spotify API base URL
@@ -93,8 +95,13 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
         await this.auth.performWithFreshTokens()
         return
       }
+      bus.$emit(EventBus.SHOW_OAUTH_MODAL, 'Spotify')
+
       this.auth.makeAuthorizationRequest()
-      return once(this.auth.authStateEmitter!, AuthStateEmitter.ON_TOKEN_RESPONSE)
+      await once(this.auth.authStateEmitter!, AuthStateEmitter.ON_TOKEN_RESPONSE)
+
+      bus.$emit(EventBus.HIDE_OAUTH_MODAL)
+      return true
     }
   }
 
