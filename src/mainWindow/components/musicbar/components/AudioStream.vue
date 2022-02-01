@@ -247,8 +247,10 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     this._bufferTrap = setTimeout(() => {
       if (this.activePlayerType === 'YOUTUBE' && this.activePlayer instanceof YoutubePlayer) {
         this.activePlayer.setPlaybackQuality('small')
+        this.pause()
+        Vue.nextTick(() => this.play())
       }
-    }, 10000)
+    }, 3000)
   }
 
   private cancelBufferTrap() {
@@ -338,8 +340,13 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
         const res = await this.getPlaybackUrlAndDuration(song)
         if (res) {
           // Shouldn't react on property set normally
-          vxm.player.currentSong!.duration = res.duration
-          Vue.set(song, 'playbackUrl', res.url)
+          if (!this.isSyncing) {
+            vxm.player.currentSong!.duration = res.duration
+            Vue.set(vxm.player.currentSong!, 'playbackUrl', res.url)
+          } else {
+            vxm.sync.currentSongDets!.duration = res.duration
+            Vue.set(vxm.sync.currentSongDets!, 'playbackUrl', res.url)
+          }
         }
         return
       }
@@ -364,6 +371,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   }
 
   private async handleActivePlayerState(newState: PlayerState) {
+    console.log(newState)
     try {
       switch (newState) {
         case 'PLAYING':

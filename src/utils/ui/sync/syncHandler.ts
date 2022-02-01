@@ -71,7 +71,7 @@ export class SyncHolder {
   private readyPeers: string[] = []
 
   private onJoinedRoomCallback?: (id: string) => void
-  private onRemoteTrackInfoCallback?: (event: Song, from: string, songIndex: number) => void
+  private onRemoteTrackInfoCallback?: (event: RemoteSong, from: string, songIndex: number) => void
   private onRemoteTrackCallback?: (event: RTCTrackEvent) => void
   private onRemoteCoverCallback?: (event: Blob) => void
   private onRemoteStreamCallback?: (event: Blob) => void
@@ -98,7 +98,7 @@ export class SyncHolder {
           ? obj[methodName]
           : function (...args: any[]) {
             if (obj.isInitialized(methodName)) {
-              return obj[methodName].apply(obj, ...args);
+              return obj[methodName](...args);
             }
           };
       },
@@ -110,7 +110,7 @@ export class SyncHolder {
   public isInitialized(methodName: keyof SyncHolder) {
     if (methodName !== 'isInitialized' && methodName !== 'initialize') {
       if (!this.socketConnection) {
-        // throw new Error("Handler not initialized, call initialize()")
+        throw new Error("Handler not initialized, call initialize()")
       }
 
       return this.initialized
@@ -143,7 +143,7 @@ export class SyncHolder {
     this.onJoinedRoomCallback = callback
   }
 
-  set onRemoteTrackInfo(callback: (event: Song, from: string, songIndex: number) => void) {
+  set onRemoteTrackInfo(callback: (event: RemoteSong, from: string, songIndex: number) => void) {
     this.onRemoteTrackInfoCallback = callback
   }
 
@@ -253,11 +253,19 @@ export class SyncHolder {
     }
   }
 
+  private parseSong(song: Song | null | undefined): RemoteSong | undefined {
+    if (song)
+      return {
+        ...song,
+        senderSocket: this.socketConnection!.id
+      }
+  }
+
   private joinedRoom() {
     this.socketConnection?.on('joinedRoom', (roomID: string, isCreator: boolean) => {
       this.onJoinedRoomCallback ? this.onJoinedRoomCallback(roomID) : null
       if (isCreator) {
-        const song = this.getCurrentSong ? this.getCurrentSong() : null
+        const song = this.getCurrentSong ? this.parseSong(this.getCurrentSong()) : null
         if (song) {
           this.addToQueue(song)
           this.PlaySong(song)
@@ -300,7 +308,7 @@ export class SyncHolder {
   }
 
   public PlaySong(song: Song) {
-    this.sendSongDetails(song)
+    this.sendSongDetails(this.parseSong(song))
     this.requestReadyStatus()
   }
 
@@ -421,7 +429,7 @@ export class SyncHolder {
    * Listens for track change
    */
   private listenTrackChange() {
-    this.socketConnection?.on('trackChange', (metadata: Song, from: string, song_index: number) => {
+    this.socketConnection?.on('trackChange', (metadata: RemoteSong, from: string, song_index: number) => {
       this.onRemoteTrackInfoCallback ? this.onRemoteTrackInfoCallback(metadata, from, song_index) : null
     })
   }
@@ -518,7 +526,7 @@ export class SyncHolder {
    * Should be called when a song is simply added to queue
    * @param song to be added to queue
    */
-  public addToQueue(song: Song) {
+  public addToQueue(song: RemoteSong) {
     this.socketConnection?.emit('prefetch', this.stripToPrefetch(song))
   }
 
@@ -527,7 +535,7 @@ export class SyncHolder {
    * Should be called when "Play now" or something similar is invoked
    * @param song to be played
    */
-  public addToQueueAndPlay(song: Song) {
+  public addToQueueAndPlay(song: RemoteSong) {
     this.socketConnection?.emit('prefetchAndPlay', this.stripToPrefetch(song))
   }
 
@@ -562,7 +570,7 @@ export class SyncHolder {
    * @param trackInfo
    * @param song_index index of song in room queue
    */
-  private sendSongDetails(trackInfo: Song | null | undefined) {
+  private sendSongDetails(trackInfo: RemoteSong | null | undefined) {
     if (trackInfo) {
       this.socketConnection?.emit('trackMetadata', this.stripSong(trackInfo))
     }
@@ -585,7 +593,7 @@ export class SyncHolder {
    * @param song
    * @returns prefetchData of song
    */
-  private stripToPrefetch(song: Song): prefetchData {
+  private stripToPrefetch(song: RemoteSong): prefetchData {
     return {
       _id: song._id!,
       album: song.album ? song.album.album_name! : '',
@@ -600,14 +608,24 @@ export class SyncHolder {
    * @param song
    * @returns song with paths removed
    */
-  private stripSong(song: Song): Song {
-    const tmp: Song = JSON.parse(JSON.stringify(song))
+  private stripSong(song: RemoteSong): RemoteSong {
+    const tmp: RemoteSong = JSON.parse(JSON.stringify(song))
     delete tmp.path
-    if (tmp.album && tmp.album.album_coverPath_low) {
+    if (tmp.album) {
       // If the image is hosted somewhere then surely the client on the other end can load it... right?
-      if (!tmp.album.album_coverPath_low.startsWith('http'))
+      if (!tmp.album?.album_coverPath_low?.startsWith('http'))
         delete tmp.album.album_coverPath_low
+
+      if (!tmp.album?.album_coverPath_high?.startsWith('http'))
+        delete tmp.album.album_coverPath_high
     }
+
+    if (!tmp.song_coverPath_low?.startsWith('http'))
+      delete tmp.song_coverPath_low
+
+    if (!tmp.song_coverPath_high?.startsWith('http'))
+      delete tmp.song_coverPath_high
+
     return tmp
   }
 

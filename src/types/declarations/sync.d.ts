@@ -19,3 +19,7 @@ interface prefetchData {
   sender: string
   type: 'LOCAL' | 'YOUTUBE' | 'SPOTIFY'
 }
+
+interface RemoteSong extends Song {
+  senderSocket: string
+}

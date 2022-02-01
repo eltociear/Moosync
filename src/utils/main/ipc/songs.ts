@@ -75,17 +75,26 @@ export class SongsChannel implements IpcChannelInterface {
       })
   }
 
+  private isCacheFileExists(filename: string, cacheDir: string): string {
+    const cachePath = path.join(app.getPath('cache'), app.getName(), cacheDir)
+    const filepath = path.join(cachePath, filename)
+
+    if (fs.existsSync(cachePath)) {
+      if (fs.existsSync(filepath)) {
+        fs.unlinkSync(filepath)
+      }
+    } else {
+      fs.mkdirSync(cachePath, { recursive: true })
+    }
+
+    return filepath
+  }
+
   private saveAudioToFile(event: Electron.IpcMainEvent, request: IpcRequest) {
     if (request.params.path && request.params.blob) {
-      const cacheDir = path.join(app.getPath('cache'), app.getName(), 'audioCache')
-      const filePath = path.join(cacheDir, request.params.path)
-      if (fs.existsSync(cacheDir)) {
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath)
-        }
-      } else {
-        fs.mkdirSync(cacheDir)
-      }
+      const filename = request.params.path
+      const filePath = this.isCacheFileExists(filename, 'audioCache')
+
       fs.writeFile(filePath, request.params.blob, () => {
         event.reply(request.responseChannel, filePath)
       })
@@ -96,15 +105,9 @@ export class SongsChannel implements IpcChannelInterface {
 
   private saveImageToFile(event: Electron.IpcMainEvent, request: IpcRequest) {
     if (request.params.path && request.params.blob) {
-      const cacheDir = path.join(app.getPath('cache'), app.getName(), 'imageCache')
-      const filePath = path.join(cacheDir, request.params.path)
-      if (fs.existsSync(cacheDir)) {
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath)
-        }
-      } else {
-        fs.mkdirSync(cacheDir)
-      }
+      const filename = request.params.path
+      const filePath = this.isCacheFileExists(filename, 'imageCache')
+
       fs.writeFile(filePath, request.params.blob, () => {
         event.reply(request.responseChannel, filePath)
       })

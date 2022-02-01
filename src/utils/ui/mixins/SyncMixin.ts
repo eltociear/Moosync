@@ -35,16 +35,16 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   }
 
   created() {
-    // this.peerHolder.initialize().then(() => {
-    //   this.peerHolder.start()
-    //   this._resolve()
-    // }).catch(err => {
-    //   this._reject(err)
-    // })
+    this.peerHolder.initialize().then(() => {
+      this.peerHolder.start()
+      this._resolve()
+    }).catch(err => {
+      this._reject(err)
+    })
   }
 
   mounted() {
-    // this.initialized.then(this.syncListeners).catch(err => console.error(err))
+    this.initialized.then(this.syncListeners).catch(err => console.error(err))
   }
 
   get isWatching() {
@@ -55,21 +55,32 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
     return vxm.sync.mode != PeerMode.UNDEFINED
   }
 
-  private isYoutube(song: Song): boolean {
+  private isYoutube(song: RemoteSong): boolean {
     return song.type === "YOUTUBE"
   }
 
-  private async checkCover(event: Song, from: string) {
-    const isCoverExists = await window.FileUtils.isImageExists(event._id!)
+  private async setLocalCover(event: RemoteSong, from: string) {
+    let cover: string | undefined
 
-    if (isCoverExists) vxm.sync.setCover(isCoverExists)
+    if (event.senderSocket === this.peerHolder.socketID) {
+      cover = (await window.SearchUtils.searchSongsByOptions({
+        song: {
+          _id: event._id
+        }
+      }))[0].song_coverPath_high
+
+    } else {
+      cover = await window.FileUtils.isImageExists(event._id!)
+    }
+
+    if (cover) vxm.sync.setCover('media://' + cover)
     else {
       vxm.sync.setCover('')
       this.peerHolder.requestCover(from, event._id!)
     }
   }
 
-  private async checkAudio(event: Song) {
+  private async checkLocalAudio(event: RemoteSong) {
     const isAudioExists = await window.FileUtils.isAudioExists(event._id!)
     if (isAudioExists) {
       if (vxm.sync.isReadyRequested) this.peerHolder.emitReady()
@@ -81,28 +92,30 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
     if (vxm.sync.isReadyRequested) this.peerHolder.emitReady()
   }
 
-  private async checkYoutubeCover(event: Song) {
-    if (event.album && event.album.album_coverPath_low && event.album.album_coverPath_low.startsWith('http'))
-      vxm.sync.setCover(event.album.album_coverPath_low)
+  private async setYoutubeCover(event: RemoteSong) {
+    if (event.song_coverPath_low?.startsWith('http') || event.song_coverPath_high?.startsWith('http'))
+      vxm.sync.setCover(event.song_coverPath_high ?? event.song_coverPath_low ?? '')
     else
       vxm.sync.setCover('')
 
   }
 
-  private async setRemoteTrackInfo(event: Song, from: string, songIndex: number) {
-    vxm.sync.setQueueIndex(songIndex)
-    if (this.isSyncing && this.peerHolder.socketID !== from && event._id) {
-      this.isRemoteTrackChange = true
-      vxm.sync.setSong(event)
-      vxm.player.playerState = 'PAUSED'
-    }
+  private async setRemoteTrackInfo(event: RemoteSong | undefined, from: string, songIndex: number) {
+    if (event) {
+      vxm.sync.setQueueIndex(songIndex)
+      if (this.isSyncing && this.peerHolder.socketID !== from && event?._id) {
+        this.isRemoteTrackChange = true
+        vxm.sync.setSong(event)
+        vxm.player.playerState = 'PAUSED'
+      }
 
-    if (this.isYoutube(event)) {
-      await this.checkYoutubeCover(event)
-      await this.checkYoutubeAudio()
-    } else {
-      await this.checkCover(event, from)
-      await this.checkAudio(event)
+      if (this.isYoutube(event)) {
+        await this.setYoutubeCover(event)
+        await this.checkYoutubeAudio()
+      } else {
+        await this.setLocalCover(event, from)
+        await this.checkLocalAudio(event)
+      }
     }
   }
 
@@ -114,7 +127,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
         if (reader.readyState == 2) {
           const buffer = Buffer.from(reader.result as ArrayBuffer)
           const filePath = await window.FileUtils.saveImageToFile(songID, buffer)
-          vxm.sync.setCover(filePath)
+          vxm.sync.setCover('media://' + filePath)
         }
       }
       reader.readAsArrayBuffer(event)
@@ -169,7 +182,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
     this.onSeekCallback(time)
   }
 
-  private addToPrefetchQueue(...song: Song[]) {
+  private addToPrefetchQueue(...song: RemoteSong[]) {
     if (this.isSyncing) {
       for (const s of song) this.peerHolder.addToQueue(s)
     }
@@ -205,7 +218,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
     }
   }
 
-  private addRecentSongToPrefetch(songs: Song[]) {
+  private addRecentSongToPrefetch(songs: RemoteSong[]) {
     this.addToPrefetchQueue(songs[songs.length - 1])
   }
 
@@ -236,6 +249,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
 
   private playRequested(songIndex: number) {
     const song = vxm.sync.localQueue.find((item) => item._id === vxm.sync.queueOrder[songIndex])
+    console.log(song)
     if (song) {
       vxm.sync.setSong(song)
     }
@@ -282,6 +296,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   }
 
   protected joinRoom(id: string) {
+    console.log('joining room', id)
     this.initializeRTC(PeerMode.WATCHER)
     this.peerHolder.joinRoom(id)
   }
@@ -302,7 +317,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
     this.isRemoteStateChange = false
   }
 
-  protected playNow(song: Song) {
+  protected playNow(song: RemoteSong) {
     this.peerHolder.addToQueueAndPlay(song)
   }
 
