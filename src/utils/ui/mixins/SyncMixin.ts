@@ -15,7 +15,6 @@ import { SyncHolder } from '../sync/syncHandler';
 import { bus } from '@/mainWindow/main';
 import { mixins } from 'vue-class-component';
 import { vxm } from '@/mainWindow/store';
-import { toRemoteSong } from '@/utils/common';
 
 @Component
 export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
@@ -152,13 +151,21 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   }
 
   private async getLocalCover(songID: string) {
-    const song = vxm.sync.queueData[songID]
-    if (song) {
-      const cover = this.getValidImageHigh(song) ?? this.getValidImageLow(song)
-      if (cover) {
-        const resp = await fetch(this.getImgSrc(cover))
-        const buf = await resp.arrayBuffer()
-        return buf
+    const songs = await window.SearchUtils.searchSongsByOptions({
+      song: {
+        _id: songID
+      }
+    })
+
+    if (songs.length > 0 && songs[0]) {
+      const song = songs[0]
+      if (song) {
+        const cover = this.getValidImageHigh(song) ?? this.getValidImageLow(song)
+        if (cover) {
+          const resp = await fetch(this.getImgSrc(cover))
+          const buf = await resp.arrayBuffer()
+          return buf
+        }
       }
     }
     return null
@@ -180,19 +187,30 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
     reader.readAsArrayBuffer(event)
   }
 
-  private async getLocalSong(songID: string) {
-    const song = vxm.sync.queueData[songID]
-    if (song) {
-      const resp = await fetch('media://' + song.path!)
-      const buf = await resp.arrayBuffer()
-      return buf
+  private async onLocalSongRequested(songID: string) {
+    const songs = await window.SearchUtils.searchSongsByOptions({
+      song: {
+        _id: songID
+      }
+    })
+
+    if (songs.length > 0 && songs[0]) {
+      const song = songs[0]
+      if (song) {
+        const resp = await fetch('media://' + song.path!)
+        const buf = await resp.arrayBuffer()
+        return buf
+      }
     }
     return null
   }
 
   private async handleRemotePlayerState(state: PlayerState) {
-    this.isRemoteStateChange = true
-    vxm.player.playerState = state
+    console.log('got state', vxm.player.playerState)
+    if (vxm.player.playerState !== state) {
+      this.isRemoteStateChange = true
+      vxm.player.playerState = state
+    }
   }
 
   private onRemoteSeek(time: number) {
@@ -236,9 +254,9 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
     this.peerHolder.getLocalCover = this.getLocalCover
     this.peerHolder.onRemoteStream = this.saveRemoteStream
     this.peerHolder.getRequestedSong = this.playRequested
-    this.peerHolder.fetchSong = this.getLocalSong
+    this.peerHolder.getLocalSong = this.onLocalSongRequested
     this.peerHolder.fetchCurrentSong = () => vxm.player.queueIndex
-    this.peerHolder.playerStateHandler = this.handleRemotePlayerState
+    this.peerHolder.onPlayerStateChange = this.handleRemotePlayerState
     this.peerHolder.onQueueOrderChange = this.onRemoteQueueOrderChange
     this.peerHolder.onQueueDataChange = this.onRemoteQueueDataChange
     // TODO: Handle this event somewhere
@@ -246,10 +264,28 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
     this.peerHolder.onSeek = this.onRemoteSeek
     this.peerHolder.onReadyRequested = this.handleReadyRequest
     this.peerHolder.onReadyEmitted = this.handleReadyEmitted
+    this.peerHolder.onRepeatChange = this.handleRepeat
     // this.peerHolder.onAllReady = () => SyncModule.setWaiting(false)
+
 
     vxm.sync.$watch('queueIndex', this.requestPlay)
     vxm.sync.$watch('queueOrder', this.triggerQueueChange)
+    vxm.player.$watch('repeat', this.triggerRepeatChange)
+  }
+
+  private isRemoteRepeatChange = false
+
+  private triggerRepeatChange(repeat: boolean) {
+    if (!this.isRemoteRepeatChange) {
+      this.peerHolder.emitRepeat(repeat)
+    } else {
+      this.isRemoteRepeatChange = false
+    }
+  }
+
+  private handleRepeat(repeat: boolean) {
+    this.isRemoteRepeatChange = true
+    vxm.player.Repeat = repeat
   }
 
   private playRequested(songIndex: number) {
@@ -261,7 +297,9 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   }
 
   private async fetchRemoteSong() {
+    console.log('fetching status', this.isFetching)
     if (!this.isFetching) {
+      console.log('fetching song')
       this.isFetching = true
       for (const fetch of vxm.sync.queueOrder) {
         const song = vxm.sync.queueData[fetch.songID]
@@ -344,6 +382,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   }
 
   protected emitPlayerState(newState: PlayerState) {
+    console.log('emitting player state', newState, !this.isRemoteStateChange)
     if (this.isSyncing && !this.isRemoteStateChange) {
       this.peerHolder.emitPlayerState(newState)
     }

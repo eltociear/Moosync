@@ -97,6 +97,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    * This method is responsible for reflecting that state on active player
    */
   async onPlayerStateChanged(newState: PlayerState) {
+    console.log('player state changed', newState, this.ignoreStateChange)
     if (!this.ignoreStateChange) {
       await this.handleActivePlayerState(newState)
     }
@@ -190,7 +191,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       // Re load entire audio instead of setting current time to 0
       this.loadAudio(this.currentSong!, false)
     } else {
-      await vxm.player.nextSong()
+      this.nextSong()
     }
   }
 
@@ -320,8 +321,27 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
   }
 
+  private async getLocalSong(songID: string) {
+    const songs = await window.SearchUtils.searchSongsByOptions({
+      song: {
+        _id: songID
+      }
+    })
+
+    if (songs.length > 0) {
+      return songs[0]
+    }
+  }
+
   private async loadAudio(song: Song, loadedState: boolean) {
     this.unloadAudio()
+
+    if (this.isSyncing) {
+      const tmp = await this.getLocalSong(song._id)
+      if (tmp) {
+        song = tmp
+      }
+    }
 
     if (song.type === 'LOCAL') {
       this.onPlayerTypeChanged('LOCAL')
@@ -371,7 +391,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   }
 
   private async handleActivePlayerState(newState: PlayerState) {
-    console.log(newState)
     try {
       switch (newState) {
         case 'PLAYING':

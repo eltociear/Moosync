@@ -11,12 +11,45 @@ import { FragmentReceiver, FragmentSender } from './dataFragmenter'
 import { ManagerOptions, Socket, io } from 'socket.io-client'
 
 import { PeerMode } from '@/mainWindow/store/syncState'
-import { toRemoteSong } from '@/utils/common'
 
 enum peerConnectionState {
   CONNECTED,
   CONNECTING,
   DISCONNECTED,
+}
+
+const STUN = {
+  urls: [
+    'stun:stun.l.google.com:19302',
+    'stun:stun.l.google.com:19302',
+    'stun:stun1.l.google.com:19302',
+    'stun:stun2.l.google.com:19302',
+    'stun:stun3.l.google.com:19302',
+    'stun:stun4.l.google.com:19302',
+    'stun:stun.ekiga.net',
+    'stun:stun.ideasip.com',
+    'stun:stun.rixtelecom.se',
+    'stun:stun.schlund.de',
+    'stun:stun.stunprotocol.org:3478',
+    'stun:stun.voiparound.com',
+    'stun:stun.voipbuster.com',
+    'stun:stun.voipstunt.com',
+    'stun:stun.voxgratia.org',
+  ],
+}
+
+const TURN = {
+  urls: 'turn:retardnetwork.cf:7888',
+  username: 'oveno',
+  credential: '1234',
+}
+
+const connectionOptions: Partial<ManagerOptions> = {
+  forceNew: true,
+  reconnection: true,
+  reconnectionAttempts: 2,
+  timeout: 10000,
+  transports: ['websocket'],
 }
 
 export class SyncHolder {
@@ -28,46 +61,24 @@ export class SyncHolder {
     }
   } = {}
   private socketConnection?: Socket
+
   private mode: PeerMode = PeerMode.UNDEFINED
+
+  set peerMode(mode: PeerMode) {
+    this.mode = mode
+  }
+
+  get peerMode() {
+    return this.mode
+  }
+
   private BroadcasterID: string = ''
   private isNegotiating: { [id: string]: boolean } = {}
   public socketID: string = ''
-  private connectionOptions: Partial<ManagerOptions> = {
-    forceNew: true,
-    reconnection: true,
-    reconnectionAttempts: 2,
-    timeout: 10000,
-    transports: ['websocket'],
-  }
+
   private isListeningReady: boolean = false
 
   private initialized: boolean = false
-
-  private STUN = {
-    urls: [
-      'stun:stun.l.google.com:19302',
-      'stun:stun.l.google.com:19302',
-      'stun:stun1.l.google.com:19302',
-      'stun:stun2.l.google.com:19302',
-      'stun:stun3.l.google.com:19302',
-      'stun:stun4.l.google.com:19302',
-      'stun:stun.ekiga.net',
-      'stun:stun.ideasip.com',
-      'stun:stun.rixtelecom.se',
-      'stun:stun.schlund.de',
-      'stun:stun.stunprotocol.org:3478',
-      'stun:stun.voiparound.com',
-      'stun:stun.voipbuster.com',
-      'stun:stun.voipstunt.com',
-      'stun:stun.voxgratia.org',
-    ],
-  }
-
-  private TURN = {
-    urls: 'turn:retardnetwork.cf:7888',
-    username: 'oveno',
-    credential: '1234',
-  }
 
   private readyPeers: string[] = []
 
@@ -85,10 +96,10 @@ export class SyncHolder {
   private onReadyEmittedCallback?: () => void
   private onQueueOrderChangeCallback?: (order: QueueOrder, index: number) => void
   private onQueueDataChangeCallback?: (data: QueueData<RemoteSong>) => void
+  private onRepeatChangeCallback?: (repeat: boolean) => void
   private playRequestedSongCallback?: (songIndex: number) => void
-
   private getCurrentSongIndex?: () => number
-  private getLocalSong?: (songID: string) => Promise<ArrayBuffer | null>
+  private getLocalSongCallback?: (songID: string) => Promise<ArrayBuffer | null>
   private getLocalCoverCallback?: (songID: string) => Promise<ArrayBuffer | null>
 
   constructor() {
@@ -107,7 +118,7 @@ export class SyncHolder {
     return new Proxy(this, handler);
   }
 
-  public isInitialized(methodName: keyof SyncHolder) {
+  private isInitialized(methodName: string) {
     if (methodName !== 'isInitialized' && methodName !== 'initialize') {
       if (!this.socketConnection) {
         throw new Error("Handler not initialized, call initialize()")
@@ -120,7 +131,7 @@ export class SyncHolder {
 
   public async initialize(url?: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
-      this.socketConnection = io(url ? url : 'http://localhost:4000', this.connectionOptions)
+      this.socketConnection = io(url ? url : 'http://localhost:4000', connectionOptions)
       this.socketConnection.on('connect', () => {
         this.socketID = this.socketConnection!.id
         this.initialized = true
@@ -139,84 +150,80 @@ export class SyncHolder {
     })
   }
 
-  set onJoinedRoom(callback: (id: string, isCreator: boolean) => void) {
+  set onJoinedRoom(callback: typeof this.onJoinedRoomCallback) {
     this.onJoinedRoomCallback = callback
   }
 
-  set onRemoteTrackInfo(callback: (from: string, songIndex: number) => void) {
+  set onRemoteTrackInfo(callback: typeof this.onRemoteTrackInfoCallback) {
     this.onRemoteTrackInfoCallback = callback
   }
 
-  set onRemoteTrack(callback: (event: RTCTrackEvent) => void) {
+  set onRemoteTrack(callback: typeof this.onRemoteTrackCallback) {
     this.onRemoteTrackCallback = callback
   }
 
-  set getLocalCover(callback: (songID: string) => Promise<ArrayBuffer | null>) {
+  set getLocalCover(callback: typeof this.getLocalCoverCallback) {
     this.getLocalCoverCallback = callback
   }
 
-  set onRemoteCover(callback: (event: Blob) => void) {
+  set onRemoteCover(callback: typeof this.onRemoteCoverCallback) {
     this.onRemoteCoverCallback = callback
   }
 
-  set onRemoteStream(callback: (event: Blob) => void) {
+  set onRemoteStream(callback: typeof this.onRemoteStreamCallback) {
     this.onRemoteStreamCallback = callback
   }
 
-  set fetchSong(callback: (songID: string) => Promise<ArrayBuffer | null>) {
-    this.getLocalSong = callback
+  set getLocalSong(callback: typeof this.getLocalSongCallback) {
+    this.getLocalSongCallback = callback
   }
 
-  set fetchCurrentSong(callback: () => number) {
+  set fetchCurrentSong(callback: typeof this.getCurrentSongIndex) {
     this.getCurrentSongIndex = callback
   }
 
-  set onSeek(callback: (time: number) => void) {
+  set onSeek(callback: typeof this.onSeekCallback) {
     this.onSeekCallback = callback
   }
 
-  set playerStateHandler(callback: (state: PlayerState) => void) {
+  set onPlayerStateChange(callback: typeof this.onPlayerStateChangeCallback) {
     this.onPlayerStateChangeCallback = callback
   }
 
-  set peerConnectionStateHandler(callback: (id: string, state: peerConnectionState) => void) {
+  set peerConnectionStateHandler(callback: typeof this.onPeerStateChangeCallback) {
     this.onPeerStateChangeCallback = callback
   }
 
-  set onDataSent(callback: (id: string) => void) {
+  set onDataSent(callback: typeof this.onDataSentCallback) {
     this.onDataSentCallback = callback
   }
 
-  set onAllReady(callback: () => void) {
+  set onAllReady(callback: typeof this.onAllReadyCallback) {
     this.onAllReadyCallback = callback
   }
 
-  set onReadyRequested(callback: () => void) {
+  set onReadyRequested(callback: typeof this.onReadyRequestedCallback) {
     this.onReadyRequestedCallback = callback
   }
 
-  set onReadyEmitted(callback: () => void) {
+  set onReadyEmitted(callback: typeof this.onReadyEmittedCallback) {
     this.onReadyEmittedCallback = callback
   }
 
-  set getRequestedSong(callback: (songIndex: number) => void) {
+  set getRequestedSong(callback: typeof this.playRequestedSongCallback) {
     this.playRequestedSongCallback = callback
   }
 
-  set onQueueOrderChange(callback: (order: QueueOrder, index: number) => void) {
+  set onQueueOrderChange(callback: typeof this.onQueueOrderChangeCallback) {
     this.onQueueOrderChangeCallback = callback
   }
 
-  set onQueueDataChange(callback: (data: QueueData<RemoteSong>) => void) {
+  set onQueueDataChange(callback: typeof this.onQueueDataChangeCallback) {
     this.onQueueDataChangeCallback = callback
   }
 
-  set peerMode(mode: PeerMode) {
-    this.mode = mode
-  }
-
-  get peerMode() {
-    return this.mode
+  set onRepeatChange(callback: typeof this.onRepeatChangeCallback) {
+    this.onRepeatChangeCallback = callback
   }
 
   private handleCoverChannel(channel: RTCDataChannel) {
@@ -281,7 +288,7 @@ export class SyncHolder {
         const fragmentSender = new FragmentSender(stream, channel, () => this.onDataSentHandler(id))
         fragmentSender.send()
       } catch (e) {
-        console.error(e)
+        console.trace(e)
       }
       return
     }
@@ -350,8 +357,8 @@ export class SyncHolder {
   }
 
   private sendSongBuffer(id: string, songID: string) {
-    this.getLocalSong
-      && this.getLocalSong(songID).then((buf) => this.sendStream(id, buf, this.peerConnection[id].streamChannel!))
+    this.getLocalSongCallback
+      && this.getLocalSongCallback(songID).then((buf) => this.sendStream(id, buf, this.peerConnection[id].streamChannel!))
   }
 
   private sendCoverBuffer(id: string, songID: string) {
@@ -362,8 +369,9 @@ export class SyncHolder {
   /**
    * Listen to events related to fetching of song and cover
    */
-  private listenRequests() {
+  private listenBufferRequests() {
     this.socketConnection?.on('requestedSong', (id: string, songID: string) => {
+      console.log('requested song', id, songID)
       this.sendSongBuffer(id, songID)
     })
 
@@ -439,6 +447,10 @@ export class SyncHolder {
     this.socketConnection?.on('playerStateChange', (state: PlayerState) => {
       this.onPlayerStateChangeCallback && this.onPlayerStateChangeCallback(state)
     })
+
+    this.socketConnection?.on('onRepeatChange', (repeat: boolean) => {
+      this.onRepeatChangeCallback && this.onRepeatChangeCallback(repeat)
+    })
   }
 
   /**
@@ -490,6 +502,10 @@ export class SyncHolder {
     this.socketConnection?.emit('requestPlay', song_index)
   }
 
+  public emitRepeat(repeat: boolean) {
+    this.socketConnection?.emit('repeatChange', repeat)
+  }
+
   public emitQueueChange(order: QueueOrder, data: QueueData<RemoteSong>, index: number) {
     this.socketConnection?.emit('queueChange', order, data, index)
   }
@@ -498,6 +514,7 @@ export class SyncHolder {
    * Emits ready
    */
   public emitReady() {
+    console.log('emitted ready')
     this.socketConnection?.emit('ready')
     this.onReadyEmittedCallback ? this.onReadyEmittedCallback() : null
   }
@@ -529,34 +546,6 @@ export class SyncHolder {
     this.socketConnection?.emit('trackChange', songIndex)
   }
 
-  /**
-   * Strips song
-   * @param song
-   * @returns song with paths removed
-   */
-  private stripSong(song?: RemoteSong): RemoteSong {
-    const tmp: RemoteSong = JSON.parse(JSON.stringify(song))
-    delete tmp.path
-    delete tmp.lyrics
-
-    if (tmp.album) {
-      // If the image is hosted somewhere then surely the client on the other end can load it... right?
-      if (!tmp.album?.album_coverPath_low?.startsWith('http'))
-        delete tmp.album.album_coverPath_low
-
-      if (!tmp.album?.album_coverPath_high?.startsWith('http'))
-        delete tmp.album.album_coverPath_high
-    }
-
-    if (!tmp.song_coverPath_low?.startsWith('http'))
-      delete tmp.song_coverPath_low
-
-    if (!tmp.song_coverPath_high?.startsWith('http'))
-      delete tmp.song_coverPath_high
-
-    return tmp
-  }
-
   private setPeerReady(id: string) {
     if (!this.readyPeers.includes(id)) {
       this.readyPeers.push(id)
@@ -573,7 +562,7 @@ export class SyncHolder {
     this.onUserJoined()
     this.onAnswer()
     this.listenPeerReady()
-    this.listenRequests()
+    this.listenBufferRequests()
     this.listenTrackChange()
     this.listenQueueUpdate()
     this.listenPlayerState()
@@ -585,7 +574,7 @@ export class SyncHolder {
 
   private makePeer(id: string): RTCPeerConnection {
     // Creates new peer
-    const peer = new RTCPeerConnection({ iceServers: [this.STUN, this.TURN] })
+    const peer = new RTCPeerConnection({ iceServers: [STUN, TURN] })
 
     // Report changes to connection state
     this.listenPeerConnected(id, peer)
@@ -627,7 +616,7 @@ export class SyncHolder {
 
   private onUserJoined() {
     this.socketConnection?.on('userJoined', (id: string) => {
-      this.playerStateHandler ? this.playerStateHandler('PAUSED') : null
+      this.onPlayerStateChange ? this.onPlayerStateChange('PAUSED') : null
       this.setupInitiator(id)
       this.requestReadyStatus()
     })

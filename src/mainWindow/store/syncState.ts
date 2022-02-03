@@ -11,7 +11,7 @@ import { action, mutation } from 'vuex-class-component';
 
 import { VuexModule } from './module';
 import { v1 } from 'uuid';
-import { toRemoteSong } from '@/utils/common';
+import { stripSong, toRemoteSong } from '@/utils/common';
 
 export enum PeerMode {
   WATCHER,
@@ -104,7 +104,7 @@ export class SyncStore extends VuexModule.With({ namespaced: 'sync' }) {
   @mutation
   private addSong(item: Song[]) {
     for (const s of item) {
-      const song = toRemoteSong(s, this._socketID)
+      const song = stripSong(toRemoteSong(s, this._socketID))
       if (song && !this.songQueue.data[song._id!]) {
         this.songQueue.data[song._id!] = song
       }
@@ -148,20 +148,20 @@ export class SyncStore extends VuexModule.With({ namespaced: 'sync' }) {
   }
 
   @action
-  async pushInQueue(item: Song[], top = false) {
-    if (item.length > 0) {
+  async pushInQueue(payload: { item: Song[], top: boolean }) {
+    if (payload.item.length > 0) {
       if (!this.currentSong) {
         // Add first item immediately to start playing
-        this.addSong([item[0]])
-        top ? this.addInQueueTop([item[0]]) : this.addInSongQueue([item[0]])
-        item.splice(0, 1)
+        this.addSong([payload.item[0]])
+        payload.top ? this.addInQueueTop([payload.item[0]]) : this.addInSongQueue([payload.item[0]])
+        payload.item.splice(0, 1)
         await this.nextSong()
       }
 
-      this.addSong(item)
-      top ? this.addInQueueTop(item) : this.addInSongQueue(item)
+      this.addSong(payload.item)
+      payload.top ? this.addInQueueTop(payload.item) : this.addInSongQueue(payload.item)
+      payload.top && await this.nextSong()
     }
-
   }
 
   @mutation

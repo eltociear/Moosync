@@ -22,7 +22,7 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
   private state: PlayerState = 'PAUSED'
   public currentSong: Song | null | undefined | undefined = null
   private songQueue = new Queue()
-  public repeat: boolean = false
+  private repeat: boolean = false
   public volume: number = 50
   public timestamp: number = 0
   public loading: boolean = false
@@ -54,6 +54,10 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
 
   get Repeat() {
     return this.repeat
+  }
+
+  set Repeat(repeat: boolean) {
+    this.repeat = repeat
   }
 
   get queueOrder() {
@@ -148,20 +152,22 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
   }
 
   @action
-  async pushInQueue(item: Song[], top = false) {
-    if (item.length > 0) {
+  async pushInQueue(payload: { item: Song[], top: boolean }) {
+    if (payload.item.length > 0) {
       if (!this.currentSong) {
         // Add first item immediately to start playing
-        this.addSong([item[0]])
-        top ? this.addInQueueTop([item[0]]) : this.addInSongQueue([item[0]])
-        item.splice(0, 1)
+        this.addSong([payload.item[0]])
+        payload.top ? this.addInQueueTop([payload.item[0]]) : this.addInSongQueue([payload.item[0]])
+        payload.item.splice(0, 1)
         await this.nextSong()
       }
 
-      this.addSong(item)
-      top ? this.addInQueueTop(item) : this.addInSongQueue(item)
-    }
+      this.addSong(payload.item)
+      payload.top ? this.addInQueueTop(payload.item) : this.addInSongQueue(payload.item)
 
+      console.trace(payload.top)
+      payload.top && await this.nextSong()
+    }
   }
 
   @mutation

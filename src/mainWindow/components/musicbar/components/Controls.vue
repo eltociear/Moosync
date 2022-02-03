@@ -74,7 +74,7 @@ export default class MusicBar extends mixins(PlayerControls) {
   }
 
   get enableTrackControls() {
-    return vxm.player.queue.order.length > 1
+    return this.isSyncing ? vxm.sync.queueOrder.length > 1 : vxm.player.queueOrder.length > 1
   }
 
   private nextSongWrapper() {
@@ -90,7 +90,7 @@ export default class MusicBar extends mixins(PlayerControls) {
   }
 
   private toggleRepeat() {
-    vxm.player.repeat = !this.repeat
+    vxm.player.Repeat = !this.repeat
   }
 }
 </script>

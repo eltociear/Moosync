@@ -25,10 +25,10 @@ export class SongsChannel implements IpcChannelInterface {
         this.removeSongs(event, request)
         break
       case SongEvents.SAVE_AUDIO_TO_FILE:
-        this.saveAudioToFile(event, request)
+        this.saveBufferToFile(event, request, 'audio')
         break
       case SongEvents.SAVE_IMAGE_TO_FILE:
-        this.saveImageToFile(event, request)
+        this.saveBufferToFile(event, request, 'image')
         break
       case SongEvents.AUDIO_EXISTS:
         this.fileExists(event, request, 'audio')
@@ -90,23 +90,10 @@ export class SongsChannel implements IpcChannelInterface {
     return filepath
   }
 
-  private saveAudioToFile(event: Electron.IpcMainEvent, request: IpcRequest) {
+  private saveBufferToFile(event: Electron.IpcMainEvent, request: IpcRequest, type: 'audio' | 'image') {
     if (request.params.path && request.params.blob) {
       const filename = request.params.path
-      const filePath = this.isCacheFileExists(filename, 'audioCache')
-
-      fs.writeFile(filePath, request.params.blob, () => {
-        event.reply(request.responseChannel, filePath)
-      })
-      return
-    }
-    event.reply(request.responseChannel)
-  }
-
-  private saveImageToFile(event: Electron.IpcMainEvent, request: IpcRequest) {
-    if (request.params.path && request.params.blob) {
-      const filename = request.params.path
-      const filePath = this.isCacheFileExists(filename, 'imageCache')
+      const filePath = this.isCacheFileExists(filename, type === 'audio' ? 'audioCache' : 'imageCache')
 
       fs.writeFile(filePath, request.params.blob, () => {
         event.reply(request.responseChannel, filePath)
@@ -118,15 +105,7 @@ export class SongsChannel implements IpcChannelInterface {
 
   private fileExists(event: Electron.IpcMainEvent, request: IpcRequest, type: 'audio' | 'image') {
     if (request.params.path) {
-      let filePath: string
-      switch (type) {
-        case 'audio':
-          filePath = path.join(app.getPath('cache'), app.getName(), 'audioCache', request.params.path)
-          break
-        case 'image':
-          filePath = path.join(app.getPath('cache'), app.getName(), '.thumbnails', request.params.path)
-          break
-      }
+      const filePath = path.join(app.getPath('cache'), app.getName(), type === 'audio' ? 'audioCache' : 'imageCache', request.params.path)
       event.reply(request.responseChannel, fs.existsSync(filePath) ? filePath : undefined)
     }
     event.reply(request.responseChannel)

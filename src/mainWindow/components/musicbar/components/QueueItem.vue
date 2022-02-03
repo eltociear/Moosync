@@ -13,8 +13,8 @@
       <b-col cols="auto" class="img-container h-100 d-flex justify-content-start">
         <b-img
           class="h-100 image"
-          v-if="!forceEmptyImg"
-          :src="getImgSrc(getValidImageLow(song))"
+          v-if="!forceEmptyImg && image"
+          :src="image"
           @error="handlerImageError(arguments[0], handlerError)"
         />
         <SongDefault v-else class="h-100 image" />
@@ -95,8 +95,18 @@ export default class MusicInfo extends mixins(ImgLoader, PlayerControls, Context
   @Prop({ default: -1 })
   private index!: number
 
+  private image: string | null = null
+
   get queueProvider() {
     return this.isSyncing ? vxm.sync : vxm.player
+  }
+
+  async created() {
+    if (this.isSyncing) {
+      this.image = 'media://' + (await window.FileUtils.isImageExists(this.songID))
+    } else {
+      this.image = this.getImgSrc(this.getValidImageLow(this.song))
+    }
   }
 
   get song() {
