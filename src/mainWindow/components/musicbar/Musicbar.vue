@@ -102,8 +102,7 @@ export default class MusicBar extends mixins(ImgLoader) {
   }
 
   get currentSong() {
-    console.log(vxm.sync.currentSongDets?.duration)
-    return vxm.sync.currentSongDets ?? vxm.player.currentSong
+    return vxm.sync.currentSong ?? vxm.player.currentSong
   }
 
   get remoteCover() {

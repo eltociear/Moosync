@@ -105,7 +105,7 @@
     "vue-toasted": "^1.1.28",
     "vue-virtual-scroller": "^1.0.10",
     "vuedraggable": "^2.24.3",
-    "vuex": "^3.0.1",
+    "vuex": "^3.4.0",
     "vuex-class-component": "^2.3.6",
     "webpack": "^5.65.0",
     "webpack-bundle-analyzer": "^4.5.0",

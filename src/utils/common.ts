@@ -91,3 +91,16 @@ export function humanByteSize(size: number, bitrate = false): string {
 
   return size.toFixed(dp) + ' ' + units[u];
 }
+
+export function toRemoteSong(song: Song | null | undefined, connectionID: string): RemoteSong | undefined {
+  if (song) {
+    if ((song as RemoteSong).senderSocket) {
+      return song as RemoteSong
+    }
+
+    return {
+      ...song,
+      senderSocket: connectionID
+    }
+  }
+}

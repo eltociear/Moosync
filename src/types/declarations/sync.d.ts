@@ -12,14 +12,6 @@ interface fragmentedData {
   message: any
 }
 
-interface prefetchData {
-  _id: string
-  album: string
-  artist: string
-  sender: string
-  type: 'LOCAL' | 'YOUTUBE' | 'SPOTIFY'
-}
-
 interface RemoteSong extends Song {
   senderSocket: string
 }

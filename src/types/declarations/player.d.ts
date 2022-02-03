@@ -21,3 +21,12 @@ interface SongQueue {
 
 
 type playlistInfo = { [key: string]: string }
+
+type QueueOrder = { id: string, songID: string }[]
+type QueueData<T> = { [id: string]: T }
+
+interface GenericQueue<T> {
+  data: QueueData<T>
+  order: QueueOrder
+  index: number
+}

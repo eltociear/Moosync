@@ -271,7 +271,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    * Sets current player's state to vuex player state
    */
   private handleFirstPlayback(loadedState: boolean) {
-    if (this.isFirst || vxm.player.queue.order.length === 1) {
+    if (this.isFirst || vxm.player.queueOrder.length === 1) {
       if (!loadedState) {
         vxm.player.playerState = 'PLAYING'
       }
@@ -344,8 +344,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
             vxm.player.currentSong!.duration = res.duration
             Vue.set(vxm.player.currentSong!, 'playbackUrl', res.url)
           } else {
-            vxm.sync.currentSongDets!.duration = res.duration
-            Vue.set(vxm.sync.currentSongDets!, 'playbackUrl', res.url)
+            vxm.sync.currentSong!.duration = res.duration
+            Vue.set(vxm.sync.currentSong!, 'playbackUrl', res.url)
           }
         }
         return

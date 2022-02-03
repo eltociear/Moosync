@@ -20,7 +20,7 @@
     <b-container fluid class="w-100 h-100 main-container">
       <b-row no-gutters align-h="center" class="h-100 flex-nowrap">
         <b-col cols="4">
-          <SongDetailsCompact :currentSong="currentSong" />
+          <SongDetailsCompact :currentSong="currentSong" :forceCover="computedImg" />
         </b-col>
         <b-col offset="1" cols="7" class="right-container h-100">
           <div class="h-100" v-if="queueOrder.length > 0">
@@ -77,6 +77,7 @@ import draggable from 'vuedraggable'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
 import SongDetailsCompact from '@/mainWindow/components/songView/components/SongDetailsCompact.vue'
+import { PeerMode } from '@/mainWindow/store/syncState'
 
 @Component({
   components: {
@@ -87,11 +88,15 @@ import SongDetailsCompact from '@/mainWindow/components/songView/components/Song
   }
 })
 export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
-  get queueOrder() {
-    return vxm.player.queueOrder
+  private hasFrame = false
+
+  get queueProvider() {
+    return vxm.sync.mode !== PeerMode.UNDEFINED ? vxm.sync : vxm.player
   }
 
-  private hasFrame = false
+  get remoteCover() {
+    return vxm.sync.currentCover
+  }
 
   private scrollToActive() {
     const elem = this.$refs[`queue-item-${this.queueOrder[this.currentIndex]?.id}`]
@@ -116,11 +121,15 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   }
 
   get currentIndex() {
-    return vxm.player.queueIndex
+    return this.queueProvider.queueIndex
   }
 
   set queueOrder(value: { id: string; songID: string }[]) {
-    vxm.player.setQueueOrder(value)
+    this.queueProvider.setQueueOrder(value)
+  }
+
+  get queueOrder() {
+    return this.queueProvider.queueOrder
   }
 
   private forceDefaultImg = false
@@ -131,18 +140,18 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
 
   get computedImg() {
     this.forceDefaultImg = false
-    return this.getImgSrc(this.getValidImageHigh(this.currentSong))
+    return this.remoteCover ? this.remoteCover : this.getImgSrc(this.getValidImageHigh(this.currentSong))
   }
 
   private clear() {
     if (this.queueOrder.length > 0) {
       if (this.queueOrder.length === 1) {
         this.queueOrder = []
-        vxm.player.queueIndex = -1
+        this.queueProvider.queueIndex = -1
         vxm.player.playerState = 'STOPPED'
       } else {
         this.queueOrder = [this.queueOrder[this.currentIndex]]
-        vxm.player.queueIndex = 0
+        this.queueProvider.queueIndex = 0
       }
     }
   }
@@ -150,7 +159,7 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   private parseQueueItems(): Song[] {
     const songs = []
     for (const i of this.queueOrder) {
-      songs.push(vxm.player.queue.data[i.songID])
+      songs.push(this.queueProvider.queueData[i.songID])
     }
     return songs
   }
@@ -163,12 +172,12 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
     moved: { element: { id: string; songID: string }; newIndex: number; oldIndex: number }
   }) {
     if (change.moved.oldIndex === this.currentIndex) {
-      vxm.player.queueIndex = change.moved.newIndex
+      this.queueProvider.queueIndex = change.moved.newIndex
     } else if (change.moved.newIndex === this.currentIndex) {
       if (change.moved.oldIndex < this.currentIndex) {
-        vxm.player.queueIndex = vxm.player.queueIndex - 1
+        this.queueProvider.queueIndex = this.queueProvider.queueIndex - 1
       } else {
-        vxm.player.queueIndex = vxm.player.queueIndex + 1
+        this.queueProvider.queueIndex = this.queueProvider.queueIndex + 1
       }
     }
   }

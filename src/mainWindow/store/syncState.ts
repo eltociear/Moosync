@@ -10,24 +10,206 @@
 import { action, mutation } from 'vuex-class-component';
 
 import { VuexModule } from './module';
-import { vxm } from '@/mainWindow/store';
+import { v1 } from 'uuid';
+import { toRemoteSong } from '@/utils/common';
 
 export enum PeerMode {
   WATCHER,
   BROADCASTER,
   UNDEFINED,
 }
+
+class Queue implements GenericQueue<RemoteSong> {
+  data: QueueData<RemoteSong> = {}
+  order: QueueOrder = []
+  index: number = -1
+}
+
 export class SyncStore extends VuexModule.With({ namespaced: 'sync' }) {
   mode: PeerMode = PeerMode.UNDEFINED
-  currentSongDets: Song | null | undefined = null
+  currentSong: RemoteSong | null | undefined = null
   currentCover: string = ''
-  prefetch: prefetchData[] = []
   currentFetchSong: string = ''
   roomID: string = ''
   isReadyRequested: boolean = false
-  queueOrder: string[] = []
-  queueIndex: number = 0
-  localQueue: Song[] = []
+  _socketID: string = ''
+
+  private songQueue = new Queue()
+
+  get socketID() {
+    return this._socketID
+  }
+
+  set socketID(id: string) {
+    this._socketID = id
+  }
+
+  get queueOrder() {
+    return this.songQueue.order
+  }
+
+  set queueOrder(order: QueueOrder) {
+    this.songQueue.order = order
+  }
+
+  get queueIndex() {
+    return this.songQueue.index
+  }
+
+  set queueIndex(value: number) {
+    this.songQueue.index = value
+  }
+
+  get queueData() {
+    return this.songQueue.data
+  }
+
+  set queueData(data: QueueData<RemoteSong>) {
+    this.songQueue.data = data
+  }
+
+  @mutation
+  private _setSongQueueOrder(order: QueueOrder) {
+    this.songQueue.order = order
+  }
+
+  @mutation
+  private clearCurrentSong() {
+    this.currentSong = null
+  }
+
+  @action
+  async setQueueOrder(order: QueueOrder) {
+    if (order.length === 0) {
+      this.clearCurrentSong()
+    }
+
+    const oldOrder = this.songQueue.order
+    this._setSongQueueOrder(order)
+
+    const diff = oldOrder.filter(x => !order.includes(x));
+    for (const item of diff) {
+      this.removeFromQueueData(item)
+    }
+  }
+
+  get queueTop(): RemoteSong | null | undefined {
+    if (this.songQueue.index > -1 && this.songQueue.data) {
+      const songID = this.songQueue.order[this.songQueue.index]
+      if (songID)
+        return this.songQueue.data[songID.songID]
+    }
+    return null
+  }
+
+  @mutation
+  private addSong(item: Song[]) {
+    for (const s of item) {
+      const song = toRemoteSong(s, this.socketID)
+      if (song && !this.songQueue.data[song._id!]) {
+        this.songQueue.data[song._id!] = song
+      }
+    }
+  }
+
+  @mutation
+  private removeFromQueueData(orderData: QueueOrder[0] | undefined) {
+    if (orderData) {
+      if (this.songQueue.order.findIndex(val => val.songID === orderData.songID) === -1) {
+        delete this.songQueue.data[orderData.songID]
+      }
+    }
+  }
+
+  @mutation
+  private removeFromQueue(index: number) {
+    if (index > -1) {
+      this.songQueue.order.splice(index, 1)
+      if (this.songQueue.order.length === 0) {
+        this.currentSong = null
+      }
+    }
+  }
+
+  @action
+  public async pop(index: number) {
+    if (index > -1) {
+      this.removeFromQueue(index)
+      this.removeFromQueueData(this.songQueue.order[index])
+
+      if (this.songQueue.index === index) {
+        await this.loadSong(this.queueTop)
+      }
+    }
+  }
+
+  @mutation
+  private addInSongQueue(item: Song[]) {
+    this.songQueue.order.push(...item.map(obj => { return { id: v1(), songID: obj._id! } }))
+  }
+
+  @action
+  async pushInQueue(item: Song[], top = false) {
+    if (item.length > 0) {
+      if (!this.currentSong) {
+        // Add first item immediately to start playing
+        this.addSong([item[0]])
+        top ? this.addInQueueTop([item[0]]) : this.addInSongQueue([item[0]])
+        item.splice(0, 1)
+        await this.nextSong()
+      }
+
+      this.addSong(item)
+      top ? this.addInQueueTop(item) : this.addInSongQueue(item)
+    }
+
+  }
+
+  @mutation
+  private addInQueueTop(item: Song[]) {
+    this.songQueue.order.splice(this.songQueue.index + 1, 0, ...item.map(obj => {
+      return { id: v1(), songID: obj._id! }
+    }))
+  }
+
+  @mutation
+  private incrementQueue() {
+    if (this.songQueue.index < this.songQueue.order.length - 1) this.songQueue.index += 1
+    else this.songQueue.index = 0
+  }
+
+  @action
+  async nextSong() {
+    this.incrementQueue()
+    this.loadSong(this.queueTop)
+  }
+
+  @mutation
+  private decrementQueue() {
+    if (this.songQueue.index > 0) this.songQueue.index -= 1
+    else this.songQueue.index = this.songQueue.order.length - 1
+  }
+
+  @action
+  async prevSong() {
+    this.decrementQueue()
+    this.loadSong(this.queueTop)
+  }
+
+  @mutation loadSong(song: RemoteSong | null | undefined) {
+    this.currentSong = song
+  }
+
+  @mutation
+  private moveIndexTo(index: number) {
+    if (index >= 0)
+      this.songQueue.index = index
+  }
+
+  @action async playQueueSong(index: number) {
+    this.moveIndexTo(index)
+    this.loadSong(this.queueTop)
+  }
 
   @mutation
   setMode(mode: PeerMode) {
@@ -40,27 +222,8 @@ export class SyncStore extends VuexModule.With({ namespaced: 'sync' }) {
   }
 
   @mutation
-  setSong(song: Song | null | undefined) {
-    this.currentSongDets = song
-  }
-
-  @mutation
-  addToPrefetch(prefetch: prefetchData) {
-    this.prefetch.push(prefetch)
-  }
-
-  @mutation
-  setPrefetch(prefetch: prefetchData[]) {
-    this.prefetch = prefetch
-  }
-
-  @mutation
-  prioritize(index: number) {
-    if (index < this.prefetch.length) {
-      const item = this.prefetch[index]
-      this.prefetch.splice(index, 1)
-      this.prefetch.unshift(item)
-    }
+  setSong(song: RemoteSong | null | undefined) {
+    this.currentSong = song
   }
 
   @mutation
@@ -76,35 +239,5 @@ export class SyncStore extends VuexModule.With({ namespaced: 'sync' }) {
   @mutation
   setCurrentFetchSong(id: string) {
     this.currentFetchSong = id
-  }
-
-  @mutation
-  addQueueItem(...value: string[]) {
-    this.queueOrder.push(...value)
-  }
-
-  @mutation
-  setQueueItem(value: string[]) {
-    this.queueOrder = value
-  }
-
-  @mutation
-  setQueueIndex(value: number) {
-    if (this.queueIndex < 0) this.queueIndex = this.queueOrder.length - 1
-    else this.queueIndex = value
-  }
-
-  @action
-  async addToLocalQueue(songs: Song[]) {
-    for (const song of songs) {
-      const ytItem = await vxm.providers.spotifyProvider.spotifyToYoutube(song)
-      if (ytItem) {
-        song.url = ytItem.youtubeId
-        song.duration = ytItem.duration!.totalSeconds
-      } else {
-        throw new Error('Could not convert song')
-      }
-      this.localQueue.push(song)
-    }
   }
 }

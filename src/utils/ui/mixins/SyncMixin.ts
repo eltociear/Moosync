@@ -7,7 +7,7 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { Component } from 'vue-property-decorator';
+import { Component, Watch } from 'vue-property-decorator';
 import ImgLoader from '@/utils/ui/mixins/ImageLoader';
 import ModelHelper from '@/utils/ui/mixins/ModelHelper';
 import { PeerMode } from '@/mainWindow/store/syncState';
@@ -15,6 +15,7 @@ import { SyncHolder } from '../sync/syncHandler';
 import { bus } from '@/mainWindow/main';
 import { mixins } from 'vue-class-component';
 import { vxm } from '@/mainWindow/store';
+import { toRemoteSong } from '@/utils/common';
 
 @Component
 export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
@@ -29,6 +30,8 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   private _reject!: (r: any) => void
   private initialized = new Promise<void>(this.attachPromise.bind(this))
 
+  private receivedQueueUpdate = 0
+
   private attachPromise(resolve: () => void, reject: (r: any) => void) {
     this._resolve = resolve
     this._reject = reject
@@ -37,6 +40,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   created() {
     this.peerHolder.initialize().then(() => {
       this.peerHolder.start()
+      vxm.sync.socketID = this.peerHolder.socketID
       this._resolve()
     }).catch(err => {
       this._reject(err)
@@ -81,11 +85,13 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   }
 
   private async checkLocalAudio(event: RemoteSong) {
-    const isAudioExists = await window.FileUtils.isAudioExists(event._id!)
-    if (isAudioExists) {
-      if (vxm.sync.isReadyRequested) this.peerHolder.emitReady()
-      this.setSongSrcCallback('media://' + isAudioExists)
-    } else vxm.sync.prioritize(vxm.sync.prefetch.findIndex((x) => x && x._id === event._id))
+    if (event.senderSocket != this.peerHolder.socketID) {
+      const isAudioExists = await window.FileUtils.isAudioExists(event._id!)
+      if (isAudioExists) {
+        if (vxm.sync.isReadyRequested) this.peerHolder.emitReady()
+        this.setSongSrcCallback('media://' + isAudioExists)
+      }
+    }
   }
 
   private async checkYoutubeAudio() {
@@ -102,7 +108,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
 
   private async setRemoteTrackInfo(event: RemoteSong | undefined, from: string, songIndex: number) {
     if (event) {
-      vxm.sync.setQueueIndex(songIndex)
+      vxm.sync.playQueueSong(songIndex)
       if (this.isSyncing && this.peerHolder.socketID !== from && event?._id) {
         this.isRemoteTrackChange = true
         vxm.sync.setSong(event)
@@ -120,9 +126,9 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   }
 
   private setRemoteCover(event: Blob) {
-    if (this.isSyncing && vxm.sync.currentSongDets) {
+    if (this.isSyncing && vxm.sync.currentSong) {
       const reader = new FileReader()
-      const songID = vxm.sync.currentSongDets._id!
+      const songID = vxm.sync.currentSong._id!
       reader.onload = async () => {
         if (reader.readyState == 2) {
           const buffer = Buffer.from(reader.result as ArrayBuffer)
@@ -135,9 +141,9 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   }
 
   private async getLocalCover(songID: string) {
-    const song = vxm.sync.localQueue.find((song) => song._id == songID)
+    const song = vxm.sync.queueData[songID]
     if (song) {
-      const cover = this.getValidImageLow(song)
+      const cover = this.getValidImageHigh(song) ?? this.getValidImageLow(song)
       if (cover) {
         const resp = await fetch(this.getImgSrc(cover))
         const buf = await resp.arrayBuffer()
@@ -153,18 +159,17 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
       if (reader.readyState == 2) {
         const buffer = Buffer.from(reader.result as ArrayBuffer)
         const filePath = await window.FileUtils.saveAudioToFile(vxm.sync.currentFetchSong, buffer)
-        if (vxm.sync.currentSongDets!._id == vxm.sync.currentFetchSong) {
+        if (vxm.sync.currentSong!._id == vxm.sync.currentFetchSong) {
           if (vxm.sync.isReadyRequested) this.peerHolder.emitReady()
           if (this.setSongSrcCallback) this.setSongSrcCallback('media://' + filePath)
         }
-        this.fetchRemoteSong()
       }
     }
     reader.readAsArrayBuffer(event)
   }
 
   private async getLocalSong(songID: string) {
-    const song = vxm.sync.localQueue.find((song) => song._id === songID)
+    const song = vxm.sync.queueData[songID]
     if (song) {
       const resp = await fetch('media://' + song.path!)
       const buf = await resp.arrayBuffer()
@@ -182,20 +187,10 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
     this.onSeekCallback(time)
   }
 
-  private addToPrefetchQueue(...song: RemoteSong[]) {
-    if (this.isSyncing) {
-      for (const s of song) this.peerHolder.addToQueue(s)
-    }
-  }
-
-  private beginFetching() {
-    if (!this.isFetching) this.fetchRemoteSong()
-  }
-
   private async handleReadyRequest(isReadyRequested: boolean) {
-    if (isReadyRequested && vxm.sync.currentSongDets) {
-      if (vxm.sync.currentSongDets.type === "LOCAL") {
-        const isAudioExists = await window.FileUtils.isAudioExists(vxm.sync.currentSongDets._id!)
+    if (isReadyRequested && vxm.sync.currentSong) {
+      if (vxm.sync.currentSong.type === "LOCAL") {
+        const isAudioExists = await window.FileUtils.isAudioExists(vxm.sync.currentSong._id!)
         if (!this.isFetching) {
           /*
            * If the room is already streaming and another user joins in, everyone's state will be set to LOADING.
@@ -208,7 +203,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
            * If it does, then let it fetch and emitReady will be handled by saveRemoteStream
            * Otherwise check if audio exists and emitReady if it does
            */
-          if (vxm.sync.currentFetchSong != vxm.sync.currentSongDets._id) {
+          if (vxm.sync.currentFetchSong != vxm.sync.currentSong._id) {
             if (isAudioExists) this.peerHolder.emitReady()
           }
         }
@@ -218,56 +213,72 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
     }
   }
 
-  private addRecentSongToPrefetch(songs: RemoteSong[]) {
-    this.addToPrefetchQueue(songs[songs.length - 1])
-  }
-
   private syncListeners() {
     this.peerHolder.onRemoteTrackInfo = this.setRemoteTrackInfo
     this.peerHolder.onRemoteCover = this.setRemoteCover
-    this.peerHolder.fetchCover = this.getLocalCover
+    this.peerHolder.getLocalCover = this.getLocalCover
     this.peerHolder.onRemoteStream = this.saveRemoteStream
-    this.peerHolder.onPrefetchAdded = vxm.sync.addToPrefetch
-    this.peerHolder.onPrefetchSet = vxm.sync.setPrefetch
-    this.peerHolder.onQueueAdd = vxm.sync.addQueueItem
-    this.peerHolder.onQueueSet = vxm.sync.setQueueItem
     this.peerHolder.getRequestedSong = this.playRequested
     this.peerHolder.fetchSong = this.getLocalSong
     this.peerHolder.fetchCurrentSong = () => vxm.player.currentSong
     this.peerHolder.playerStateHandler = this.handleRemotePlayerState
+    this.peerHolder.onQueueOrderChange = this.onRemoteQueueOrderChange
+    this.peerHolder.onQueueDataChange = this.onRemoteQueueDataChange
     // TODO: Handle this event somewhere
     this.peerHolder.peerConnectionStateHandler = (id, state) => bus.$emit('onPeerConnectionStateChange', id, state)
     this.peerHolder.onSeek = this.onRemoteSeek
     this.peerHolder.onReadyRequested = vxm.sync.setReadyRequested
     // this.peerHolder.onAllReady = () => SyncModule.setWaiting(false)
 
-    vxm.sync.$watch('prefetch', this.beginFetching)
     vxm.sync.$watch('isReadyRequested', this.handleReadyRequest)
-    vxm.sync.$watch('localQueue', this.addRecentSongToPrefetch)
     vxm.sync.$watch('queueIndex', this.requestPlay)
+
+    this.listenLocalQueueChanges()
   }
 
   private playRequested(songIndex: number) {
-    const song = vxm.sync.localQueue.find((item) => item._id === vxm.sync.queueOrder[songIndex])
+    const song = vxm.sync.queueData[vxm.sync.queueOrder[songIndex].songID]
     console.log(song)
     if (song) {
       vxm.sync.setSong(song)
     }
   }
 
-  private async fetchRemoteSong() {
-    this.isFetching = true
-    for (const prefetch of vxm.sync.prefetch) {
-      if (prefetch && prefetch.type === "LOCAL") {
-        const isExists = await window.FileUtils.isAudioExists(prefetch._id!)
-        if (!isExists) {
-          vxm.sync.setCurrentFetchSong(prefetch._id)
-          this.peerHolder.requestSong(prefetch.sender, prefetch._id!)
-          return
-        }
+  // private async fetchRemoteSong() {
+  //   this.isFetching = true
+  //   for (const prefetch of vxm.sync.prefetch) {
+  //     if (prefetch && prefetch.type === "LOCAL") {
+  //       const isExists = await window.FileUtils.isAudioExists(prefetch._id!)
+  //       if (!isExists) {
+  //         vxm.sync.setCurrentFetchSong(prefetch._id)
+  //         this.peerHolder.requestSong(prefetch.sender, prefetch._id!)
+  //         return
+  //       }
+  //     }
+  //   }
+  //   this.isFetching = false
+  // }
+
+  private _ignoreRemoteChange = false
+
+  private listenLocalQueueChanges() {
+    vxm.sync.$watch('queueOrder', (order: QueueOrder) => {
+      if (!this._ignoreRemoteChange) {
+        this.peerHolder.emitQueueChange(order, vxm.sync.queueData, vxm.sync.queueIndex)
+      } else {
+        this._ignoreRemoteChange = false
       }
-    }
-    this.isFetching = false
+    })
+  }
+
+  private onRemoteQueueOrderChange(order: QueueOrder, index: number) {
+    this._ignoreRemoteChange = true
+    vxm.sync.queueOrder = order;
+    vxm.sync.queueIndex = index
+  }
+
+  private onRemoteQueueDataChange(data: QueueData<RemoteSong>) {
+    vxm.sync.queueData = data;
   }
 
   protected handleBroadcasterAudioLoad(song: Song): boolean {
@@ -315,10 +326,6 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
       this.peerHolder.emitPlayerState(newState)
     }
     this.isRemoteStateChange = false
-  }
-
-  protected playNow(song: RemoteSong) {
-    this.peerHolder.addToQueueAndPlay(song)
   }
 
   private requestPlay(song_index: number) {

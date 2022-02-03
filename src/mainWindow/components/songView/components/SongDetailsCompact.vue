@@ -71,10 +71,15 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   @Prop({ default: () => {} })
   private defaultDetails!: SongDetailDefaults | undefined
 
+  @Prop({ default: '' })
+  private forceCover!: string
+
   private forceEmptyImg = false
 
   get computedImg() {
-    return this.getImgSrc(this.getValidImageHigh(this.currentSong) ?? this.defaultDetails?.defaultCover)
+    return (
+      this.forceCover ?? this.getImgSrc(this.getValidImageHigh(this.currentSong) ?? this.defaultDetails?.defaultCover)
+    )
   }
 
   @Watch('defaultDetails')

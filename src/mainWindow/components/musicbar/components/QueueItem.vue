@@ -95,8 +95,12 @@ export default class MusicInfo extends mixins(ImgLoader, PlayerControls, Context
   @Prop({ default: -1 })
   private index!: number
 
+  get queueProvider() {
+    return this.isSyncing ? vxm.sync : vxm.player
+  }
+
   get song() {
-    return vxm.player.queue.data[this.songID]
+    return this.queueProvider.queueData[this.songID]
   }
 
   private playSong() {
