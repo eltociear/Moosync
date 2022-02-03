@@ -71,8 +71,8 @@ export class SyncHolder {
 
   private readyPeers: string[] = []
 
-  private onJoinedRoomCallback?: (id: string) => void
-  private onRemoteTrackInfoCallback?: (event: RemoteSong, from: string, songIndex: number) => void
+  private onJoinedRoomCallback?: (id: string, isCreator: boolean) => void
+  private onRemoteTrackInfoCallback?: (from: string, songIndex: number) => void
   private onRemoteTrackCallback?: (event: RTCTrackEvent) => void
   private onRemoteCoverCallback?: (event: Blob) => void
   private onRemoteStreamCallback?: (event: Blob) => void
@@ -81,12 +81,13 @@ export class SyncHolder {
   private onPeerStateChangeCallback?: (id: string, state: peerConnectionState) => void
   private onDataSentCallback?: (id: string) => void
   private onAllReadyCallback?: () => void
-  private onReadyRequestedCallback?: (value: boolean) => void
+  private onReadyRequestedCallback?: () => void
+  private onReadyEmittedCallback?: () => void
   private onQueueOrderChangeCallback?: (order: QueueOrder, index: number) => void
   private onQueueDataChangeCallback?: (data: QueueData<RemoteSong>) => void
   private playRequestedSongCallback?: (songIndex: number) => void
 
-  private getCurrentSong?: () => Song | null | undefined
+  private getCurrentSongIndex?: () => number
   private getLocalSong?: (songID: string) => Promise<ArrayBuffer | null>
   private getLocalCoverCallback?: (songID: string) => Promise<ArrayBuffer | null>
 
@@ -138,11 +139,11 @@ export class SyncHolder {
     })
   }
 
-  set onJoinedRoom(callback: (id: string) => void) {
+  set onJoinedRoom(callback: (id: string, isCreator: boolean) => void) {
     this.onJoinedRoomCallback = callback
   }
 
-  set onRemoteTrackInfo(callback: (event: RemoteSong, from: string, songIndex: number) => void) {
+  set onRemoteTrackInfo(callback: (from: string, songIndex: number) => void) {
     this.onRemoteTrackInfoCallback = callback
   }
 
@@ -166,8 +167,8 @@ export class SyncHolder {
     this.getLocalSong = callback
   }
 
-  set fetchCurrentSong(callback: () => Song | null | undefined) {
-    this.getCurrentSong = callback
+  set fetchCurrentSong(callback: () => number) {
+    this.getCurrentSongIndex = callback
   }
 
   set onSeek(callback: (time: number) => void) {
@@ -190,8 +191,12 @@ export class SyncHolder {
     this.onAllReadyCallback = callback
   }
 
-  set onReadyRequested(callback: (value: boolean) => void) {
+  set onReadyRequested(callback: () => void) {
     this.onReadyRequestedCallback = callback
+  }
+
+  set onReadyEmitted(callback: () => void) {
+    this.onReadyEmittedCallback = callback
   }
 
   set getRequestedSong(callback: (songIndex: number) => void) {
@@ -246,13 +251,7 @@ export class SyncHolder {
 
   private joinedRoom() {
     this.socketConnection?.on('joinedRoom', (roomID: string, isCreator: boolean) => {
-      this.onJoinedRoomCallback && this.onJoinedRoomCallback(roomID)
-      if (isCreator) {
-        const song = this.getCurrentSong ? toRemoteSong(this.getCurrentSong(), this.socketID) : null
-        if (song) {
-          this.PlaySong(song)
-        }
-      }
+      this.onJoinedRoomCallback && this.onJoinedRoomCallback(roomID, isCreator)
     })
   }
 
@@ -289,9 +288,9 @@ export class SyncHolder {
     console.info('data channel', channel.label, 'is in state: ', this.peerConnection[id].streamChannel!.readyState)
   }
 
-  public PlaySong(song: Song) {
-    this.sendSongDetails(toRemoteSong(song, this.socketID))
-    this.requestReadyStatus()
+  public playSong(index: number) {
+    console.log('playing')
+    this.sendSongDetails(index)
   }
 
   public createRoom() {
@@ -328,13 +327,15 @@ export class SyncHolder {
    * Should be called after trackChange when playerState is set to LOADING
    * [Broadcaster method]
    */
-  private requestReadyStatus() {
+  public requestReadyStatus() {
     if (Object.keys(this.peerConnection).length == 0) {
       this.checkAllReady()
       return
     }
     this.isListeningReady = true
     this.socketConnection?.emit('requestReady')
+
+    console.log('requesting ready status')
   }
 
   /**
@@ -344,7 +345,7 @@ export class SyncHolder {
    */
   private listenReadyRequest() {
     this.socketConnection?.on('requestReady', () => {
-      this.onReadyRequestedCallback && this.onReadyRequestedCallback(true)
+      this.onReadyRequestedCallback && this.onReadyRequestedCallback()
     })
   }
 
@@ -386,8 +387,8 @@ export class SyncHolder {
    * Listens for track change
    */
   private listenTrackChange() {
-    this.socketConnection?.on('trackChange', (metadata: RemoteSong, from: string, song_index: number) => {
-      this.onRemoteTrackInfoCallback && this.onRemoteTrackInfoCallback(metadata, from, song_index)
+    this.socketConnection?.on('onTrackChange', (from: string, song_index: number) => {
+      this.onRemoteTrackInfoCallback && this.onRemoteTrackInfoCallback(from, song_index)
     })
   }
 
@@ -397,6 +398,7 @@ export class SyncHolder {
    */
   private listenPeerReady() {
     this.socketConnection?.on('ready', (id: string) => {
+      console.log('got ready call from', id)
       if (this.isListeningReady) {
         this.setPeerReady(id)
         this.checkAllReady()
@@ -497,7 +499,7 @@ export class SyncHolder {
    */
   public emitReady() {
     this.socketConnection?.emit('ready')
-    this.onReadyRequestedCallback ? this.onReadyRequestedCallback(false) : null
+    this.onReadyEmittedCallback ? this.onReadyEmittedCallback() : null
   }
 
   /**
@@ -523,22 +525,8 @@ export class SyncHolder {
    * @param trackInfo
    * @param song_index index of song in room queue
    */
-  private sendSongDetails(trackInfo: RemoteSong | null | undefined) {
-    if (trackInfo) {
-      this.socketConnection?.emit('trackMetadata', this.stripSong(trackInfo))
-    }
-  }
-
-  /**
-   * Sends cover through data channels to a peer
-   * @param id of peer to send cover to
-   * @param [cover] ArrayBuffer of image file
-   */
-  private sendCover(id: string, cover?: ArrayBuffer) {
-    if (cover) {
-      const fragmentSender = new FragmentSender(cover, this.peerConnection[id].coverChannel!)
-      fragmentSender.send()
-    }
+  private sendSongDetails(songIndex: number) {
+    this.socketConnection?.emit('trackChange', songIndex)
   }
 
   /**

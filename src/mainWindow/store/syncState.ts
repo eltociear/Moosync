@@ -31,7 +31,6 @@ export class SyncStore extends VuexModule.With({ namespaced: 'sync' }) {
   currentCover: string = ''
   currentFetchSong: string = ''
   roomID: string = ''
-  isReadyRequested: boolean = false
   _socketID: string = ''
 
   private songQueue = new Queue()
@@ -105,7 +104,7 @@ export class SyncStore extends VuexModule.With({ namespaced: 'sync' }) {
   @mutation
   private addSong(item: Song[]) {
     for (const s of item) {
-      const song = toRemoteSong(s, this.socketID)
+      const song = toRemoteSong(s, this._socketID)
       if (song && !this.songQueue.data[song._id!]) {
         this.songQueue.data[song._id!] = song
       }
@@ -229,11 +228,6 @@ export class SyncStore extends VuexModule.With({ namespaced: 'sync' }) {
   @mutation
   setCover(cover: string) {
     this.currentCover = cover
-  }
-
-  @mutation
-  setReadyRequested(value: boolean) {
-    this.isReadyRequested = value
   }
 
   @mutation

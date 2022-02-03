@@ -359,7 +359,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       vxm.player.playerState = 'PLAYING'
     }
 
-    if (this.handleBroadcasterAudioLoad(song)) return
+    if (this.handleBroadcasterAudioLoad()) return
 
     this.handleFirstPlayback(loadedState)
 
