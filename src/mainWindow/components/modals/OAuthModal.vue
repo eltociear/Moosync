@@ -8,7 +8,9 @@
 -->
 
 <template>
-  <b-modal centered size="sm" :id="id" :ref="id" hide-footer hide-header> Waiting for response... </b-modal>
+  <b-modal no-close-on-backdrop centered size="sm" :id="id" :ref="id" hide-footer hide-header>
+    Waiting for response...
+  </b-modal>
 </template>
 
 <script lang="ts">
@@ -46,8 +48,6 @@ export default class OAuthModal extends Vue {
         this.showing = false
       }
     })
-
-    bus.$emit(EventBus.SHOW_OAUTH_MODAL)
   }
 }
 </script>
