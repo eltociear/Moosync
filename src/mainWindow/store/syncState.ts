@@ -28,7 +28,7 @@ class Queue implements GenericQueue<RemoteSong> {
 export class SyncStore extends VuexModule.With({ namespaced: 'sync' }) {
   mode: PeerMode = PeerMode.UNDEFINED
   currentSong: RemoteSong | null | undefined = null
-  currentCover: string = ''
+  currentCover: string | undefined
   currentFetchSong: string = ''
   roomID: string = ''
   _socketID: string = ''
@@ -226,7 +226,7 @@ export class SyncStore extends VuexModule.With({ namespaced: 'sync' }) {
   }
 
   @mutation
-  setCover(cover: string) {
+  setCover(cover: string | undefined) {
     this.currentCover = cover
   }
 

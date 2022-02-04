@@ -103,10 +103,10 @@ export default class MusicInfo extends mixins(ImgLoader, PlayerControls, Context
 
   async created() {
     if (this.isSyncing) {
-      this.image = 'media://' + (await window.FileUtils.isImageExists(this.songID))
-    } else {
-      this.image = this.getImgSrc(this.getValidImageLow(this.song))
+      const tmp = await window.FileUtils.isImageExists(this.songID)
+      if (tmp) this.image = 'media://' + tmp
     }
+    if (!this.image) this.image = this.getImgSrc(this.getValidImageLow(this.song))
   }
 
   get song() {

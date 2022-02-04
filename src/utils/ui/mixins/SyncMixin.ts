@@ -60,7 +60,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   }
 
   private isYoutube(song: RemoteSong): boolean {
-    return song.type === "YOUTUBE"
+    return song.type === "YOUTUBE" || song.type === 'SPOTIFY'
   }
 
   private async setLocalCover(event: RemoteSong, from: string) {
@@ -79,7 +79,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
 
     if (cover) vxm.sync.setCover('media://' + cover)
     else {
-      vxm.sync.setCover('')
+      vxm.sync.setCover(undefined)
       this.peerHolder.requestCover(from, event._id!)
     }
   }
@@ -122,6 +122,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
           vxm.player.playerState = 'PAUSED'
         } else {
           this.peerHolder.requestReadyStatus()
+          vxm.player.loading = true
         }
 
         if (this.isYoutube(song)) {
@@ -265,12 +266,16 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
     this.peerHolder.onReadyRequested = this.handleReadyRequest
     this.peerHolder.onReadyEmitted = this.handleReadyEmitted
     this.peerHolder.onRepeatChange = this.handleRepeat
-    // this.peerHolder.onAllReady = () => SyncModule.setWaiting(false)
+    this.peerHolder.onAllReady = () => this.handleAllReady
 
 
-    vxm.sync.$watch('queueIndex', this.requestPlay)
+    vxm.sync.$watch('queueIndex', this.triggerQueueChange)
     vxm.sync.$watch('queueOrder', this.triggerQueueChange)
     vxm.player.$watch('repeat', this.triggerRepeatChange)
+  }
+
+  private handleAllReady() {
+    vxm.player.loading = false
   }
 
   private isRemoteRepeatChange = false
@@ -387,9 +392,5 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
       this.peerHolder.emitPlayerState(newState)
     }
     this.isRemoteStateChange = false
-  }
-
-  private requestPlay(song_index: number) {
-    this.peerHolder.requestPlay(song_index)
   }
 }

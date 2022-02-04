@@ -7,35 +7,45 @@
  *  See LICENSE in the project root for license information.
  */
 
+import Vue from 'vue'
 import { Player } from './player'
 
 export class LocalPlayer extends Player {
   playerInstance: HTMLAudioElement
 
+  private isPlaying = false
+
   constructor(playerInstance: HTMLAudioElement) {
     super()
     this.playerInstance = playerInstance
+    this.playerInstance.onplaying = () => this.isPlaying = true
+    this.playerInstance.onpause = () => this.isPlaying = false
     this.playerInstance.load()
   }
 
   load(src?: string, volume?: number, autoplay?: boolean): void {
     src && (this.playerInstance.src = src)
+    this.playerInstance.load()
     volume && (this.volume = volume);
     autoplay && this.play()
   }
 
   async play(): Promise<void> {
-    return this.playerInstance.play()
+    console.log(this.isPlaying, this.playerInstance.paused)
+    if (!this.isPlaying && this.playerInstance.paused)
+      await this.playerInstance.play()
   }
 
   pause(): void {
-    return this.playerInstance.pause()
+    if (this.isPlaying && !this.playerInstance.paused)
+      this.playerInstance.pause()
   }
 
   stop(): void {
     this.playerInstance.removeAttribute('src')
     this.playerInstance.srcObject = null
     this.playerInstance.load()
+
   }
 
   get currentTime(): number {

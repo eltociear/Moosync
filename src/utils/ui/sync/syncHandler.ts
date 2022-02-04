@@ -490,18 +490,6 @@ export class SyncHolder {
     this.socketConnection?.emit('requestCover', id, songID)
   }
 
-  /**
-   * Sends song index to websocket server.
-   * The server then finds the peer responsible for adding the song in queue
-   * and requests it to change its track
-   *
-   * Should be called when a song already in queue is to be played
-   * @param song_index
-   */
-  public requestPlay(song_index: number) {
-    this.socketConnection?.emit('requestPlay', song_index)
-  }
-
   public emitRepeat(repeat: boolean) {
     this.socketConnection?.emit('repeatChange', repeat)
   }

@@ -121,6 +121,7 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   }
 
   get currentIndex() {
+    console.log(this.queueProvider.queueIndex)
     return this.queueProvider.queueIndex
   }
 
@@ -140,7 +141,7 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
 
   get computedImg() {
     this.forceDefaultImg = false
-    return this.remoteCover ? this.remoteCover : this.getImgSrc(this.getValidImageHigh(this.currentSong))
+    return this.remoteCover ?? this.getImgSrc(this.getValidImageHigh(this.currentSong))
   }
 
   private clear() {
