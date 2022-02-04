@@ -71,7 +71,7 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   @Prop({ default: () => {} })
   private defaultDetails!: SongDetailDefaults | undefined
 
-  @Prop({ default: '' })
+  @Prop({ default: () => undefined })
   private forceCover!: string
 
   private forceEmptyImg = false
