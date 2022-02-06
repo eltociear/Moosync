@@ -97,13 +97,12 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    * This method is responsible for reflecting that state on active player
    */
   async onPlayerStateChanged(newState: PlayerState) {
-    console.log('player state changed', newState, this.ignoreStateChange)
     if (!this.ignoreStateChange) {
       await this.handleActivePlayerState(newState)
+      this.emitPlayerState(newState)
     }
 
     this.ignoreStateChange = false
-    this.emitPlayerState(newState)
   }
 
   /**
@@ -245,13 +244,15 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    * If the player is buffering for a long time then try changing its playback quality
    */
   private setBufferTrap() {
-    this._bufferTrap = setTimeout(() => {
-      if (this.activePlayerType === 'YOUTUBE' && this.activePlayer instanceof YoutubePlayer) {
-        this.activePlayer.setPlaybackQuality('small')
-        this.pause()
-        Vue.nextTick(() => this.play())
-      }
-    }, 3000)
+    if (!this._bufferTrap) {
+      this._bufferTrap = setTimeout(() => {
+        if (this.activePlayerType === 'YOUTUBE' && this.activePlayer instanceof YoutubePlayer) {
+          this.activePlayer.setPlaybackQuality('small')
+          this.pause()
+          Vue.nextTick(() => this.play())
+        }
+      }, 3000)
+    }
   }
 
   private cancelBufferTrap() {
