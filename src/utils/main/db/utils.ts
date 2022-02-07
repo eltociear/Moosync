@@ -93,7 +93,7 @@ export class DBUtils {
       type: song.type,
       url: song.url?.trim(),
       playbackUrl: song.playbackUrl?.trim(),
-      date_added: Date.now().toString()
+      date_added: Date.now()
     }
   }
 

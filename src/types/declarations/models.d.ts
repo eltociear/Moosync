@@ -73,7 +73,7 @@ interface Song {
   deviceno?: string
   url?: string
   playbackUrl?: string
-  date_added: string
+  date_added: number
   type: 'LOCAL' | 'YOUTUBE' | 'SPOTIFY'
 }
 
@@ -107,7 +107,7 @@ interface marshaledSong {
   deviceno?: string
   url?: string
   playbackUrl?: string
-  date_added: string
+  date_added: number
   type: 'LOCAL' | 'YOUTUBE' | 'SPOTIFY'
 }
 

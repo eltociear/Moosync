@@ -241,7 +241,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
             album_name: 'Misc',
           },
           date: new Date(v.snippet.publishedAt).toISOString().slice(0, 10),
-          date_added: Date.now().toString(),
+          date_added: Date.now(),
           duration: parseISO8601Duration(v.contentDetails.duration),
           url: v.id,
           type: 'YOUTUBE'
@@ -329,7 +329,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
               album_coverPath_low: song.thumbnailUrl
             },
             type: 'YOUTUBE',
-            date_added: Date.now().toString(),
+            date_added: Date.now(),
             song_coverPath_high: song.thumbnailUrl,
             song_coverPath_low: song.thumbnailUrl
           }]

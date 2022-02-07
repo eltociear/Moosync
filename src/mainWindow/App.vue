@@ -207,7 +207,7 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
       duration: duration,
       artists: [],
       path: path,
-      date_added: Date.now().toString(),
+      date_added: Date.now(),
       type: 'LOCAL'
     }
   }

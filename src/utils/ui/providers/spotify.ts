@@ -208,7 +208,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       song_coverPath_high: (track.album.images[0]) ? track.album.images[0].url : '',
       artists: track.artists.map(artist => artist.name),
       duration: track.duration_ms / 1000,
-      date_added: Date.now().toString(),
+      date_added: Date.now(),
       type: 'SPOTIFY'
     }
   }
@@ -330,7 +330,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
           album_artist: (track.album.artists && track.album.artists.length > 0) ? track.album.artists[0].name : undefined,
         },
         duration: track.duration_ms / 1000,
-        date_added: Date.now().toString(),
+        date_added: Date.now(),
         type: 'SPOTIFY'
       }
 

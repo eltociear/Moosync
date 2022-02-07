@@ -258,7 +258,7 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
               title: parsed.name,
               artists: [parsed.artist?.name],
               duration: song.duration,
-              date_added: Date.now().toString(),
+              date_added: Date.now(),
               song_coverPath_high: this.getCoverImage(parsed, true),
               song_coverPath_low: this.getCoverImage(parsed, false),
               url,
