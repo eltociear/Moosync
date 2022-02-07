@@ -120,8 +120,6 @@ export default class NewPlaylistModal extends mixins(ImgLoader) {
     img.onload = () => this.drawImage(quad, len, ctx, img)
     img.crossOrigin = ''
     img.src = this.getImgSrc(src)
-
-    console.log(this.getImgSrc(src))
   }
 
   private isExpandedImage(quad: number, len: number) {

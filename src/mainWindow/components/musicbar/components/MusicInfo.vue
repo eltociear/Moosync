@@ -121,7 +121,6 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   }
 
   get currentIndex() {
-    console.log(this.queueProvider.queueIndex)
     return this.queueProvider.queueIndex
   }
 

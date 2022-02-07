@@ -236,7 +236,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
 
     this.activePlayer.onLoad = () => {
-      console.log('load triggered')
       vxm.player.loading = false
       this.cancelBufferTrap()
     }

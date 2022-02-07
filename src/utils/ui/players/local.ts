@@ -19,7 +19,6 @@ export class LocalPlayer extends Player {
   }
 
   load(src?: string, volume?: number, autoplay?: boolean): void {
-    console.log('loaded', src)
     src && (this.playerInstance.src = src)
     this.playerInstance.load()
     volume && (this.volume = volume);
@@ -27,7 +26,6 @@ export class LocalPlayer extends Player {
   }
 
   async play(): Promise<void> {
-    console.log(this.playerInstance.paused)
     if (this.playerInstance.paused)
       await this.playerInstance.play()
   }

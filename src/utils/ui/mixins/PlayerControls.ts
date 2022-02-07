@@ -49,8 +49,6 @@ export default class PlayerControls extends Vue {
       await vxm.player.pushInQueue({ item: songs.slice(), top: true })
     }
 
-    console.log(this.isSyncing)
-
     if (!this.isSyncing) this.play()
 
     this.$toasted.show(`Queued ${songs.length} song${songs.length !== 1 ? 's' : ''}`)
