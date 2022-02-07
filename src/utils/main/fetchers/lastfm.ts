@@ -22,10 +22,14 @@ class WebScraper {
   }
 
   private async dumpCache() {
+    this.makeCacheDir()
+
     return fsP.writeFile(CachePath, JSON.stringify(this.cache), { encoding: 'utf-8' })
   }
 
   private async readCache() {
+    this.makeCacheDir()
+
     const data = await fsP.readFile(CachePath, { encoding: 'utf-8' })
     this.cache = JSON.parse(data)
   }
@@ -72,6 +76,14 @@ class WebScraper {
         reject('URL must start with https: ' + url)
       }
     })
+  }
+
+  private async makeCacheDir() {
+    try {
+      fsP.access(CachePath)
+    } catch (_) {
+      fsP.mkdir(CachePath, { recursive: true })
+    }
   }
 }
 
