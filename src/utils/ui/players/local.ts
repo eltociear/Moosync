@@ -70,7 +70,7 @@ export class LocalPlayer extends Player {
   }
 
   protected listenOnLoad(): void {
-    this.playerInstance.oncanplay = this.onLoadCallback!
+    this.playerInstance.onload = this.onLoadCallback!
   }
 
   protected listenOnError(): void {

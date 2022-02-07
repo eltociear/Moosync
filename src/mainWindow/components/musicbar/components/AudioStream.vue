@@ -77,6 +77,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    */
   private ignoreStateChange = false
 
+  private stateChangeQueued = false
+
   /**
    * True is playerstate is set to be 'PLAYING' ignoring its previous value on new song load
    */
@@ -98,6 +100,10 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    */
   async onPlayerStateChanged(newState: PlayerState) {
     if (!this.ignoreStateChange) {
+      if (vxm.player.loading) {
+        this.stateChangeQueued = true
+        return
+      }
       await this.handleActivePlayerState(newState)
       this.emitPlayerState(newState)
     }
@@ -216,6 +222,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       vxm.player.loading = false
       this.cancelBufferTrap()
 
+      console.trace(state)
+
       if (state === 'STOPPED') {
         this.onSongEnded()
         return
@@ -228,6 +236,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
 
     this.activePlayer.onLoad = () => {
+      console.log('load triggered')
       vxm.player.loading = false
       this.cancelBufferTrap()
     }
@@ -238,6 +247,12 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
 
     vxm.player.$watch('volume', this.onVolumeChanged)
+    vxm.player.$watch('loading', (newVal) => {
+      if (!newVal && this.stateChangeQueued) {
+        this.onPlayerStateChanged(vxm.player.playerState)
+        this.stateChangeQueued = false
+      }
+    })
   }
 
   /**
