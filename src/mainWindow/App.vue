@@ -118,6 +118,21 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     vxm.playlist.playlists = playlists
   }
 
+  private getErrorMessage(...args: any[]) {
+    let ret = []
+    for (const data of args) {
+      if (data instanceof Error) {
+        console.log(args[0].stack)
+        ret.push(args[0].stack)
+      } else {
+        ret.push(data)
+      }
+    }
+
+    console.log(ret)
+    return ret
+  }
+
   private registerLogger() {
     const preservedConsoleInfo = console.info
     const preservedConsoleError = console.error
@@ -129,11 +144,15 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
       }
 
       console.error = (...args: any[]) => {
+        const error = this.getErrorMessage(...args)
         preservedConsoleError.apply(console, args)
-        window.LoggerUtils.error(args)
+        window.LoggerUtils.error(error)
       }
 
-      window.onerror = (err) => window.LoggerUtils.error(err)
+      window.onerror = (err) => {
+        const error = this.getErrorMessage(err)
+        window.LoggerUtils.error(error)
+      }
 
       Vue.config.errorHandler = (err, vm, info) => {
         window.LoggerUtils.error(err)
