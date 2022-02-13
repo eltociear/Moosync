@@ -9,9 +9,9 @@
 
 declare module 'vue-carousel' {
 
-import { PluginObject } from 'vue'
+  import { PluginObject } from 'vue'
 
-interface PluginOptions {
+  interface PluginOptions {
     installComponents?: boolean
     componentsPrefix?: string
   }

@@ -20,7 +20,7 @@
             </b-col>
             <!-- <b-col cols="auto"> <Notifications /> </b-col> -->
             <b-col cols="auto"> <Accounts /></b-col>
-            <b-col cols="auto"> <Gear class="gear-icon" @click.native="openSettings" /></b-col>
+            <b-col cols="auto"> <Gear id="settings" class="gear-icon" @click.native="openSettings" /></b-col>
           </b-row>
         </b-col>
       </b-row>

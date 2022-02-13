@@ -7,7 +7,6 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { EntityApiOptions, SongAPIOptions } from '@moosync/moosync-types';
 import {
   ExtensionHostEvents,
   IpcEvents,

@@ -8,7 +8,7 @@
  */
 
 type extensionEventMessage = {
-  type: keyof import('@moosync/moosync-types').MoosyncExtensionTemplate
+  type: keyof MoosyncExtensionTemplate
   data: any
   packageName?: string
 }
@@ -61,12 +61,12 @@ interface ExtensionDetails {
   version: string
   hasStarted: boolean
   entry: string
-  preferences: import('@moosync/moosync-types/index').ExtensionPreferenceGroup[]
+  preferences: ExtensionPreferenceGroup[]
 }
 
 interface ExtensionItem extends ExtensionDetails {
-  instance: import('@moosync/moosync-types/index').MoosyncExtensionTemplate
-  preferences: import('@moosync/moosync-types/index').ExtensionPreferenceGroup[]
+  instance: MoosyncExtensionTemplate
+  preferences: ExtensionPreferenceGroup[]
   vm: import('vm2').NodeVM
 }
 

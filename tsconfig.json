@@ -15,7 +15,10 @@
     "baseUrl": ".",
     "types": [
       "webpack-env",
-      "bootstrap-vue"
+      "bootstrap-vue",
+      "@types/jest",
+      "playwright",
+      "@moosync/moosync-types"
     ],
     "paths": {
       "*": [
@@ -35,7 +38,8 @@
   "typeRoots": [
     "./node_modules",
     "./node_modules/@types",
-    "./src/types/declarations"
+    "./node_modules/@moosync/moosync-types",
+    "./src/types/declarations",
   ],
   "include": [
     "src/**/*.ts",

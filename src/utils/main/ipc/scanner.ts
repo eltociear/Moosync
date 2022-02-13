@@ -116,18 +116,18 @@ export class ScannerChannel implements IpcChannelInterface {
     })
   }
 
-  private fetchMBID(allArtists: artists[]) {
+  private fetchMBID(allArtists: Artists[]) {
     return new Promise((resolve, reject) => {
       this.scraperWorker.fetchMBID(allArtists).subscribe(
-        (result: artists) => (result ? SongDB.updateArtists(result) : null),
+        (result: Artists) => (result ? SongDB.updateArtists(result) : null),
         (err: Error) => reject(err),
         () => resolve(undefined)
       )
     })
   }
 
-  private async updateArtwork(artist: artists, cover: TransferDescriptor<Buffer> | undefined) {
-    const ret: artists = artist
+  private async updateArtwork(artist: Artists, cover: TransferDescriptor<Buffer> | undefined) {
+    const ret: Artists = artist
     notifyRenderer({ id: 'artwork-status', message: `Found artwork for ${artist.artist_name}`, type: 'info' })
     if (cover) {
       ret.artist_coverPath = (await this.storeCover(artist.artist_id, cover))?.high
@@ -138,11 +138,11 @@ export class ScannerChannel implements IpcChannelInterface {
     await SongDB.updateArtists(ret)
   }
 
-  private async fetchArtworks(allArtists: artists[]) {
+  private async fetchArtworks(allArtists: Artists[]) {
     const artworkPath = loadPreferences().artworkPath
     return new Promise((resolve) => {
       this.scraperWorker.fetchArtworks(allArtists, artworkPath).subscribe(
-        (result: { artist: artists, cover: TransferDescriptor<Buffer> }) => this.updateArtwork(result.artist, result.cover),
+        (result: { artist: Artists, cover: TransferDescriptor<Buffer> }) => this.updateArtwork(result.artist, result.cover),
         console.error,
         () => resolve(undefined)
       )
@@ -159,13 +159,6 @@ export class ScannerChannel implements IpcChannelInterface {
       }
     }
     return false
-  }
-
-  private updateCounts() {
-    SongDB.updateSongCountAlbum()
-    SongDB.updateSongCountArtists()
-    SongDB.updateSongCountGenre()
-    SongDB.updateSongCountPlaylists()
   }
 
   private async destructiveScan(paths: togglePaths) {
@@ -197,7 +190,7 @@ export class ScannerChannel implements IpcChannelInterface {
       return
     }
 
-    const allArtists = SongDB.getEntityByOptions<artists>({
+    const allArtists = SongDB.getEntityByOptions<Artists>({
       artist: true
     })
 
@@ -253,8 +246,6 @@ export class ScannerChannel implements IpcChannelInterface {
 
     await this.destructiveScan(preferences.musicPaths)
     await this.scanSongs(preferences)
-
-    this.updateCounts()
 
     this.setIdle()
 

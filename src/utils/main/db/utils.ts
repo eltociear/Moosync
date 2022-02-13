@@ -17,9 +17,9 @@ import { v4 } from 'uuid'
 export class DBUtils {
   protected db: BetterSqlite3Helper.DBInstance
 
-  constructor() {
+  constructor(dbPath?: string) {
     this.db = DB({
-      path: path.join(app.getPath('appData'), app.getName(), 'databases', 'songs.db'),
+      path: dbPath ?? path.join(app.getPath('appData'), app.getName(), 'databases', 'songs.db'),
       readonly: false,
       fileMustExist: false,
       WAL: true,

@@ -31,12 +31,15 @@ export function getVersion(verS: string) {
 export function sortSongList(songList: Song[], options: sortOptions) {
   songList.sort((a, b) => {
     let field: keyof Song = 'title'
+    let compare = 0
     if (options.type === 'name') {
       field = 'title'
+      compare = a[field].localeCompare(b[field])
     } else if (options.type === 'date') {
       field = 'date_added'
+      compare = b[field] - a[field]
     }
-    let compare = a[field].localeCompare(b[field])
+
     if (!options.asc) {
       compare = -compare
     }

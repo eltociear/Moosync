@@ -7,7 +7,6 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { ExtensionFactory } from '@moosync/moosync-types';
 import { ExtensionRequestGenerator } from './api';
 import { InMemoryRegistry } from './extensionRegistry';
 import { NodeVM } from 'vm2';

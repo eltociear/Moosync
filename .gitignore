@@ -28,3 +28,6 @@ pnpm-debug.log*
 /dist_electron
 
 config.env
+test-results/
+playwright-report/
+coverage/

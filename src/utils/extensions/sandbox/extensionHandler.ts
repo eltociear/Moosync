@@ -10,7 +10,6 @@
 import { AbstractExtensionFinder, ExtensionFinder } from './extensionFinder';
 import { AbstractExtensionManager, ExtensionManager } from '@/utils/extensions/sandbox/extensionManager';
 
-import { MoosyncExtensionTemplate } from '@moosync/moosync-types';
 import { getVersion } from '@/utils/common';
 
 export class ExtensionHandler {

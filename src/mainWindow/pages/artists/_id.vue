@@ -41,7 +41,7 @@ import { vxm } from '@/mainWindow/store'
 })
 export default class SingleArtistView extends mixins(ContextMenuMixin) {
   private songList: Song[] = []
-  private artist: artists | null = null
+  private artist: Artists | null = null
 
   get buttonGroups(): SongDetailButtons {
     return {

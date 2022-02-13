@@ -46,6 +46,7 @@ import { toSong } from '@/utils/models/youtube'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import ytMusic from 'node-youtube-music'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
+import ArtistsIcon from '@/icons/Artists.vue'
 
 @Component({
   components: {
@@ -107,7 +108,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     return []
   }
 
-  private ComputeTabTitle(tab: string, item: Song | Album | artists | Genre | Playlist) {
+  private ComputeTabTitle(tab: string, item: Song | Album | Artists | Genre | Playlist) {
     if (item) {
       switch (tab) {
         case 'Songs':
@@ -115,7 +116,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Albums':
           return (item as Album).album_name
         case 'Artists':
-          return (item as artists).artist_name
+          return (item as Artists).artist_name
         case 'Genres':
           return (item as Genre).genre_name
         case 'Playlists':
@@ -127,7 +128,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     return ''
   }
 
-  private ComputeTabSubTitle(tab: string, item: Song | Album | artists | Genre | Playlist) {
+  private ComputeTabSubTitle(tab: string, item: Song | Album | Artists | Genre | Playlist) {
     if (item) {
       switch (tab) {
         case 'Songs':
@@ -135,7 +136,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Albums':
           return `${(item as Album).album_song_count} Songs`
         case 'Artists':
-          return `${(item as artists).artist_song_count} Songs`
+          return `${(item as Artists).artist_song_count} Songs`
         case 'Genres':
           return `${(item as Genre).genre_song_count} Songs`
         case 'Playlists':
@@ -149,7 +150,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     return ''
   }
 
-  private ComputeTabImage(tab: string, item: Song | Album | artists | Genre | Playlist) {
+  private ComputeTabImage(tab: string, item: Song | Album | Artists | Genre | Playlist) {
     if (item) {
       switch (tab) {
         case 'Songs':
@@ -157,7 +158,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Albums':
           return (item as Album).album_coverPath_low
         case 'Artists':
-          return (item as artists).artist_coverPath
+          return (item as Artists).artist_coverPath
         case 'Genres':
           return ''
         case 'Playlists':
@@ -178,7 +179,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         this.gotoAlbum(item as Album)
         return
       case 'Artists':
-        this.gotoArtist(item as artists)
+        this.gotoArtist(item as Artists)
         return
       case 'Genres':
         this.gotoGenre(item as Genre)
@@ -198,7 +199,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         this.playAlbum(item as Album)
         return
       case 'Artists':
-        this.playArtist(item as artists)
+        this.playArtist(item as Artists)
         return
       case 'Genres':
         this.playGenre(item as Genre)
@@ -233,7 +234,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     })
   }
 
-  private async playArtist(item: artists) {
+  private async playArtist(item: Artists) {
     let songs = await window.SearchUtils.searchSongsByOptions({
       artist: {
         artist_id: item.artist_id
