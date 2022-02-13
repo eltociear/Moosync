@@ -4,6 +4,13 @@ const dotenv = require('dotenv').config({ path: __dirname + '/config.env' });
 
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
+const archElectronConfig = {}
+
+if (fs.existsSync('/usr/lib/electron16') && fs.existsSync('/usr/lib/electron16/version')) {
+  archElectronConfig.electronDist = '/usr/lib/electron16'
+  archElectronConfig.electronVersion = fs.readFileSync('/usr/lib/electron16/version', { encoding: 'utf-8' }).replace('v', '')
+}
+
 const secrets = {}
 if (dotenv.parsed) {
   secrets['process.env.YoutubeClientID'] = JSON.stringify(dotenv.parsed['YOUTUBECLIENTID'])
@@ -63,6 +70,7 @@ module.exports = {
       mainProcessWatch: ['src/utils/main', 'src/utils/extensions', 'src/utils/common.ts'],
       customFileProtocol: 'moosync://./',
       builderOptions: {
+        ...archElectronConfig,
         appId: 'org.moosync.Moosync',
         productName: 'Moosync',
         artifactName: "${productName}-${version}-${os}-${arch}.${ext}",
