@@ -7,7 +7,6 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { SongAPIOptions, extensionAPI, playerControls } from "@moosync/moosync-types";
 
 import { extensionRequests } from "../constants";
 import { v4 } from 'uuid';

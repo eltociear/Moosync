@@ -48,7 +48,7 @@ flipFuses(
   },
 );
 
-if (!app.requestSingleInstanceLock()) {
+if (!app.requestSingleInstanceLock() && !isDevelopment) {
   app.exit()
 } else {
   autoUpdater.autoInstallOnAppQuit = true

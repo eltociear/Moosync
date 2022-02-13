@@ -81,7 +81,7 @@ async function getInfo(data: mm.IAudioMetadata, stats: stats): Promise<Song> {
     hash: stats.hash,
     inode: stats.inode,
     deviceno: stats.deviceno,
-    date_added: Date.now().toString(),
+    date_added: Date.now(),
     type: 'LOCAL',
   }
 }

@@ -20,7 +20,7 @@
             </b-col>
             <!-- <b-col cols="auto"> <Notifications /> </b-col> -->
             <b-col cols="auto"> <Accounts /></b-col>
-            <b-col cols="auto"> <Gear class="gear-icon" @click.native="openSettings" /></b-col>
+            <b-col cols="auto"> <Gear id="settings" class="gear-icon" @click.native="openSettings" /></b-col>
           </b-row>
         </b-col>
       </b-row>
@@ -29,16 +29,16 @@
 </template>
 
 <script lang="ts">
-import Navigation from '@/mainWindow/components/topbar/Navigation.vue'
-import Search from '@/mainWindow/components/topbar/Search.vue'
+import Navigation from '@/mainWindow/components/topbar/components/Navigation.vue'
+import Search from '@/mainWindow/components/topbar/components/Search.vue'
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import Accounts from '@/mainWindow/components/topbar/Accounts.vue'
-import Notifications from '@/mainWindow/components/topbar/Notifications.vue'
+import Accounts from '@/mainWindow/components/topbar/components/Accounts.vue'
+import Notifications from '@/mainWindow/components/topbar/components/Notifications.vue'
 import Refresh from '@/icons/Refresh.vue'
 
 import Gear from '@/icons/Gear.vue'
 import { EventBus } from '@/utils/main/ipc/constants'
-import { bus } from '../main'
+import { bus } from '../../main'
 import EventEmitter from 'events'
 
 @Component({

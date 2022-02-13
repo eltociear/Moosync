@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { Component, Prop } from 'vue-property-decorator'
-import SongView from '@/mainWindow/components/SongView.vue'
+import SongView from '@/mainWindow/components/songView/SongView.vue'
 
 import { mixins } from 'vue-class-component'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
@@ -41,7 +41,7 @@ import { vxm } from '@/mainWindow/store'
 })
 export default class SingleArtistView extends mixins(ContextMenuMixin) {
   private songList: Song[] = []
-  private artist: artists | null = null
+  private artist: Artists | null = null
 
   get buttonGroups(): SongDetailButtons {
     return {

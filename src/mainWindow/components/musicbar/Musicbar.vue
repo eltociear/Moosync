@@ -53,24 +53,28 @@
         :forceSeek="forceSeek"
       />
     </div>
-    <div class="slider" :class="{ open: sliderPosition, close: !sliderPosition }">
+    <div
+      class="slider"
+      :class="{ open: sliderPosition, close: !sliderPosition }"
+      :style="{ height: `calc(100% - ${!hasFrame ? '7.5rem' : '6rem'})` }"
+    >
       <MusicInfo :currentSong="currentSong" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import AudioStream from '@/mainWindow/components/AudioStream.vue'
-import Controls from '@/mainWindow/components/musicbar/Controls.vue'
-import Details from '@/mainWindow/components/musicbar/Details.vue'
-import ExtraControls from '@/mainWindow/components/musicbar/ExtraControls.vue'
-import MusicInfo from '@/mainWindow/components/musicbar/MusicInfo.vue'
+import AudioStream from '@/mainWindow/components/musicbar/components/AudioStream.vue'
+import Controls from '@/mainWindow/components/musicbar/components/Controls.vue'
+import Details from '@/mainWindow/components/musicbar/components/Details.vue'
+import ExtraControls from '@/mainWindow/components/musicbar/components/ExtraControls.vue'
+import MusicInfo from '@/mainWindow/components/musicbar/components/MusicInfo.vue'
 import { Component } from 'vue-property-decorator'
 import { mixins } from 'vue-class-component'
-import { vxm } from '../store'
+import { vxm } from '@/mainWindow/store'
 import { bus } from '@/mainWindow/main'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
-import Timestamp from './musicbar/Timestamp.vue'
+import Timestamp from '@/mainWindow/components/musicbar/components/Timestamp.vue'
 
 @Component({
   components: {
@@ -86,6 +90,7 @@ export default class MusicBar extends mixins(ImgLoader) {
   private forceSeek: number = 0
   private PlayerState: PlayerState = 'PAUSED'
   private sliderPosition: boolean = false
+  private hasFrame: boolean = false
 
   get timestamp() {
     return vxm.player.currentTime
@@ -97,7 +102,7 @@ export default class MusicBar extends mixins(ImgLoader) {
   }
 
   get currentSong() {
-    return vxm.sync.currentSongDets ?? vxm.player.currentSong
+    return vxm.sync.currentSong ?? vxm.player.currentSong
   }
 
   get remoteCover() {
@@ -118,6 +123,10 @@ export default class MusicBar extends mixins(ImgLoader) {
 
   private updateTimestamp(timestamp: number) {
     vxm.player.currentTime = timestamp
+  }
+
+  async mounted() {
+    this.hasFrame = await window.WindowUtils.hasFrame()
   }
 }
 </script>
@@ -149,7 +158,6 @@ export default class MusicBar extends mixins(ImgLoader) {
 .slider
   position: fixed
   background: var(--primary)
-  height: calc(100% - 7.5rem)
   width: 100%
   // animation: 0.2s linear 0s slide
   transition: transform 0.3s ease

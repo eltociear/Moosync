@@ -33,12 +33,12 @@ export class LoggerChannel implements IpcChannelInterface {
   }
 
   private logInfo(event: Electron.IpcMainEvent, request: IpcRequest) {
-    this.customLogger.info(request.params.message)
+    this.customLogger.info(...request.params.message)
     event.reply(request.responseChannel)
   }
 
   private logError(event: Electron.IpcMainEvent, request: IpcRequest) {
-    this.customLogger.error(request.params.message)
+    this.customLogger.error(...request.params.message)
     event.reply(request.responseChannel)
   }
 }

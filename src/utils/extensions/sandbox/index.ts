@@ -47,7 +47,7 @@ class ExtensionHostIPCHandler {
 
   private registerListeners() {
     process.on('message', (message: extensionHostMessage) => {
-      this.parseMessage(message)
+      this.parseMessage(message as mainRequestMessage)
     })
 
     process.on('exit', () => this.extensionHandler.stopAllExtensions())

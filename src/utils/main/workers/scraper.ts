@@ -18,13 +18,13 @@ import fs from 'fs'
 import rateLimit from 'axios-rate-limit'
 
 expose({
-  fetchMBID(artists: artists[]) {
+  fetchMBID(artists: Artists[]) {
     return new Observable((observer) => {
       fetchMBID(artists, observer)
     })
   },
 
-  fetchArtworks(artists: artists[]) {
+  fetchArtworks(artists: Artists[]) {
     return new Observable((observer) => {
       fetchArtworks(artists, observer)
     })
@@ -53,14 +53,14 @@ async function queryMbid(name: string) {
   return musicbrainz.get<any>(`/?limit=1&query=artist:${name.replace(' ', '%20').replace('.', '')}`)
 }
 
-async function getAndUpdateMBID(a: artists): Promise<artists | undefined> {
+async function getAndUpdateMBID(a: Artists): Promise<Artists | undefined> {
   const data = await queryMbid(a.artist_name!)
   if (data.data && data.data.artists.length > 0 && data.data.artists[0].id) {
     return { artist_id: a.artist_id, artist_mbid: data.data.artists[0].id }
   }
 }
 
-export function fetchMBID(artists: artists[], observer: SubscriptionObserver<artists | undefined>) {
+export function fetchMBID(artists: Artists[], observer: SubscriptionObserver<Artists | undefined>) {
   const promises: Promise<void>[] = []
   for (const a of artists) {
     if (!a.artist_mbid) {
@@ -74,7 +74,7 @@ async function queryArtistUrls(id: string) {
   return musicbrainz.get<any>(`/${id}?inc=url-rels`)
 }
 
-async function fetchImagesRemote(a: artists) {
+async function fetchImagesRemote(a: Artists) {
   if (a.artist_mbid) {
     const data = await queryArtistUrls(a.artist_mbid)
     if (data.data.relations) {
@@ -156,7 +156,7 @@ async function downloadImage(url: string): Promise<ArrayBuffer | undefined> {
   }
 }
 
-async function queryArtwork(a: artists) {
+async function queryArtwork(a: Artists) {
   const data = await fetchImagesRemote(a)
   return data
 }
@@ -178,7 +178,7 @@ async function checkCoverExists(coverPath: string | undefined): Promise<boolean>
 // Await for each download to complete
 // This way we can avoid being rate limited unless ofc you are at nasa and got 10gbps with real low latency
 // Even then axios will handle rate limits
-export async function fetchArtworks(artists: artists[], observer: SubscriptionObserver<{ artist: artists, cover: TransferDescriptor<Buffer> | undefined }>) {
+export async function fetchArtworks(artists: Artists[], observer: SubscriptionObserver<{ artist: Artists, cover: TransferDescriptor<Buffer> | undefined }>) {
   for (const a of artists) {
     const coverExists = await checkCoverExists(a.artist_coverPath)
     if (!coverExists) {

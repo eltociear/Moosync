@@ -35,15 +35,15 @@ export class PlaylistsChannel implements IpcChannelInterface {
   }
 
   private createPlaylist(event: Electron.IpcMainEvent, request: IpcRequest) {
-    SongDB.createPlaylist(request.params.name, request.params.desc, request.params.imgSrc)
-      .then((data) => {
-        event.reply(request.responseChannel, data)
-      })
-      .catch((e) => {
-        console.error(e)
-        event.reply(request.responseChannel)
-      })
+    try {
+      const data = SongDB.createPlaylist(request.params.name, request.params.desc, request.params.imgSrc)
+      event.reply(request.responseChannel, data)
+    } catch (e) {
+      console.error(e)
+      event.reply(request.responseChannel)
+    }
   }
+
   private addToPlaylist(event: Electron.IpcMainEvent, request: IpcRequest) {
     SongDB.addToPlaylist(request.params.playlist_id, ...request.params.song_ids)
       .then((data) => {

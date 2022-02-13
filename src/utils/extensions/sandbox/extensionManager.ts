@@ -7,7 +7,6 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { ExtensionFactory } from '@moosync/moosync-types';
 import { ExtensionRequestGenerator } from './api';
 import { InMemoryRegistry } from './extensionRegistry';
 import { NodeVM } from 'vm2';
@@ -40,17 +39,18 @@ export class ExtensionManager extends AbstractExtensionManager {
     this.extensionRegistry.deregister(packageName)
   }
 
-  private getVM(entryFilePath: string) {
+  private async getVM(entryFilePath: string) {
     const events = require('events');
     const vm = new NodeVM({
       console: 'inherit',
       sandbox: {},
       env: process.env,
+      nesting: true,
       require: {
         external: true,
         context: 'sandbox',
         builtin: ['*'],
-        root: path.dirname(entryFilePath),
+        root: [path.dirname(entryFilePath)],
         mock: {
           events
         },
@@ -77,17 +77,21 @@ export class ExtensionManager extends AbstractExtensionManager {
     return readFile(path, { flag: 'rs', encoding: 'utf-8' })
   }
 
-  private async checkExtValidityAndGetInstance(modulePath: string): Promise<{ vm: NodeVM, factory: ExtensionFactory } | undefined> {
+  private async checkExtValidityAndGetInstance(entryFilePath: string): Promise<{ vm: NodeVM, factory: ExtensionFactory } | undefined> {
     try {
-      const file = await this.readFileNoCache(modulePath)
-      const vm = this.getVM(modulePath)
-      const extension = vm.run(file)
+      const file = await this.readFileNoCache(entryFilePath)
+      const vm = await this.getVM(entryFilePath)
+      const extension = vm.run(file, entryFilePath)
 
-      if (typeof extension !== 'function') {
-        return
+      let instance: any
+
+      if (typeof extension === 'function') {
+        instance = new extension()
       }
 
-      const instance = new extension()
+      if (typeof extension === 'object') {
+        instance = new extension.default()
+      }
 
       if (!Array.isArray(instance.extensionDescriptors)) {
         return
@@ -116,6 +120,7 @@ export class ExtensionManager extends AbstractExtensionManager {
 
       const preferences = vmObj.factory.registerPreferences ? await vmObj.factory.registerPreferences() : []
       const instance = await vmObj.factory.create()
+
       this.register({
         name: extension.name,
         desc: extension.desc,

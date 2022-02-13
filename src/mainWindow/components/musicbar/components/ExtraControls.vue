@@ -35,7 +35,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import VolumeIcon from '@/icons/Volume.vue'
 import ExpandIcon from '@/icons/Expand.vue'
 import { vxm } from '@/mainWindow/store'
-import Timestamp from './Timestamp.vue'
+import Timestamp from '@/mainWindow/components/musicbar/components/Timestamp.vue'
 
 @Component({
   components: {

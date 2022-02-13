@@ -14,6 +14,8 @@ import axios from 'axios';
 import { cache } from '@/utils/ui/providers/generics/genericProvider';
 import md5 from 'md5'
 import { vxm } from '@/mainWindow/store';
+import { bus } from '@/mainWindow/main';
+import { EventBus } from '@/utils/main/ipc/constants';
 
 const AUTH_BASE_URL = 'https://www.last.fm/api/'
 const API_BASE_URL = 'https://ws.audioscrobbler.com/2.0'
@@ -132,11 +134,12 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
 
   public async login() {
     if (!this._session) {
+      bus.$emit(EventBus.SHOW_OAUTH_MODAL, 'LastFM')
       if (!this.oAuthChannel) {
         this.oAuthChannel = await window.WindowUtils.registerOAuthCallback('lastfmcallback')
       }
 
-      return new Promise<boolean>((resolve) => {
+      const resp = await new Promise<boolean>((resolve) => {
         window.WindowUtils.listenOAuth(this.oAuthChannel!, async (data) => {
           const url = new URL(data)
           const token = url.searchParams.get('token')
@@ -154,6 +157,9 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
 
         window.WindowUtils.openExternal(AUTH_BASE_URL + `auth/?api_key=${this._config?.key}&cb=https://moosync.app/lastfm`)
       })
+
+      bus.$emit(EventBus.HIDE_OAUTH_MODAL)
+      return resp
     } else {
       return true
     }
@@ -252,7 +258,7 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
               title: parsed.name,
               artists: [parsed.artist?.name],
               duration: song.duration,
-              date_added: Date.now().toString(),
+              date_added: Date.now(),
               song_coverPath_high: this.getCoverImage(parsed, true),
               song_coverPath_low: this.getCoverImage(parsed, false),
               url,

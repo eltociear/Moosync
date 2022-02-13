@@ -20,36 +20,36 @@
       <template #header>
         <div class="d-flex w-100 mt-3 justify-content-between">
           <Toggle class="toggle" @click.native="toggleOpen()" />
-          <!-- <Rooms id="rooms" v-if="showRoomsButton" /> -->
-          <!-- <b-popover
-          v-if="showRoomsButton"
-          :target="`rooms`"
-          placement="rightbottom"
-          title="Rooms"
-          triggers="focus"
-          :content="`Placement hello`"
-        >
-          <div>
-            <b-tabs content-class="mt-3">
-              <b-tab title="Join" active>
-                <b-form-input
-                  v-model="roomInput"
-                  :formatter="formatter"
-                  class="inputtext"
-                  placeholder="Enter room ID"
-                  aria-label="room id"
-                />
-                <button v-on:click="joinRoom()">Join room</button>
-                <h3>{{ roomID }}</h3>
-              </b-tab>
-              <b-tab title="Create">
-                <button v-on:click="createRoom()">Create Room</button>
-                <h3>{{ roomID }}</h3>
-              </b-tab>
-            </b-tabs>
-            <div></div>
-          </div>
-        </b-popover> -->
+          <Rooms class="rooms-button" id="rooms" v-if="showRoomsButton" />
+          <b-popover
+            v-if="showRoomsButton"
+            :target="`rooms`"
+            placement="rightbottom"
+            title="Rooms"
+            triggers="focus"
+            :content="`Placement hello`"
+          >
+            <div>
+              <b-tabs content-class="mt-3">
+                <b-tab title="Join" active>
+                  <b-form-input
+                    v-model="roomInput"
+                    :formatter="formatter"
+                    class="inputtext"
+                    placeholder="Enter room ID"
+                    aria-label="room id"
+                  />
+                  <button v-on:click="joinRoom">Join room</button>
+                  <h3>{{ roomID }}</h3>
+                </b-tab>
+                <b-tab title="Create">
+                  <button v-on:click="createRoom">Create Room</button>
+                  <h3>{{ roomID }}</h3>
+                </b-tab>
+              </b-tabs>
+              <div></div>
+            </div>
+          </b-popover>
         </div>
       </template>
       <template #default>
@@ -64,10 +64,10 @@
 <script lang="ts">
 import Rooms from '@/icons/Rooms.vue'
 import Toggle from '@/icons/Toggle.vue'
-import Tabs from '@/mainWindow/components/sidebar/Tabs.vue'
+import Tabs from '@/mainWindow/components/sidebar/components/Tabs.vue'
 import { PeerMode } from '@/mainWindow/store/syncState'
 import { Component, Vue } from 'vue-property-decorator'
-import { vxm } from '../store'
+import { vxm } from '@/mainWindow/store'
 
 @Component({
   components: {
@@ -134,4 +134,8 @@ export default class Sidebar extends Vue {
 
 .extra-margin-top
   margin-top: 1rem
+
+.rooms-button
+  width: 30px
+  height: 30px
 </style>

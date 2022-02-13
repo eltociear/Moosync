@@ -36,7 +36,7 @@ import SpotifyIcon from '@/icons/Spotify.vue'
 import LastFMIcon from '@/icons/LastFM.vue'
 import Person from '@/icons/Person.vue'
 import { Component, Vue } from 'vue-property-decorator'
-import ConfirmationModal from '../../../commonComponents/ConfirmationModal.vue'
+import ConfirmationModal from '@/commonComponents/ConfirmationModal.vue'
 import { mixins } from 'vue-class-component'
 import AccountsMixin from '@/utils/ui/mixins/AccountsMixin'
 

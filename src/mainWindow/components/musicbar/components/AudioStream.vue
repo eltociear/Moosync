@@ -24,7 +24,7 @@ import { Player } from '@/utils/ui/players/player'
 import { YoutubePlayer } from '@/utils/ui/players/youtube'
 import { LocalPlayer } from '@/utils/ui/players/local'
 import SyncMixin from '@/utils/ui/mixins/SyncMixin'
-import { vxm } from '../store'
+import { vxm } from '@/mainWindow/store'
 import ErrorHandler from '@/utils/ui/mixins/errorHandler'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import Vue from 'vue'
@@ -77,10 +77,14 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    */
   private ignoreStateChange = false
 
+  private stateChangeQueued = false
+
   /**
    * True is playerstate is set to be 'PLAYING' ignoring its previous value on new song load
    */
   private forcePlay = false
+
+  private _bufferTrap: ReturnType<typeof setTimeout> | undefined
 
   get songRepeat() {
     return vxm.player.Repeat
@@ -96,11 +100,15 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    */
   async onPlayerStateChanged(newState: PlayerState) {
     if (!this.ignoreStateChange) {
+      if (vxm.player.loading) {
+        this.stateChangeQueued = true
+        return
+      }
       await this.handleActivePlayerState(newState)
+      this.emitPlayerState(newState)
     }
 
     this.ignoreStateChange = false
-    this.emitPlayerState(newState)
   }
 
   /**
@@ -188,7 +196,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       // Re load entire audio instead of setting current time to 0
       this.loadAudio(this.currentSong!, false)
     } else {
-      await vxm.player.nextSong()
+      this.nextSong()
     }
   }
 
@@ -212,6 +220,9 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       // Cued event of youtube embed seems to fire only once and is not reliable
       // Stop loading when state of player changes
       vxm.player.loading = false
+      this.cancelBufferTrap()
+
+      console.trace(state)
 
       if (state === 'STOPPED') {
         this.onSongEnded()
@@ -226,13 +237,45 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
     this.activePlayer.onLoad = () => {
       vxm.player.loading = false
+      this.cancelBufferTrap()
     }
 
     this.activePlayer.onBuffer = () => {
       vxm.player.loading = true
+      this.setBufferTrap()
     }
 
     vxm.player.$watch('volume', this.onVolumeChanged)
+    vxm.player.$watch('loading', (newVal) => {
+      if (!newVal && this.stateChangeQueued) {
+        this.onPlayerStateChanged(vxm.player.playerState)
+        this.stateChangeQueued = false
+      }
+    })
+  }
+
+  /**
+   * If the player is buffering for a long time then try changing its playback quality
+   */
+  private setBufferTrap() {
+    if (!this._bufferTrap) {
+      this._bufferTrap = setTimeout(() => {
+        if (this.activePlayerType === 'YOUTUBE' && this.activePlayer instanceof YoutubePlayer) {
+          this.activePlayer.setPlaybackQuality('small')
+          this.pause()
+          Vue.nextTick(() => this.play())
+
+          console.log('triggered buffer trap')
+        }
+      }, 3000)
+    }
+  }
+
+  private cancelBufferTrap() {
+    if (this._bufferTrap) {
+      clearTimeout(this._bufferTrap)
+      this._bufferTrap = undefined
+    }
   }
 
   private registerListeners() {
@@ -246,7 +289,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    * Sets current player's state to vuex player state
    */
   private handleFirstPlayback(loadedState: boolean) {
-    if (this.isFirst || vxm.player.queue.order.length === 1) {
+    if (this.isFirst || vxm.player.queueOrder.length === 1) {
       if (!loadedState) {
         vxm.player.playerState = 'PLAYING'
       }
@@ -295,8 +338,27 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
   }
 
+  private async getLocalSong(songID: string) {
+    const songs = await window.SearchUtils.searchSongsByOptions({
+      song: {
+        _id: songID
+      }
+    })
+
+    if (songs.length > 0) {
+      return songs[0]
+    }
+  }
+
   private async loadAudio(song: Song, loadedState: boolean) {
     this.unloadAudio()
+
+    if (this.isSyncing) {
+      const tmp = await this.getLocalSong(song._id)
+      if (tmp) {
+        song = tmp
+      }
+    }
 
     if (song.type === 'LOCAL') {
       this.onPlayerTypeChanged('LOCAL')
@@ -315,13 +377,18 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
         const res = await this.getPlaybackUrlAndDuration(song)
         if (res) {
           // Shouldn't react on property set normally
-          vxm.player.currentSong!.duration = res.duration
-          Vue.set(song, 'playbackUrl', res.url)
+          if (!this.isSyncing) {
+            vxm.player.currentSong!.duration = res.duration
+            Vue.set(vxm.player.currentSong!, 'playbackUrl', res.url)
+          } else {
+            vxm.sync.currentSong!.duration = res.duration
+            Vue.set(vxm.sync.currentSong!, 'playbackUrl', res.url)
+          }
         }
         return
       }
 
-      this.activePlayer.load(song.playbackUrl, this.volume, this.playerState === 'PLAYING')
+      this.activePlayer.load(song.playbackUrl, this.volume, this.playerState !== 'PAUSED')
     }
 
     if (this.forcePlay) {
@@ -329,7 +396,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       vxm.player.playerState = 'PLAYING'
     }
 
-    if (this.handleBroadcasterAudioLoad(song)) return
+    if (this.handleBroadcasterAudioLoad()) return
 
     this.handleFirstPlayback(loadedState)
 

@@ -26,7 +26,7 @@ export function toSong(...item: ytMusic.MusicVideo[]): Song[] {
       artists: s.artists?.map(val => val.name) ?? [],
       duration: s.duration!.totalSeconds,
       url: s.youtubeId,
-      date_added: Date.now().toString(),
+      date_added: Date.now(),
       type: 'YOUTUBE',
     })
   }

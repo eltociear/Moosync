@@ -35,7 +35,13 @@ jobs:
           xcode-version: latest-stable
 
       - if: ${{ runner.os == 'Linux' }}
-        run: sudo apt-get update -y && sudo apt-get install -y libarchive-tools
+        name: Install Archlinux
+        run: curl -L https://github.com/zaoqi/github-actions-archlinux/raw/master/install.sh | sh
+
+      - if: ${{ runner.os == 'Linux' }}
+        name: Setup deps
+        run: |
+          sudo pacman --noconfirm -Syu electron16-bin libarchive
 
       - name: yarn install
         run: yarn install

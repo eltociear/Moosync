@@ -79,6 +79,7 @@ export enum WindowEvents {
 
   IS_MAXIMIZED = 'isMaximized',
   HAS_FRAME = 'hasFrame',
+  SHOW_TITLEBAR_ICONS = 'showTitlebarIcons',
 
   GOT_EXTRA_ARGS = 'gotExtraArgs'
 }
@@ -152,6 +153,8 @@ export enum EventBus {
   SHOW_PLAYLIST_FROM_URL_MODAL = 'show-playlist-from-url',
   SHOW_SETUP_MODAL = 'show-setup-modal',
   SHOW_SONG_INFO_MODAL = 'show-song-info-modal',
+  SHOW_OAUTH_MODAL = 'show-oauth-modal',
+  HIDE_OAUTH_MODAL = 'hide-oauth-modal',
   REFRESH_USERNAMES = 'refresh-usernames',
   REFRESH_PAGE = 'refresh-page',
 }

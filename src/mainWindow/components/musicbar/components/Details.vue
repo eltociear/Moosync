@@ -48,7 +48,7 @@ import { Component, Prop, Watch } from 'vue-property-decorator'
 import SongDefault from '@/icons/SongDefault.vue'
 import ImageLoader from '@/utils/ui/mixins/ImageLoader'
 import ErrorHandler from '@/utils/ui/mixins/errorHandler'
-import Timestamp from './Timestamp.vue'
+import Timestamp from '@/mainWindow/components/musicbar/components/Timestamp.vue'
 import FileMixin from '@/utils/ui/mixins/FileMixin'
 
 @Component({

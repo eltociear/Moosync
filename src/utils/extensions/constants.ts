@@ -7,7 +7,6 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { MoosyncExtensionTemplate } from '@moosync/moosync-types';
 
 export const extensionEventsKeys: (keyof MoosyncExtensionTemplate)[] = ['onSongChanged', 'onPlayerStateChanged', 'onSongQueueChanged', 'onVolumeChanged', 'onPreferenceChanged', 'onSeeked']
 export const extensionRequestsKeys = ['get-songs', 'get-preferences', 'set-preferences'] as const

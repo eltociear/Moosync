@@ -20,22 +20,26 @@ export class LocalPlayer extends Player {
 
   load(src?: string, volume?: number, autoplay?: boolean): void {
     src && (this.playerInstance.src = src)
+    this.playerInstance.load()
     volume && (this.volume = volume);
     autoplay && this.play()
   }
 
   async play(): Promise<void> {
-    return this.playerInstance.play()
+    if (this.playerInstance.paused)
+      await this.playerInstance.play()
   }
 
   pause(): void {
-    return this.playerInstance.pause()
+    if (!this.playerInstance.paused)
+      this.playerInstance.pause()
   }
 
   stop(): void {
     this.playerInstance.removeAttribute('src')
     this.playerInstance.srcObject = null
     this.playerInstance.load()
+
   }
 
   get currentTime(): number {
@@ -64,7 +68,7 @@ export class LocalPlayer extends Player {
   }
 
   protected listenOnLoad(): void {
-    this.playerInstance.oncanplay = this.onLoadCallback!
+    this.playerInstance.onload = this.onLoadCallback!
   }
 
   protected listenOnError(): void {

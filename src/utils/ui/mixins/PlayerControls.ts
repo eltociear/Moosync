@@ -23,26 +23,30 @@ export default class PlayerControls extends Vue {
   }
 
   public nextSong() {
-    if (this.isSyncing) vxm.sync.setQueueIndex(vxm.sync.queueIndex + 1)
-    else vxm.player.nextSong().catch((err) => console.error(err))
+    if (this.isSyncing) vxm.sync.nextSong()
+    else vxm.player.nextSong()
   }
 
   public prevSong() {
-    if (this.isSyncing) vxm.sync.setQueueIndex(vxm.sync.queueIndex - 1)
-    else vxm.player.prevSong().catch((err) => console.error(err))
+    if (this.isSyncing) vxm.sync.prevSong()
+    else vxm.player.prevSong()
   }
 
   public async queueSong(songs: Song[]) {
-    if (this.isSyncing) await vxm.sync.addToLocalQueue(songs).catch((err) => console.error(err))
-    else await vxm.player.pushInQueue(songs).catch((err) => console.error(err))
+    if (this.isSyncing) {
+      await vxm.sync.pushInQueue({ item: songs, top: false })
+    } else {
+      await vxm.player.pushInQueue({ item: songs, top: false })
+    }
 
     this.$toasted.show(`Queued ${songs.length} song${songs.length !== 1 ? 's' : ''}`)
   }
 
   public async playTop(songs: Song[]) {
-    if (this.isSyncing) await vxm.sync.addToLocalQueue(songs)
-    else {
-      await vxm.player.pushInQueueTop(songs.slice(0))
+    if (this.isSyncing) {
+      await vxm.sync.pushInQueue({ item: songs.slice(), top: true })
+    } else {
+      await vxm.player.pushInQueue({ item: songs.slice(), top: true })
     }
 
     if (!this.isSyncing) this.play()
@@ -51,11 +55,11 @@ export default class PlayerControls extends Vue {
   }
 
   public play() {
-    if (!vxm.player.loading) vxm.player.playerState = 'PLAYING'
+    vxm.player.playerState = 'PLAYING'
   }
 
   public pause() {
-    if (!vxm.player.loading) vxm.player.playerState = 'PAUSED'
+    vxm.player.playerState = 'PAUSED'
   }
 
   public shuffle() {
@@ -78,7 +82,11 @@ export default class PlayerControls extends Vue {
   }
 
   public playFromQueue(index: number) {
-    vxm.player.playQueueSong(index).catch((err) => console.error(err))
+    if (this.isSyncing) {
+      vxm.sync.playQueueSong(index)
+    } else {
+      vxm.player.playQueueSong(index)
+    }
   }
 
   public removeFromQueue(index: number) {
