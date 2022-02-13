@@ -20,7 +20,7 @@
       <template #header>
         <div class="d-flex w-100 mt-3 justify-content-between">
           <Toggle class="toggle" @click.native="toggleOpen()" />
-          <Rooms class="rooms-button" id="rooms" v-if="showRoomsButton" />
+          <!-- <Rooms class="rooms-button" id="rooms" v-if="showRoomsButton" />
           <b-popover
             v-if="showRoomsButton"
             :target="`rooms`"
@@ -49,7 +49,7 @@
               </b-tabs>
               <div></div>
             </div>
-          </b-popover>
+          </b-popover> -->
         </div>
       </template>
       <template #default>

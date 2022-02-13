@@ -37,18 +37,18 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   }
 
   created() {
-    this.peerHolder.initialize().then(() => {
-      this.peerHolder.start()
-      vxm.sync.socketID = this.peerHolder.socketID
-      console.log('initialized', vxm.sync.socketID)
-      this._resolve()
-    }).catch(err => {
-      this._reject(err)
-    })
+    // this.peerHolder.initialize().then(() => {
+    //   this.peerHolder.start()
+    //   vxm.sync.socketID = this.peerHolder.socketID
+    //   console.log('initialized', vxm.sync.socketID)
+    //   this._resolve()
+    // }).catch(err => {
+    //   this._reject(err)
+    // })
   }
 
   mounted() {
-    this.initialized.then(this.syncListeners).catch(err => console.error(err))
+    // this.initialized.then(this.syncListeners).catch(err => console.error(err))
   }
 
   get isWatching() {
