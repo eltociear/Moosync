@@ -49,7 +49,7 @@
               <div :title="subtitle" class="subtitle text-truncate">
                 {{ subtitle }}
               </div>
-              <div :title="currentSubSubTitle ? currentSubSubTitle : ''" class="subtitle text-truncate">
+              <div :title="subSubTitle" class="subtitle text-truncate">
                 {{ subSubTitle }}
               </div>
             </div>
@@ -57,13 +57,10 @@
           <b-row no-gutters align-v="end" class="flex-fill mt-2">
             <b-col>
               <div v-if="buttonGroup.enableContainer" class="button-group d-flex">
-                <PlainPlay :title="`Play ${currentTitle ? currentTitle : defaultTitle}`" @click.native="playAll" />
-                <AddToQueue
-                  :title="`Add ${currentTitle ? currentTitle : defaultTitle} to queue`"
-                  @click.native="addToQueue"
-                />
+                <PlainPlay :title="`Play ${title}`" @click.native="playAll" />
+                <AddToQueue :title="`Add ${title} to queue`" @click.native="addToQueue" />
                 <AddToLibrary
-                  :title="`Add ${currentTitle ? currentTitle : defaultTitle} to library`"
+                  :title="`Add ${title} to library`"
                   @click.native="addToLibrary"
                   v-if="buttonGroup.enableLibraryStore"
                 />
@@ -88,6 +85,7 @@ import SpotifyIcon from '@/icons/SpotifyIcon.vue'
 import ErrorHandler from '@/utils/ui/mixins/errorHandler'
 import ImageLoader from '@/utils/ui/mixins/ImageLoader'
 import FileMixin from '@/utils/ui/mixins/FileMixin'
+import { convertDuration } from '@/utils/common'
 
 @Component({
   components: {
@@ -131,6 +129,12 @@ export default class SongDetails extends mixins(ImageLoader, ErrorHandler, FileM
   @Watch('currentSong')
   onSongchange() {
     this.subtitle = this.getConcatedSubtitle()
+  }
+
+  get subSubTitle() {
+    return (
+      (this.currentSong && convertDuration(this.currentSong.duration)) ?? this.defaultDetails?.defaultSubSubtitle ?? ''
+    )
   }
 
   get title() {
