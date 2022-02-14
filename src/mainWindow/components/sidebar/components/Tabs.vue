@@ -10,33 +10,37 @@
 <template>
   <div class="d-flex flex-column">
     <router-link
-      v-for="item in componentNames"
+      v-for="item in navigationTabs"
       v-bind:key="item.link"
       :to="{ path: item.link }"
       custom
       v-slot="{ navigate, isActive }"
     >
-      <div class="d-flex button-bar" v-on:click="navigate" v-bind:class="{ 'button-active': isActive }">
+      <div
+        class="d-flex button-bar"
+        v-on:click="getOnClick(item, navigate, ...arguments)"
+        v-bind:class="{ 'button-active': item.custom ? false : isActive }"
+      >
         <div
           class="whitebar"
           v-bind:class="{
-            'whitebar-active': isActive
+            'whitebar-active': item.custom ? false : isActive
           }"
-          v-if="isActive"
+          v-if="item.custom ? false : isActive"
         ></div>
         <div
           class="d-flex align-items-center icon-transition icon-padding-open"
           v-bind:class="{
-            'icon-active': isActive
+            'icon-active': item.custom ? false : isActive
           }"
         >
           <div class="icon">
-            <component :active="isActive" v-bind:is="item.component"></component>
+            <component :active="item.custom ? false : isActive" v-bind:is="item.component"></component>
           </div>
           <div
             class="text-padding text-format"
             v-bind:class="{
-              'text-active': isActive
+              'text-active': item.custom ? false : isActive
             }"
           >
             {{ item.title }}
@@ -59,7 +63,9 @@ import Albums from '@/icons/Albums.vue'
 import Toggle from '@/icons/Toggle.vue'
 import Rooms from '@/icons/Rooms.vue'
 import Explore from '@/icons/Explore.vue'
+import Queue from '@/icons/Queue.vue'
 import { vxm } from '@/mainWindow/store'
+import { bus } from '@/mainWindow/main'
 
 @Component({
   components: {
@@ -71,11 +77,13 @@ import { vxm } from '@/mainWindow/store'
     Albums,
     Toggle,
     Rooms,
-    Explore
+    Explore,
+    Queue
   }
 })
 export default class Sidebar extends Vue {
   private componentNames = [
+    { component: 'Queue', title: 'Queue', link: './', custom: this.openQueue.bind(this) },
     { component: 'AllSongs', title: 'All Songs', link: '/songs' },
     { component: 'Playlists', title: 'Playlists', link: '/playlists' },
     { component: 'Albums', title: 'Albums', link: '/albums' },
@@ -87,6 +95,26 @@ export default class Sidebar extends Vue {
 
   private get showExplore() {
     return vxm.providers.loggedInSpotify || vxm.providers.loggedInYoutube || vxm.providers.loggedInLastFM
+  }
+
+  get navigationTabs() {
+    return this.componentNames.filter((val) => typeof val.link === 'string')
+  }
+
+  get methodTabs() {
+    return this.componentNames.filter((val) => typeof val.link === 'function')
+  }
+
+  private getOnClick(item: typeof this.componentNames[0], navigate: (...args: any[]) => void, ...args: any[]) {
+    if (item.custom) {
+      item.custom()
+      return
+    }
+    navigate(...args)
+  }
+
+  private openQueue() {
+    bus.$emit('onToggleSlider', true)
   }
 
   @Prop({ default: true })
