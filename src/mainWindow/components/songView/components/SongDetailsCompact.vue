@@ -103,8 +103,6 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   })
   private buttonGroup!: SongDetailButtons
 
-  private forceEmptyImg = false
-
   get computedImg() {
     return (
       this.forceCover ?? this.getImgSrc(this.getValidImageHigh(this.currentSong) ?? this.defaultDetails?.defaultCover)
@@ -143,15 +141,6 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
 
   private getConcatedSubtitle() {
     return this.getParsedSubtitle() ?? this.defaultDetails?.defaultSubtitle ?? ''
-  }
-
-  @Watch('src')
-  private onSrcChange() {
-    this.forceEmptyImg = false
-  }
-
-  private handleCoverError() {
-    this.forceEmptyImg = true
   }
 
   private playAll() {
