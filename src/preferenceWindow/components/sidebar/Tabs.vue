@@ -50,7 +50,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { ActiveTab } from '@/utils/ui/enums'
-import Extensions from '@//icons/Extensions.vue'
+import Extensions from '@/icons/Extensions.vue'
 import Paths from '@/icons/Paths.vue'
 import System from '@/icons/System.vue'
 import Themes from '@/icons/Themes.vue'
