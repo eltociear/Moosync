@@ -11,6 +11,10 @@ import { IpcEvents, PreferenceEvents } from './constants';
 import { getActiveTheme, getSongView, loadAllThemes, loadSelectivePreference, loadTheme, onPreferenceChanged, removeSelectivePreference, removeTheme, saveSelectivePreference, saveTheme, setActiveTheme, setSongView } from '../db/preferences';
 
 import { WindowHandler } from '../windowManager';
+import { mkdir, readFile, rm } from 'fs/promises';
+import path from 'path/posix';
+import sharp from 'sharp';
+import { app } from 'electron';
 
 export class PreferenceChannel implements IpcChannelInterface {
   name = IpcEvents.PREFERENCES
@@ -102,9 +106,37 @@ export class PreferenceChannel implements IpcChannelInterface {
       if (theme || request.params.id === 'default') {
         setActiveTheme(request.params.id)
         WindowHandler.getWindow(true)?.webContents.send(PreferenceEvents.THEME_REFRESH, theme)
+        this.generateIconFile(theme)
       }
     }
     event.reply(request.responseChannel)
+  }
+
+  private async generateIconFile(theme?: ThemeDetails) {
+    const iconPath = path.join(app.getPath('appData'), 'moosync', 'trayIcon', 'icon.png')
+
+    if (theme) {
+      const buffer = Buffer.from(`<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <mask id="mask0_1117_3644" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512">
+        <circle cx="256" cy="256" r="256" fill="#C4C4C4"/>
+        </mask>
+        <g mask="url(#mask0_1117_3644)">
+        <rect width="512" height="512" rx="48" fill="${theme.theme.secondary}"/>
+        <mask id="mask1_1117_3644" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="-12" y="-16" width="512" height="512">
+        <rect x="-12" y="-16" width="512" height="512" rx="48" fill="${theme.theme.primary}"/>
+        </mask>
+        <g mask="url(#mask1_1117_3644)">
+        <path d="M179.041 201.58V350.777C179.041 364.584 167.848 375.777 154.041 375.777C140.234 375.777 129.041 364.584 129.041 350.777V185.777C129.041 154.849 154.113 129.777 185.041 129.777H321.041C351.969 129.777 377.041 154.849 377.041 185.777V351.771C377.041 366.134 365.397 377.777 351.034 377.777C336.676 377.777 325.035 366.142 325.027 351.784L324.948 201.551C324.942 188.419 314.294 177.777 301.163 177.777C288.026 177.777 277.377 188.427 277.377 201.563V253.292C277.377 267.301 266.02 278.658 252.011 278.658C238.002 278.658 226.645 267.301 226.645 253.292V201.58C226.645 188.434 215.989 177.777 202.843 177.777C189.698 177.777 179.041 188.434 179.041 201.58Z" fill="${theme.theme.accent}"/>
+        </g>
+        </g>
+        </svg>`)
+
+      await mkdir(path.dirname(iconPath), { recursive: true })
+      const size = process.platform === 'darwin' ? 18 : 512
+      await sharp(buffer).png().resize(size, size).toFile(iconPath);
+    } else {
+      await rm(iconPath)
+    }
   }
 
   private getActiveTheme(event: Electron.IpcMainEvent, request: IpcRequest) {

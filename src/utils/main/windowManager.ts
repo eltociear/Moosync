@@ -14,6 +14,7 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 
 import { BrowserWindowConstructorOptions } from 'electron/main';
 import path from 'path';
+import { access } from 'fs/promises';
 
 export class WindowHandler {
   private static mainWindow: number
@@ -251,8 +252,15 @@ class TrayHandler {
   private _tray: Tray | null = null
 
   public createTray() {
-    if (!this._tray || this._tray?.isDestroyed())
-      this._tray = new Tray(path.join(__static, process.platform === 'darwin' ? 'logo_osx.png' : 'logo.png'))
+    if (!this._tray || this._tray?.isDestroyed()) {
+      try {
+        const iconPath = path.join(app.getPath('appData'), 'moosync', 'trayIcon', 'icon.png')
+        access(iconPath)
+        this._tray = new Tray(iconPath)
+      } catch (e) {
+        this._tray = new Tray(path.join(__static, process.platform === 'darwin' ? 'logo_osx.png' : 'logo.png'))
+      }
+    }
     this.setupListeners()
     this.setupContextMenu()
   }
