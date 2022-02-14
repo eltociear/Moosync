@@ -7,7 +7,7 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { Component, Watch } from 'vue-property-decorator';
+import { Component } from 'vue-property-decorator';
 import ImgLoader from '@/utils/ui/mixins/ImageLoader';
 import ModelHelper from '@/utils/ui/mixins/ModelHelper';
 import { PeerMode } from '@/mainWindow/store/syncState';

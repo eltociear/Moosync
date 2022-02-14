@@ -9,7 +9,7 @@
 
 import { ChildProcess, fork } from 'child_process';
 import { app, ipcMain } from 'electron';
-import { extensionRequestsKeys, extensionUIRequestsKeys, mainRequests } from '@/utils/extensions/constants';
+import { extensionUIRequestsKeys, mainRequests } from '@/utils/extensions/constants';
 import { loadSelectivePreference, saveSelectivePreference } from '../main/db/preferences';
 
 import { ExtensionHostEvents } from '@/utils/main/ipc/constants';

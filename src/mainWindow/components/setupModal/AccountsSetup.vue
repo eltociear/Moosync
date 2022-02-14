@@ -39,7 +39,6 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 import { Component } from 'vue-property-decorator'
 import Logo from '@/icons/Logo.vue'
 import DirectoryGroup from '@/preferenceWindow/components/DirectoryGroup.vue'

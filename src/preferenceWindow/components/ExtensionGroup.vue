@@ -40,7 +40,6 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import Tooltip from '@/commonComponents/Tooltip.vue'
 import DeleteModal from '../../commonComponents/ConfirmationModal.vue'
 import PreferenceHeader from './PreferenceHeader.vue'
 @Component({

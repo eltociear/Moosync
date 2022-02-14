@@ -8,7 +8,7 @@
  */
 
 import { IpcEvents, PlaylistEvents } from './constants'
-import { getDisabledPaths, loadPreferences } from '@/utils/main/db/preferences'
+import { loadPreferences } from '@/utils/main/db/preferences'
 
 import { SongDB } from '@/utils/main/db'
 import fs from 'fs'

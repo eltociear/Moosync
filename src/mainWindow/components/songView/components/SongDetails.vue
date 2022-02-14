@@ -78,7 +78,7 @@
 
 <script lang="ts">
 import { mixins } from 'vue-class-component'
-import { Component, Prop, Ref, Watch } from 'vue-property-decorator'
+import { Component, Prop, Watch } from 'vue-property-decorator'
 import SongDefault from '@/icons/SongDefault.vue'
 import PlainPlay from '@/icons/PlainPlay.vue'
 import AddToLibrary from '@/icons/AddToLibrary.vue'

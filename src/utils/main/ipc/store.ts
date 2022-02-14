@@ -11,7 +11,6 @@ import { loadSelectivePreference, removeSelectivePreference, saveSelectivePrefer
 
 import { IpcEvents } from './constants'
 import { StoreEvents } from '@/utils/main/ipc/constants'
-import os from 'os'
 import { safeStorage } from 'electron'
 
 export class StoreChannel implements IpcChannelInterface {

@@ -12,7 +12,6 @@ import DB, { BetterSqlite3Helper } from 'better-sqlite3-helper'
 import { app } from 'electron'
 import { migrations } from './migrations'
 import path from 'path'
-import { v4 } from 'uuid'
 
 export class DBUtils {
   protected db: BetterSqlite3Helper.DBInstance

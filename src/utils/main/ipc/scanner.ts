@@ -8,7 +8,7 @@
  */
 
 import { IpcEvents, ScannerEvents } from './constants'
-import { Pool, Thread, TransferDescriptor, Worker, spawn } from 'threads'
+import { Thread, TransferDescriptor, Worker, spawn } from 'threads'
 
 import { IpcMainEvent } from 'electron'
 import { SongDB } from '@/utils/main/db/index'

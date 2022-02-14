@@ -39,7 +39,6 @@ import Refresh from '@/icons/Refresh.vue'
 import Gear from '@/icons/Gear.vue'
 import { EventBus } from '@/utils/main/ipc/constants'
 import { bus } from '../../main'
-import EventEmitter from 'events'
 
 @Component({
   components: {

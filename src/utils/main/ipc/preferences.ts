@@ -11,7 +11,7 @@ import { IpcEvents, PreferenceEvents } from './constants';
 import { getActiveTheme, getSongView, loadAllThemes, loadSelectivePreference, loadTheme, onPreferenceChanged, removeSelectivePreference, removeTheme, saveSelectivePreference, saveTheme, setActiveTheme, setSongView } from '../db/preferences';
 
 import { WindowHandler } from '../windowManager';
-import { mkdir, readFile, rm } from 'fs/promises';
+import { mkdir, rm } from 'fs/promises';
 import path from 'path/posix';
 import sharp from 'sharp';
 import { app } from 'electron';

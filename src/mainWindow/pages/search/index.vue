@@ -46,7 +46,6 @@ import { toSong } from '@/utils/models/youtube'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import ytMusic from 'node-youtube-music'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
-import ArtistsIcon from '@/icons/Artists.vue'
 
 @Component({
   components: {

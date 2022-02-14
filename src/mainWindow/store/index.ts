@@ -18,7 +18,6 @@ import { ThemeStore } from './themes'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { createPersist } from '@/utils/ui/store/persist'
-import { extractVuexSubModule, isFieldASubModule } from 'vuex-class-component/dist/submodule'
 
 Vue.use(Vuex)
 

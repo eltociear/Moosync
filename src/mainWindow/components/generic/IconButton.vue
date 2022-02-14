@@ -51,7 +51,6 @@ export default class IconButton extends mixins(ImageLoader) {
 </script>
 
 <style lang="sass" scoped>
-
 .button-bg
   border-radius: 5px
   width: 187px
@@ -92,7 +91,6 @@ export default class IconButton extends mixins(ImageLoader) {
     transform: scale(10, 10)
     opacity: 0
     transition: transform 0.5s, opacity 1s
-
 
   &:active:after
     transform: scale(0, 0)

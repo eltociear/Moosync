@@ -32,7 +32,6 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
-import { vxm } from '@/mainWindow/store'
 import Welcome from './Welcome.vue'
 import PathSetup from './PathSetup.vue'
 import AccountsSetup from './AccountsSetup.vue'
