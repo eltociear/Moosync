@@ -65,6 +65,8 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     this.listenThemeChanges()
     this.listenExtensionEvents()
     this.listenExtensionRequests()
+
+    this.themeStore = vxm.themes
   }
 
   mounted() {

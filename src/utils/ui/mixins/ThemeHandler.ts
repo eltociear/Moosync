@@ -9,11 +9,11 @@
 
 import { Component } from 'vue-property-decorator'
 import Vue from 'vue'
-import { vxm } from '../../../mainWindow/store/index';
-
+import { ThemeStore } from '@/mainWindow/store/themes'
 @Component
 export default class ThemeHandler extends Vue {
   private root = document.documentElement
+  private _themeStore: ThemeStore | undefined
 
   public setColorsToRoot(theme: ThemeDetails | undefined) {
     const colors = theme?.theme
@@ -25,6 +25,14 @@ export default class ThemeHandler extends Vue {
     }
 
     this.setRGBValues()
+  }
+
+  get themeStore() {
+    return this._themeStore
+  }
+
+  set themeStore(vxm: ThemeStore | undefined) {
+    this._themeStore = vxm
   }
 
   private setRGBValues() {
@@ -49,7 +57,7 @@ export default class ThemeHandler extends Vue {
   }
 
   public fetchSongView() {
-    window.ThemeUtils.getSongView().then((view) => vxm.themes.songView = view)
+    window.ThemeUtils.getSongView().then((view) => this.themeStore && (this._themeStore!.songView = view))
   }
 
   mounted() {
