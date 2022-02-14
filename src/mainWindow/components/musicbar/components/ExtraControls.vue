@@ -36,6 +36,7 @@ import VolumeIcon from '@/icons/Volume.vue'
 import ExpandIcon from '@/icons/Expand.vue'
 import { vxm } from '@/mainWindow/store'
 import Timestamp from '@/mainWindow/components/musicbar/components/Timestamp.vue'
+import { bus } from '@/mainWindow/main'
 
 @Component({
   components: {
@@ -71,8 +72,13 @@ export default class MusicBar extends Vue {
   }
 
   private emitToggleSlider() {
-    this.sliderOpen = !this.sliderOpen
-    this.$emit('onToggleSlider', this.sliderOpen)
+    bus.$emit('onToggleSlider', !this.sliderOpen)
+  }
+
+  mounted() {
+    bus.$on('onToggleSlider', () => {
+      this.sliderOpen = !this.sliderOpen
+    })
   }
 
   get ComputedGradient(): string {
