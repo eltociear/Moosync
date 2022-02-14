@@ -18,8 +18,5 @@ const config: Config.InitialOptions = {
     "@/(.*)": "<rootDir>/src/$1"
   },
   modulePathIgnorePatterns: ["<rootDir>/dist_electron/"],
-  collectCoverageFrom: [
-    "src/**/*.ts",
-  ],
 };
 export default config;
