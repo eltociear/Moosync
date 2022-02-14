@@ -14,9 +14,9 @@
         <div class="h-100">
           <b-img
             @dragstart="dragFile"
-            v-if="(getImgSrc(imgSrc) || getImgSrc(defaultImgSrc)) && !forceEmptyImg"
+            v-if="computedImg"
             class="image h-100"
-            :src="getImgSrc(imgSrc) ? getImgSrc(imgSrc) : getImgSrc(defaultImgSrc)"
+            :src="computedImg"
             @error="handlerImageError(arguments[0], handleError)"
           />
           <SongDefault v-else class="h-100 image" />
@@ -25,10 +25,8 @@
       <b-col class="text-container text-truncate">
         <b-container fluid class="h-100 d-flex flex-column">
           <b-row no-gutters>
-            <b-col :title="currentTitle ? currentTitle : defaultTitle" class="title text-truncate">
-              {{ currentTitle ? currentTitle : defaultTitle }}
-            </b-col>
-            <b-col cols="auto" align-self="center">
+            <b-col cols="auto" :title="title" class="title text-truncate">
+              {{ title }}
               <YoutubeIcon
                 v-if="currentType === 'YOUTUBE'"
                 :color="'#E62017'"
@@ -48,11 +46,11 @@
 
           <b-row no-gutters>
             <div>
-              <div :title="currentsubTitle ? currentsubTitle : defaultsubTitle" class="subtitle text-truncate">
-                {{ currentsubTitle ? currentsubTitle : defaultsubTitle }}
+              <div :title="subtitle" class="subtitle text-truncate">
+                {{ subtitle }}
               </div>
               <div :title="currentSubSubTitle ? currentSubSubTitle : ''" class="subtitle text-truncate">
-                {{ currentSubSubTitle ? currentSubSubTitle : '' }}
+                {{ subSubTitle }}
               </div>
             </div>
           </b-row>
@@ -102,29 +100,16 @@ import FileMixin from '@/utils/ui/mixins/FileMixin'
   }
 })
 export default class SongDetails extends mixins(ImageLoader, ErrorHandler, FileMixin) {
-  @Prop({ default: '' })
-  private currentTitle!: string
+  @Prop({ default: null })
+  private currentSong!: Song | null | undefined
 
-  @Prop({ default: '' })
-  private currentsubTitle!: string
+  private subtitle: string = this.getConcatedSubtitle()
 
-  @Prop({ default: '' })
-  private currentSubSubTitle!: string
+  @Prop({ default: () => {} })
+  private defaultDetails!: SongDetailDefaults | undefined
 
-  @Prop({ default: '' })
-  private imgSrc!: string
-
-  @Prop({ default: 'LOCAL' })
-  private currentType!: string
-
-  @Prop({ default: '' })
-  private defaultTitle!: string
-
-  @Prop({ default: '' })
-  private defaultsubTitle!: string
-
-  @Prop({ default: '' })
-  private defaultImgSrc!: string
+  @Prop({ default: () => undefined })
+  private forceCover!: string
 
   @Prop({
     default: () => {
@@ -136,15 +121,54 @@ export default class SongDetails extends mixins(ImageLoader, ErrorHandler, FileM
   })
   private buttonGroup!: SongDetailButtons
 
-  private handleError() {
-    this.forceEmptyImg = true
+  private forceEmptyImg = false
+
+  get computedImg() {
+    return (
+      this.forceCover ?? this.getImgSrc(this.getValidImageHigh(this.currentSong) ?? this.defaultDetails?.defaultCover)
+    )
   }
 
-  @Watch('imgSrc') onImgSrcChange() {
+  @Watch('defaultDetails')
+  @Watch('currentSong')
+  onSongchange() {
+    this.subtitle = this.getConcatedSubtitle()
+  }
+
+  get title() {
+    return this.currentSong?.title ?? this.defaultDetails?.defaultTitle ?? ''
+  }
+
+  get currentType() {
+    return this.currentSong?.type
+  }
+
+  private isArtistAlbumNotEmpty() {
+    return !!(this.currentSong?.artists && this.currentSong.artists.length > 0 && this.currentSong?.album?.album_name)
+  }
+
+  private getParsedSubtitle() {
+    if (this.currentSong && (this.currentSong.artists?.length || this.currentSong.album?.album_name)) {
+      return (
+        ((this.currentSong?.artists && this.currentSong?.artists?.join(', ')) ?? '') +
+        (this.isArtistAlbumNotEmpty() ? ' - ' : '') +
+        ((this.currentSong?.album && this.currentSong.album.album_name) ?? '')
+      )
+    }
+  }
+
+  private getConcatedSubtitle() {
+    return this.getParsedSubtitle() ?? this.defaultDetails?.defaultSubtitle ?? ''
+  }
+
+  @Watch('src')
+  private onSrcChange() {
     this.forceEmptyImg = false
   }
 
-  public forceEmptyImg: boolean = false
+  private handleCoverError() {
+    this.forceEmptyImg = true
+  }
 
   private playAll() {
     this.$emit('playAll')

@@ -12,15 +12,9 @@
     <b-row align-v="center" class="details-background">
       <SongDetails
         class="details-container h-100"
-        :currentTitle="currentSong ? currentSong.title : ''"
-        :currentsubTitle="getAlbumName(currentSong)"
-        :currentSubSubTitle="defaultDetails.defaultSubSubtitle"
-        :currentType="currentSong ? currentSong.type : 'LOCAL'"
-        :imgSrc="getImgSrc(getValidImageHigh(currentSong))"
-        :defaultTitle="defaultDetails.defaultTitle"
-        :defaultsubTitle="defaultDetails.defaultSubtitle"
-        :defaultImgSrc="defaultDetails.defaultCover"
+        :defaultDetails="defaultDetails"
         :buttonGroup="detailsButtonGroup"
+        :currentSong="currentSong"
         v-on="$listeners"
       />
     </b-row>

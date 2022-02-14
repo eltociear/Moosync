@@ -9,7 +9,7 @@
 
 <template>
   <b-container fluid class="h-100">
-    <b-row no-gutters class="h-100">
+    <b-row no-gutters>
       <b-col class="h-100 position-relative">
         <div class="image-container w-100 h-100">
           <div class="embed-responsive embed-responsive-1by1">
@@ -45,6 +45,19 @@
         </div>
       </b-col>
     </b-row>
+    <b-row no-gutters align-v="end" class="flex-fill mt-2">
+      <b-col>
+        <div v-if="buttonGroup.enableContainer" class="button-group d-flex">
+          <PlainPlay :title="`Play ${title}`" @click.native="playAll" />
+          <AddToQueue :title="`Add ${title} to queue`" @click.native="addToQueue" />
+          <AddToLibrary
+            :title="`Add ${title} to library`"
+            @click.native="addToLibrary"
+            v-if="buttonGroup.enableLibraryStore"
+          />
+        </div>
+      </b-col>
+    </b-row>
   </b-container>
 </template>
 
@@ -56,10 +69,16 @@ import Component, { mixins } from 'vue-class-component'
 import { Prop, Watch } from 'vue-property-decorator'
 import SongDefault from '@/icons/SongDefault.vue'
 import { convertDuration } from '@/utils/common'
+import PlainPlay from '@/icons/PlainPlay.vue'
+import AddToLibrary from '@/icons/AddToLibrary.vue'
+import AddToQueue from '@/icons/AddToQueue.vue'
 
 @Component({
   components: {
-    SongDefault
+    SongDefault,
+    PlainPlay,
+    AddToLibrary,
+    AddToQueue
   }
 })
 export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
@@ -73,6 +92,16 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
 
   @Prop({ default: () => undefined })
   private forceCover!: string
+
+  @Prop({
+    default: () => {
+      return {
+        enableContainer: false,
+        enableLibraryStore: false
+      }
+    }
+  })
+  private buttonGroup!: SongDetailButtons
 
   private forceEmptyImg = false
 
@@ -123,6 +152,18 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
 
   private handleCoverError() {
     this.forceEmptyImg = true
+  }
+
+  private playAll() {
+    this.$emit('playAll')
+  }
+
+  private addToQueue() {
+    this.$emit('addToQueue')
+  }
+
+  private addToLibrary() {
+    this.$emit('addToLibrary')
   }
 }
 </script>
