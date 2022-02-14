@@ -1,7 +1,7 @@
 <!-- 
   Details.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -45,7 +45,7 @@
 <script lang="ts">
 import { mixins } from 'vue-class-component'
 import { Component, Prop, Watch } from 'vue-property-decorator'
-import SongDefault from '@/icons/SongDefault.vue'
+import SongDefault from '@/icons/SongDefaultIcon.vue'
 import ImageLoader from '@/utils/ui/mixins/ImageLoader'
 import ErrorHandler from '@/utils/ui/mixins/errorHandler'
 import Timestamp from '@/mainWindow/components/musicbar/components/Timestamp.vue'

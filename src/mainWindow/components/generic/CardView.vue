@@ -1,7 +1,7 @@
 <!-- 
   CardView.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -46,7 +46,7 @@ import ImageLoader from '@/utils/ui/mixins/ImageLoader'
 import { mixins } from 'vue-class-component'
 import { Component, Prop, Watch } from 'vue-property-decorator'
 import ErrorHandler from '@/utils/ui/mixins/errorHandler'
-import Play2 from '@/icons/Play2.vue'
+import Play2 from '@/icons/PlayIcon2.vue'
 
 @Component({
   components: {

@@ -1,3 +1,12 @@
+<!-- 
+  AccountsSetup.vue is a part of Moosync.
+  
+  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Licensed under the GNU General Public License. 
+  
+  See LICENSE in the project root for license information.
+-->
+
 <template>
   <b-container fluid class="p-0">
     <b-row>
@@ -40,11 +49,11 @@
 
 <script lang="ts">
 import { Component } from 'vue-property-decorator'
-import Logo from '@/icons/Logo.vue'
+import Logo from '@/icons/LogoIcon.vue'
 import DirectoryGroup from '@/preferenceWindow/components/DirectoryGroup.vue'
-import YoutubeBig from '@/icons/YoutubeBig.vue'
-import SpotifyBig from '@/icons/SpotifyBig.vue'
-import LastFMBig from '@/icons/LastFMBig.vue'
+import YoutubeBig from '@/icons/YoutubeBigIcon.vue'
+import SpotifyBig from '@/icons/SpotifyBigIcon.vue'
+import LastFMBig from '@/icons/LastFMBigIcon.vue'
 import { mixins } from 'vue-class-component'
 import AccountsMixin from '@/utils/ui/mixins/AccountsMixin'
 import ConfirmationModal from '../../../commonComponents/ConfirmationModal.vue'

@@ -1,7 +1,7 @@
 <!-- 
   SingleSearchResult.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -46,10 +46,10 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from 'vue-property-decorator'
-import Play2 from '@/icons/Play2.vue'
+import Play2 from '@/icons/PlayIcon2.vue'
 import { mixins } from 'vue-class-component'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
-import SongDefault from '@/icons/SongDefault.vue'
+import SongDefault from '@/icons/SongDefaultIcon.vue'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 
 @Component({

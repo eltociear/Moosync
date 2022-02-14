@@ -1,7 +1,7 @@
 <!-- 
   Extensions.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -70,8 +70,8 @@ import EditText from '../EditText.vue'
 import DirectoryGroup from '../DirectoryGroup.vue'
 import FilePicker from '../FilePicker.vue'
 import CheckboxGroup from '../CheckboxGroup.vue'
-import PrevIcon from '@/icons/prevIcon.vue'
-import NextIcon from '@/icons/nextIcon.vue'
+import PrevIcon from '@/icons/PrevIcon.vue'
+import NextIcon from '@/icons/NextIcon.vue'
 import ExtensionGroup from '../ExtensionGroup.vue'
 
 @Component({

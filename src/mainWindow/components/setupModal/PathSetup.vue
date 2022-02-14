@@ -1,3 +1,12 @@
+<!-- 
+  PathSetup.vue is a part of Moosync.
+  
+  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Licensed under the GNU General Public License. 
+  
+  See LICENSE in the project root for license information.
+-->
+
 <template>
   <b-container fluid class="p-0">
     <b-row>
@@ -29,7 +38,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { Component } from 'vue-property-decorator'
-import Logo from '@/icons/Logo.vue'
+import Logo from '@/icons/LogoIcon.vue'
 import DirectoryGroup from '@/preferenceWindow/components/DirectoryGroup.vue'
 
 @Component({

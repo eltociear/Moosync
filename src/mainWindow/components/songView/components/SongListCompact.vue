@@ -1,7 +1,7 @@
 <!-- 
   SongListCompact.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -91,12 +91,12 @@ import SongListMixin from '@/utils/ui/mixins/SongListMixin'
 import { mixins } from 'vue-class-component'
 import { Component } from 'vue-property-decorator'
 import LowImageCol from '@/mainWindow/components/generic/LowImageCol.vue'
-import Ellipsis from '@/icons/Ellipsis.vue'
-import YoutubeIcon from '@/icons/Youtube.vue'
-import SpotifyIcon from '@/icons/Spotify.vue'
+import Ellipsis from '@/icons/EllipsisIcon.vue'
+import YoutubeIcon from '@/icons/YoutubeIcon.vue'
+import SpotifyIcon from '@/icons/SpotifyIcon.vue'
 import { convertDuration } from '@/utils/common'
-import AddToQueue from '@/icons/AddToQueue.vue'
-import PlainPlay from '@/icons/AddToLibrary.vue'
+import AddToQueue from '@/icons/AddToQueueIcon.vue'
+import PlainPlay from '@/icons/AddToLibraryIcon.vue'
 import { vxm } from '@/mainWindow/store'
 
 @Component({

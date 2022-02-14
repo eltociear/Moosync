@@ -1,7 +1,7 @@
 <!-- 
   Search.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -52,7 +52,7 @@
 
 <script lang="ts">
 import { Component } from 'vue-property-decorator'
-import Search from '@/icons/Search.vue'
+import Search from '@/icons/SearchIcon.vue'
 import SingleSearchResult from '@/mainWindow/components/generic/SingleSearchResult.vue'
 import { mixins } from 'vue-class-component'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'

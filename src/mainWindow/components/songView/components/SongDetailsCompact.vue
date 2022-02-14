@@ -1,7 +1,7 @@
 <!-- 
   SongDetailsCompact.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -67,11 +67,11 @@ import FileMixin from '@/utils/ui/mixins/FileMixin'
 
 import Component, { mixins } from 'vue-class-component'
 import { Prop, Watch } from 'vue-property-decorator'
-import SongDefault from '@/icons/SongDefault.vue'
+import SongDefault from '@/icons/SongDefaultIcon.vue'
 import { convertDuration } from '@/utils/common'
-import PlainPlay from '@/icons/PlainPlay.vue'
-import AddToLibrary from '@/icons/AddToLibrary.vue'
-import AddToQueue from '@/icons/AddToQueue.vue'
+import PlainPlay from '@/icons/PlainPlayIcon.vue'
+import AddToLibrary from '@/icons/AddToLibraryIcon.vue'
+import AddToQueue from '@/icons/AddToQueueIcon.vue'
 
 @Component({
   components: {

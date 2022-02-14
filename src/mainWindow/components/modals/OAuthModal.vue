@@ -1,7 +1,7 @@
 <!-- 
-  OAuth.vue is a part of Moosync.
+  OAuthModal.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -17,7 +17,7 @@
 import { EventBus } from '@/utils/main/ipc/constants'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { bus } from '@/mainWindow/main'
-import SongDefault from '@/icons/SongDefault.vue'
+import SongDefault from '@/icons/SongDefaultIcon.vue'
 
 @Component({
   components: {

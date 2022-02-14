@@ -1,7 +1,7 @@
 <!-- 
   NewPlaylistModal.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -58,7 +58,7 @@ import { Component, Prop, Ref } from 'vue-property-decorator'
 import { mixins } from 'vue-class-component'
 import { bus } from '@/mainWindow/main'
 import { vxm } from '@/mainWindow/store'
-import SongDefault from '@/icons/SongDefault.vue'
+import SongDefault from '@/icons/SongDefaultIcon.vue'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 
 @Component({

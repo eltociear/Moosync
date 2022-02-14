@@ -1,7 +1,7 @@
 <!-- 
   Tabs.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -54,16 +54,16 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import Playlists from '@/icons/Playlists.vue'
-import AllSongs from '@/icons/AllSongs.vue'
-import Artists from '@/icons/Artists.vue'
-import Fav from '@/icons/Fav.vue'
-import Genre from '@/icons/Genre.vue'
-import Albums from '@/icons/Albums.vue'
-import Toggle from '@/icons/Toggle.vue'
-import Rooms from '@/icons/Rooms.vue'
-import Explore from '@/icons/Explore.vue'
-import Queue from '@/icons/Queue.vue'
+import Playlists from '@/icons/PlaylistsIcon.vue'
+import AllSongs from '@/icons/AllSongsIcon.vue'
+import Artists from '@/icons/ArtistsIcon.vue'
+import Fav from '@/icons/FavIcon.vue'
+import Genre from '@/icons/GenreIcon.vue'
+import Albums from '@/icons/AlbumsIcon.vue'
+import Toggle from '@/icons/ToggleIcon.vue'
+import Rooms from '@/icons/RoomsIcon.vue'
+import Explore from '@/icons/ExploreIcon.vue'
+import Queue from '@/icons/QueueIcon.vue'
 import { vxm } from '@/mainWindow/store'
 import { bus } from '@/mainWindow/main'
 

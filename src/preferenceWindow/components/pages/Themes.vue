@@ -1,7 +1,7 @@
 <!-- 
   Themes.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -88,7 +88,7 @@ import ThemeComponentClassic from '../ThemeComponentClassic.vue'
 import { v1 } from 'uuid'
 import PreferenceHeader from '../PreferenceHeader.vue'
 import ThemeComponentCompact from '../ThemeComponentCompact.vue'
-import Add from '@/icons/Add.vue'
+import Add from '@/icons/AddIcon.vue'
 import { ContextMenuComponent, MenuItem } from 'vue-context-menu-popup'
 import DeleteModal from '@/commonComponents/ConfirmationModal.vue'
 import ContextMenu from 'vue-context-menu-popup'
