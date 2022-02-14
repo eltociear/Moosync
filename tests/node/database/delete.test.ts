@@ -1,12 +1,3 @@
-/* 
- *  delete.test.ts is a part of Moosync.
- *  
- *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
- *  See LICENSE in the project root for license information.
- */
-
 /**
  * @jest-environment ./tests/environment/databaseEnvironment.ts
  */
@@ -24,7 +15,7 @@ beforeAll(async () => {
 
 test('Remove a song from DB', async () => {
   const inserted = await insertSong(SongDB, {
-    size: 2
+    size: 5
   })
 
   let count = inserted.length

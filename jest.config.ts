@@ -14,10 +14,10 @@ const config: Config.InitialOptions = {
   transform: {
     '^.+\\.ts?$': 'ts-jest',
   },
-  testEnvironment: './tests/environment/playwrightEnvironment.ts',
   moduleNameMapper: {
     "@/(.*)": "<rootDir>/src/$1"
   },
+  modulePathIgnorePatterns: ["<rootDir>/dist_electron/"],
   collectCoverageFrom: [
     "src/**/*.ts",
   ],
