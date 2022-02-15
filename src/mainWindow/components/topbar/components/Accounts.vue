@@ -1,7 +1,7 @@
 <!-- 
   Accounts.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -31,11 +31,11 @@
 </template>
 <script lang="ts">
 import IconButton from '@/mainWindow/components/generic/IconButton.vue'
-import YoutubeIcon from '@/icons/Youtube.vue'
-import SpotifyIcon from '@/icons/Spotify.vue'
-import LastFMIcon from '@/icons/LastFM.vue'
-import Person from '@/icons/Person.vue'
-import { Component, Vue } from 'vue-property-decorator'
+import YoutubeIcon from '@/icons/YoutubeIcon.vue'
+import SpotifyIcon from '@/icons/SpotifyIcon.vue'
+import LastFMIcon from '@/icons/LastFMIcon.vue'
+import Person from '@/icons/PersonIcon.vue'
+import { Component } from 'vue-property-decorator'
 import ConfirmationModal from '@/commonComponents/ConfirmationModal.vue'
 import { mixins } from 'vue-class-component'
 import AccountsMixin from '@/utils/ui/mixins/AccountsMixin'

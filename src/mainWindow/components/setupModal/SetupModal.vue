@@ -1,7 +1,7 @@
 <!-- 
-  SongFromURLModal.vue is a part of Moosync.
+  SetupModal.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -32,7 +32,6 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
-import { vxm } from '@/mainWindow/store'
 import Welcome from './Welcome.vue'
 import PathSetup from './PathSetup.vue'
 import AccountsSetup from './AccountsSetup.vue'

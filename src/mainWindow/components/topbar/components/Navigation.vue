@@ -1,7 +1,7 @@
 <!-- 
   Navigation.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -20,8 +20,8 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import NavBack from '@/icons/NavBack.vue'
-import NavForward from '@/icons/NavForward.vue'
+import NavBack from '@/icons/NavBackIcon.vue'
+import NavForward from '@/icons/NavForwardIcon.vue'
 
 @Component({
   components: {

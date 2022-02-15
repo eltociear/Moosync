@@ -15,7 +15,7 @@ beforeAll(async () => {
 
 test('Remove a song from DB', async () => {
   const inserted = await insertSong(SongDB, {
-    size: 2
+    size: 5
   })
 
   let count = inserted.length

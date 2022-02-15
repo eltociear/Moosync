@@ -1,7 +1,7 @@
 <!-- 
   SongDetailsCompact.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -9,7 +9,7 @@
 
 <template>
   <b-container fluid class="h-100">
-    <b-row no-gutters class="h-100">
+    <b-row no-gutters>
       <b-col class="h-100 position-relative">
         <div class="image-container w-100 h-100">
           <div class="embed-responsive embed-responsive-1by1">
@@ -45,6 +45,19 @@
         </div>
       </b-col>
     </b-row>
+    <b-row no-gutters align-v="end" class="flex-fill mt-2">
+      <b-col>
+        <div v-if="buttonGroup.enableContainer" class="button-group d-flex">
+          <PlainPlay :title="`Play ${title}`" @click.native="playAll" />
+          <AddToQueue :title="`Add ${title} to queue`" @click.native="addToQueue" />
+          <AddToLibrary
+            :title="`Add ${title} to library`"
+            @click.native="addToLibrary"
+            v-if="buttonGroup.enableLibraryStore"
+          />
+        </div>
+      </b-col>
+    </b-row>
   </b-container>
 </template>
 
@@ -54,12 +67,18 @@ import FileMixin from '@/utils/ui/mixins/FileMixin'
 
 import Component, { mixins } from 'vue-class-component'
 import { Prop, Watch } from 'vue-property-decorator'
-import SongDefault from '@/icons/SongDefault.vue'
+import SongDefault from '@/icons/SongDefaultIcon.vue'
 import { convertDuration } from '@/utils/common'
+import PlainPlay from '@/icons/PlainPlayIcon.vue'
+import AddToLibrary from '@/icons/AddToLibraryIcon.vue'
+import AddToQueue from '@/icons/AddToQueueIcon.vue'
 
 @Component({
   components: {
-    SongDefault
+    SongDefault,
+    PlainPlay,
+    AddToLibrary,
+    AddToQueue
   }
 })
 export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
@@ -74,7 +93,15 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   @Prop({ default: () => undefined })
   private forceCover!: string
 
-  private forceEmptyImg = false
+  @Prop({
+    default: () => {
+      return {
+        enableContainer: false,
+        enableLibraryStore: false
+      }
+    }
+  })
+  private buttonGroup!: SongDetailButtons
 
   get computedImg() {
     return (
@@ -116,13 +143,16 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
     return this.getParsedSubtitle() ?? this.defaultDetails?.defaultSubtitle ?? ''
   }
 
-  @Watch('src')
-  private onSrcChange() {
-    this.forceEmptyImg = false
+  private playAll() {
+    this.$emit('playAll')
   }
 
-  private handleCoverError() {
-    this.forceEmptyImg = true
+  private addToQueue() {
+    this.$emit('addToQueue')
+  }
+
+  private addToLibrary() {
+    this.$emit('addToLibrary')
   }
 }
 </script>

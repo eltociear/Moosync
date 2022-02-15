@@ -1,7 +1,7 @@
 <!-- 
   TopBar.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -34,12 +34,11 @@ import Search from '@/mainWindow/components/topbar/components/Search.vue'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import Accounts from '@/mainWindow/components/topbar/components/Accounts.vue'
 import Notifications from '@/mainWindow/components/topbar/components/Notifications.vue'
-import Refresh from '@/icons/Refresh.vue'
+import Refresh from '@/icons/RefreshIcon.vue'
 
-import Gear from '@/icons/Gear.vue'
+import Gear from '@/icons/GearIcon.vue'
 import { EventBus } from '@/utils/main/ipc/constants'
 import { bus } from '../../main'
-import EventEmitter from 'events'
 
 @Component({
   components: {

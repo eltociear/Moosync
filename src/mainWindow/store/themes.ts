@@ -1,7 +1,7 @@
 /* 
  *  themes.ts is a part of Moosync.
  *  
- *  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+ *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
  *  Licensed under the GNU General Public License. 
  *  
  *  See LICENSE in the project root for license information.
@@ -13,7 +13,7 @@ export class ThemeStore extends VuexModule.With({ namespaced: 'themes' }) {
   private _songView: songMenu = 'compact'
   private _sortBy: sortOptions = { type: 'date', asc: true }
   private _refreshPage = false
-  private _sidebarOpen = false
+  private _sidebarOpen = true
 
   get sortBy() {
     return this._sortBy

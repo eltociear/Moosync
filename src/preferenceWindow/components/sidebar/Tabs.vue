@@ -1,7 +1,7 @@
 <!-- 
   Tabs.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -50,10 +50,10 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { ActiveTab } from '@/utils/ui/enums'
-import Extensions from '@//icons/Extensions.vue'
-import Paths from '@/icons/Paths.vue'
-import System from '@/icons/System.vue'
-import Themes from '@/icons/Themes.vue'
+import Extensions from '@/icons/ExtensionsIcon.vue'
+import Paths from '@/icons/PathsIcon.vue'
+import System from '@/icons/SystemIcon.vue'
+import Themes from '@/icons/ThemesIcon.vue'
 
 @Component({
   components: {

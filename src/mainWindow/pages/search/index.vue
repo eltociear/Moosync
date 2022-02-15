@@ -1,7 +1,7 @@
 <!-- 
   index.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -46,7 +46,6 @@ import { toSong } from '@/utils/models/youtube'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import ytMusic from 'node-youtube-music'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
-import ArtistsIcon from '@/icons/Artists.vue'
 
 @Component({
   components: {

@@ -1,7 +1,7 @@
 <!-- 
   IconButton.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -29,7 +29,7 @@
 import ImageLoader from '@/utils/ui/mixins/ImageLoader'
 import { mixins } from 'vue-class-component'
 import { Component, Prop } from 'vue-property-decorator'
-import Youtube from '@/icons/Youtube.vue'
+import Youtube from '@/icons/YoutubeIcon.vue'
 
 @Component({
   components: {
@@ -51,7 +51,6 @@ export default class IconButton extends mixins(ImageLoader) {
 </script>
 
 <style lang="sass" scoped>
-
 .button-bg
   border-radius: 5px
   width: 187px
@@ -92,7 +91,6 @@ export default class IconButton extends mixins(ImageLoader) {
     transform: scale(10, 10)
     opacity: 0
     transition: transform 0.5s, opacity 1s
-
 
   &:active:after
     transform: scale(0, 0)

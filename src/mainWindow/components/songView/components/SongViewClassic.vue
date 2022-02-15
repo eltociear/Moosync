@@ -1,7 +1,7 @@
 <!-- 
   SongViewClassic.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -12,15 +12,9 @@
     <b-row align-v="center" class="details-background">
       <SongDetails
         class="details-container h-100"
-        :currentTitle="currentSong ? currentSong.title : ''"
-        :currentsubTitle="getAlbumName(currentSong)"
-        :currentSubSubTitle="defaultDetails.defaultSubSubtitle"
-        :currentType="currentSong ? currentSong.type : 'LOCAL'"
-        :imgSrc="getImgSrc(getValidImageHigh(currentSong))"
-        :defaultTitle="defaultDetails.defaultTitle"
-        :defaultsubTitle="defaultDetails.defaultSubtitle"
-        :defaultImgSrc="defaultDetails.defaultCover"
+        :defaultDetails="defaultDetails"
         :buttonGroup="detailsButtonGroup"
+        :currentSong="currentSong"
         v-on="$listeners"
       />
     </b-row>

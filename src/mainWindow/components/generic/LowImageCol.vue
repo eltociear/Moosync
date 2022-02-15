@@ -1,7 +1,7 @@
 <!-- 
   LowImageCol.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -33,8 +33,8 @@
 <script lang="ts">
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 import Component, { mixins } from 'vue-class-component'
-import Play2 from '@/icons/Play2.vue'
-import SongDefault from '@/icons/SongDefault.vue'
+import Play2 from '@/icons/PlayIcon2.vue'
+import SongDefault from '@/icons/SongDefaultIcon.vue'
 import { Prop, Watch } from 'vue-property-decorator'
 
 @Component({

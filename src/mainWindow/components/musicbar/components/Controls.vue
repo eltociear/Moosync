@@ -1,7 +1,7 @@
 <!-- 
   Controls.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -38,11 +38,11 @@
 
 <script lang="ts">
 import { Component, Prop } from 'vue-property-decorator'
-import PrevTrack from '@/icons/PrevTrack.vue'
-import NextTrack from '@/icons/NextTrack.vue'
-import Play from '@/icons/Play.vue'
-import Repeat from '@/icons/Repeat.vue'
-import Shuffle from '@/icons/Shuffle.vue'
+import PrevTrack from '@/icons/PrevTrackIcon.vue'
+import NextTrack from '@/icons/NextTrackIcon.vue'
+import Play from '@/icons/PlayIcon.vue'
+import Repeat from '@/icons/RepeatIcon.vue'
+import Shuffle from '@/icons/ShuffleIcon.vue'
 import { mixins } from 'vue-class-component'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import { vxm } from '@/mainWindow/store'

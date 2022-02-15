@@ -49,6 +49,10 @@ jobs:
           SPOTIFYCLIENTSECRET: '${{ secrets.SPOTIFYCLIENTSECRET }}'
         run: chmod +x setup_env.sh && . setup_env.sh
         shell: bash
+
+      - name: run tests
+        run: yarn test:unit && test:electron
+
       - name: yarn electron:build
         run: yarn electron:build
         env:

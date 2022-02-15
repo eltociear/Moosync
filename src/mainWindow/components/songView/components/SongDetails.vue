@@ -1,7 +1,7 @@
 <!-- 
   SongDetails.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -14,9 +14,9 @@
         <div class="h-100">
           <b-img
             @dragstart="dragFile"
-            v-if="(getImgSrc(imgSrc) || getImgSrc(defaultImgSrc)) && !forceEmptyImg"
+            v-if="computedImg"
             class="image h-100"
-            :src="getImgSrc(imgSrc) ? getImgSrc(imgSrc) : getImgSrc(defaultImgSrc)"
+            :src="computedImg"
             @error="handlerImageError(arguments[0], handleError)"
           />
           <SongDefault v-else class="h-100 image" />
@@ -25,10 +25,8 @@
       <b-col class="text-container text-truncate">
         <b-container fluid class="h-100 d-flex flex-column">
           <b-row no-gutters>
-            <b-col :title="currentTitle ? currentTitle : defaultTitle" class="title text-truncate">
-              {{ currentTitle ? currentTitle : defaultTitle }}
-            </b-col>
-            <b-col cols="auto" align-self="center">
+            <b-col cols="auto" :title="title" class="title text-truncate">
+              {{ title }}
               <YoutubeIcon
                 v-if="currentType === 'YOUTUBE'"
                 :color="'#E62017'"
@@ -48,24 +46,21 @@
 
           <b-row no-gutters>
             <div>
-              <div :title="currentsubTitle ? currentsubTitle : defaultsubTitle" class="subtitle text-truncate">
-                {{ currentsubTitle ? currentsubTitle : defaultsubTitle }}
+              <div :title="subtitle" class="subtitle text-truncate">
+                {{ subtitle }}
               </div>
-              <div :title="currentSubSubTitle ? currentSubSubTitle : ''" class="subtitle text-truncate">
-                {{ currentSubSubTitle ? currentSubSubTitle : '' }}
+              <div :title="subSubTitle" class="subtitle text-truncate">
+                {{ subSubTitle }}
               </div>
             </div>
           </b-row>
           <b-row no-gutters align-v="end" class="flex-fill mt-2">
             <b-col>
               <div v-if="buttonGroup.enableContainer" class="button-group d-flex">
-                <PlainPlay :title="`Play ${currentTitle ? currentTitle : defaultTitle}`" @click.native="playAll" />
-                <AddToQueue
-                  :title="`Add ${currentTitle ? currentTitle : defaultTitle} to queue`"
-                  @click.native="addToQueue"
-                />
+                <PlainPlay :title="`Play ${title}`" @click.native="playAll" />
+                <AddToQueue :title="`Add ${title} to queue`" @click.native="addToQueue" />
                 <AddToLibrary
-                  :title="`Add ${currentTitle ? currentTitle : defaultTitle} to library`"
+                  :title="`Add ${title} to library`"
                   @click.native="addToLibrary"
                   v-if="buttonGroup.enableLibraryStore"
                 />
@@ -80,16 +75,17 @@
 
 <script lang="ts">
 import { mixins } from 'vue-class-component'
-import { Component, Prop, Ref, Watch } from 'vue-property-decorator'
-import SongDefault from '@/icons/SongDefault.vue'
-import PlainPlay from '@/icons/PlainPlay.vue'
-import AddToLibrary from '@/icons/AddToLibrary.vue'
-import AddToQueue from '@/icons/AddToQueue.vue'
-import YoutubeIcon from '@/icons/Youtube.vue'
-import SpotifyIcon from '@/icons/Spotify.vue'
+import { Component, Prop, Watch } from 'vue-property-decorator'
+import SongDefault from '@/icons/SongDefaultIcon.vue'
+import PlainPlay from '@/icons/PlainPlayIcon.vue'
+import AddToLibrary from '@/icons/AddToLibraryIcon.vue'
+import AddToQueue from '@/icons/AddToQueueIcon.vue'
+import YoutubeIcon from '@/icons/YoutubeIcon.vue'
+import SpotifyIcon from '@/icons/SpotifyIcon.vue'
 import ErrorHandler from '@/utils/ui/mixins/errorHandler'
 import ImageLoader from '@/utils/ui/mixins/ImageLoader'
 import FileMixin from '@/utils/ui/mixins/FileMixin'
+import { convertDuration } from '@/utils/common'
 
 @Component({
   components: {
@@ -102,29 +98,16 @@ import FileMixin from '@/utils/ui/mixins/FileMixin'
   }
 })
 export default class SongDetails extends mixins(ImageLoader, ErrorHandler, FileMixin) {
-  @Prop({ default: '' })
-  private currentTitle!: string
+  @Prop({ default: null })
+  private currentSong!: Song | null | undefined
 
-  @Prop({ default: '' })
-  private currentsubTitle!: string
+  private subtitle: string = this.getConcatedSubtitle()
 
-  @Prop({ default: '' })
-  private currentSubSubTitle!: string
+  @Prop({ default: () => {} })
+  private defaultDetails!: SongDetailDefaults | undefined
 
-  @Prop({ default: '' })
-  private imgSrc!: string
-
-  @Prop({ default: 'LOCAL' })
-  private currentType!: string
-
-  @Prop({ default: '' })
-  private defaultTitle!: string
-
-  @Prop({ default: '' })
-  private defaultsubTitle!: string
-
-  @Prop({ default: '' })
-  private defaultImgSrc!: string
+  @Prop({ default: () => undefined })
+  private forceCover!: string
 
   @Prop({
     default: () => {
@@ -136,15 +119,49 @@ export default class SongDetails extends mixins(ImageLoader, ErrorHandler, FileM
   })
   private buttonGroup!: SongDetailButtons
 
-  private handleError() {
-    this.forceEmptyImg = true
+  get computedImg() {
+    return (
+      this.forceCover ?? this.getImgSrc(this.getValidImageHigh(this.currentSong) ?? this.defaultDetails?.defaultCover)
+    )
   }
 
-  @Watch('imgSrc') onImgSrcChange() {
-    this.forceEmptyImg = false
+  @Watch('defaultDetails')
+  @Watch('currentSong')
+  onSongchange() {
+    this.subtitle = this.getConcatedSubtitle()
   }
 
-  public forceEmptyImg: boolean = false
+  get subSubTitle() {
+    return (
+      (this.currentSong && convertDuration(this.currentSong.duration)) ?? this.defaultDetails?.defaultSubSubtitle ?? ''
+    )
+  }
+
+  get title() {
+    return this.currentSong?.title ?? this.defaultDetails?.defaultTitle ?? ''
+  }
+
+  get currentType() {
+    return this.currentSong?.type
+  }
+
+  private isArtistAlbumNotEmpty() {
+    return !!(this.currentSong?.artists && this.currentSong.artists.length > 0 && this.currentSong?.album?.album_name)
+  }
+
+  private getParsedSubtitle() {
+    if (this.currentSong && (this.currentSong.artists?.length || this.currentSong.album?.album_name)) {
+      return (
+        ((this.currentSong?.artists && this.currentSong?.artists?.join(', ')) ?? '') +
+        (this.isArtistAlbumNotEmpty() ? ' - ' : '') +
+        ((this.currentSong?.album && this.currentSong.album.album_name) ?? '')
+      )
+    }
+  }
+
+  private getConcatedSubtitle() {
+    return this.getParsedSubtitle() ?? this.defaultDetails?.defaultSubtitle ?? ''
+  }
 
   private playAll() {
     this.$emit('playAll')

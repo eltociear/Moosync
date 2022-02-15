@@ -1,7 +1,7 @@
 /* 
  *  index.ts is a part of Moosync.
  *  
- *  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+ *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
  *  Licensed under the GNU General Public License. 
  *  
  *  See LICENSE in the project root for license information.
@@ -18,7 +18,6 @@ import { ThemeStore } from './themes'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { createPersist } from '@/utils/ui/store/persist'
-import { extractVuexSubModule, isFieldASubModule } from 'vuex-class-component/dist/submodule'
 
 Vue.use(Vuex)
 

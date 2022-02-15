@@ -1,14 +1,14 @@
 /* 
  *  scanner.ts is a part of Moosync.
  *  
- *  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+ *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
  *  Licensed under the GNU General Public License. 
  *  
  *  See LICENSE in the project root for license information.
  */
 
 import { IpcEvents, ScannerEvents } from './constants'
-import { Pool, Thread, TransferDescriptor, Worker, spawn } from 'threads'
+import { Thread, TransferDescriptor, Worker, spawn } from 'threads'
 
 import { IpcMainEvent } from 'electron'
 import { SongDB } from '@/utils/main/db/index'

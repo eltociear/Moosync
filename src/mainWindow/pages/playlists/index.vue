@@ -1,7 +1,7 @@
 <!-- 
   index.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -42,9 +42,9 @@ import { mixins } from 'vue-class-component'
 import RouterPushes from '@/utils/ui/mixins/RouterPushes'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import { vxm } from '@/mainWindow/store'
-import SpotifyIcon from '@/icons/Spotify.vue'
-import YoutubeIcon from '@/icons/Youtube.vue'
-import PlaylistDefault from '@/icons/PlaylistDefault.vue'
+import SpotifyIcon from '@/icons/SpotifyIcon.vue'
+import YoutubeIcon from '@/icons/YoutubeIcon.vue'
+import PlaylistDefault from '@/icons/PlaylistDefaultIcon.vue'
 import DeleteModal from '../../../commonComponents/ConfirmationModal.vue'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'

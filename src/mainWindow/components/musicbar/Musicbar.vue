@@ -1,7 +1,7 @@
 <!-- 
   Musicbar.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -41,7 +41,7 @@
               <Controls :duration="currentSong ? currentSong.duration : 0" :timestamp="timestamp" />
             </b-col>
             <b-col cols="4" align-self="center" class="no-gutters extra-col">
-              <ExtraControls @onToggleSlider="toggleSlider" />
+              <ExtraControls />
             </b-col>
           </b-row>
         </b-container>
@@ -127,6 +127,7 @@ export default class MusicBar extends mixins(ImgLoader) {
 
   async mounted() {
     this.hasFrame = await window.WindowUtils.hasFrame()
+    bus.$on('onToggleSlider', this.toggleSlider)
   }
 }
 </script>

@@ -1,7 +1,7 @@
 <!-- 
   NewTheme.vue is a part of Moosync.
   
-  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
   
   See LICENSE in the project root for license information.
@@ -65,7 +65,7 @@ import { v1 } from 'uuid'
 import PreferenceHeader from '../PreferenceHeader.vue'
 import ThemeComponentCompact from '../ThemeComponentCompact.vue'
 import ColorPicker from '../ColorPicker.vue'
-import NavBack from '@/icons/NavBack.vue'
+import NavBack from '@/icons/NavBackIcon.vue'
 
 @Component({
   components: {

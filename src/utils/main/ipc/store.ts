@@ -1,7 +1,7 @@
 /* 
  *  store.ts is a part of Moosync.
  *  
- *  Copyright 2021 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
+ *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
  *  Licensed under the GNU General Public License. 
  *  
  *  See LICENSE in the project root for license information.
@@ -11,7 +11,6 @@ import { loadSelectivePreference, removeSelectivePreference, saveSelectivePrefer
 
 import { IpcEvents } from './constants'
 import { StoreEvents } from '@/utils/main/ipc/constants'
-import os from 'os'
 import { safeStorage } from 'electron'
 
 export class StoreChannel implements IpcChannelInterface {
