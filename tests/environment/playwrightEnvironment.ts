@@ -10,11 +10,9 @@
 import { testWithPlaywright } from 'vue-cli-plugin-electron-builder';
 import NodeEnvironment from 'jest-environment-node'
 import { Config, Global } from '@jest/types'
-import { ElectronApplication } from 'playwright';
 
 interface CustomGlobal extends Global.Global {
-  electronApp: ElectronApplication
-  electronStop: () => Promise<ElectronApplication>
+  electronInstance: Awaited<ReturnType<typeof testWithPlaywright>>
 }
 
 export default class PlaywrightEnvironment extends NodeEnvironment {
@@ -27,16 +25,15 @@ export default class PlaywrightEnvironment extends NodeEnvironment {
   async setup() {
     await super.setup();
 
-    const { app, stop, serverUrl, serverStdout } = await testWithPlaywright()
+    const instance = await testWithPlaywright()
 
-    console.log(serverStdout, serverUrl)
+    console.log(instance.serverStdout, instance.serverUrl)
 
-    this.global.electronApp = app
-    this.global.electronStop = stop
+    this.global.electronInstance = instance
   }
 
   async teardown() {
-    await this.global.electronStop()
+    await this.global.electronInstance.stop()
     await super.teardown();
   }
 }
