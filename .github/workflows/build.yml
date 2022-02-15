@@ -51,7 +51,7 @@ jobs:
         shell: bash
 
       - name: run tests
-        run: yarn test:unit && test:electron
+        run: yarn test:unit && yarn test:electron
 
       - name: yarn electron:build
         run: yarn electron:build
