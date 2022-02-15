@@ -59,7 +59,7 @@
     "cross-env": "^7.0.3",
     "deepmerge": "^4.2.2",
     "dotenv": "^16.0.0",
-    "electron": "16.0.6",
+    "electron": "17.0.1",
     "electron-devtools-installer": "^3.2.0",
     "electron-store": "^8.0.1",
     "electron-updater": "^4.6.5",
@@ -118,7 +118,7 @@
     "vuedraggable": "^2.24.3",
     "vuex": "~3.4.0",
     "vuex-class-component": "^2.3.6",
-    "webpack": "^5.68.0",
+    "webpack": "^5.69.0",
     "webpack-bundle-analyzer": "^4.5.0",
     "webpack-cli": "^4.9.2",
     "yt-player": "^3.5.0"
@@ -129,9 +129,9 @@
     "not dead"
   ],
   "resolutions": {
-    "electron-builder": "22.14.5",
-    "node-abi": "^3.2.0",
-    "webpack": "^5.68.0"
+    "electron-builder": "22.14.13",
+    "node-abi": "^3.8.0",
+    "webpack": "^5.69.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.19.0"
