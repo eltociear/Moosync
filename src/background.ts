@@ -68,7 +68,7 @@ if (!app.requestSingleInstanceLock() && !isDevelopment) {
   // Quit when all windows are closed.
   app.on('window-all-closed', windowsClosed)
   app.on('activate', activateMac)
-  app.on('before-quit', beforeQuit)
+  app.addListener('before-quit', beforeQuit)
   app.on('ready', onReady)
   app.on('open-url', openURL)
   app.on('second-instance', handleSecondInstance)

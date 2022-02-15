@@ -39,6 +39,7 @@ export default class DatabaseEnvironment extends NodeEnvironment {
 
   async teardown() {
     try {
+      this.global.SongDB.close()
       await unlink(this.global.dbPath)
     } catch (e) {
       console.error(e)
