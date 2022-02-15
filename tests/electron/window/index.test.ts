@@ -2,6 +2,7 @@
  * @jest-environment ./tests/environment/playwrightEnvironment.ts
  */
 import { ElectronApplication, Page } from 'playwright'
+import { skipSetup } from '../common'
 
 jest.setTimeout(500000)
 
@@ -25,8 +26,9 @@ test('window title', async () => {
 })
 
 test('open settings', async () => {
-
   const window = await electronApp.firstWindow()
+
+  skipSetup(window)
 
   const windowCreationCallback = jest.fn().mockImplementation((page: Page) => {
     const url = new URL(page.url())

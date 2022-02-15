@@ -27,7 +27,9 @@
     </b-row>
     <b-row>
       <b-col class="d-flex justify-content-center">
-        <div @click="skip" class="skip-button mt-2 d-flex justify-content-center align-items-center">Skip</div>
+        <div @click="skip" id="skip-setup" class="skip-button mt-2 d-flex justify-content-center align-items-center">
+          Skip
+        </div>
       </b-col>
     </b-row>
   </b-container>
