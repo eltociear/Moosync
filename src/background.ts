@@ -20,7 +20,6 @@ import { autoUpdater } from 'electron-updater';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import { extensionHost } from '@/utils/extensions';
 import log from 'loglevel'
-import pie from 'puppeteer-in-electron';
 import { prefixLogger } from './utils/main/logger';
 import { registerIpcChannels } from '@/utils/main/ipc'; // Import for side effects
 import { setInitialInterfaceSettings } from './utils/main/db/preferences';
@@ -30,10 +29,7 @@ import { flipFuses, FuseVersion, FuseV1Options } from '@electron/fuses';
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
-pie.initialize(app);
-
 nativeTheme.themeSource = 'dark'
-
 
 flipFuses(
   require('electron') as unknown as string, // Returns the path to the electron binary
