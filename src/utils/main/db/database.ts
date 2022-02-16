@@ -99,8 +99,6 @@ export class SongDBInstance extends DBUtils {
           }) as Artists[])[0]
           this.db.delete('artists', { artist_id: id.artist })
           if (artist?.artist_coverPath) pathsToRemove.push(artist.artist_coverPath)
-        } else {
-          console.log((artist_ids))
         }
       }
     }).immediate(song_id)

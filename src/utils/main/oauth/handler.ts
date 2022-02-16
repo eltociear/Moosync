@@ -22,7 +22,7 @@ export class OAuthHandler {
 
   // TODO: Handle extension events
   public handleEvents(data: string) {
-    console.log(data)
+    console.info('Got OAuth callback', data)
     const url = new URL(data)
     const registered = this.callbackRegistry.find((value) => value.path === url.hostname.toLowerCase() || value.path === url.pathname.replaceAll('/', '').toLowerCase())
     if (registered && !registered.isExtension) {

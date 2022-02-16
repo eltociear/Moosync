@@ -110,7 +110,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
     vxm.sync.queueIndex = songIndex
     const song = vxm.sync.queueTop
 
-    console.log('got remote track info', song, songIndex, from, this.peerHolder.socketID)
+    console.info('got remote track info', song, songIndex, from, this.peerHolder.socketID)
 
     if (song) {
       vxm.sync.playQueueSong(songIndex)
@@ -207,7 +207,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   }
 
   private async handleRemotePlayerState(state: PlayerState) {
-    console.log('got state', vxm.player.playerState)
+    console.info('got state', vxm.player.playerState)
     if (vxm.player.playerState !== state) {
       this.isRemoteStateChange = true
       vxm.player.playerState = state
@@ -295,16 +295,16 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
 
   private playRequested(songIndex: number) {
     const song = vxm.sync.queueData[vxm.sync.queueOrder[songIndex].songID]
-    console.log(song)
+    console.info('Play requested for', song)
     if (song) {
       vxm.sync.setSong(song)
     }
   }
 
   private async fetchRemoteSong() {
-    console.log('fetching status', this.isFetching)
+    console.info('fetching status', this.isFetching)
     if (!this.isFetching) {
-      console.log('fetching song')
+      console.info('fetching song')
       this.isFetching = true
       for (const fetch of vxm.sync.queueOrder) {
         const song = vxm.sync.queueData[fetch.songID]
@@ -372,7 +372,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   }
 
   protected joinRoom(id: string) {
-    console.log('joining room', id)
+    console.info('joining room', id)
     this.initializeRTC(PeerMode.WATCHER)
     this.peerHolder.joinRoom(id)
   }
@@ -387,7 +387,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   }
 
   protected emitPlayerState(newState: PlayerState) {
-    console.log('emitting player state', newState, !this.isRemoteStateChange)
+    console.info('emitting player state', newState, !this.isRemoteStateChange)
     if (this.isSyncing && !this.isRemoteStateChange) {
       this.peerHolder.emitPlayerState(newState)
     }

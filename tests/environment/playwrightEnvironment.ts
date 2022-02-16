@@ -27,7 +27,7 @@ export default class PlaywrightEnvironment extends NodeEnvironment {
 
     const instance = await testWithPlaywright()
 
-    console.log(instance.serverStdout, instance.serverUrl)
+    console.info(instance.serverStdout, instance.serverUrl)
 
     this.global.electronInstance = instance
   }

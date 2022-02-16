@@ -265,7 +265,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
           this.pause()
           Vue.nextTick(() => this.play())
 
-          console.log('triggered buffer trap')
+          console.info('triggered buffer trap')
         }
       }, 3000)
     }
