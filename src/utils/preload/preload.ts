@@ -117,9 +117,9 @@ contextBridge.exposeInMainWorld('WindowUtils', {
 })
 
 contextBridge.exposeInMainWorld('LoggerUtils', {
-  info: (message: any) =>
+  info: (...message: any[]) =>
     ipcRendererHolder.send(IpcEvents.LOGGER, { type: LoggerEvents.INFO, params: { message: message } }),
-  error: (message: any) =>
+  error: (...message: any[]) =>
     ipcRendererHolder.send(IpcEvents.LOGGER, { type: LoggerEvents.ERROR, params: { message: message } })
 })
 

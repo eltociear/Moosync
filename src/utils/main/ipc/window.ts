@@ -148,7 +148,7 @@ export class BrowserWindowChannel implements IpcChannelInterface {
         filePath = filePath.replace('media://', '')
       }
 
-      console.log(filePath)
+      console.info('Started file drag', filePath)
 
       event.sender.startDrag({
         file: filePath,

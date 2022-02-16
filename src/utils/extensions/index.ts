@@ -56,8 +56,8 @@ class MainHostIPCHandler {
 
   private registerListeners() {
     this.sandboxProcess.on("message", this.parseMessage.bind(this))
-    this.sandboxProcess.on("error", (e) => console.log('got error', e))
-    this.sandboxProcess.on('exit', () => { this.isAlive = false; console.log('dead') })
+    this.sandboxProcess.on("error", (e) => console.error('Extension Error:', e))
+    this.sandboxProcess.on('exit', () => { this.isAlive = false; })
     this.sandboxProcess.on('close', () => this.isAlive = false)
   }
 
@@ -85,7 +85,7 @@ class MainHostIPCHandler {
     await this.mainRequestGenerator.removeExtension(packageName)
     await this.extensionResourceHandler.uninstallExtension(packageName)
 
-    console.log('removed ext')
+    console.info('Removed extension', packageName)
   }
 
   private sendToExtensionHost(data: any) {

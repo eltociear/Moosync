@@ -13,8 +13,6 @@ beforeAll(async () => {
 })
 
 test('a window is created', async () => {
-  console.log('executing test')
-
   await electronApp.firstWindow()
   expect(electronApp.windows().length).toBe(1)
 })
