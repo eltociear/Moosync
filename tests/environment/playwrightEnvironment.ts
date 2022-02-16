@@ -11,7 +11,7 @@ import { testWithPlaywright } from 'vue-cli-plugin-electron-builder';
 import NodeEnvironment from 'jest-environment-node'
 import { Config, Global } from '@jest/types'
 
-interface CustomGlobal extends Global.Global {
+export interface CustomGlobal extends Global.Global {
   electronInstance: Awaited<ReturnType<typeof testWithPlaywright>>
 }
 

@@ -1,15 +1,18 @@
 /**
  * @jest-environment ./tests/environment/playwrightEnvironment.ts
  */
-import { ElectronApplication, Page } from 'playwright'
+import { Page, ElectronApplication } from 'playwright-core';
 import { skipSetup } from '../common'
+import { CustomGlobal } from '../../environment/playwrightEnvironment';
 
 jest.setTimeout(500000)
 
 let electronApp: ElectronApplication
 
+declare const global: CustomGlobal
+
 beforeAll(async () => {
-  electronApp = (global as any).electronApp as ElectronApplication
+  electronApp = global.electronInstance.app
 })
 
 test('a window is created', async () => {
