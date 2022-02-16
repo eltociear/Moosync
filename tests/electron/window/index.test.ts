@@ -26,7 +26,7 @@ test('window title', async () => {
 test('open settings', async () => {
   const window = await electronApp.firstWindow()
 
-  skipSetup(window)
+  await skipSetup(window)
 
   const windowCreationCallback = jest.fn().mockImplementation((page: Page) => {
     const url = new URL(page.url())
