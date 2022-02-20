@@ -126,11 +126,11 @@ module.exports = {
         publish: [{
           provider: 'github',
           owner: 'Moosync',
-          repo: 'moosync-app',
+          repo: 'Moosync',
           vPrefixedTagName: true,
           releaseType: "draft"
         }],
-        asarUnpack: ['*.worker.js', 'sandbox.js'],
+        asarUnpack: ['*.worker.js', 'sandbox.js', '**/node_modules/sharp/**/*'],
         protocols: [
           {
             name: "Default protocol",
@@ -165,7 +165,7 @@ module.exports = {
         config.entry("sandbox").add(__dirname + '/src/utils/extensions/sandbox/index.ts').end()
         config.plugin('thread')
           .use(ThreadsPlugin, [{ target: 'electron-node-worker' }]);
-        
+
       },
     },
     autoRouting: {
