@@ -8,16 +8,18 @@
 -->
 
 <template>
-  <b-container fluid class="album-container">
-    <b-row no-gutters class="page-title">Artists</b-row>
-    <b-row class="d-flex">
-      <b-col col xl="2" md="3" v-for="artist in artistList" :key="artist.artist_id">
-        <CardView :title="artist.artist_name" :imgSrc="artist.artist_coverPath" @click.native="gotoArtist(artist)">
-          <template #defaultCover> <ArtistDefault /></template>
-        </CardView>
-      </b-col>
-    </b-row>
-  </b-container>
+  <div class="h-100 w-100 parent">
+    <b-container fluid>
+      <b-row no-gutters class="page-title">Artists</b-row>
+      <b-row class="d-flex">
+        <b-col col xl="2" md="3" v-for="artist in artistList" :key="artist.artist_id">
+          <CardView :title="artist.artist_name" :imgSrc="artist.artist_coverPath" @click.native="gotoArtist(artist)">
+            <template #defaultCover> <ArtistDefault /></template>
+          </CardView>
+        </b-col>
+      </b-row>
+    </b-container>
+  </div>
 </template>
 
 <script lang="ts">
@@ -48,9 +50,6 @@ export default class Artists extends mixins(RouterPushes) {
 </script>
 
 <style lang="sass" scoped>
-.album-container
-  position: absolute
-
 .title
   font-weight: bold
   font-size: 55px

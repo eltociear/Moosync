@@ -8,20 +8,22 @@
 -->
 
 <template>
-  <b-container fluid class="album-container">
-    <b-row no-gutters class="page-title">Genres</b-row>
-    <b-row class="d-flex">
-      <b-col col xl="2" md="3" v-for="genre in genres" :key="genre.genre_id">
-        <CardView
-          :title="genre.genre_name ? genre.genre_name : 'Unknown'"
-          :imgSrc="genre.genre_coverPath"
-          @click.native="gotoGenre(genre)"
-        >
-          <template #defaultCover> <SongDefault /></template>
-        </CardView>
-      </b-col>
-    </b-row>
-  </b-container>
+  <div class="h-100 w-100 parent">
+    <b-container fluid>
+      <b-row no-gutters class="page-title">Genres</b-row>
+      <b-row class="d-flex">
+        <b-col col xl="2" md="3" v-for="genre in genres" :key="genre.genre_id">
+          <CardView
+            :title="genre.genre_name ? genre.genre_name : 'Unknown'"
+            :imgSrc="genre.genre_coverPath"
+            @click.native="gotoGenre(genre)"
+          >
+            <template #defaultCover> <SongDefault /></template>
+          </CardView>
+        </b-col>
+      </b-row>
+    </b-container>
+  </div>
 </template>
 
 <script lang="ts">
@@ -52,9 +54,6 @@ export default class Genres extends mixins(RouterPushes) {
 </script>
 
 <style lang="sass" scoped>
-.album-container
-  position: absolute
-
 .title
   font-weight: bold
   font-size: 55px
