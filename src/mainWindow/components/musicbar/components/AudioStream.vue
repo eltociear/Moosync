@@ -222,8 +222,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       vxm.player.loading = false
       this.cancelBufferTrap()
 
-      console.trace(state)
-
       if (state === 'STOPPED') {
         this.onSongEnded()
         return
