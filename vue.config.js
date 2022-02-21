@@ -7,9 +7,9 @@ const fs = require('fs')
 
 const archElectronConfig = {}
 
-if (fs.existsSync('/usr/lib/electron16') && fs.existsSync('/usr/lib/electron16/version')) {
-  archElectronConfig.electronDist = '/usr/lib/electron16'
-  archElectronConfig.electronVersion = fs.readFileSync('/usr/lib/electron16/version', { encoding: 'utf-8' }).replace('v', '')
+if (fs.existsSync('/usr/lib/electron17') && fs.existsSync('/usr/lib/electron17/version')) {
+  archElectronConfig.electronDist = '/usr/lib/electron17'
+  archElectronConfig.electronVersion = fs.readFileSync('/usr/lib/electron17/version', { encoding: 'utf-8' }).replace('v', '')
 }
 
 const secrets = {}
