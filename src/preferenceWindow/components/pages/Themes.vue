@@ -12,7 +12,7 @@
     <ContextMenu ref="contextMenu" v-click-outside="hideContextMenu" :menu-items="menu" />
     <b-container fluid>
       <b-row>
-        <PreferenceHeader title="Songs View" tooltip="Customize the colors" class="mb-3" />
+        <PreferenceHeader title="Songs View" tooltip="Customize song list appearance" class="mb-3" />
       </b-row>
       <b-row no-gutters class="w-100"> </b-row>
       <b-row no-gutters class="w-100">
@@ -40,7 +40,7 @@
         </b-col>
       </b-row>
       <b-row>
-        <PreferenceHeader title="Themes" tooltip="Customize the colors" class="mt-5 mb-3" />
+        <PreferenceHeader title="Themes" tooltip="Customize colors" class="mt-5 mb-3" />
       </b-row>
       <b-row no-gutters class="w-100"> </b-row>
       <b-row no-gutters class="w-100">
