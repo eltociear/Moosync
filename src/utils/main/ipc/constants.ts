@@ -22,7 +22,8 @@ export enum IpcEvents {
   SERVICE_PROVIDERS = 'serviceProviders',
   LOGGER = 'logger',
   NOTIFIER = 'notifier',
-  EXTENSION_HOST = "extensionHost"
+  EXTENSION_HOST = "extensionHost",
+  UPDATE = 'update'
 }
 
 export enum StoreEvents {
@@ -140,6 +141,11 @@ export enum ExtensionHostEvents {
 
 export enum ServiceProviderEvents {
   LOGIN = 'login'
+}
+
+export enum UpdateEvents {
+  CHECK_UPDATES = 'checkUpdates',
+  GOT_UPDATE = 'gotUpdate'
 }
 
 export enum EventBus {

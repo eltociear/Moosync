@@ -108,9 +108,7 @@ export default class Sidebar extends Vue {
 
   async created() {
     this.hasFrame = await window.WindowUtils.hasFrame()
-    console.log(this.hasFrame)
     this.showTitlebarIcons = await window.WindowUtils.showTitlebarIcons()
-    console.log(this.showTitlebarIcons)
   }
 
   mounted() {

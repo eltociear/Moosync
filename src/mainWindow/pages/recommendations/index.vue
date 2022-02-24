@@ -8,21 +8,23 @@
 -->
 
 <template>
-  <b-container class="recommendations-container" fluid>
-    <b-row no-gutters class="page-title">Explore</b-row>
-    <b-row v-for="p of providers" :key="p.title">
-      <b-col v-if="p.list.length > 0">
-        <b-row class="mt-3">
-          <b-col class="provider-title">Hot from {{ p.title }}</b-col>
-        </b-row>
-        <b-row class="slider-row">
-          <b-col>
-            <CardCarousel :songList="p.list" />
-          </b-col>
-        </b-row>
-      </b-col>
-    </b-row>
-  </b-container>
+  <div class="h-100 w-100 parent">
+    <b-container class="recommendations-container" fluid>
+      <b-row no-gutters class="page-title">Explore</b-row>
+      <b-row v-for="p of providers" :key="p.title">
+        <b-col v-if="p.list.length > 0">
+          <b-row class="mt-3">
+            <b-col class="provider-title">Hot from {{ p.title }}</b-col>
+          </b-row>
+          <b-row class="slider-row">
+            <b-col>
+              <CardCarousel :songList="p.list" />
+            </b-col>
+          </b-row>
+        </b-col>
+      </b-row>
+    </b-container>
+  </div>
 </template>
 
 <script lang="ts">

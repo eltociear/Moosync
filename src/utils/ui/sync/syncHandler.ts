@@ -296,7 +296,7 @@ export class SyncHolder {
   }
 
   public playSong(index: number) {
-    console.log('playing')
+    console.info('Playing song', index)
     this.sendSongDetails(index)
   }
 
@@ -342,7 +342,7 @@ export class SyncHolder {
     this.isListeningReady = true
     this.socketConnection?.emit('requestReady')
 
-    console.log('requesting ready status')
+    console.info('requesting ready status from peers')
   }
 
   /**
@@ -371,7 +371,7 @@ export class SyncHolder {
    */
   private listenBufferRequests() {
     this.socketConnection?.on('requestedSong', (id: string, songID: string) => {
-      console.log('requested song', id, songID)
+      console.info('Song was requested', id, songID)
       this.sendSongBuffer(id, songID)
     })
 
@@ -406,7 +406,7 @@ export class SyncHolder {
    */
   private listenPeerReady() {
     this.socketConnection?.on('ready', (id: string) => {
-      console.log('got ready call from', id)
+      console.info('Got ready call from', id)
       if (this.isListeningReady) {
         this.setPeerReady(id)
         this.checkAllReady()
@@ -502,7 +502,7 @@ export class SyncHolder {
    * Emits ready
    */
   public emitReady() {
-    console.log('emitted ready')
+    console.info('emitted ready')
     this.socketConnection?.emit('ready')
     this.onReadyEmittedCallback ? this.onReadyEmittedCallback() : null
   }

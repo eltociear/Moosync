@@ -100,7 +100,7 @@ export class ScannerChannel implements IpcChannelInterface {
       try {
         return writeBuffer(cover.send, thumbPath, id, true)
       } catch (e) {
-        console.log(e)
+        console.error('Error writing cover', e)
       }
     }
   }
@@ -182,11 +182,11 @@ export class ScannerChannel implements IpcChannelInterface {
 
   // TODO: Add queueing for scraping artworks
   private async scrapeArtists() {
-    console.log('scraping')
+    console.info('Scraping artists')
     try {
       this.scraperWorker = await spawn(new Worker(`./${scraperWorker}`), { timeout: 5000 })
     } catch (e) {
-      console.log(e)
+      console.error('Error spawning', scraperWorker, e)
       return
     }
 
@@ -239,7 +239,7 @@ export class ScannerChannel implements IpcChannelInterface {
     try {
       this.scannerWorker = await spawn(new Worker(`./${scannerWorker}`), { timeout: 5000 })
     } catch (e) {
-      console.log(e)
+      console.error('Error Spawning', scannerWorker, e)
       event?.reply(request?.responseChannel, e)
       return
     }

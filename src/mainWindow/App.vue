@@ -66,6 +66,11 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     this.listenExtensionEvents()
     this.listenExtensionRequests()
 
+    window.UpdateUtils.check()
+    window.UpdateUtils.listenUpdate((available) => {
+      console.log('update', available)
+    })
+
     this.themeStore = vxm.themes
   }
 
@@ -124,14 +129,12 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     let ret = []
     for (const data of args) {
       if (data instanceof Error) {
-        console.log(args[0].stack)
         ret.push(args[0].stack)
       } else {
         ret.push(data)
       }
     }
 
-    console.log(ret)
     return ret
   }
 
@@ -235,7 +238,7 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
       event.preventDefault()
       event.stopPropagation()
       if (event.dataTransfer) {
-        console.log(event.dataTransfer.files.length)
+        console.info('got files', event.dataTransfer.files.length)
         for (const f of event.dataTransfer.files) {
           if (f) {
             const song = await this.getSongFromPath(f.path)

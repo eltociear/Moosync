@@ -222,8 +222,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       vxm.player.loading = false
       this.cancelBufferTrap()
 
-      console.trace(state)
-
       if (state === 'STOPPED') {
         this.onSongEnded()
         return
@@ -265,7 +263,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
           this.pause()
           Vue.nextTick(() => this.play())
 
-          console.log('triggered buffer trap')
+          console.info('triggered buffer trap')
         }
       }, 3000)
     }

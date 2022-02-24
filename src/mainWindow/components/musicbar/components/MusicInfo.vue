@@ -18,6 +18,11 @@
       <b-img class="bg-img" v-if="computedImg" :src="computedImg" :key="computedImg"></b-img>
     </transition>
     <b-container fluid class="w-100 h-100 main-container">
+      <b-row no-gutters align-h="end">
+        <b-col cols="auto">
+          <CrossIcon class="cross-icon" @click.native="close" />
+        </b-col>
+      </b-row>
       <b-row no-gutters align-h="center" class="h-100 flex-nowrap">
         <b-col cols="4">
           <SongDetailsCompact :currentSong="currentSong" :forceCover="computedImg" />
@@ -78,13 +83,15 @@ import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
 import SongDetailsCompact from '@/mainWindow/components/songView/components/SongDetailsCompact.vue'
 import { PeerMode } from '@/mainWindow/store/syncState'
+import CrossIcon from '@/icons/CrossIcon.vue'
 
 @Component({
   components: {
     SongDefault,
     QueueItem,
     draggable,
-    SongDetailsCompact
+    SongDetailsCompact,
+    CrossIcon
   }
 })
 export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
@@ -96,6 +103,10 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
 
   get remoteCover() {
     return vxm.sync.currentCover
+  }
+
+  private close() {
+    bus.$emit('onToggleSlider', false)
   }
 
   private scrollToActive() {
@@ -223,7 +234,7 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   position: absolute
   left: 0
   top: 0
-  padding-top: 72px
+  padding-top: 60px
   padding-bottom: 30px
 
 .queue-container
@@ -274,4 +285,8 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
 
 .animate__animated.animate__fadeOut
   --animate-duration: 0.3s
+
+.cross-icon
+  width: 18px
+  margin-right: 1.5rem
 </style>
