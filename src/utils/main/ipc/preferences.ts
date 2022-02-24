@@ -8,13 +8,14 @@
  */
 
 import { IpcEvents, PreferenceEvents } from './constants';
-import { getActiveTheme, getSongView, loadAllThemes, loadSelectivePreference, loadTheme, onPreferenceChanged, removeSelectivePreference, removeTheme, saveSelectivePreference, saveTheme, setActiveTheme, setSongView } from '../db/preferences';
+import { loadSelectivePreference, onPreferenceChanged, removeSelectivePreference, saveSelectivePreference } from '../db/preferences';
 
 import { WindowHandler } from '../windowManager';
 import { mkdir, rm } from 'fs/promises';
 import path from 'path/posix';
 import sharp from 'sharp';
 import { app } from 'electron';
+import { loadTheme, loadAllThemes, getActiveTheme, getSongView, setActiveTheme, setSongView, saveTheme, removeTheme } from '../themes/preferences';
 
 export class PreferenceChannel implements IpcChannelInterface {
   name = IpcEvents.PREFERENCES
