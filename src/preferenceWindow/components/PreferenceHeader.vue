@@ -13,7 +13,7 @@
       {{ title }}
     </b-col>
     <b-col cols="auto" class="ml-2">
-      <Tooltip :text="tooltip" />
+      <Tooltip :text="tooltip" @click.native="emitTooltipClick" />
     </b-col>
   </b-row>
 </template>
@@ -31,6 +31,10 @@ export default class PreferenceHeader extends Vue {
 
   @Prop()
   private tooltip!: string
+
+  private emitTooltipClick() {
+    this.$emit('tooltipClick')
+  }
 }
 </script>
 

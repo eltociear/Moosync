@@ -20,8 +20,21 @@
             prefKey="system"
           />
 
-          <EditText class="mt-5 mb-3" :isExtension="false" title="Spotify Client ID" prefKey="spotify.client_id" />
-          <EditText :isExtension="false" title="Spotify Client Secret" prefKey="spotify.client_secret" />
+          <EditText
+            class="mt-5 mb-3"
+            :isExtension="false"
+            title="Spotify Client ID"
+            prefKey="spotify.client_id"
+            tooltip="Spotify client ID required to login to Spotify. Click to know more"
+            @tooltipClick="openSpotifyHelp"
+          />
+          <EditText
+            :isExtension="false"
+            tooltip="Spotify client Secret required to login to Spotify. Click to know more"
+            title="Spotify Client Secret"
+            prefKey="spotify.client_secret"
+            @tooltipClick="openSpotifyHelp"
+          />
 
           <EditText
             v-if="!youtubeEnvExists"
@@ -97,6 +110,10 @@ export default class System extends Vue {
       title: 'Minimize to tray on close',
       enabled: true
     }
+  }
+
+  private openSpotifyHelp() {
+    window.WindowUtils.openExternal('https://github.com/Moosync/Moosync#enabling-spotify-integration')
   }
 }
 </script>
