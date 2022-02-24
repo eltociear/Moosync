@@ -180,5 +180,3 @@ export function getDisabledPaths(paths: togglePaths): string[] {
 function getDefaultMusicPaths() {
   return app.getPath('music')
 }
-
-savePreferences(loadPreferences())

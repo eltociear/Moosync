@@ -71,7 +71,7 @@ export function getActiveTheme() {
 /**
  * Setups default themes
  */
-function setupDefaultThemes() {
+export function setupDefaultThemes() {
   const themes: { [key: string]: ThemeDetails } = {
     '809b7310-f852-11eb-82e2-0985b6365ce4': {
       id: "809b7310-f852-11eb-82e2-0985b6365ce4",
@@ -96,6 +96,3 @@ function setupDefaultThemes() {
     }
   }
 }
-
-setupDefaultThemes()
-

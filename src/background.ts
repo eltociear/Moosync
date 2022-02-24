@@ -22,9 +22,10 @@ import { extensionHost } from '@/utils/extensions';
 import log from 'loglevel'
 import { prefixLogger } from './utils/main/logger';
 import { registerIpcChannels } from '@/utils/main/ipc'; // Import for side effects
-import { setInitialInterfaceSettings } from './utils/main/db/preferences';
+import { setInitialInterfaceSettings, loadPreferences } from './utils/main/db/preferences';
 import { setupScanTask } from '@/utils/main/scheduler/index';
 import { flipFuses, FuseVersion, FuseV1Options } from '@electron/fuses';
+import { setupDefaultThemes } from './utils/main/themes/preferences';
 
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -138,6 +139,11 @@ function openURL(event: Electron.Event, data: any) {
 }
 
 async function onReady() {
+  const { isFirstLaunch } = loadPreferences()
+  if (isFirstLaunch) {
+    setupDefaultThemes()
+  }
+
   registerIpcChannels();
   setInitialInterfaceSettings();
 
