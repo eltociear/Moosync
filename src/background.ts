@@ -16,7 +16,6 @@ import { WindowHandler, setIsQuitting, _windowHandler } from './utils/main/windo
 import path, { resolve } from 'path';
 
 import { oauthHandler } from '@/utils/main/oauth/handler';
-import { autoUpdater } from 'electron-updater';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import { extensionHost } from '@/utils/extensions';
 import log from 'loglevel'
@@ -48,16 +47,6 @@ flipFuses(
 if (!app.requestSingleInstanceLock() && !isDevelopment) {
   app.exit()
 } else {
-  autoUpdater.autoInstallOnAppQuit = true
-  autoUpdater.autoDownload = true
-
-  // TODO: Figure out a better way to notify the user about update and wait for confirmation
-  autoUpdater.on('update-downloaded', () => {
-    autoUpdater.quitAndInstall()
-  });
-
-  // autoUpdater.checkForUpdatesAndNotify()
-
   // Override console.info and console.error with custom logging
   overrideConsole()
   registerProtocols()

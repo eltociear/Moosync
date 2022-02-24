@@ -18,7 +18,8 @@ import {
   ServiceProviderEvents,
   SongEvents,
   StoreEvents,
-  WindowEvents
+  WindowEvents,
+  UpdateEvents
 } from '@/utils/main/ipc/constants';
 import { contextBridge, ipcRenderer } from 'electron';
 
@@ -135,4 +136,9 @@ contextBridge.exposeInMainWorld('ExtensionUtils', {
   listenRequests: (callback: (request: extensionUIRequestMessage) => void) => ipcRendererHolder.on(ExtensionHostEvents.EXTENSION_REQUESTS, callback),
   replyToRequest: (data: extensionReplyMessage) => ipcRenderer.send(ExtensionHostEvents.EXTENSION_REQUESTS, data),
   toggleExtStatus: (packageName: string, enabled: boolean) => ipcRendererHolder.send(IpcEvents.EXTENSION_HOST, { type: ExtensionHostEvents.TOGGLE_EXT_STATUS, params: { packageName, enabled } }),
+})
+
+contextBridge.exposeInMainWorld('UpdateUtils', {
+  check: () => ipcRendererHolder.send(IpcEvents.UPDATE, { type: UpdateEvents.CHECK_UPDATES }),
+  listenUpdate: (callback: (hasUpdate: boolean) => void) => ipcRendererHolder.on(UpdateEvents.GOT_UPDATE, callback)
 })

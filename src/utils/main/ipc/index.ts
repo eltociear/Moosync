@@ -19,8 +19,10 @@ import { SongsChannel } from './songs'
 import { StoreChannel } from './store'
 import { WindowHandler } from '../windowManager'
 import { ipcMain } from 'electron'
+import { UpdateChannel } from './update';
 
 export const scannerChannel = new ScannerChannel()
+export const updateChannel = new UpdateChannel()
 
 export function registerIpcChannels() {
   const ipcChannels = [
@@ -32,13 +34,14 @@ export function registerIpcChannels() {
     new SearchChannel(),
     new StoreChannel(),
     new LoggerChannel(),
-    new ExtensionHostChannel()
+    new ExtensionHostChannel(),
+    updateChannel
   ]
   ipcChannels.forEach((channel) => ipcMain.on(channel.name, (event, request) => channel.handle(event, request)))
 }
 
 export function notifyRenderer(notif: NotificationObject) {
-  WindowHandler.getWindow()?.webContents.send(IpcEvents.NOTIFIER, notif)
+  WindowHandler.getWindow(true)?.webContents.send(IpcEvents.NOTIFIER, notif)
 }
 
 

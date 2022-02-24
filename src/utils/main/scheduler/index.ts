@@ -10,6 +10,7 @@
 import { AsyncTask, SimpleIntervalJob, ToadScheduler } from 'toad-scheduler';
 
 import { scannerChannel } from '@/utils/main/ipc';
+import { updateChannel } from '../ipc/index';
 
 export const scheduler = new ToadScheduler()
 
@@ -21,6 +22,18 @@ export function setupScanTask() {
   )
 
   const job = new SimpleIntervalJob({ hours: 1, }, task)
+
+  scheduler.addSimpleIntervalJob(job)
+}
+
+export function setupUpdateCheckTask() {
+  const task = new AsyncTask(
+    'update task',
+    () => updateChannel.checkUpdates(),
+    (err: Error) => { console.error(err) }
+  )
+
+  const job = new SimpleIntervalJob({ hours: 3, }, task)
 
   scheduler.addSimpleIntervalJob(job)
 }
