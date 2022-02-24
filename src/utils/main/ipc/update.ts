@@ -16,14 +16,23 @@ export class UpdateChannel implements IpcChannelInterface {
 
   constructor() {
     autoUpdater.on('checking-for-update', () => console.log('checking for update fired'))
-    autoUpdater.on('update-available', () => this.notifyMainWindow(true))
-    autoUpdater.on('update-not-available', () => this.notifyMainWindow(false))
+    autoUpdater.on('update-available', () => {
+      this.notifyMainWindow(true)
+      console.log('notifying availbale')
+    })
+    autoUpdater.on('update-not-available', () => {
+      this.notifyMainWindow(false)
+      console.log('notifying not availbale')
+    })
   }
 
   handle(event: Electron.IpcMainEvent, request: IpcRequest): void {
     switch (request.type) {
       case UpdateEvents.CHECK_UPDATES:
         this.checkUpdates()
+        break
+      case UpdateEvents.UPDATE_NOW:
+        this.updateNow()
         break
     }
   }
@@ -32,11 +41,20 @@ export class UpdateChannel implements IpcChannelInterface {
     WindowHandler.getWindow(true)?.webContents.send(UpdateEvents.GOT_UPDATE, available)
   }
 
+  private async updateNow() {
+    await autoUpdater.downloadUpdate()
+    autoUpdater.quitAndInstall()
+  }
+
   public async checkUpdates() {
     autoUpdater.autoDownload = false
     autoUpdater.autoInstallOnAppQuit = true
 
-    // Dont wait for promise to resolve
-    autoUpdater.checkForUpdates()
+    try {
+      // Dont wait for promise to resolve
+      await autoUpdater.checkForUpdates()
+    } catch (e) {
+      console.log(e)
+    }
   }
 }

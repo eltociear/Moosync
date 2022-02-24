@@ -227,6 +227,7 @@ interface themeUtils {
 interface updateUtils {
   check: () => void
   listenUpdate: (callback: (hasUpdate: boolean) => void) => void
+  updateNow: () => void
 }
 
 declare global {

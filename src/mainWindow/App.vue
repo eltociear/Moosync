@@ -66,11 +66,6 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     this.listenExtensionEvents()
     this.listenExtensionRequests()
 
-    window.UpdateUtils.check()
-    window.UpdateUtils.listenUpdate((available) => {
-      console.log('update', available)
-    })
-
     this.themeStore = vxm.themes
   }
 
@@ -81,7 +76,15 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     this.registerDevTools()
     this.registerFileDragListener()
     this.handleInitialSetup()
+    this.checkUpdate()
     // this.testStun()
+  }
+
+  private checkUpdate() {
+    window.UpdateUtils.check()
+    window.UpdateUtils.listenUpdate((available) => {
+      vxm.themes.isUpdateAvailable = available
+    })
   }
 
   private registerDevTools() {

@@ -145,7 +145,8 @@ export enum ServiceProviderEvents {
 
 export enum UpdateEvents {
   CHECK_UPDATES = 'checkUpdates',
-  GOT_UPDATE = 'gotUpdate'
+  GOT_UPDATE = 'gotUpdate',
+  UPDATE_NOW = 'updateNow'
 }
 
 export enum EventBus {

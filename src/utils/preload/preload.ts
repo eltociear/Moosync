@@ -140,5 +140,6 @@ contextBridge.exposeInMainWorld('ExtensionUtils', {
 
 contextBridge.exposeInMainWorld('UpdateUtils', {
   check: () => ipcRendererHolder.send(IpcEvents.UPDATE, { type: UpdateEvents.CHECK_UPDATES }),
-  listenUpdate: (callback: (hasUpdate: boolean) => void) => ipcRendererHolder.on(UpdateEvents.GOT_UPDATE, callback)
+  listenUpdate: (callback: (hasUpdate: boolean) => void) => ipcRendererHolder.on(UpdateEvents.GOT_UPDATE, callback),
+  updateNow: () => ipcRendererHolder.send(IpcEvents.UPDATE, { type: UpdateEvents.UPDATE_NOW }),
 })
