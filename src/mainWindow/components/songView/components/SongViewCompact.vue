@@ -14,6 +14,7 @@
         :defaultDetails="defaultDetails"
         :buttonGroup="detailsButtonGroup"
         :currentSong="currentSong"
+        v-on="$listeners"
       />
     </b-col>
     <b-col cols="8" xl="9" class="h-100 song-list-compact">

@@ -16,9 +16,11 @@ import ytMusic from 'node-youtube-music';
 export default class RemoteSong extends Vue {
   public addYTItemsToLibrary(...songs: ytMusic.MusicVideo[]) {
     window.DBUtils.storeSongs(toSong(...songs))
+    this.$toasted.show(`Added ${songs.length} songs to library`)
   }
 
   public addSongsToLibrary(...songs: Song[]) {
     window.DBUtils.storeSongs(songs)
+    this.$toasted.show(`Added ${songs.length} songs to library`)
   }
 }
