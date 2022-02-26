@@ -241,7 +241,7 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
       event.preventDefault()
       event.stopPropagation()
       if (event.dataTransfer) {
-        console.info('got files', event.dataTransfer.files.length)
+        console.info('got drag files', event.dataTransfer.files.length)
         for (const f of event.dataTransfer.files) {
           if (f) {
             const song = await this.getSongFromPath(f.path)
