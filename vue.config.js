@@ -2,14 +2,16 @@ const webpack = require('webpack');
 const ThreadsPlugin = require('threads-plugin')
 const dotenv = require('dotenv').config({ path: __dirname + '/config.env' });
 const fs = require('fs')
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { resolve } = require('path');
 
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const archElectronConfig = {}
 
-if (fs.existsSync('/usr/lib/electron16') && fs.existsSync('/usr/lib/electron16/version')) {
-  archElectronConfig.electronDist = '/usr/lib/electron16'
-  archElectronConfig.electronVersion = fs.readFileSync('/usr/lib/electron16/version', { encoding: 'utf-8' }).replace('v', '')
+if (fs.existsSync('/usr/lib/electron17') && fs.existsSync('/usr/lib/electron17/version')) {
+  archElectronConfig.electronDist = '/usr/lib/electron17'
+  archElectronConfig.electronVersion = fs.readFileSync('/usr/lib/electron17/version', { encoding: 'utf-8' }).replace('v', '')
 }
 
 const secrets = {}
@@ -126,11 +128,11 @@ module.exports = {
         publish: [{
           provider: 'github',
           owner: 'Moosync',
-          repo: 'moosync-app',
+          repo: 'Moosync',
           vPrefixedTagName: true,
           releaseType: "draft"
         }],
-        asarUnpack: ['*.worker.js', 'sandbox.js'],
+        asarUnpack: ['*.worker.js', 'sandbox.js', '**/node_modules/sharp/**/*'],
         protocols: [
           {
             name: "Default protocol",
@@ -165,7 +167,9 @@ module.exports = {
         config.entry("sandbox").add(__dirname + '/src/utils/extensions/sandbox/index.ts').end()
         config.plugin('thread')
           .use(ThreadsPlugin, [{ target: 'electron-node-worker' }]);
-        
+
+        config.plugin('copy').use(CopyWebpackPlugin, [{ patterns: [{ from: resolve('dev-app-update.yml') }] }])
+
       },
     },
     autoRouting: {

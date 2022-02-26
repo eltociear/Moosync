@@ -9,11 +9,11 @@
 
 <template>
   <b-row no-gutters>
-    <b-col cols="auto" align-self="center" class="title d-flex">
-      <div class="preference-title">{{ title }}</div>
-      <div class="ml-2 tooltip-pos">
-        <Tooltip :text="tooltip" />
-      </div>
+    <b-col cols="auto" align-self="center" class="title d-flex preference-title">
+      {{ title }}
+    </b-col>
+    <b-col cols="auto" class="ml-2">
+      <Tooltip :text="tooltip" @click.native="emitTooltipClick" />
     </b-col>
   </b-row>
 </template>
@@ -31,6 +31,10 @@ export default class PreferenceHeader extends Vue {
 
   @Prop()
   private tooltip!: string
+
+  private emitTooltipClick() {
+    this.$emit('tooltipClick')
+  }
 }
 </script>
 

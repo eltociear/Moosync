@@ -224,6 +224,12 @@ interface themeUtils {
   listenSongViewChanged: (callback: (menu: songMenu) => void) => void
 }
 
+interface updateUtils {
+  check: () => void
+  listenUpdate: (callback: (hasUpdate: boolean) => void) => void
+  updateNow: () => void
+}
+
 declare global {
   interface Window {
     DBUtils: DBUtils
@@ -237,5 +243,6 @@ declare global {
     NotifierUtils: notifierUtils
     ExtensionUtils: extensionUtils
     ThemeUtils: themeUtils
+    UpdateUtils: updateUtils
   }
 }

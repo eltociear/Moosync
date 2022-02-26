@@ -8,31 +8,33 @@
 -->
 
 <template>
-  <b-container fluid class="album-container" @contextmenu="contextHandler">
-    <b-row no-gutters class="page-title">Playlists</b-row>
-    <b-row class="d-flex">
-      <b-col col xl="2" md="3" v-for="playlist in allPlaylists" :key="playlist.playlist_id" class="card-col">
-        <CardView
-          :title="playlist.playlist_name"
-          :imgSrc="playlist.playlist_coverPath"
-          :id="playlist.playlist_id"
-          :iconBgColor="getIconBgColor(playlist)"
-          @click.native="gotoPlaylist(playlist)"
-          @CardContextMenu="getPlaylistMenu(arguments[0], playlist)"
-        >
-          <template slot="icon">
-            <SpotifyIcon v-if="playlist.playlist_id.startsWith('spotify-')" color="#07C330" :filled="true" />
-            <YoutubeIcon v-if="playlist.playlist_id.startsWith('youtube-')" color="#E62017" :filled="true" />
-          </template>
+  <div class="h-100 w-100 parent">
+    <b-container fluid class="album-container" @contextmenu="contextHandler">
+      <b-row no-gutters class="page-title">Playlists</b-row>
+      <b-row class="d-flex">
+        <b-col col xl="2" md="3" v-for="playlist in allPlaylists" :key="playlist.playlist_id" class="card-col">
+          <CardView
+            :title="playlist.playlist_name"
+            :imgSrc="playlist.playlist_coverPath"
+            :id="playlist.playlist_id"
+            :iconBgColor="getIconBgColor(playlist)"
+            @click.native="gotoPlaylist(playlist)"
+            @CardContextMenu="getPlaylistMenu(arguments[0], playlist)"
+          >
+            <template slot="icon">
+              <SpotifyIcon v-if="playlist.playlist_id.startsWith('spotify-')" color="#07C330" :filled="true" />
+              <YoutubeIcon v-if="playlist.playlist_id.startsWith('youtube-')" color="#E62017" :filled="true" />
+            </template>
 
-          <template #defaultCover>
-            <PlaylistDefault />
-          </template>
-        </CardView>
-      </b-col>
-    </b-row>
-    <DeleteModal id="playlistDeleteModal" @confirm="deletePlaylist" />
-  </b-container>
+            <template #defaultCover>
+              <PlaylistDefault />
+            </template>
+          </CardView>
+        </b-col>
+      </b-row>
+      <DeleteModal id="playlistDeleteModal" @confirm="deletePlaylist" />
+    </b-container>
+  </div>
 </template>
 
 <script lang="ts">
@@ -127,9 +129,6 @@ export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
 </script>
 
 <style lang="sass" scoped>
-.album-container
-  position: absolute
-
 .title
   font-weight: bold
   font-size: 55px

@@ -153,6 +153,8 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
       this.refreshCallback && this.refreshCallback()
 
       this.$bvModal.hide(this.id)
+
+      this.$toasted.show(`Added ${this.playlist!.playlist_name} to library`)
     }
   }
 

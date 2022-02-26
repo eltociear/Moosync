@@ -9,7 +9,7 @@
 
 <template>
   <b-container v-if="prefKey" fluid class="path-container w-100">
-    <PreferenceHeader v-if="title" :title="title" :tooltip="tooltip" />
+    <PreferenceHeader v-if="title" :title="title" :tooltip="tooltip" @tooltipClick="emitTooltipClick" />
     <b-row no-gutters class="background w-100 mt-2 d-flex">
       <b-row no-gutters class="mt-3 item w-100">
         <b-col cols="auto" align-self="center" class="ml-4 folder-icon"> </b-col>
@@ -39,6 +39,10 @@ export default class EditText extends Mixins(ExtensionPreferenceMixin) {
 
   @Prop()
   private tooltip!: string
+
+  private emitTooltipClick() {
+    this.$emit('tooltipClick')
+  }
 }
 </script>
 

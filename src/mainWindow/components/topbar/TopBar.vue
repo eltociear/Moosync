@@ -21,6 +21,7 @@
             <!-- <b-col cols="auto"> <Notifications /> </b-col> -->
             <b-col cols="auto"> <Accounts /></b-col>
             <b-col cols="auto"> <Gear id="settings" class="gear-icon" @click.native="openSettings" /></b-col>
+            <b-col cols="auto"> <Update class="update-icon button-grow" /></b-col>
           </b-row>
         </b-col>
       </b-row>
@@ -35,6 +36,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import Accounts from '@/mainWindow/components/topbar/components/Accounts.vue'
 import Notifications from '@/mainWindow/components/topbar/components/Notifications.vue'
 import Refresh from '@/icons/RefreshIcon.vue'
+import Update from '@/mainWindow/components/topbar/components/Update.vue'
 
 import Gear from '@/icons/GearIcon.vue'
 import { EventBus } from '@/utils/main/ipc/constants'
@@ -47,7 +49,8 @@ import { bus } from '../../main'
     Accounts,
     Notifications,
     Gear,
-    Refresh
+    Refresh,
+    Update
   }
 })
 export default class TopBar extends Vue {
@@ -70,6 +73,11 @@ export default class TopBar extends Vue {
   height: 70px
 
 .gear-icon
+  height: 26px
+  width: 26px
+  margin-left: 10px
+
+.update-icon
   height: 26px
   width: 26px
   margin-left: 10px

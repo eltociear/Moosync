@@ -76,7 +76,15 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     this.registerDevTools()
     this.registerFileDragListener()
     this.handleInitialSetup()
+    this.checkUpdate()
     // this.testStun()
+  }
+
+  private checkUpdate() {
+    window.UpdateUtils.check()
+    window.UpdateUtils.listenUpdate((available) => {
+      vxm.themes.isUpdateAvailable = available
+    })
   }
 
   private registerDevTools() {
@@ -233,7 +241,7 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
       event.preventDefault()
       event.stopPropagation()
       if (event.dataTransfer) {
-        console.info('got files', event.dataTransfer.files.length)
+        console.info('got drag files', event.dataTransfer.files.length)
         for (const f of event.dataTransfer.files) {
           if (f) {
             const song = await this.getSongFromPath(f.path)

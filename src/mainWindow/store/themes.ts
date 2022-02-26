@@ -14,6 +14,15 @@ export class ThemeStore extends VuexModule.With({ namespaced: 'themes' }) {
   private _sortBy: sortOptions = { type: 'date', asc: true }
   private _refreshPage = false
   private _sidebarOpen = true
+  private _updateAvailable = false
+
+  get isUpdateAvailable() {
+    return this._updateAvailable
+  }
+
+  set isUpdateAvailable(update: boolean) {
+    this._updateAvailable = update
+  }
 
   get sortBy() {
     return this._sortBy

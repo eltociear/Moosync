@@ -94,7 +94,7 @@ export default class DefaultLayout extends mixins(ContextMenuMixin) {
   right: 0
   bottom: calc(6rem + 30px)
   height: calc(100% - (6rem + 30px) - 70px - 11px)
-  overflow-y: auto
+  overflow-y: hidden
   overflow-x: hidden
   z-index: 1
   transition: 0.2s

@@ -1,6 +1,6 @@
 {
   "name": "moosync",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "private": true,
   "author": "Ovenoboyo <ovenoboyo@gmail.com>",
   "scripts": {
@@ -25,6 +25,7 @@
     "@caohenghu/vue-colorpicker": "^1.2.4",
     "@electron/fuses": "^1.5.0",
     "@googleapis/oauth2": "^0.2.0",
+    "@jakejarrett/gtk-theme": "^2.0.1",
     "@moosync/moosync-types": "^1.2.3",
     "@openid/appauth": "^1.3.1",
     "@types/better-sqlite3": "^7.4.2",
@@ -54,6 +55,7 @@
     "bootstrap-vue": "^2.21.2",
     "buffer": "^6.0.3",
     "bufferutil": "4.0.6",
+    "copy-webpack-plugin": "^10.2.4",
     "core-js": "^3.21.0",
     "cross-env": "^7.0.3",
     "deepmerge": "^4.2.2",

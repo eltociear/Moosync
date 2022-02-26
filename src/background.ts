@@ -16,15 +16,15 @@ import { WindowHandler, setIsQuitting, _windowHandler } from './utils/main/windo
 import path, { resolve } from 'path';
 
 import { oauthHandler } from '@/utils/main/oauth/handler';
-import { autoUpdater } from 'electron-updater';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import { extensionHost } from '@/utils/extensions';
 import log from 'loglevel'
 import { prefixLogger } from './utils/main/logger';
 import { registerIpcChannels } from '@/utils/main/ipc'; // Import for side effects
-import { setInitialInterfaceSettings } from './utils/main/db/preferences';
+import { setInitialInterfaceSettings, loadPreferences } from './utils/main/db/preferences';
 import { setupScanTask } from '@/utils/main/scheduler/index';
 import { flipFuses, FuseVersion, FuseV1Options } from '@electron/fuses';
+import { setupDefaultThemes } from './utils/main/themes/preferences';
 
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -47,16 +47,6 @@ flipFuses(
 if (!app.requestSingleInstanceLock() && !isDevelopment) {
   app.exit()
 } else {
-  autoUpdater.autoInstallOnAppQuit = true
-  autoUpdater.autoDownload = true
-
-  // TODO: Figure out a better way to notify the user about update and wait for confirmation
-  autoUpdater.on('update-downloaded', () => {
-    autoUpdater.quitAndInstall()
-  });
-
-  // autoUpdater.checkForUpdatesAndNotify()
-
   // Override console.info and console.error with custom logging
   overrideConsole()
   registerProtocols()
@@ -138,6 +128,11 @@ function openURL(event: Electron.Event, data: any) {
 }
 
 async function onReady() {
+  const { isFirstLaunch } = loadPreferences()
+  if (isFirstLaunch) {
+    setupDefaultThemes()
+  }
+
   registerIpcChannels();
   setInitialInterfaceSettings();
 
