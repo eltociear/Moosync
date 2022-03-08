@@ -20,7 +20,7 @@
     <b-container fluid class="w-100 h-100 main-container">
       <b-row no-gutters align-h="end">
         <b-col cols="auto">
-          <CrossIcon class="cross-icon" @click.native="close" />
+          <CrossIcon class="cross-icon button-grow" @click.native="close" />
         </b-col>
       </b-row>
       <b-row no-gutters align-h="center" class="h-100 flex-nowrap">
