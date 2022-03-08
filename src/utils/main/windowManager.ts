@@ -39,7 +39,7 @@ export class WindowHandler {
   }
 
   public static get showTitlebarIcons() {
-    return !(process.platform === 'linux' || process.platform === 'darwin')
+    return !this.hasFrame
   }
 
   private get baseWindowProps(): BrowserWindowConstructorOptions {
@@ -73,7 +73,7 @@ export class WindowHandler {
     return {
       title: 'Preferences',
       ...getWindowSize('prefWindow', { width: 840, height: 653 }),
-      minHeight: 653,
+      minHeight: 672,
       minWidth: 840,
       ...this.baseWindowProps
     }
