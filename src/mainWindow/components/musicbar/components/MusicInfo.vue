@@ -182,15 +182,11 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   private handleIndexChange(change: {
     moved: { element: { id: string; songID: string }; newIndex: number; oldIndex: number }
   }) {
-    if (change.moved.oldIndex === this.currentIndex) {
-      this.queueProvider.queueIndex = change.moved.newIndex
-    } else if (change.moved.newIndex === this.currentIndex) {
-      if (change.moved.oldIndex < this.currentIndex) {
-        this.queueProvider.queueIndex = this.queueProvider.queueIndex - 1
-      } else {
-        this.queueProvider.queueIndex = this.queueProvider.queueIndex + 1
-      }
-    }
+    this.queueProvider.setSongIndex({
+      oldIndex: change.moved.oldIndex,
+      newIndex: change.moved.newIndex,
+      ignoreMove: true
+    })
   }
 
   @Prop({ default: () => {} })

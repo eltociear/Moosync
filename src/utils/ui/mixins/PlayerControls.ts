@@ -94,6 +94,6 @@ export default class PlayerControls extends Vue {
   }
 
   public setSongIndex(oldIndex: number, newIndex: number) {
-    vxm.player.setSongIndex({ oldIndex, newIndex })
+    vxm.player.setSongIndex({ oldIndex, newIndex, ignoreMove: false })
   }
 }

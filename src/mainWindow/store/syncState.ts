@@ -234,4 +234,36 @@ export class SyncStore extends VuexModule.With({ namespaced: 'sync' }) {
   setCurrentFetchSong(id: string) {
     this.currentFetchSong = id
   }
+
+  @mutation
+  setSongIndex({ oldIndex, newIndex, ignoreMove }: { oldIndex: number, newIndex: number, ignoreMove: boolean }) {
+    if (newIndex < 0) {
+      newIndex = this.songQueue.order.length - (-newIndex)
+    }
+
+    console.log(newIndex, this.songQueue.order.length)
+
+    if (newIndex >= this.songQueue.order.length) {
+      newIndex = this.songQueue.order.length - 1
+    }
+
+    if (!ignoreMove) {
+      const data = this.songQueue.order[oldIndex]
+      this.songQueue.order.splice(oldIndex, 1)
+      this.songQueue.order.splice(newIndex, 0, data)
+    }
+
+    if (oldIndex === this.songQueue.index) {
+      this.songQueue.index = newIndex
+      return
+    }
+
+    if (oldIndex < this.songQueue.index) {
+      if (newIndex >= this.songQueue.index)
+        this.songQueue.index -= 1
+    } else if (oldIndex > this.songQueue.index) {
+      if (newIndex <= this.songQueue.index)
+        this.songQueue.index += 1
+    }
+  }
 }

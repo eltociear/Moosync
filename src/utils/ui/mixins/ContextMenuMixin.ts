@@ -217,14 +217,13 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
       {
         label: 'Move to Bottom',
         handler: () => {
-          this.setSongIndex(itemIndex, vxm.player.queueOrder.length)
+          this.setSongIndex(itemIndex, -1)
         }
       },
       {
         label: 'Move manually',
         handler: () => {
           bus.$emit(EventBus.SHOW_FORM_MODAL, 'Set index of song', (value: number) => {
-            console.log(value)
             this.setSongIndex(itemIndex, value)
           })
         }
