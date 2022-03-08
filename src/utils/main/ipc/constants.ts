@@ -162,6 +162,7 @@ export enum EventBus {
   SHOW_SONG_INFO_MODAL = 'show-song-info-modal',
   SHOW_OAUTH_MODAL = 'show-oauth-modal',
   HIDE_OAUTH_MODAL = 'hide-oauth-modal',
+  SHOW_FORM_MODAL = 'show-form-modal',
   REFRESH_USERNAMES = 'refresh-usernames',
   REFRESH_PAGE = 'refresh-page',
 }

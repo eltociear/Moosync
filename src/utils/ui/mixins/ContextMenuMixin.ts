@@ -196,7 +196,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     return items
   }
 
-  private getQueueItemMenu(isRemote: boolean, refreshCallback: () => void, item: Song) {
+  private getQueueItemMenu(isRemote: boolean, refreshCallback: () => void, item: Song, itemIndex: number) {
     const items = [
       {
         label: 'Play Now',
@@ -207,6 +207,27 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
       {
         label: 'Add To Playlist',
         children: this.populatePlaylistMenu([item], undefined),
+      },
+      {
+        label: 'Move to Top',
+        handler: () => {
+          this.setSongIndex(itemIndex, 0)
+        }
+      },
+      {
+        label: 'Move to Bottom',
+        handler: () => {
+          this.setSongIndex(itemIndex, vxm.player.queueOrder.length)
+        }
+      },
+      {
+        label: 'Move manually',
+        handler: () => {
+          bus.$emit(EventBus.SHOW_FORM_MODAL, 'Set index of song', (value: number) => {
+            console.log(value)
+            this.setSongIndex(itemIndex, value)
+          })
+        }
       },
     ]
     if (isRemote) {
@@ -250,7 +271,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
         items = this.getPlaylistContentContextMenu(options.args.isRemote, options.args.sortOptions, options.args.refreshCallback, ...options.args.songs)
         break
       case 'QUEUE_ITEM':
-        items = this.getQueueItemMenu(options.args.isRemote, options.args.refreshCallback, options.args.song)
+        items = this.getQueueItemMenu(options.args.isRemote, options.args.refreshCallback, options.args.song, options.args.songIndex)
         break
     }
     this.emitMenu(event, items)

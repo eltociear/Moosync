@@ -20,6 +20,7 @@
     <SongInfoModal />
     <SetupModal />
     <OAuthModal />
+    <FormModal />
   </div>
 </template>
 
@@ -43,6 +44,7 @@ import 'animate.css'
 import Vue from 'vue'
 import { EventBus } from '@/utils/main/ipc/constants'
 import OAuthModal from './components/modals/OAuthModal.vue'
+import FormModal from './components/modals/FormModal.vue'
 
 const stun = require('stun')
 
@@ -55,7 +57,8 @@ const stun = require('stun')
     PlaylistFromUrlModal,
     SetupModal,
     SongInfoModal,
-    OAuthModal
+    OAuthModal,
+    FormModal
   }
 })
 export default class App extends mixins(ThemeHandler, PlayerControls) {

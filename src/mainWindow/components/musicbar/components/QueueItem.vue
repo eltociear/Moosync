@@ -127,6 +127,7 @@ export default class MusicInfo extends mixins(ImgLoader, PlayerControls, Context
       args: {
         isRemote: this.song.type === 'YOUTUBE' || this.song.type === 'SPOTIFY',
         song: this.song,
+        songIndex: this.index,
         refreshCallback: () => this.removeSong()
       }
     })

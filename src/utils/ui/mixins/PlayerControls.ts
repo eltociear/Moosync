@@ -92,4 +92,8 @@ export default class PlayerControls extends Vue {
   public removeFromQueue(index: number) {
     vxm.player.pop(index)
   }
+
+  public setSongIndex(oldIndex: number, newIndex: number) {
+    vxm.player.setSongIndex({ oldIndex, newIndex })
+  }
 }

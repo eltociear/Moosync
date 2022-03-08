@@ -238,4 +238,16 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
     this.moveIndexTo(index)
     this.loadSong(this.queueTop)
   }
+
+  @mutation
+  setSongIndex({ oldIndex, newIndex }: { oldIndex: number, newIndex: number }) {
+    // INFO: -1 in splice doesn't mean last element
+    if (newIndex < 0) {
+      newIndex = this.songQueue.order.length - (-newIndex)
+    }
+
+    const data = this.songQueue.order[oldIndex]
+    this.songQueue.order.splice(oldIndex, 1)
+    this.songQueue.order.splice(newIndex, 0, data)
+  }
 }

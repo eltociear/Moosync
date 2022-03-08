@@ -52,6 +52,7 @@ type ContextMenuArgs = {
     isRemote: boolean
     refreshCallback: () => void
     song: Song
+    songIndex: number
   }
 }
 
