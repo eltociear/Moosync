@@ -9,7 +9,7 @@
 
 <template>
   <b-container fluid class="h-100">
-    <b-row no-gutters>
+    <b-row no-gutters class="h-100">
       <b-col class="h-100 position-relative">
         <div class="image-container w-100 h-100">
           <div class="embed-responsive embed-responsive-1by1">

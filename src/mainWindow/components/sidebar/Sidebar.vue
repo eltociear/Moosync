@@ -15,7 +15,7 @@
       id="sidebar"
       no-header-close
       no-close-on-route-change
-      sidebar-class="gradient"
+      :sidebar-class="`gradient ${hasFrame ? 'sidebar-top-low-spacing' : 'sidebar-top-high-spacing'}`"
     >
       <template #header>
         <div class="d-flex w-100 mt-3 justify-content-between">
@@ -79,6 +79,7 @@ import { vxm } from '@/mainWindow/store'
 export default class Sidebar extends Vue {
   private roomInput: String = ''
   private showRoomsButton: boolean = true
+  private hasFrame = false
 
   get roomID() {
     return vxm.sync.roomID
@@ -90,6 +91,10 @@ export default class Sidebar extends Vue {
 
   set isOpen(val: boolean) {
     vxm.themes.sidebarOpen = val
+  }
+
+  async created() {
+    this.hasFrame = await window.WindowUtils.hasFrame()
   }
 
   private toggleOpen() {
