@@ -387,7 +387,6 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   }
 
   protected emitPlayerState(newState: PlayerState) {
-    console.info('emitting player state', newState, !this.isRemoteStateChange)
     if (this.isSyncing && !this.isRemoteStateChange) {
       this.peerHolder.emitPlayerState(newState)
     }
