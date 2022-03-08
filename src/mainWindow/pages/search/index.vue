@@ -8,7 +8,7 @@
 -->
 
 <template>
-  <div class="search-content w-100">
+  <div class="search-content w-100 h-100">
     <b-tabs content-class="mt-3 tab-inner-container" justified v-model="tabModel" class="tab-container">
       <b-tab :title="item.tab" v-for="item in items" :id="item.tab" :key="item.key" class="tab-content">
         <RecycleScroller

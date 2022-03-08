@@ -11,8 +11,8 @@
   <b-container fluid class="song-container h-100">
     <transition
       name="custom-classes-transition"
-      enter-active-class="animate__animated animate__slideInLeft animate__delay-1s"
-      leave-active-class="animate__animated animate__slideOutRight"
+      enter-active-class="animate__animated animate__slideInLeft animate__delay-1s animate__slideInLeft_delay"
+      leave-active-class="animate__animated animate__slideOutRight animate__slideOutRight_faster"
     >
       <component
         v-bind:is="songView"
