@@ -7,9 +7,7 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { SongAPIOptions, EntityApiOptions } from '@moosync/moosync-types';
-import ytMusic from 'node-youtube-music';
-
+// import { SongAPIOptions, EntityApiOptions } from '@moosync/moosync-types';
 
 /**
  * Utils related to database operations
@@ -56,6 +54,8 @@ interface providerUtils {
   login: () => Promise<void>
 }
 
+type YTMusicVideo = import('node-youtube-music').MusicVideo
+
 /**
  * Utils related to search operations
  */
@@ -63,7 +63,7 @@ interface searchUtils {
   /**
    * Search song by options
    */
-  searchSongsByOptions: (options?: SongAPIOptions) => Promise<Song[]>
+  searchSongsByOptions: (options: SongAPIOptions) => Promise<Song[]>
 
   /**
    * Search entities like album, artists, playlists, genre by options
@@ -81,12 +81,12 @@ interface searchUtils {
    * Search youtube music by a term. 
    * @param term term to search youtube music by
    */
-  searchYT: (term: string) => Promise<ytMusic.MusicVideo[]>
+  searchYT: (term: string) => Promise<YTMusicVideo[]>
 
   /**
    * Get suggestions similar to provided video id
    */
-  getYTSuggestions: (videoID: string) => Promise<ytMusic.MusicVideo[]>
+  getYTSuggestions: (videoID: string) => Promise<YTMusicVideo[]>
 
   /**
    * Scrape a webpage and parse it to json
@@ -233,19 +233,18 @@ interface updateUtils {
   updateNow: () => void
 }
 
-declare global {
-  interface Window {
-    DBUtils: DBUtils
-    SearchUtils: searchUtils
-    FileUtils: fileUtils
-    PreferenceUtils: preferenceUtils
-    WindowUtils: windowUtils
-    ProviderUtils: providerUtils
-    Store: store
-    LoggerUtils: loggerUtils
-    NotifierUtils: notifierUtils
-    ExtensionUtils: extensionUtils
-    ThemeUtils: themeUtils
-    UpdateUtils: updateUtils
-  }
+
+interface Window {
+  DBUtils: DBUtils
+  SearchUtils: searchUtils
+  FileUtils: fileUtils
+  PreferenceUtils: preferenceUtils
+  WindowUtils: windowUtils
+  ProviderUtils: providerUtils
+  Store: store
+  LoggerUtils: loggerUtils
+  NotifierUtils: notifierUtils
+  ExtensionUtils: extensionUtils
+  ThemeUtils: themeUtils
+  UpdateUtils: updateUtils
 }

@@ -1361,10 +1361,10 @@
     lodash "^4.17.15"
     tmp-promise "^3.0.2"
 
-"@moosync/moosync-types@^1.2.3":
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/@moosync/moosync-types/-/moosync-types-1.2.3.tgz#3a123923fbded8fc686303ce49926a2b8ba00639"
-  integrity sha512-Hq5jSgWg9fl+j6S05GBTBowy4+WT5ie15XLGfQnaR6yApvb7M0zm1ybp0ZFigFdSSpr3OgJRa7kNKxQVC5Uxqg==
+"@moosync/moosync-types@^1.2.4":
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/@moosync/moosync-types/-/moosync-types-1.2.4.tgz#19e484121630f04b8f4e108b21df5e9cbc0e3dfb"
+  integrity sha512-QSJ1Lv/s84WD4qJgUFCkXxVLkU7c3kEhw8PW68CQcATx54gHop/8LyJz7i2dd+ufpwtDs2FEmCJo/bcUOJNAbw==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"

@@ -9,6 +9,7 @@
 
 import { extensionRequests } from "../constants";
 import { v4 } from 'uuid';
+import { extensionAPI } from "@moosync/moosync-types";
 
 export class ExtensionRequestGenerator implements extensionAPI {
   private packageName: string
