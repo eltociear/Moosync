@@ -24,7 +24,7 @@ import { registerIpcChannels } from '@/utils/main/ipc'; // Import for side effec
 import { setInitialInterfaceSettings, loadPreferences } from './utils/main/db/preferences';
 import { setupScanTask } from '@/utils/main/scheduler/index';
 import { flipFuses, FuseVersion, FuseV1Options } from '@electron/fuses';
-import { setupDefaultThemes } from './utils/main/themes/preferences';
+import { setupDefaultThemes, setupSystemThemes } from './utils/main/themes/preferences';
 
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -132,6 +132,8 @@ async function onReady() {
   if (isFirstLaunch) {
     setupDefaultThemes()
   }
+
+  await setupSystemThemes()
 
   registerIpcChannels();
   setInitialInterfaceSettings();

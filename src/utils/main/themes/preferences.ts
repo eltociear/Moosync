@@ -1,4 +1,5 @@
 import { saveSelectivePreference, loadSelectivePreference, store } from '../db/preferences';
+import { SystemThemeHandler } from './system';
 
 /**
  * Saves theme under key "themes"
@@ -65,6 +66,23 @@ export function getActiveTheme() {
   const id = loadSelectivePreference('activeTheme', false) as string
   if (id) {
     return loadTheme(id)
+  }
+}
+
+export async function setupSystemThemes() {
+  const themes: { [key: string]: ThemeDetails } = {}
+
+  const systemThemeHandler = new SystemThemeHandler()
+  if (process.platform === 'linux') {
+    console.log('execing')
+    const theme = await systemThemeHandler.getLinuxStyle()
+    if (theme) {
+      themes[theme.id] = theme
+    }
+
+    for (const key in themes) {
+      saveTheme(themes[key])
+    }
   }
 }
 
