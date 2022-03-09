@@ -31,7 +31,6 @@ import { mixins } from 'vue-class-component'
 import ThemeHandler from '@/utils/ui/mixins/ThemeHandler'
 import Sidebar from '@/preferenceWindow/components/Sidebar.vue'
 import Vue from 'vue'
-import 'animate.css'
 
 Vue.directive('click-outside', {
   bind: function (el: any, binding) {

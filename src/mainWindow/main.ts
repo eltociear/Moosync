@@ -13,6 +13,7 @@ import '@/mainWindow/plugins/toasted'
 import '@/mainWindow/plugins/vueBootstrap'
 import '@/mainWindow/plugins/vueSliderBar'
 import '@/sass/global.sass'
+import 'animate.css'
 
 import App from '@/mainWindow/App.vue'
 import Vue from 'vue'

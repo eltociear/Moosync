@@ -9,6 +9,7 @@
 
 import '@/preferenceWindow/plugins/vueBootstrap'
 import '@/sass/global.sass'
+import 'animate.css'
 
 import App from './Preferences.vue'
 import Vue from 'vue'
