@@ -10,7 +10,6 @@
 import { BrowserWindow, Menu, Tray, app, dialog, protocol } from 'electron';
 import { SongEvents, WindowEvents } from './ipc/constants';
 import { getWindowSize, setWindowSize } from './db/preferences';
-import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 
 import { BrowserWindowConstructorOptions } from 'electron/main';
 import path from 'path';
@@ -80,14 +79,7 @@ export class WindowHandler {
   }
 
   public async installExtensions() {
-    if (this.isDevelopment && !process.env.IS_TEST) {
-      // Install Vue Devtools
-      try {
-        await installExtension(VUEJS_DEVTOOLS)
-      } catch (e) {
-        console.error('Vue Devtools failed to install:', e)
-      }
-    }
+    // Do nothing here
   }
 
   public registerProtocol(protocolName: string) {

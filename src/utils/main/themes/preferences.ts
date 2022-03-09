@@ -74,7 +74,6 @@ export async function setupSystemThemes() {
 
   const systemThemeHandler = new SystemThemeHandler()
   if (process.platform === 'linux') {
-    console.log('execing')
     const theme = await systemThemeHandler.getLinuxStyle()
     if (theme) {
       themes[theme.id] = theme

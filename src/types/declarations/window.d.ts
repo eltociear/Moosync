@@ -184,8 +184,11 @@ interface windowUtils {
  * Utils related to logging operations
  */
 interface loggerUtils {
-  info: (message: any) => Promise<void>
-  error: (message: any) => Promise<void>
+  info: (...message: any[]) => Promise<void>
+  error: (...message: any[]) => Promise<void>
+  warn: (...message: any[]) => Promise<void>
+  debug: (...message: any[]) => Promise<void>
+  trace: (...message: any[]) => Promise<void>
 }
 
 /**

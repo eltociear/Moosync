@@ -93,6 +93,7 @@
     "shvl": "^2.0.3",
     "socket.io-client": "^4.4.1",
     "stream-browserify": "^3.0.0",
+    "strip-ansi": "^7.0.1",
     "stun": "^2.1.0",
     "threads": "1.7.0",
     "threads-plugin": "^1.4.0",

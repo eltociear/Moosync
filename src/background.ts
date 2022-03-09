@@ -18,37 +18,30 @@ import path, { resolve } from 'path';
 import { oauthHandler } from '@/utils/main/oauth/handler';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import { extensionHost } from '@/utils/extensions';
-import log from 'loglevel'
-import { prefixLogger } from './utils/main/logger';
-import { registerIpcChannels } from '@/utils/main/ipc'; // Import for side effects
+import { registerIpcChannels } from '@/utils/main/ipc';
 import { setInitialInterfaceSettings, loadPreferences } from './utils/main/db/preferences';
 import { setupScanTask } from '@/utils/main/scheduler/index';
-import { flipFuses, FuseVersion, FuseV1Options } from '@electron/fuses';
 import { setupDefaultThemes, setupSystemThemes } from './utils/main/themes/preferences';
+import { logger } from './utils/main/logger/index';
 
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 nativeTheme.themeSource = 'dark'
 
-flipFuses(
-  require('electron') as unknown as string, // Returns the path to the electron binary
-  {
-    version: FuseVersion.V1,
-    [FuseV1Options.RunAsNode]: false,
-    [FuseV1Options.EnableCookieEncryption]: true,
-    [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
-    [FuseV1Options.EnableNodeCliInspectArguments]: false,
-    [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
-    [FuseV1Options.OnlyLoadAppFromAsar]: true,
-  },
-);
+overrideConsole()
+
+process.on('uncaughtException', err => {
+  console.error(err)
+})
+
+process.on('unhandledRejection', err => {
+  console.error(err)
+})
 
 if (!app.requestSingleInstanceLock() && !isDevelopment) {
   app.exit()
 } else {
-  // Override console.info and console.error with custom logging
-  overrideConsole()
   registerProtocols()
 
   // Quit when all windows are closed.
@@ -98,7 +91,7 @@ function interceptHttp() {
       try {
         callback(filePath)
       } catch (e) {
-        console.error(e)
+        logger.error(e)
       }
     })
   }
@@ -221,14 +214,24 @@ function handleSecondInstance(_: Event, argv: string[]) {
  * Overrides console with logger
  */
 function overrideConsole() {
-  const child = log.getLogger('Main')
-  prefixLogger(app.getPath('logs'), child)
   console.info = (...args: any[]) => {
-    child.info(...args)
+    logger.info(...args)
   }
 
   console.error = (...args: any[]) => {
-    child.error(...args)
+    logger.error(...args)
+  }
+
+  console.warn = (...args: any[]) => {
+    logger.warn(...args)
+  }
+
+  console.debug = (...args: any[]) => {
+    logger.debug(...args)
+  }
+
+  console.trace = (...args: any[]) => {
+    logger.trace(...args)
   }
 }
 

@@ -121,7 +121,13 @@ contextBridge.exposeInMainWorld('LoggerUtils', {
   info: (...message: any[]) =>
     ipcRendererHolder.send(IpcEvents.LOGGER, { type: LoggerEvents.INFO, params: { message: message } }),
   error: (...message: any[]) =>
-    ipcRendererHolder.send(IpcEvents.LOGGER, { type: LoggerEvents.ERROR, params: { message: message } })
+    ipcRendererHolder.send(IpcEvents.LOGGER, { type: LoggerEvents.ERROR, params: { message: message } }),
+  warn: (...message: any[]) =>
+    ipcRendererHolder.send(IpcEvents.LOGGER, { type: LoggerEvents.WARN, params: { message: message } }),
+  debug: (...message: any[]) =>
+    ipcRendererHolder.send(IpcEvents.LOGGER, { type: LoggerEvents.DEBUG, params: { message: message } }),
+  trace: (...message: any[]) =>
+    ipcRendererHolder.send(IpcEvents.LOGGER, { type: LoggerEvents.TRACE, params: { message: message } })
 })
 
 contextBridge.exposeInMainWorld('NotifierUtils', {

@@ -12,7 +12,7 @@ import { InMemoryRegistry } from './extensionRegistry';
 import { NodeVM } from 'vm2';
 import log from 'loglevel'
 import path from 'path';
-import { prefixLogger } from '../../main/logger/index';
+import { prefixLogger } from '../../main/logger/utils';
 import { readFile } from 'fs/promises';
 
 export abstract class AbstractExtensionManager {

@@ -10,10 +10,13 @@
 import { extensionEventsKeys, mainRequestsKeys } from '@/utils/extensions/constants';
 
 import { ExtensionHandler } from '@/utils/extensions/sandbox/extensionHandler';
+import { prefixLogger } from '@/utils/main/logger/utils';
+import log from 'loglevel';
 
 class ExtensionHostIPCHandler {
   private extensionHandler: ExtensionHandler
   private mainRequestHandler: MainRequestHandler
+  private logsPath: string
 
   constructor() {
     let extensionPath = ""
@@ -30,11 +33,40 @@ class ExtensionHostIPCHandler {
       }
     }
 
+    this.logsPath = logsPath
+    this.setupLogger()
+
     this.extensionHandler = new ExtensionHandler([extensionPath], logsPath)
     this.mainRequestHandler = new MainRequestHandler(this.extensionHandler)
 
     this.registerListeners()
     this.extensionHandler.startAll()
+  }
+
+  private setupLogger() {
+    const logger = log.getLogger('Extension Host')
+    prefixLogger(this.logsPath, logger)
+    logger.setLevel(log.levels.DEBUG)
+
+    console.info = (...args: any[]) => {
+      logger.info(...args)
+    }
+
+    console.error = (...args: any[]) => {
+      logger.error(...args)
+    }
+
+    console.warn = (...args: any[]) => {
+      logger.warn(...args)
+    }
+
+    console.debug = (...args: any[]) => {
+      logger.debug(...args)
+    }
+
+    console.trace = (...args: any[]) => {
+      logger.trace(...args)
+    }
   }
 
   private isExtensionEvent(key: string) {

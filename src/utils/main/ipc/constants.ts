@@ -127,7 +127,10 @@ export enum SongEvents {
 
 export enum LoggerEvents {
   INFO = 'info',
-  ERROR = 'error'
+  ERROR = 'error',
+  DEBUG = 'debug',
+  WARN = 'warn',
+  TRACE = 'trace'
 }
 
 export enum ExtensionHostEvents {

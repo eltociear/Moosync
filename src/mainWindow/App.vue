@@ -146,22 +146,40 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
   private registerLogger() {
     const preservedConsoleInfo = console.info
     const preservedConsoleError = console.error
+    const preservedConsoleWarn = console.warn
+    const preservedConsoleDebug = console.debug
+    const preservedConsoleTrace = console.trace
 
     if (window.LoggerUtils && window.LoggerUtils.info && window.LoggerUtils.error) {
       console.info = (...args: any[]) => {
         preservedConsoleInfo.apply(console, args)
-        window.LoggerUtils.info(args)
+        window.LoggerUtils.info(...args)
       }
 
       console.error = (...args: any[]) => {
         const error = this.getErrorMessage(...args)
         preservedConsoleError.apply(console, args)
-        window.LoggerUtils.error(error)
+        window.LoggerUtils.error(...error)
+      }
+
+      console.warn = (...args: any[]) => {
+        preservedConsoleWarn.apply(console, args)
+        window.LoggerUtils.warn(...args)
+      }
+
+      console.debug = (...args: any[]) => {
+        preservedConsoleDebug.apply(console, args)
+        window.LoggerUtils.debug(...args)
+      }
+
+      console.trace = (...args: any[]) => {
+        preservedConsoleTrace.apply(console, args)
+        window.LoggerUtils.trace(...args)
       }
 
       window.onerror = (err) => {
         const error = this.getErrorMessage(err)
-        window.LoggerUtils.error(error)
+        window.LoggerUtils.error(...error)
       }
 
       Vue.config.errorHandler = (err, vm, info) => {

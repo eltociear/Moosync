@@ -1,5 +1,5 @@
 /* 
- *  logger.ts is a part of Moosync.
+ *  update.ts is a part of Moosync.
  *  
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
  *  Licensed under the GNU General Public License. 
@@ -10,19 +10,18 @@
 import { IpcEvents, UpdateEvents } from './constants';
 import { WindowHandler } from '../windowManager';
 import { autoUpdater } from 'electron-updater';
+import { logger } from '../logger/index';
 
 export class UpdateChannel implements IpcChannelInterface {
   name = IpcEvents.UPDATE
 
   constructor() {
-    autoUpdater.on('checking-for-update', () => console.log('checking for update fired'))
+    autoUpdater.logger = logger
     autoUpdater.on('update-available', () => {
       this.notifyMainWindow(true)
-      console.log('notifying availbale')
     })
     autoUpdater.on('update-not-available', () => {
       this.notifyMainWindow(false)
-      console.log('notifying not availbale')
     })
   }
 

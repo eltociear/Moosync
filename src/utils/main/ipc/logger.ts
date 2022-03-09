@@ -7,19 +7,11 @@
  *  See LICENSE in the project root for license information.
  */
 
+import { rendererLogger } from '../logger';
 import { IpcEvents, LoggerEvents } from './constants';
-
-import { app } from 'electron';
-import log from 'loglevel'
-import { prefixLogger } from '@/utils/main/logger/index';
 
 export class LoggerChannel implements IpcChannelInterface {
   name = IpcEvents.LOGGER
-  private customLogger = log.getLogger('Renderer')
-
-  constructor() {
-    prefixLogger(app.getPath('logs'), this.customLogger)
-  }
 
   handle(event: Electron.IpcMainEvent, request: IpcRequest): void {
     switch (request.type) {
@@ -29,16 +21,40 @@ export class LoggerChannel implements IpcChannelInterface {
       case LoggerEvents.ERROR:
         this.logError(event, request)
         break
+      case LoggerEvents.WARN:
+        this.logWarn(event, request)
+        break
+      case LoggerEvents.DEBUG:
+        this.logDebug(event, request)
+        break
+      case LoggerEvents.TRACE:
+        this.logTrace(event, request)
+        break
     }
   }
 
   private logInfo(event: Electron.IpcMainEvent, request: IpcRequest) {
-    this.customLogger.info(...request.params.message)
+    rendererLogger.info(...request.params.message)
     event.reply(request.responseChannel)
   }
 
   private logError(event: Electron.IpcMainEvent, request: IpcRequest) {
-    this.customLogger.error(...request.params.message)
+    rendererLogger.error(...request.params.message)
+    event.reply(request.responseChannel)
+  }
+
+  private logDebug(event: Electron.IpcMainEvent, request: IpcRequest) {
+    rendererLogger.debug(...request.params.message)
+    event.reply(request.responseChannel)
+  }
+
+  private logWarn(event: Electron.IpcMainEvent, request: IpcRequest) {
+    rendererLogger.warn(...request.params.message)
+    event.reply(request.responseChannel)
+  }
+
+  private logTrace(event: Electron.IpcMainEvent, request: IpcRequest) {
+    rendererLogger.trace(...request.params.message)
     event.reply(request.responseChannel)
   }
 }
