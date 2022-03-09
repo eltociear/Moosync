@@ -23,7 +23,7 @@
       <SongDefault v-else class="coverimg" />
     </b-col>
     <b-col class="text-truncate">
-      <div id="musicbar-title" :title="title" class="text song-title text-truncate" @click="onTitleClick">
+      <div id="musicbar-title" :title="title" class="text song-title w-100 text-truncate" @click="onTitleClick">
         {{ title }}
       </div>
       <div :title="artists ? artists.join(', ') : '-'" class="text song-subtitle text-truncate">
