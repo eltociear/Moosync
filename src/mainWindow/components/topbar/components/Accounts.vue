@@ -10,7 +10,7 @@
 <template>
   <div>
     <Person id="account" class="accounts-icon" />
-    <b-popover :target="`account`" placement="bottom" triggers="focus" custom-class="accounts-popover">
+    <b-popover :target="`account`" placement="bottom" triggers="click blur" custom-class="accounts-popover">
       <div class="buttons">
         <IconButton
           v-for="p in providers"
