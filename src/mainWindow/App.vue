@@ -40,7 +40,6 @@ import { vxm } from './store'
 import { bus } from './main'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import { v1 } from 'uuid'
-import Vue from 'vue'
 import { EventBus } from '@/utils/main/ipc/constants'
 import OAuthModal from './components/modals/OAuthModal.vue'
 import FormModal from './components/modals/FormModal.vue'
@@ -62,7 +61,6 @@ const stun = require('stun')
 })
 export default class App extends mixins(ThemeHandler, PlayerControls) {
   created() {
-    this.registerLogger()
     this.registerNotifier()
     this.listenThemeChanges()
     this.listenExtensionEvents()
@@ -128,64 +126,6 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
       playlists[p.playlist_id] = p.playlist_name
     }
     vxm.playlist.playlists = playlists
-  }
-
-  private getErrorMessage(...args: any[]) {
-    let ret = []
-    for (const data of args) {
-      if (data instanceof Error) {
-        ret.push(args[0].stack)
-      } else {
-        ret.push(data)
-      }
-    }
-
-    return ret
-  }
-
-  private registerLogger() {
-    const preservedConsoleInfo = console.info
-    const preservedConsoleError = console.error
-    const preservedConsoleWarn = console.warn
-    const preservedConsoleDebug = console.debug
-    const preservedConsoleTrace = console.trace
-
-    if (window.LoggerUtils && window.LoggerUtils.info && window.LoggerUtils.error) {
-      console.info = (...args: any[]) => {
-        preservedConsoleInfo.apply(console, args)
-        window.LoggerUtils.info(...args)
-      }
-
-      console.error = (...args: any[]) => {
-        const error = this.getErrorMessage(...args)
-        preservedConsoleError.apply(console, args)
-        window.LoggerUtils.error(...error)
-      }
-
-      console.warn = (...args: any[]) => {
-        preservedConsoleWarn.apply(console, args)
-        window.LoggerUtils.warn(...args)
-      }
-
-      console.debug = (...args: any[]) => {
-        preservedConsoleDebug.apply(console, args)
-        window.LoggerUtils.debug(...args)
-      }
-
-      console.trace = (...args: any[]) => {
-        preservedConsoleTrace.apply(console, args)
-        window.LoggerUtils.trace(...args)
-      }
-
-      window.onerror = (err) => {
-        const error = this.getErrorMessage(err)
-        window.LoggerUtils.error(...error)
-      }
-
-      Vue.config.errorHandler = (err, vm, info) => {
-        window.LoggerUtils.error(err)
-      }
-    }
   }
 
   private registerNotifier() {
