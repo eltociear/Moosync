@@ -50,7 +50,7 @@ axiosRetry(axios, {
 })
 
 async function queryMbid(name: string) {
-  return musicbrainz.get<any>(`/?limit=1&query=artist:${name.replace(' ', '%20').replace('.', '')}`)
+  return musicbrainz.get<any>(encodeURI(`/?limit=1&query=artist:${name.replace(' ', '%20').replace('.', '')}`))
 }
 
 async function getAndUpdateMBID(a: Artists): Promise<Artists | undefined> {
@@ -71,7 +71,7 @@ export function fetchMBID(artists: Artists[], observer: SubscriptionObserver<Art
 }
 
 async function queryArtistUrls(id: string) {
-  return musicbrainz.get<any>(`/${id}?inc=url-rels`)
+  return musicbrainz.get<any>(encodeURI(`/${id}?inc=url-rels`))
 }
 
 async function fetchImagesRemote(a: Artists) {
@@ -100,7 +100,7 @@ async function fetchImagesRemote(a: Artists) {
 
 async function fetchTheAudioDB(artist_name: string) {
   try {
-    const data = await axios.get<any>(`https://theaudiodb.com/api/v1/json/1/search.php?s=${artist_name.replace(' ', '%20')}`)
+    const data = await axios.get<any>(encodeURI(`https://theaudiodb.com/api/v1/json/1/search.php?s=${artist_name.replace(' ', '%20')}`))
     if (data.data && data.data.artists && data.data.artists.length > 0) {
       for (const art in data.data.artists[0]) {
         if (art.includes('strArtistThumb') || art.includes('strArtistFanart')) {
@@ -116,7 +116,7 @@ async function fetchTheAudioDB(artist_name: string) {
 }
 
 async function fetchFanartTv(mbid: string): Promise<string | undefined> {
-  const data = await axios.get<any>(`http://webservice.fanart.tv/v3/music/${mbid}?api_key=68746a37e506c5fe70c80e13dc84d8b2`)
+  const data = await axios.get<any>(encodeURI(`http://webservice.fanart.tv/v3/music/${mbid}?api_key=68746a37e506c5fe70c80e13dc84d8b2`))
   if (data.data) {
     return data.data.artistthumb ? data.data.artistthumb[0].url : undefined
   }
@@ -124,7 +124,7 @@ async function fetchFanartTv(mbid: string): Promise<string | undefined> {
 
 async function followWikimediaRedirects(fileName: string): Promise<string | undefined> {
   const data = (
-    await axios.get<any>(`https://commons.wikimedia.org/w/api.php?action=query&redirects=1&titles=${fileName}&format=json`)
+    await axios.get<any>(encodeURI(`https://commons.wikimedia.org/w/api.php?action=query&redirects=1&titles=${fileName}&format=json`))
   ).data.query
   let filename = ''
   for (const i in data.pages) {
@@ -133,7 +133,7 @@ async function followWikimediaRedirects(fileName: string): Promise<string | unde
   }
   if (filename) {
     const md5 = createHash('md5').update(filename).digest('hex')
-    return `https://upload.wikimedia.org/wikipedia/commons/${md5[0]}/${md5[0] + md5[1]}/${filename}`
+    return encodeURI(`https://upload.wikimedia.org/wikipedia/commons/${md5[0]}/${md5[0] + md5[1]}/${filename}`)
   }
 
   return undefined
