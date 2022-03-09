@@ -12,8 +12,13 @@
     <Titlebar windowType="preference-window" />
     <Sidebar />
     <div class="main-content">
-      <transition name="slide-fade">
-        <router-view></router-view>
+      <transition
+        appear
+        name="custom-slide-fade"
+        enter-active-class="animate__animated animate__slideInLeft animate__fast"
+        leave-active-class="animate__animated animate__slideOutRight animate__fast"
+      >
+        <router-view class="animate_absolute"></router-view>
       </transition>
     </div>
   </div>
@@ -26,6 +31,7 @@ import { mixins } from 'vue-class-component'
 import ThemeHandler from '@/utils/ui/mixins/ThemeHandler'
 import Sidebar from '@/preferenceWindow/components/Sidebar.vue'
 import Vue from 'vue'
+import 'animate.css'
 
 Vue.directive('click-outside', {
   bind: function (el: any, binding) {

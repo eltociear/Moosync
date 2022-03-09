@@ -8,7 +8,7 @@
 -->
 
 <template>
-  <b-container fluid class="h-100">
+  <b-container fluid class="h-100 w-100">
     <b-row no-gutters> </b-row>
     <b-row no-gutters>
       <b-col class="h-100">

@@ -8,7 +8,7 @@
 -->
 
 <template>
-  <div>
+  <div class="w-100 h-100">
     <ContextMenu ref="contextMenu" v-click-outside="hideContextMenu" :menu-items="menu" />
     <b-container fluid>
       <b-row>
