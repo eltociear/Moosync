@@ -42,7 +42,12 @@
                   v-model="queueOrder"
                   ghost-class="ghost"
                   @start="drag = true"
-                  @end="drag = false"
+                  @end="
+                    () => {
+                      drag = false
+                      onDragEnd()
+                    }
+                  "
                   @change="handleIndexChange"
                 >
                   <transition-group name="flip-list">
@@ -96,6 +101,7 @@ import CrossIcon from '@/icons/CrossIcon.vue'
 })
 export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   private hasFrame = false
+  private ignoreScroll = false
 
   get queueProvider() {
     return vxm.sync.mode !== PeerMode.UNDEFINED ? vxm.sync : vxm.player
@@ -109,11 +115,22 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
     bus.$emit('onToggleSlider', false)
   }
 
+  private onDragEnd() {
+    this.ignoreScroll = true
+  }
+
   private scrollToActive() {
+    if (this.ignoreScroll) {
+      this.ignoreScroll = false
+      return
+    }
+
     const elem = this.$refs[`queue-item-${this.queueOrder[this.currentIndex]?.id}`]
     if (elem) {
       ;((elem as (Vue | Element)[])[0] as Vue).$el.scrollIntoView({
-        behavior: 'smooth'
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center'
       })
     }
   }
@@ -127,7 +144,8 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   }
 
   @Watch('currentIndex')
-  onIndexChange() {
+  async onIndexChange() {
+    await this.$nextTick()
     this.scrollToActive()
   }
 
