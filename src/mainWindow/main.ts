@@ -43,41 +43,39 @@ function registerLogger() {
   const preservedConsoleDebug = console.debug
   const preservedConsoleTrace = console.trace
 
-  if (window.LoggerUtils && window.LoggerUtils.info && window.LoggerUtils.error) {
-    console.info = (...args: unknown[]) => {
-      preservedConsoleInfo.apply(console, args)
-      window.LoggerUtils.info(...args)
-    }
+  console.info = (...args: unknown[]) => {
+    preservedConsoleInfo.apply(console, args)
+    window.LoggerUtils.info(...args)
+  }
 
-    console.error = (...args: unknown[]) => {
-      const error = getErrorMessage(...args)
-      preservedConsoleError.apply(console, args)
-      window.LoggerUtils.error(...error)
-    }
+  console.error = (...args: unknown[]) => {
+    const error = getErrorMessage(...args)
+    preservedConsoleError.apply(console, args)
+    window.LoggerUtils.error(...error)
+  }
 
-    console.warn = (...args: unknown[]) => {
-      preservedConsoleWarn.apply(console, args)
-      window.LoggerUtils.warn(...args)
-    }
+  console.warn = (...args: unknown[]) => {
+    preservedConsoleWarn.apply(console, args)
+    window.LoggerUtils.warn(...args)
+  }
 
-    console.debug = (...args: unknown[]) => {
-      preservedConsoleDebug.apply(console, args)
-      window.LoggerUtils.debug(...args)
-    }
+  console.debug = (...args: unknown[]) => {
+    preservedConsoleDebug.apply(console, args)
+    window.LoggerUtils.debug(...args)
+  }
 
-    console.trace = (...args: unknown[]) => {
-      preservedConsoleTrace.apply(console, args)
-      window.LoggerUtils.trace(...args)
-    }
+  console.trace = (...args: unknown[]) => {
+    preservedConsoleTrace.apply(console, args)
+    window.LoggerUtils.trace(...args)
+  }
 
-    window.onerror = (err) => {
-      const error = getErrorMessage(err)
-      window.LoggerUtils.error(...error)
-    }
+  window.onerror = (err) => {
+    const error = getErrorMessage(err)
+    window.LoggerUtils.error(...error)
+  }
 
-    Vue.config.errorHandler = (err) => {
-      window.LoggerUtils.error(err)
-    }
+  Vue.config.errorHandler = (err) => {
+    window.LoggerUtils.error(err)
   }
 }
 

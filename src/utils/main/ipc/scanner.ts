@@ -189,7 +189,7 @@ export class ScannerChannel implements IpcChannelInterface {
 
   // TODO: Add queueing for scraping artworks
   private async scrapeArtists() {
-    console.info('Scraping artists')
+    console.debug('Scraping artists')
     try {
       this.scraperWorker = await spawn(new Worker(`./${scraperWorker}`), { timeout: 5000 })
     } catch (e) {

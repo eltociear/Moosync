@@ -109,7 +109,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
     vxm.sync.queueIndex = songIndex
     const song = vxm.sync.queueTop
 
-    console.info('got remote track info', song, songIndex, from, this.peerHolder.socketID)
+    console.debug('Got remote track info', song, songIndex, from, this.peerHolder.socketID)
 
     if (song) {
       vxm.sync.playQueueSong(songIndex)
@@ -205,7 +205,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   }
 
   private async handleRemotePlayerState(state: PlayerState) {
-    console.info('got state', vxm.player.playerState)
+    console.debug('got state', vxm.player.playerState)
     if (vxm.player.playerState !== state) {
       this.isRemoteStateChange = true
       vxm.player.playerState = state
@@ -292,16 +292,16 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
 
   private playRequested(songIndex: number) {
     const song = vxm.sync.queueData[vxm.sync.queueOrder[songIndex].songID]
-    console.info('Play requested for', song)
+    console.debug('Play requested for', song)
     if (song) {
       vxm.sync.setSong(song)
     }
   }
 
   private async fetchRemoteSong() {
-    console.info('fetching status', this.isFetching)
+    console.debug('fetching status', this.isFetching)
     if (!this.isFetching) {
-      console.info('fetching song')
+      console.debug('fetching song')
       this.isFetching = true
       for (const fetch of vxm.sync.queueOrder) {
         const song = vxm.sync.queueData[fetch.songID]
@@ -369,7 +369,7 @@ export default class SyncMixin extends mixins(ModelHelper, ImgLoader) {
   }
 
   protected joinRoom(id: string) {
-    console.info('joining room', id)
+    console.debug('joining room', id)
     this.initializeRTC(PeerMode.WATCHER)
     this.peerHolder.joinRoom(id)
   }

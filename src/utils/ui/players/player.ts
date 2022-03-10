@@ -21,26 +21,32 @@ export abstract class Player {
 
   set onEnded(callback: () => void) {
     this.listenOnEnded(callback)
+    console.debug('Set onEnded callback')
   }
 
   set onTimeUpdate(callback: (time: number) => void) {
     this.listenOnTimeUpdate(callback)
+    console.debug('Set onTimeUpdate callback')
   }
 
   set onLoad(callback: () => void) {
     this.listenOnLoad(callback)
+    console.debug('Set onLoad callback')
   }
 
   set onError(callback: (err: ErrorEvent) => void) {
     this.listenOnError(callback)
+    console.debug('Set onError callback')
   }
 
   set onStateChange(callback: (state: PlayerState) => void) {
     this.listenOnStateChange(callback)
+    console.debug('Set onStateChange callback')
   }
 
   set onBuffer(callback: () => void) {
     this.listenOnBuffer(callback)
+    console.debug('Set onBuffer callback')
   }
 
   protected abstract listenOnEnded(callback: () => void): void

@@ -93,7 +93,7 @@ class MainHostIPCHandler {
     await this.mainRequestGenerator.removeExtension(packageName)
     await this.extensionResourceHandler.uninstallExtension(packageName)
 
-    console.info('Removed extension', packageName)
+    console.debug('Removed extension', packageName)
   }
 
   private sendToExtensionHost(data: Serializable) {
@@ -255,8 +255,7 @@ class ExtensionHandler {
       const manifest = JSON.parse(await fsP.readFile(path.join(extPath, 'package.json'), 'utf-8'))
       return manifest.version
     } catch (e) {
-      console.info(`No existing extension found with packageName: ${packageName}`)
-      undefined
+      console.debug(`No existing extension found with packageName: ${packageName}`)
     }
   }
 

@@ -293,11 +293,11 @@ export class SyncHolder {
       }
       return
     }
-    console.info('data channel', channel.label, 'is in state: ', this.peerConnection[id].streamChannel?.readyState)
+    console.debug('data channel', channel.label, 'is in state: ', this.peerConnection[id].streamChannel?.readyState)
   }
 
   public playSong(index: number) {
-    console.info('Playing song', index)
+    console.debug('Playing song', index)
     this.sendSongDetails(index)
   }
 
@@ -343,7 +343,7 @@ export class SyncHolder {
     this.isListeningReady = true
     this.socketConnection?.emit('requestReady')
 
-    console.info('requesting ready status from peers')
+    console.debug('Requesting ready status from peers')
   }
 
   /**
@@ -377,7 +377,7 @@ export class SyncHolder {
    */
   private listenBufferRequests() {
     this.socketConnection?.on('requestedSong', (id: string, songID: string) => {
-      console.info('Song was requested', id, songID)
+      console.debug('Song was requested', id, songID)
       this.sendSongBuffer(id, songID)
     })
 
@@ -412,7 +412,7 @@ export class SyncHolder {
    */
   private listenPeerReady() {
     this.socketConnection?.on('ready', (id: string) => {
-      console.info('Got ready call from', id)
+      console.debug('Got ready call from', id)
       if (this.isListeningReady) {
         this.setPeerReady(id)
         this.checkAllReady()
@@ -508,7 +508,7 @@ export class SyncHolder {
    * Emits ready
    */
   public emitReady() {
-    console.info('emitted ready')
+    console.debug('Socket emitting ready')
     this.socketConnection?.emit('ready')
     this.onReadyEmittedCallback ? this.onReadyEmittedCallback() : null
   }

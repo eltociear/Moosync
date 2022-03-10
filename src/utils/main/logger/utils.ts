@@ -46,7 +46,10 @@ function concatArgs(...messages: (string | object)[]) {
 }
 
 function createFile(basePath: string) {
-  const newFile = `moosync-${new Date().toLocaleDateString('en-GB').replaceAll('/', '-')}.log`
+  const isDevelopment = process.env.NODE_ENV !== 'production' ? log.levels.DEBUG : log.levels.INFO
+  const newFile = `moosync-${new Date().toLocaleDateString('en-GB').replaceAll('/', '-')}${
+    isDevelopment && '-development'
+  }.log`
   if (fileName !== newFile) {
     fileName = newFile
     fileStream && fileStream.end()

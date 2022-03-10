@@ -121,8 +121,11 @@ export class ExtensionHandler {
   public sendToExtensions(packageName: string | undefined, method: keyof MoosyncExtensionTemplate, args?: unknown) {
     for (const ext of this.extensionManager.getExtensions({ started: true, packageName })) {
       try {
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        if (ext.instance[method]) (ext.instance[method] as Function)(args)
+        console.debug('Trying to send event:', method, 'to', ext.packageName)
+        if (ext.instance[method]) {
+          console.debug('Extension can handle event, sending')
+          ;(ext.instance[method] as (args: unknown) => void)(args)
+        }
       } catch (e) {
         console.error(e)
       }

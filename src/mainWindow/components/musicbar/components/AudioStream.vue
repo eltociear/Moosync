@@ -118,6 +118,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    */
   private onPlayerTypeChanged(newType: PlayerType) {
     if (this.activePlayerType !== newType) {
+      console.debug('Changing player type to', newType)
       this.unloadAudio()
       this.activePlayer.removeAllListeners()
       this.activePlayerType = newType
@@ -262,7 +263,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
           this.pause()
           Vue.nextTick(() => this.play())
 
-          console.info('triggered buffer trap')
+          console.debug('Triggered buffer trap')
         }
       }, 3000)
     }
@@ -323,15 +324,21 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
         artwork.push({ src: song.album.album_coverPath_low })
       }
 
-      navigator.mediaSession.metadata = new MediaMetadata({
+      const metadata = {
         title: song.title,
         artist: song.artists && song.artists.join(', '),
         album: song.album?.album_name,
         artwork
-      })
+      }
+
+      navigator.mediaSession.metadata = new MediaMetadata(metadata)
+      console.debug('Set navigator mediaSession info', metadata)
+
       navigator.mediaSession.setActionHandler('nexttrack', () => this.nextSong())
       navigator.mediaSession.setActionHandler('previoustrack', () => this.prevSong())
       navigator.mediaSession.setActionHandler('seekto', (data) => data.seekTime && (this.forceSeek = data.seekTime))
+
+      console.debug('Set navigator mediaSession action handlers')
     }
   }
 
@@ -350,6 +357,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   private async loadAudio(song: Song, loadedState: boolean) {
     this.unloadAudio()
 
+    console.debug('Loading new song', song.title, song.type)
+
     if (this.isSyncing) {
       const tmp = await this.getLocalSong(song._id)
       if (tmp) {
@@ -367,6 +376,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     if (song.type === 'LOCAL') {
       if (song.path) {
         this.activePlayer.load('media://' + song.path, this.volume, this.playerState === 'PLAYING')
+        console.debug('Loaded song at', 'media://' + song.path)
         vxm.player.loading = false
       }
     } else {
@@ -379,6 +389,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
         }
       }
 
+      console.debug('Loaded song at', song.playbackUrl)
       this.activePlayer.load(song.playbackUrl, this.volume, this.playerState !== 'PAUSED')
     }
 
@@ -395,6 +406,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   }
 
   private unloadAudio() {
+    console.debug('Unloading audio')
+
     this.activePlayer.stop()
   }
 

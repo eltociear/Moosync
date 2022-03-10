@@ -138,7 +138,7 @@ export class ExtensionManager extends AbstractExtensionManager {
       })
     }
 
-    console.info(`Registered ${extension.name} - ${extension.desc}`)
+    console.debug(`Registered ${extension.name} - ${extension.desc}`)
   }
 
   getExtensions(options?: getExtensionOptions): Iterable<ExtensionItem> {

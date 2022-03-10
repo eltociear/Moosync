@@ -25,7 +25,7 @@ export class OAuthHandler {
 
   // TODO: Handle extension events
   public handleEvents(data: string) {
-    console.info('Got OAuth callback', data)
+    console.debug('Got OAuth callback', data)
     const url = new URL(data)
     const registered = this.callbackRegistry.find(
       (value) =>

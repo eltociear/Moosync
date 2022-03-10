@@ -36,7 +36,7 @@ export class FragmentSender {
     if (this.offset < this.byteLength - 1) {
       this.channel?.send(this.data.slice(this.offset, this.byteEnd))
 
-      console.info('sending ', this.data.slice(this.offset, this.byteEnd))
+      console.debug('sending ', this.data.slice(this.offset, this.byteEnd))
 
       this.offset = this.byteEnd
       this.byteEnd = this.offset + chunkLimit

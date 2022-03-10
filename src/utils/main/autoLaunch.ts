@@ -50,7 +50,7 @@ async function writeLinuxDesktopFile(directory: string, fileName: string) {
   for (const searchPath of desktopFileSearchPaths) {
     const desktopFile = path.join(searchPath, 'moosync.desktop')
     if (existsSync(desktopFile)) {
-      console.info('found file at', desktopFile)
+      console.debug('Found desktop file at', desktopFile)
       await fsP.copyFile(desktopFile, fileName)
       return
     }
