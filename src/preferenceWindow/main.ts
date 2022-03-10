@@ -67,11 +67,11 @@ function registerLogger() {
 
     window.onerror = (err) => {
       const error = getErrorMessage(err)
-      window.LoggerUtils.error(...error)
+      console.error(...error)
     }
 
     Vue.config.errorHandler = (err) => {
-      window.LoggerUtils.error(err)
+      console.error(err)
     }
   }
 }
