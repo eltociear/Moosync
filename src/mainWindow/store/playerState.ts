@@ -249,8 +249,6 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
       newIndex = this.songQueue.order.length - -newIndex
     }
 
-    console.log(newIndex, this.songQueue.order.length)
-
     if (newIndex >= this.songQueue.order.length) {
       newIndex = this.songQueue.order.length - 1
     }

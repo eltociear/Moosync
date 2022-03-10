@@ -53,7 +53,7 @@ export class UpdateChannel implements IpcChannelInterface {
       // Dont wait for promise to resolve
       await autoUpdater.checkForUpdates()
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 }

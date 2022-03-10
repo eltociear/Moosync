@@ -247,8 +247,6 @@ export class SyncStore extends VuexModule.With({ namespaced: 'sync' }) {
       newIndex = this.songQueue.order.length - -newIndex
     }
 
-    console.log(newIndex, this.songQueue.order.length)
-
     if (newIndex >= this.songQueue.order.length) {
       newIndex = this.songQueue.order.length - 1
     }
