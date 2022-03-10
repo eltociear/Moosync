@@ -152,7 +152,7 @@ export class WindowHandler {
     win?.webContents.send(WindowEvents.GOT_EXTRA_ARGS, args)
   }
 
-  private handleWindowClose(event: Event, window: BrowserWindow, isMainWindow: boolean) {
+  private async handleWindowClose(event: Event, window: BrowserWindow, isMainWindow: boolean) {
     if (window.webContents.isDevToolsOpened()) {
       window.webContents.closeDevTools()
     }
@@ -163,7 +163,7 @@ export class WindowHandler {
     if (isMainWindow) {
       event.preventDefault()
       if (!AppExitHandler._isQuitting && AppExitHandler._minimizeToTray) {
-        this.trayHandler.createTray()
+        await this.trayHandler.createTray()
         window.hide()
       } else {
         app.exit()
@@ -232,11 +232,11 @@ class AppExitHandler {
 class TrayHandler {
   private _tray: Tray | null = null
 
-  public createTray() {
+  public async createTray() {
     if (!this._tray || this._tray?.isDestroyed()) {
       try {
         const iconPath = path.join(app.getPath('appData'), 'moosync', 'trayIcon', 'icon.png')
-        access(iconPath)
+        await access(iconPath)
         this._tray = new Tray(iconPath)
       } catch (e) {
         this._tray = new Tray(path.join(__static, process.platform === 'darwin' ? 'logo_osx.png' : 'logo.png'))

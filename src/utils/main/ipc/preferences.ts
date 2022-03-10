@@ -147,7 +147,7 @@ export class PreferenceChannel implements IpcChannelInterface {
       const size = process.platform === 'darwin' ? 18 : 512
       await sharp(buffer).png().resize(size, size).toFile(iconPath)
     } else {
-      await rm(iconPath)
+      await rm(iconPath, { force: true })
     }
   }
 
