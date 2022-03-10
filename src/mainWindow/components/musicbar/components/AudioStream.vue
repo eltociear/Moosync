@@ -160,7 +160,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    */
   @Watch('forceSeek') onSeek(newValue: number) {
     this.activePlayer.currentTime = newValue
-    this.remoteSeek(newValue)
+    if (this.isSyncing) this.remoteSeek(newValue)
   }
 
   mounted() {
