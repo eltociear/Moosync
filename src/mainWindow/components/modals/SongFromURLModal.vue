@@ -69,7 +69,7 @@ export default class SongFromUrlModal extends Vue {
   @Prop({ default: 'SongFromURL' })
   private id!: string
 
-  private forceEmptyImg: boolean = false
+  private forceEmptyImg = false
 
   private parsedSong: Song | undefined | null = null
 

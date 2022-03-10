@@ -29,9 +29,9 @@ export default class OAuthModal extends Vue {
   private id!: string
 
   private title!: string
-  private desc: string = ''
+  private desc = ''
 
-  private showing: boolean = false
+  private showing = false
 
   mounted() {
     bus.$on(EventBus.SHOW_OAUTH_MODAL, (title: string) => {
@@ -52,5 +52,4 @@ export default class OAuthModal extends Vue {
 }
 </script>
 
-<style lang="sass" scoped>
-</style>
+<style lang="sass" scoped></style>

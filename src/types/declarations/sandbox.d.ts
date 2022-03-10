@@ -1,9 +1,10 @@
-/* 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/*
  *  sandbox.d.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -15,20 +16,19 @@ type extensionEventMessage = {
 
 type extensionRequestMessage = {
   type: import('@/utils/extensions/constants').extensionRequests
-  channel: string,
+  channel: string
   data: any
 }
 
 type extensionUIRequestMessage = {
   type: import('@/utils/extensions/constants').extensionUIRequests
-  channel: string,
+  channel: string
   data: any
 }
 
 type extensionReplyMessage = extensionRequestMessage
 
 type extensionHostMessage = extensionEventMessage | mainRequestMessage
-
 
 type mainRequestMessage = {
   type: import('@/utils/extensions/constants').mainRequests
@@ -45,13 +45,15 @@ interface installMessage {
   message?: string
 }
 
-type mainHostMessage = {
-  type: 'get-all-songs'
-  data: undefined
-} | {
-  type: 'get-installed-extensions'
-  data: ExtensionDetails[]
-}
+type mainHostMessage =
+  | {
+      type: 'get-all-songs'
+      data: undefined
+    }
+  | {
+      type: 'get-installed-extensions'
+      data: ExtensionDetails[]
+    }
 
 interface ExtensionDetails {
   name: string
@@ -71,12 +73,12 @@ interface ExtensionItem extends ExtensionDetails {
 }
 
 interface UnInitializedExtensionItem {
-  name: string,
-  packageName: string,
-  desc: string,
+  name: string
+  packageName: string
+  desc: string
   author: string
   version: string
-  entry: string,
+  entry: string
 }
 
 interface getExtensionOptions {
@@ -85,11 +87,11 @@ interface getExtensionOptions {
 }
 
 interface NodeRequire {
-  (dependencies: string[], callback: (...args: any[]) => any, errorback?: (err: any) => void): any;
-  config(data: any): any;
-  onError: Function;
-  __$__nodeRequire<T>(moduleName: string): T;
-  getStats(): ReadonlyArray<LoaderEvent>;
-  hasDependencyCycle(): boolean;
-  define(amdModuleId: string, dependencies: string[], callback: (...args: any[]) => any): any;
+  (dependencies: string[], callback: (...args: any[]) => any, errorback?: (err: any) => void): any
+  config(data: unknown): unknown
+  onError: (err: Error) => void
+  __$__nodeRequire<T>(moduleName: string): T
+  getStats(): ReadonlyArray<LoaderEvent>
+  hasDependencyCycle(): boolean
+  define(amdModuleId: string, dependencies: string[], callback: (...args: any[]) => any): any
 }

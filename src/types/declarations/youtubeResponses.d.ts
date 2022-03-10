@@ -1,15 +1,14 @@
-/* 
+/*
  *  youtubeResponses.d.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
 declare namespace YoutubeResponses {
-
-  // These are only the resources used 
+  // These are only the resources used
   enum ApiResources {
     CHANNELS = 'channels',
     PLAYLISTS = 'playlists',
@@ -20,12 +19,12 @@ declare namespace YoutubeResponses {
 
   type SearchRequest = {
     params: {
-      relatedToVideoId?: string,
-      videoCategoryId: 10,
-      type: 'video',
-      videoDuration: 'short',
-      maxResults?: number,
-      videoEmbeddable: true,
+      relatedToVideoId?: string
+      videoCategoryId: 10
+      type: 'video'
+      videoDuration: 'short'
+      maxResults?: number
+      videoEmbeddable: true
       order: 'date'
     }
   }
@@ -51,7 +50,7 @@ declare namespace YoutubeResponses {
     params: {
       part: ['id', 'snippet'?]
       maxResults: number
-      playlistId: String,
+      playlistId: string
       pageToken?: string | undefined
     }
   }
@@ -150,16 +149,14 @@ declare namespace YoutubeResponses {
     interface PlaylistItems {
       kind: string
       etag: string
-      nextPageToken?: string,
-      prevPageToken?: string,
+      nextPageToken?: string
+      prevPageToken?: string
       items: Items[]
       pageInfo: PageInfo
     }
-
   }
 
   namespace UserPlaylists {
-
     interface Localized {
       title: string
       description: string
@@ -191,12 +188,10 @@ declare namespace YoutubeResponses {
       kind: string
       etag: string
       nextPageToken?: string
-      prevPageToken?: string,
+      prevPageToken?: string
       pageInfo: PageInfo
       items: Item[]
     }
-
-
   }
   interface Localized {
     title: string
@@ -204,8 +199,6 @@ declare namespace YoutubeResponses {
   }
 
   namespace ChannelInfo {
-
-
     interface Snippet {
       title: string
       description: string
@@ -230,12 +223,8 @@ declare namespace YoutubeResponses {
   }
 
   namespace VideoDetails {
-
     interface RegionRestriction {
       allowed: string[]
-    }
-
-    interface ContentRating {
     }
 
     interface ContentDetails {
@@ -271,26 +260,26 @@ declare namespace YoutubeResponses {
     }
 
     interface VideoDetails {
-      kind: string,
-      etag: string,
-      nextPageToken?: string,
-      prevPageToken?: string,
-      items: Item[],
-      pageInfo: PageInfo,
+      kind: string
+      etag: string
+      nextPageToken?: string
+      prevPageToken?: string
+      items: Item[]
+      pageInfo: PageInfo
     }
   }
 
   namespace SearchDetails {
     interface Item {
       id: {
-        kind: string,
+        kind: string
         videoId: string
       }
       kind: string
       etag: string
     }
     interface SearchDetails {
-      items: Item[],
+      items: Item[]
     }
   }
 

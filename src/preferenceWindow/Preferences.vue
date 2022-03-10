@@ -33,6 +33,7 @@ import Sidebar from '@/preferenceWindow/components/Sidebar.vue'
 import Vue from 'vue'
 
 Vue.directive('click-outside', {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   bind: function (el: any, binding) {
     // Define Handler and cache it on the element
     const bubble = binding.modifiers.bubble
@@ -45,6 +46,7 @@ Vue.directive('click-outside', {
     // add Event Listeners
     document.addEventListener('mousedown', handler)
   },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   unbind: function (el: any) {
     // Remove Event Listeners
     document.removeEventListener('mousedown', el.__vueClickOutside__)
@@ -67,8 +69,8 @@ export default class App extends mixins(ThemeHandler) {
 
   private listenArgs() {
     window.WindowUtils.listenArgs((args) => {
-      if (args && args.page) {
-        this.$router.push(args.page)
+      if (args && (args as { page: string }).page) {
+        this.$router.push((args as { page: string }).page)
       }
     })
   }

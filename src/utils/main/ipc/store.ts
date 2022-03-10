@@ -1,13 +1,13 @@
-/* 
+/*
  *  store.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
-import { loadSelectivePreference, removeSelectivePreference, saveSelectivePreference } from '../db/preferences';
+import { loadSelectivePreference, removeSelectivePreference, saveSelectivePreference } from '../db/preferences'
 
 import { IpcEvents } from './constants'
 import { StoreEvents } from '@/utils/main/ipc/constants'
@@ -18,18 +18,18 @@ export class StoreChannel implements IpcChannelInterface {
   handle(event: Electron.IpcMainEvent, request: IpcRequest): void {
     switch (request.type) {
       case StoreEvents.SET_SECURE:
-        this.setKeytar(event, request)
+        this.setKeytar(event, request as IpcRequest<StoreRequests.Set>)
         break
       case StoreEvents.GET_SECURE:
-        this.getKeytar(event, request)
+        this.getKeytar(event, request as IpcRequest<StoreRequests.Get>)
         break
       case StoreEvents.REMOVE_SECURE:
-        this.removeKeytar(event, request)
+        this.removeKeytar(event, request as IpcRequest<StoreRequests.Get>)
         break
     }
   }
 
-  private async setKeytar(event: Electron.IpcMainEvent, request: IpcRequest) {
+  private async setKeytar(event: Electron.IpcMainEvent, request: IpcRequest<StoreRequests.Set>) {
     if (request.params.token && request.params.service) {
       try {
         if (safeStorage.isEncryptionAvailable()) {
@@ -43,7 +43,7 @@ export class StoreChannel implements IpcChannelInterface {
     event.reply(request.responseChannel)
   }
 
-  private async removeKeytar(event: Electron.IpcMainEvent, request: IpcRequest) {
+  private async removeKeytar(event: Electron.IpcMainEvent, request: IpcRequest<StoreRequests.Get>) {
     if (request.params.service) {
       try {
         removeSelectivePreference(`secure.${request.params.service}`)
@@ -54,11 +54,11 @@ export class StoreChannel implements IpcChannelInterface {
     event.reply(request.responseChannel)
   }
 
-  private async getKeytar(event: Electron.IpcMainEvent, request: IpcRequest) {
+  private async getKeytar(event: Electron.IpcMainEvent, request: IpcRequest<StoreRequests.Get>) {
     if (request.params.service) {
       try {
         if (safeStorage.isEncryptionAvailable()) {
-          const encrypted = loadSelectivePreference<String>(`secure.${request.params.service}`)
+          const encrypted = loadSelectivePreference<string>(`secure.${request.params.service}`)
           if (encrypted) {
             const decrypted = safeStorage.decryptString(Buffer.from(encrypted, 'base64'))
             event.reply(request.responseChannel, decrypted)

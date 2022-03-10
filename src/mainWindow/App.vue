@@ -44,8 +44,6 @@ import { EventBus } from '@/utils/main/ipc/constants'
 import OAuthModal from './components/modals/OAuthModal.vue'
 import FormModal from './components/modals/FormModal.vue'
 
-const stun = require('stun')
-
 @Component({
   components: {
     Titlebar,
@@ -77,7 +75,6 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     this.registerFileDragListener()
     this.handleInitialSetup()
     this.checkUpdate()
-    // this.testStun()
   }
 
   private checkUpdate() {
@@ -93,17 +90,6 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
         window.WindowUtils.toggleDevTools(true)
       } else if (e.code === 'F5') {
         location.reload()
-      }
-    })
-  }
-
-  public testStun(): void {
-    stun.request('stun.l.google.com:19302', (err: any, res: any) => {
-      if (err) {
-        console.error(err)
-      } else {
-        const { address } = res.getXorAddress()
-        console.log('ip: ', address)
       }
     })
   }

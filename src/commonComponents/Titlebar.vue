@@ -88,7 +88,7 @@ export default class Sidebar extends Vue {
   @Prop({ default: 'main-window' })
   private windowType!: 'main-window' | 'preference-window'
 
-  private isMaximized: boolean = false
+  private isMaximized = false
   private resizedFinished: NodeJS.Timeout | undefined
 
   private hasFrame = false

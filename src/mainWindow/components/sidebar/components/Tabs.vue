@@ -54,7 +54,6 @@
   </div>
 </template>
 
-
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import Playlists from '@/icons/PlaylistsIcon.vue'
@@ -108,6 +107,7 @@ export default class Sidebar extends Vue {
     return this.componentNames.filter((val) => typeof val.link === 'function')
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private getOnClick(item: typeof this.componentNames[0], navigate: (...args: any[]) => void, ...args: any[]) {
     if (item.custom) {
       item.custom()
@@ -178,4 +178,3 @@ export default class Sidebar extends Vue {
 
 .text-delay-leave-to
 </style>
-

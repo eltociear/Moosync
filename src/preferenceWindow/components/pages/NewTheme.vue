@@ -79,8 +79,8 @@ import NavBack from '@/icons/NavBackIcon.vue'
 export default class NewTheme extends Vue {
   private customTheme: ThemeItem = this.defaultTheme
 
-  private title: string = ''
-  private author: string = ''
+  private title = ''
+  private author = ''
 
   get defaultTheme() {
     return {
@@ -95,7 +95,7 @@ export default class NewTheme extends Vue {
     }
   }
 
-  private getThemeTitle(key: String) {
+  private getThemeTitle(key: string) {
     let str = key.replace(/([A-Z])/g, ' $1').trim()
     return str.charAt(0).toUpperCase() + str.slice(1)
   }

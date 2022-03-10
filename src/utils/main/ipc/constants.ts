@@ -1,9 +1,9 @@
-/* 
+/*
  *  constants.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -22,7 +22,7 @@ export enum IpcEvents {
   SERVICE_PROVIDERS = 'serviceProviders',
   LOGGER = 'logger',
   NOTIFIER = 'notifier',
-  EXTENSION_HOST = "extensionHost",
+  EXTENSION_HOST = 'extensionHost',
   UPDATE = 'update'
 }
 
@@ -31,7 +31,7 @@ export enum StoreEvents {
   GET_DATA = 'getData',
   SET_SECURE = 'setSecure',
   GET_SECURE = 'getSecure',
-  REMOVE_SECURE = 'removeSecure',
+  REMOVE_SECURE = 'removeSecure'
 }
 
 export enum SearchEvents {
@@ -134,7 +134,7 @@ export enum LoggerEvents {
 }
 
 export enum ExtensionHostEvents {
-  EVENT_TRIGGER = "eventTrigger",
+  EVENT_TRIGGER = 'eventTrigger',
   GET_ALL_EXTENSIONS = 'getAllExtensions',
   INSTALL = 'install',
   EXTENSION_REQUESTS = 'extensionRequests',
@@ -167,5 +167,5 @@ export enum EventBus {
   HIDE_OAUTH_MODAL = 'hide-oauth-modal',
   SHOW_FORM_MODAL = 'show-form-modal',
   REFRESH_USERNAMES = 'refresh-usernames',
-  REFRESH_PAGE = 'refresh-page',
+  REFRESH_PAGE = 'refresh-page'
 }

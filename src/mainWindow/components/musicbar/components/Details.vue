@@ -67,9 +67,9 @@ export default class MusicBar extends mixins(ImageLoader, ErrorHandler, FileMixi
   @Prop({ default: '' })
   private imgSrc!: string
 
-  private showPopover: boolean = false
+  private showPopover = false
 
-  private forceEmptyImg: boolean = false
+  private forceEmptyImg = false
 
   private onTitleClick() {
     let str = this.artists.join(', ')

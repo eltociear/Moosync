@@ -1,30 +1,29 @@
-/* 
+/*
  *  index.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
-import { ChildProcess, fork } from 'child_process';
-import { app, ipcMain } from 'electron';
-import { extensionUIRequestsKeys, mainRequests } from '@/utils/extensions/constants';
-import { loadSelectivePreference, saveSelectivePreference } from '../main/db/preferences';
+import { ChildProcess, fork, Serializable } from 'child_process'
+import { app, ipcMain } from 'electron'
+import { extensionUIRequestsKeys, mainRequests } from '@/utils/extensions/constants'
+import { loadSelectivePreference, saveSelectivePreference } from '../main/db/preferences'
 
-import { ExtensionHostEvents } from '@/utils/main/ipc/constants';
-import { SongDB } from '@/utils/main/db/index';
-import { WindowHandler } from '../main/windowManager';
-import { async } from 'node-stream-zip';
-import { promises as fsP } from 'fs';
-import { getVersion } from '@/utils/common';
-import path from 'path';
-import { playerControlRequests } from './constants';
-import { v4 } from 'uuid';
+import { ExtensionHostEvents } from '@/utils/main/ipc/constants'
+import { SongDB } from '@/utils/main/db/index'
+import { WindowHandler } from '../main/windowManager'
+import { async } from 'node-stream-zip'
+import { promises as fsP } from 'fs'
+import { getVersion } from '@/utils/common'
+import path from 'path'
+import { playerControlRequests } from './constants'
+import { v4 } from 'uuid'
 
 export const defaultExtensionPath = path.join(app.getPath('appData'), app.getName(), 'extensions')
 const defaultLogPath = path.join(app.getPath('logs'))
-
 
 class MainHostIPCHandler {
   private sandboxProcess: ChildProcess
@@ -55,10 +54,12 @@ class MainHostIPCHandler {
   }
 
   private registerListeners() {
-    this.sandboxProcess.on("message", this.parseMessage.bind(this))
-    this.sandboxProcess.on("error", (e) => console.error('Extension Error:', e))
-    this.sandboxProcess.on('exit', () => { this.isAlive = false; })
-    this.sandboxProcess.on('close', () => this.isAlive = false)
+    this.sandboxProcess.on('message', this.parseMessage.bind(this))
+    this.sandboxProcess.on('error', (e) => console.error('Extension Error:', e))
+    this.sandboxProcess.on('exit', () => {
+      this.isAlive = false
+    })
+    this.sandboxProcess.on('close', () => (this.isAlive = false))
   }
 
   private createExtensionHost() {
@@ -72,11 +73,18 @@ class MainHostIPCHandler {
   }
 
   private parseMessage(message: mainHostMessage) {
-    this.extensionRequestHandler.parseRequest(message as extensionRequestMessage).then(resp => this.sendToExtensionHost(resp))
+    this.extensionRequestHandler.parseRequest(message as extensionRequestMessage).then((resp) => {
+      if (resp) {
+        this.sendToExtensionHost(resp)
+      }
+    })
   }
 
   public async installExtension(zipPaths: string[]): Promise<installMessage> {
-    const resp = await this.extensionResourceHandler.installExtension(zipPaths, this.extensionResourceHandler.uninstallExtension.bind(this.extensionResourceHandler))
+    const resp = await this.extensionResourceHandler.installExtension(
+      zipPaths,
+      this.extensionResourceHandler.uninstallExtension.bind(this.extensionResourceHandler)
+    )
     await this.mainRequestGenerator.findNewExtensions()
     return resp
   }
@@ -88,7 +96,7 @@ class MainHostIPCHandler {
     console.info('Removed extension', packageName)
   }
 
-  private sendToExtensionHost(data: any) {
+  private sendToExtensionHost(data: Serializable) {
     if (!this.isAlive || !this.sandboxProcess.connected || this.sandboxProcess.killed) {
       this.reSpawnProcess()
     }
@@ -99,9 +107,9 @@ class MainHostIPCHandler {
 
 class MainRequestGenerator {
   private sandboxProcess: ChildProcess
-  private _sendSync: (data: any) => void
+  private _sendSync: (data: Serializable) => void
 
-  constructor(process: ChildProcess, sendSync: (data: any) => void) {
+  constructor(process: ChildProcess, sendSync: (data: Serializable) => void) {
     this.sandboxProcess = process
     this._sendSync = sendSync
   }
@@ -126,26 +134,29 @@ class MainRequestGenerator {
     return this.sendAsync<void>('remove-extension', { packageName })
   }
 
-  private sendAsync<T>(type: mainRequests, data?: any): Promise<T> {
+  private sendAsync<T>(type: mainRequests, data?: unknown): Promise<T> {
     const channel = v4()
 
-    return new Promise<T>(resolve => {
+    return new Promise<T>((resolve) => {
       let listener: (data: mainReplyMessage) => void
-      this.sandboxProcess.on('message', listener = (data: mainReplyMessage) => {
-        if (data.channel === channel) {
-          this.sandboxProcess.off('message', listener)
-          resolve(data.data)
-        }
-      })
+      this.sandboxProcess.on(
+        'message',
+        (listener = (data: mainReplyMessage) => {
+          if (data.channel === channel) {
+            this.sandboxProcess.off('message', listener)
+            resolve(data.data)
+          }
+        })
+      )
       this._sendSync({ type, channel, data } as mainRequestMessage)
     })
   }
 }
 
 class ExtensionEventGenerator {
-  private _sendSync: (data: any) => void
+  private _sendSync: (data: Serializable) => void
 
-  constructor(sendSync: (data: any) => void) {
+  constructor(sendSync: (data: Serializable) => void) {
     this._sendSync = sendSync
   }
 
@@ -155,27 +166,29 @@ class ExtensionEventGenerator {
 }
 
 class ExtensionRequestHandler {
-  private mainWindowCallsQueue: { func: Function, args: any[] }[] = []
+  private mainWindowCallsQueue: { func: unknown; args: Serializable[] }[] = []
 
   public mainWindowCreated() {
     for (const f of this.mainWindowCallsQueue) {
-      f.func(...f.args)
+      ;(f.func as (...args: Serializable[]) => void)(...f.args)
     }
   }
 
   private requestFromMainWindow(message: extensionRequestMessage) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       let listener: (event: Electron.IpcMainEvent, data: extensionReplyMessage) => void
-      ipcMain.on(ExtensionHostEvents.EXTENSION_REQUESTS, listener = (event, data: extensionReplyMessage) => {
-        if (data.channel === message.channel) {
-          ipcMain.off(ExtensionHostEvents.EXTENSION_REQUESTS, listener)
-          resolve(data.data)
-        }
-      })
+      ipcMain.on(
+        ExtensionHostEvents.EXTENSION_REQUESTS,
+        (listener = (event, data: extensionReplyMessage) => {
+          if (data.channel === message.channel) {
+            ipcMain.off(ExtensionHostEvents.EXTENSION_REQUESTS, listener)
+            resolve(data.data)
+          }
+        })
+      )
 
       // Defer call till mainWindow is created
-      if (WindowHandler.getWindow(true))
-        this.sendToMainWindow(message)
+      if (WindowHandler.getWindow(true)) this.sendToMainWindow(message)
       else {
         this.mainWindowCallsQueue.push({ func: this.sendToMainWindow, args: [message] })
       }
@@ -188,28 +201,32 @@ class ExtensionRequestHandler {
 
   private getPreferenceKey(packageName: string, key?: string) {
     let str = packageName
-    if (key) str += "." + key
+    if (key) str += '.' + key
     return str
   }
 
   public async parseRequest(message: extensionRequestMessage): Promise<extensionReplyMessage | undefined> {
     const resp: extensionReplyMessage = { ...message, data: undefined }
     if (message.type === 'get-songs') {
-      const songs = await SongDB.getSongByOptions(message.data)
+      const songs = SongDB.getSongByOptions(message.data)
       resp.data = songs
     }
 
     if (message.type === 'get-preferences') {
-      const { packageName, key, defaultValue }: { packageName: string, key?: string, defaultValue?: any } = message.data
+      const { packageName, key, defaultValue }: { packageName: string; key?: string; defaultValue?: unknown } =
+        message.data
       resp.data = await loadSelectivePreference(this.getPreferenceKey(packageName, key), true, defaultValue)
     }
 
     if (message.type === 'set-preferences') {
-      const { packageName, key, value }: { packageName: string, key: string, value: any } = message.data
-      resp.data = await saveSelectivePreference(this.getPreferenceKey(packageName, key), value, true)
+      const { packageName, key, value }: { packageName: string; key: string; value: unknown } = message.data
+      resp.data = saveSelectivePreference(this.getPreferenceKey(packageName, key), value, true)
     }
 
-    if (extensionUIRequestsKeys.includes(message.type as any) || playerControlRequests.includes(message.type as any)) {
+    if (
+      extensionUIRequestsKeys.includes(message.type as typeof extensionUIRequestsKeys[number]) ||
+      playerControlRequests.includes(message.type as typeof playerControlRequests[number])
+    ) {
       const data = await this.requestFromMainWindow(message)
       resp.data = data
     }
@@ -219,7 +236,6 @@ class ExtensionRequestHandler {
 }
 
 class ExtensionHandler {
-
   private async checkVersion(oldS: string, newS: string) {
     const oldV = getVersion(oldS)
     const newV = getVersion(newS)
@@ -244,12 +260,21 @@ class ExtensionHandler {
     }
   }
 
-  public async installExtension(zipPaths: string[], uninstallMethod: (P: string) => Promise<void>): Promise<installMessage> {
+  public async installExtension(
+    zipPaths: string[],
+    uninstallMethod: (P: string) => Promise<void>
+  ): Promise<installMessage> {
     for (const filePath of zipPaths) {
       const zip = new async({ file: filePath })
       const manifestRaw = await zip.entryData('package.json')
-      const manifest = JSON.parse((manifestRaw.toString('utf-8')))
-      if (manifest.moosyncExtension && manifest.displayName && manifest.extensionEntry && manifest.name && manifest.version) {
+      const manifest = JSON.parse(manifestRaw.toString('utf-8'))
+      if (
+        manifest.moosyncExtension &&
+        manifest.displayName &&
+        manifest.extensionEntry &&
+        manifest.name &&
+        manifest.version
+      ) {
         const existingVersion = await this.isExistingExtension(manifest.name)
         if (existingVersion) {
           if (!(await this.checkVersion(existingVersion, manifest.version))) {
@@ -266,7 +291,7 @@ class ExtensionHandler {
         await zip.extract(null, installPath)
         return {
           success: true,
-          message: "Extension installed successfully",
+          message: 'Extension installed successfully'
         }
       }
     }

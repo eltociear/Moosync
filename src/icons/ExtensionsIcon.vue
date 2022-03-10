@@ -31,6 +31,6 @@ import { Component, Prop } from 'vue-property-decorator'
 @Component({})
 export default class Extensions extends Vue {
   @Prop({ default: false })
-  private active!: Boolean
+  private active!: boolean
 }
 </script>

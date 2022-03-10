@@ -1,9 +1,9 @@
-/* 
+/*
  *  index.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -21,7 +21,16 @@ import { createPersist } from '@/utils/ui/store/persist'
 
 Vue.use(Vuex)
 
-const paths = ['player.volume', 'player.currentSong', 'player.state', 'player.songQueue', 'player.repeat', 'themes.colors', 'themes._sortBy', 'themes._sidebarOpen']
+const paths = [
+  'player.volume',
+  'player.currentSong',
+  'player.state',
+  'player.songQueue',
+  'player.repeat',
+  'themes.colors',
+  'themes._sortBy',
+  'themes._sidebarOpen'
+]
 
 export const store = new Vuex.Store({
   modules: {
@@ -30,9 +39,9 @@ export const store = new Vuex.Store({
     ...extractVuexModule(SyncStore),
     ...extractVuexModule(ProviderStore),
     ...extractVuexModule(NotifierStore),
-    ...extractVuexModule(ThemeStore),
+    ...extractVuexModule(ThemeStore)
   },
-  plugins: [createPersist(paths)],
+  plugins: [createPersist(paths)]
 })
 
 export const vxm = {
@@ -41,5 +50,5 @@ export const vxm = {
   sync: createProxy(store, SyncStore),
   providers: createProxy(store, ProviderStore),
   notifier: createProxy(store, NotifierStore),
-  themes: createProxy(store, ThemeStore),
+  themes: createProxy(store, ThemeStore)
 }

@@ -38,11 +38,11 @@ export default class OAuthModal extends Vue {
   @Prop({ default: 'FormModal' })
   private id!: string
 
-  private title: string = ''
+  private title = ''
   private callback?: (val: number) => void
-  private value: number = 0
+  private value = 0
 
-  private showing: boolean = false
+  private showing = false
 
   mounted() {
     bus.$on(EventBus.SHOW_FORM_MODAL, (title: string, callback: (val: number) => void) => {

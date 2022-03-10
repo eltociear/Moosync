@@ -1,19 +1,19 @@
-/* 
+/*
  *  databaseEnvironment.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
 import NodeEnvironment from 'jest-environment-node'
 import { Config, Global } from '@jest/types'
-import path from 'path';
+import path from 'path'
 import { SongDBInstance } from '../../src/utils/main/db/database'
 import { tmpdir } from 'os'
-import { v1 } from 'uuid';
-import { unlink } from 'fs/promises';
+import { v1 } from 'uuid'
+import { unlink } from 'fs/promises'
 
 export interface CustomGlobal extends Global.Global {
   dbPath: string
@@ -24,11 +24,11 @@ export default class DatabaseEnvironment extends NodeEnvironment {
   declare global: CustomGlobal
 
   constructor(config: Config.ProjectConfig) {
-    super(config);
+    super(config)
   }
 
   async setup() {
-    await super.setup();
+    await super.setup()
 
     const dbPath = path.join(tmpdir(), `${v1()}.db`)
     const SongDB = new SongDBInstance(dbPath)
@@ -45,6 +45,6 @@ export default class DatabaseEnvironment extends NodeEnvironment {
       console.error(e)
     }
 
-    await super.teardown();
+    await super.teardown()
   }
 }

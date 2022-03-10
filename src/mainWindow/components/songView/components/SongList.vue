@@ -69,7 +69,7 @@ import { Component, Prop, Ref, Vue } from 'vue-property-decorator'
 
 @Component({})
 export default class SongList extends mixins(SongListMixin) {
-  private refreshKey: boolean = false
+  private refreshKey = false
 
   @Prop({ default: {} })
   private extrafields!: [{ key: TableFields; label?: string }]

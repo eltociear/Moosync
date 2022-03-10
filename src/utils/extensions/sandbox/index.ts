@@ -1,17 +1,19 @@
-/* 
+/*
  *  index.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
-import { extensionEventsKeys, mainRequestsKeys } from '@/utils/extensions/constants';
+import { mainRequestsKeys } from '@/utils/extensions/constants'
 
-import { ExtensionHandler } from '@/utils/extensions/sandbox/extensionHandler';
-import { prefixLogger } from '@/utils/main/logger/utils';
-import log from 'loglevel';
+import { ExtensionHandler } from '@/utils/extensions/sandbox/extensionHandler'
+import { prefixLogger } from '@/utils/main/logger/utils'
+import log from 'loglevel'
+import { extensionEventsKeys } from '@/utils/extensions/constants'
+import { mainRequests } from '../constants'
 
 class ExtensionHostIPCHandler {
   private extensionHandler: ExtensionHandler
@@ -19,8 +21,8 @@ class ExtensionHostIPCHandler {
   private logsPath: string
 
   constructor() {
-    let extensionPath = ""
-    let logsPath = ""
+    let extensionPath = ''
+    let logsPath = ''
     for (const [index, arg] of process.argv.entries()) {
       if (process.argv[index + 1]) {
         if (arg === 'extensionPath') {
@@ -48,33 +50,33 @@ class ExtensionHostIPCHandler {
     prefixLogger(this.logsPath, logger)
     logger.setLevel(log.levels.DEBUG)
 
-    console.info = (...args: any[]) => {
+    console.info = (...args: unknown[]) => {
       logger.info(...args)
     }
 
-    console.error = (...args: any[]) => {
+    console.error = (...args: unknown[]) => {
       logger.error(...args)
     }
 
-    console.warn = (...args: any[]) => {
+    console.warn = (...args: unknown[]) => {
       logger.warn(...args)
     }
 
-    console.debug = (...args: any[]) => {
+    console.debug = (...args: unknown[]) => {
       logger.debug(...args)
     }
 
-    console.trace = (...args: any[]) => {
+    console.trace = (...args: unknown[]) => {
       logger.trace(...args)
     }
   }
 
   private isExtensionEvent(key: string) {
-    return extensionEventsKeys.includes(key as any)
+    return extensionEventsKeys.includes(key as keyof MoosyncExtensionTemplate)
   }
 
   private isMainReply(key: string) {
-    return mainRequestsKeys.includes(key as any)
+    return mainRequestsKeys.includes(key as mainRequests)
   }
 
   private registerListeners() {
@@ -112,7 +114,8 @@ class MainRequestHandler {
 
   public parseRequest(message: mainRequestMessage) {
     if (message.type === 'find-new-extensions') {
-      this.handler.registerPlugins()
+      this.handler
+        .registerPlugins()
         .then(() => this.handler.startAll())
         .then(() => this.sendToMain(message.channel))
       return
@@ -124,25 +127,23 @@ class MainRequestHandler {
     }
 
     if (message.type === 'toggle-extension-status') {
-      this.handler.toggleExtStatus(message.data.packageName, message.data.enabled)
-        .then(() => {
-          this.sendToMain(message.channel)
-        })
+      this.handler.toggleExtStatus(message.data.packageName, message.data.enabled).then(() => {
+        this.sendToMain(message.channel)
+      })
       return
     }
 
     if (message.type === 'remove-extension') {
-      this.handler.removeExt(message.data.packageName)
-        .then(val => this.sendToMain(message.channel, val))
+      this.handler.removeExt(message.data.packageName).then((val) => this.sendToMain(message.channel, val))
       return
     }
   }
 
-  private sendToMain(channel: string, data?: any) {
+  private sendToMain(channel: string, data?: unknown) {
     if (process.send) {
       process.send({ channel, data } as mainReplyMessage)
     }
   }
 }
 
-const handler = new ExtensionHostIPCHandler()
+new ExtensionHostIPCHandler()

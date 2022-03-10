@@ -1,5 +1,5 @@
-import { saveSelectivePreference, loadSelectivePreference, store } from '../db/preferences';
-import { SystemThemeHandler } from './system';
+import { saveSelectivePreference, loadSelectivePreference, store } from '../db/preferences'
+import { SystemThemeHandler } from './system'
 
 /**
  * Saves theme under key "themes"
@@ -14,7 +14,7 @@ export function saveTheme(theme: ThemeDetails) {
  * @param id of theme
  */
 export function removeTheme(id: string) {
-  store.delete(`themes.${id}` as any)
+  store.delete(`themes.${id}` as never)
 }
 
 /**
@@ -36,7 +36,7 @@ export function loadAllThemes(): { [key: string]: ThemeDetails } | undefined {
 
 /**
  * Sets active theme by id
- * @param id of theme 
+ * @param id of theme
  */
 export function setActiveTheme(id: string) {
   saveSelectivePreference('activeTheme', id, false)
@@ -60,7 +60,7 @@ export function getSongView(): songMenu {
 
 /**
  * Gets active theme
- * @returns details of active theme if exists otherwise undefined 
+ * @returns details of active theme if exists otherwise undefined
  */
 export function getActiveTheme() {
   const id = loadSelectivePreference('activeTheme', false) as string
@@ -91,18 +91,18 @@ export async function setupSystemThemes() {
 export function setupDefaultThemes() {
   const themes: { [key: string]: ThemeDetails } = {
     '809b7310-f852-11eb-82e2-0985b6365ce4': {
-      id: "809b7310-f852-11eb-82e2-0985b6365ce4",
-      name: "Fluid",
-      author: "Androbuddy",
+      id: '809b7310-f852-11eb-82e2-0985b6365ce4',
+      name: 'Fluid',
+      author: 'Androbuddy',
       theme: {
-        primary: "#202125",
-        secondary: "#2D2F36",
-        tertiary: "#27292E",
-        textPrimary: "#FFFFFF",
-        textSecondary: "rgba(255, 255, 255, 0.32)",
-        textInverse: "#000000",
-        accent: "#72BBFF",
-        divider: "rgba(79, 79, 79, 0.67)"
+        primary: '#202125',
+        secondary: '#2D2F36',
+        tertiary: '#27292E',
+        textPrimary: '#FFFFFF',
+        textSecondary: 'rgba(255, 255, 255, 0.32)',
+        textInverse: '#000000',
+        accent: '#72BBFF',
+        divider: 'rgba(79, 79, 79, 0.67)'
       }
     }
   }

@@ -86,7 +86,7 @@ import ErrorHandler from '@/utils/ui/mixins/errorHandler'
   }
 })
 export default class MusicInfo extends mixins(ImgLoader, PlayerControls, ContextMenuMixin, ErrorHandler) {
-  @Prop({ default: () => {} })
+  @Prop({ default: '' })
   private songID!: string
 
   @Prop({ default: false })
@@ -133,9 +133,9 @@ export default class MusicInfo extends mixins(ImgLoader, PlayerControls, Context
     })
   }
 
-  private forceEmptyImg: boolean = false
+  private forceEmptyImg = false
 
-  private handlerError(e: any) {
+  private handlerError() {
     this.forceEmptyImg = true
   }
 }

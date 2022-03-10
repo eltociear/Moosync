@@ -49,6 +49,11 @@
 </template>
 
 <script lang="ts">
+type DirectoryGroupValue = {
+  path: string
+  enabled: boolean
+}[]
+
 import { Component, Prop, Mixins } from 'vue-property-decorator'
 import Tooltip from '@/commonComponents/Tooltip.vue'
 import { ExtensionPreferenceMixin } from '../mixins/extensionPreferenceMixin'
@@ -80,8 +85,8 @@ export default class DirectoryGroup extends Mixins(ExtensionPreferenceMixin) {
 
   private togglePath(index: number) {
     if (index >= 0) {
-      const path = this.value[index]
-      this.value[index].enabled = (
+      const path = (this.value as DirectoryGroupValue)[index]
+      ;(this.value as DirectoryGroupValue)[index].enabled = (
         document.getElementById(`path-${this.packageName}-${path.path}`) as HTMLInputElement
       ).checked
       this.onInputChange()
@@ -90,7 +95,7 @@ export default class DirectoryGroup extends Mixins(ExtensionPreferenceMixin) {
 
   private removePath(index: number) {
     if (index >= 0) {
-      this.value.splice(index, 1)
+      ;(this.value as DirectoryGroupValue).splice(index, 1)
       this.onInputChange()
     }
   }
@@ -99,7 +104,7 @@ export default class DirectoryGroup extends Mixins(ExtensionPreferenceMixin) {
     window.WindowUtils.openFileBrowser(this.isMainWindow, false).then((data) => {
       if (!data.canceled) {
         for (const path of data.filePaths) {
-          this.value.push({ path, enabled: true })
+          ;(this.value as DirectoryGroupValue).push({ path, enabled: true })
         }
         this.onInputChange()
       }

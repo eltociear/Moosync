@@ -39,7 +39,7 @@ import { Component, Prop } from 'vue-property-decorator'
 @Component({})
 export default class PLayButton extends Vue {
   @Prop({ default: true })
-  private play!: Boolean
+  private play!: boolean
 }
 </script>
 
@@ -50,5 +50,3 @@ export default class PLayButton extends Vue {
 *
   cursor: pointer
 </style>
-
-

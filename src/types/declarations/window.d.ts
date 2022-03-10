@@ -1,9 +1,9 @@
-/* 
+/*
  *  window.d.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -47,13 +47,6 @@ interface DBUtils {
   removePlaylist: (playlistID: string) => Promise<void>
 }
 
-/**
- * Utils related to music service providers
- */
-interface providerUtils {
-  login: () => Promise<void>
-}
-
 type YTMusicVideo = import('node-youtube-music').MusicVideo
 
 /**
@@ -78,7 +71,7 @@ interface searchUtils {
   searchAll: (term: string) => Promise<SearchResult>
 
   /**
-   * Search youtube music by a term. 
+   * Search youtube music by a term.
    * @param term term to search youtube music by
    */
   searchYT: (term: string) => Promise<YTMusicVideo[]>
@@ -91,7 +84,7 @@ interface searchUtils {
   /**
    * Scrape a webpage and parse it to json
    */
-  scrapeLastFM: (url: string) => Promise<any>
+  scrapeLastFM: (url: string) => Promise<unknown>
 }
 
 /**
@@ -144,9 +137,9 @@ interface fileUtils {
 interface preferenceUtils {
   load: () => Promise<Preferences>
   save: (preference: Preferences) => Promise<void>
-  saveSelective: (key: string, value: any, isExtension?: boolean) => Promise<void>
+  saveSelective: (key: string, value: unknown, isExtension?: boolean) => Promise<void>
   loadSelective: <T>(key: string, isExtension?: boolean, defaultValue?: T) => Promise<T>
-  notifyPreferenceChanged: (key: string, value: any) => Promise<void>
+  notifyPreferenceChanged: (key: string, value: unknown) => Promise<void>
 }
 
 /**
@@ -162,19 +155,23 @@ interface store {
  * Utils related to window operations
  */
 interface windowUtils {
-  openWindow: (isMainWindow: boolean, args?: any) => Promise<void>
+  openWindow: (isMainWindow: boolean, args?: unknown) => Promise<void>
   closeWindow: (isMainWindow: boolean) => Promise<void>
   minWindow: (isMainWindow: boolean) => Promise<void>
   maxWindow: (isMainWindow: boolean) => Promise<boolean>
   hasFrame: () => Promise<boolean>
   showTitlebarIcons: () => Promise<boolean>
-  openFileBrowser: (isMainWindow: boolean, file: boolean, filters?: Electron.FileFilter[]) => Promise<Electron.OpenDialogReturnValue>
+  openFileBrowser: (
+    isMainWindow: boolean,
+    file: boolean,
+    filters?: Electron.FileFilter[]
+  ) => Promise<Electron.OpenDialogReturnValue>
   toggleDevTools: (isMainWindow: boolean) => Promise<void>
   openExternal: (url: string) => Promise<void>
   registerOAuthCallback: (path: string) => Promise<string>
   deregisterOAuthCallback: (path: string) => Promise<void>
   listenOAuth: (channelID: string, callback: (data: string) => void) => void
-  listenArgs: (callback: (args: any | undefined) => void) => void
+  listenArgs: (callback: (args: unknown | undefined) => void) => void
   mainWindowHasMounted: () => Promise<void>
   isWindowMaximized: (isMainWindow: boolean) => Promise<boolean>
   dragFile: (path: string) => void
@@ -184,11 +181,11 @@ interface windowUtils {
  * Utils related to logging operations
  */
 interface loggerUtils {
-  info: (...message: any[]) => Promise<void>
-  error: (...message: any[]) => Promise<void>
-  warn: (...message: any[]) => Promise<void>
-  debug: (...message: any[]) => Promise<void>
-  trace: (...message: any[]) => Promise<void>
+  info: (...message: unknown[]) => Promise<void>
+  error: (...message: unknown[]) => Promise<void>
+  warn: (...message: unknown[]) => Promise<void>
+  debug: (...message: unknown[]) => Promise<void>
+  trace: (...message: unknown[]) => Promise<void>
 }
 
 /**
@@ -204,7 +201,7 @@ interface notifierUtils {
 interface extensionUtils {
   install: (...path: string[]) => Promise<installMessage>
   uninstall: (packageName: string) => Promise<void>
-  sendEvent: (data: extensionHostMessage) => Promise<void>
+  sendEvent: (data: extensionEventMessage) => Promise<void>
   getAllExtensions: () => Promise<ExtensionDetails[]>
   listenRequests: (callback: (request: extensionUIRequestMessage) => void) => void
   replyToRequest: (data: extensionReplyMessage) => void
@@ -233,14 +230,12 @@ interface updateUtils {
   updateNow: () => void
 }
 
-
 interface Window {
   DBUtils: DBUtils
   SearchUtils: searchUtils
   FileUtils: fileUtils
   PreferenceUtils: preferenceUtils
   WindowUtils: windowUtils
-  ProviderUtils: providerUtils
   Store: store
   LoggerUtils: loggerUtils
   NotifierUtils: notifierUtils

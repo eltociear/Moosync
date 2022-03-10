@@ -53,7 +53,7 @@ import ImgLoader from '@/utils/ui/mixins/ImageLoader'
   }
 })
 export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, ImgLoader) {
-  private term: string = ''
+  private term = ''
   private tabModel = 0
   private result: SearchResult = {}
   private items = [
@@ -66,7 +66,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   ]
 
   get tab() {
-    return this.items[this.tabModel!].tab
+    return this.items[this.tabModel].tab
   }
 
   private async fetchData() {
@@ -131,7 +131,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     if (item) {
       switch (tab) {
         case 'Songs':
-          return (item as Song).artists ? (item as Song).artists!.join(', ') : ''
+          return (item as Song).artists?.join(', ')
         case 'Albums':
           return `${(item as Album).album_song_count} Songs`
         case 'Artists':
@@ -169,7 +169,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     return ''
   }
 
-  private titleClickHandler(tab: string, item: any) {
+  private titleClickHandler(tab: string, item: Album | Artists | Genre | Playlist) {
     switch (tab) {
       case 'Songs':
         // TODO: Redirect to a seperate page with song details
@@ -189,7 +189,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     }
   }
 
-  private imgClickHandler(tab: string, item: any) {
+  private imgClickHandler(tab: string, item: Song | Album | Artists | Genre | Playlist | ytMusic.MusicVideo) {
     switch (tab) {
       case 'Songs':
         this.playTop([item as Song])
@@ -211,7 +211,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     }
   }
 
-  private contextMenuHandler(tab: string, event: Event, item: any) {
+  private contextMenuHandler(tab: string, event: Event, item: Song | ytMusic.MusicVideo) {
     switch (tab) {
       case 'Youtube':
         this.getContextMenu(event, { type: 'YOUTUBE', args: { ytItems: [item as ytMusic.MusicVideo] } })

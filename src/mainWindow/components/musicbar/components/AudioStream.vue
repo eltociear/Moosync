@@ -67,7 +67,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    * True is page has just loaded and a new song is to be loaded into the player
    * Otherwise false
    */
-  private isFirst: boolean = true
+  private isFirst = true
 
   /**
    * True if vuex state change is not to be reflected on active player
@@ -192,9 +192,9 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
   private async onSongEnded() {
     this.forcePlay = true
-    if (this.songRepeat) {
+    if (this.songRepeat && this.currentSong) {
       // Re load entire audio instead of setting current time to 0
-      this.loadAudio(this.currentSong!, false)
+      this.loadAudio(this.currentSong, false)
     } else {
       this.nextSong()
     }
@@ -214,7 +214,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       console.error(`${this.currentSong?._id}: ${this.currentSong?.title} unplayable, skipping.`)
       this.removeFromQueue(vxm.player.queueIndex)
       this.nextSong()
-      this.handlerFileError(err)
     }
     this.activePlayer.onStateChange = (state) => {
       // Cued event of youtube embed seems to fire only once and is not reliable
@@ -374,17 +373,13 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       if (!song.playbackUrl || !song.duration) {
         const res = await this.getPlaybackUrlAndDuration(song)
         if (res) {
-          if (!this.isSyncing) {
-            vxm.player.currentSong!.duration = res.duration
-            vxm.player.currentSong!.playbackUrl = res.url
-          } else {
-            vxm.sync.currentSong!.duration = res.duration
-            vxm.sync.currentSong!.playbackUrl = res.url
-          }
+          // song is a reference to vxm.sync.currentSong or vxm.player.currentSong
+          song.duration = res.duration
+          song.playbackUrl = res.url
         }
       }
 
-      this.activePlayer.load(vxm.player.currentSong!.playbackUrl, this.volume, this.playerState !== 'PAUSED')
+      this.activePlayer.load(song.playbackUrl, this.volume, this.playerState !== 'PAUSED')
     }
 
     if (this.forcePlay) {
@@ -414,7 +409,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
           return this.unloadAudio()
       }
     } catch (e) {
-      this.handlerFileError(e as ErrorEvent)
       this.nextSong()
     }
   }

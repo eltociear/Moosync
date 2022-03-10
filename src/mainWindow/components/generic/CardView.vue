@@ -69,7 +69,7 @@ export default class CardView extends mixins(ImageLoader, ErrorHandler) {
   @Prop({ default: 'transparent' })
   private iconBgColor!: string
 
-  private forceEmptyImg: boolean = false
+  private forceEmptyImg = false
 
   private get isOverlayExists(): boolean {
     return !!this.$slots.overlay

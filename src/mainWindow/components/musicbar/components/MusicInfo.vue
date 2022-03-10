@@ -189,8 +189,8 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
     })
   }
 
-  @Prop({ default: () => {} })
-  private currentSong!: Song
+  @Prop({ default: () => null })
+  private currentSong!: Song | null
 
   private formattedDuration = convertDuration
 }

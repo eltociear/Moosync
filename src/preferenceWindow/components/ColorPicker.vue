@@ -45,7 +45,7 @@ export default class ColorPicker extends Vue {
   @Prop({ default: 'Primary' })
   private title!: string
 
-  private showColorPicker: boolean = false
+  private showColorPicker = false
   private pickerPosition = [0, 0]
 
   @Prop({ default: '#ffffff' })
@@ -55,7 +55,7 @@ export default class ColorPicker extends Vue {
     this.color = this.defColor
   }
 
-  private color: string = ''
+  private color = ''
 
   private hideColorPicker() {
     this.showColorPicker = false
@@ -74,7 +74,7 @@ export default class ColorPicker extends Vue {
     this.showColorPicker = !this.showColorPicker
   }
 
-  private changeColor(color: any) {
+  private changeColor(color: ColorPickerOutput) {
     this.color = color.hex
     this.$emit('colorChange', color.hex)
   }

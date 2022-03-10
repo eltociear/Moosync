@@ -23,6 +23,6 @@ import { Component, Prop } from 'vue-property-decorator'
 @Component({})
 export default class Paths extends Vue {
   @Prop({ default: false })
-  private active!: Boolean
+  private active!: boolean
 }
 </script>

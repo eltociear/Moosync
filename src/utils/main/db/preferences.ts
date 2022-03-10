@@ -1,18 +1,18 @@
-/* 
+/*
  *  preferences.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
-import Store from 'electron-store';
-import { app } from 'electron';
-import { enableStartup } from '../autoLaunch';
-import path from 'path';
-import { scannerChannel } from '../ipc';
-import { setMinimizeToTray } from '@/utils/main/windowManager';
+import Store from 'electron-store'
+import { app } from 'electron'
+import { enableStartup } from '../autoLaunch'
+import path from 'path'
+import { scannerChannel } from '../ipc'
+import { setMinimizeToTray } from '@/utils/main/windowManager'
 
 const defaultPreferences: Preferences = {
   isFirstLaunch: true,
@@ -25,7 +25,7 @@ const defaultPreferences: Preferences = {
 
 export const store = new Store({
   defaults: { prefs: defaultPreferences },
-  serialize: value => JSON.stringify(value)
+  serialize: (value) => JSON.stringify(value)
 })
 
 /**
@@ -40,41 +40,41 @@ export function savePreferences(prefs: Preferences) {
 /**
  * Sets last used window size
  * @param windowName name of window whose size is to be set
- * @param windowSize size of window. Dictionary with width and height keys containing width and height of that window 
+ * @param windowSize size of window. Dictionary with width and height keys containing width and height of that window
  */
-export function setWindowSize(windowName: string, windowSize: { width: number, height: number }) {
+export function setWindowSize(windowName: string, windowSize: { width: number; height: number }) {
   store.set(`window.${windowName}`, windowSize)
 }
 
 /**
  * Gets window size
- * @param windowName name of window whose size is to be fetched 
+ * @param windowName name of window whose size is to be fetched
  * @param defaultValue default size in width and height
- * @returns  
+ * @returns
  */
-export function getWindowSize(windowName: string, defaultValue: { width: number, height: number }) {
+export function getWindowSize(windowName: string, defaultValue: { width: number; height: number }) {
   return store.get(`window.${windowName}`, defaultValue)
 }
 
 /**
- * Saves a single key inside "prefs". Deep keys can be accessed by "." separator. 
- * @param key 
- * @param value 
+ * Saves a single key inside "prefs". Deep keys can be accessed by "." separator.
+ * @param key
+ * @param value
  * @param [isExtension] true if preference is of an extension. false otherwise
  */
-export function saveSelectivePreference(key: string, value: any, isExtension: boolean = false) {
+export function saveSelectivePreference(key: string, value: unknown, isExtension = false) {
   store.set(`prefs.${isExtension ? 'extension.' : ''}${key}`, value)
 }
 
 /**
  * Loads selective preference inside "prefs"
  * @template T expected object which will be returned
- * @param [key] 
+ * @param [key]
  * @param [isExtension] true if preference is of an extension. false otherwise
- * @param [defaultValue] 
+ * @param [defaultValue]
  * @returns object belonging to given key
  */
-export function loadSelectivePreference<T>(key?: string, isExtension: boolean = false, defaultValue?: T): T | undefined {
+export function loadSelectivePreference<T>(key?: string, isExtension = false, defaultValue?: T): T | undefined {
   try {
     const pref = store.get(`prefs.${isExtension ? 'extension.' : ''}${key}`, defaultValue)
     return pref
@@ -88,8 +88,8 @@ export function loadSelectivePreference<T>(key?: string, isExtension: boolean = 
  * Removes selective preference inside "prefs"
  * @param key key to remove inside prefs
  */
-export function removeSelectivePreference(key: string, isExtension: boolean = false) {
-  store.delete(`prefs.${isExtension ? 'extension.' : ''}${key}` as any)
+export function removeSelectivePreference(key: string, isExtension = false) {
+  store.delete(`prefs.${isExtension ? 'extension.' : ''}${key}` as never)
 }
 
 /**
@@ -101,9 +101,10 @@ export function setInitialInterfaceSettings() {
 
 /**
  * Should be called when preferences are changed
- * @param key 
- * @param value 
+ * @param key
+ * @param value
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function onPreferenceChanged(key: string, value: any) {
   if (key === 'system' && value) {
     for (const val of value) {
@@ -149,7 +150,7 @@ function validatePrefs(prefs: Preferences): Preferences {
 
 /**
  * Loads all preferences
- * @returns preferences 
+ * @returns preferences
  */
 export function loadPreferences(): Preferences {
   try {
@@ -166,8 +167,8 @@ export function loadPreferences(): Preferences {
 // TODO: Make a generic utils file for methods like these
 /**
  * Gets disabled paths from a list of paths
- * @param paths 
- * @returns disabled paths 
+ * @param paths
+ * @returns disabled paths
  */
 export function getDisabledPaths(paths: togglePaths): string[] {
   const disablePaths = []

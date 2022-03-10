@@ -1,29 +1,28 @@
-/* 
+/*
  *  background.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
 'use strict'
 
-import 'threads/register';
+import 'threads/register'
 
-import { BrowserWindow, app, nativeTheme, protocol, session } from 'electron';
-import { WindowHandler, setIsQuitting, _windowHandler } from './utils/main/windowManager';
-import path, { resolve } from 'path';
+import { BrowserWindow, app, nativeTheme, protocol, session } from 'electron'
+import { WindowHandler, setIsQuitting, _windowHandler } from './utils/main/windowManager'
+import path, { resolve } from 'path'
 
-import { oauthHandler } from '@/utils/main/oauth/handler';
-import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
-import { extensionHost } from '@/utils/extensions';
-import { registerIpcChannels } from '@/utils/main/ipc';
-import { setInitialInterfaceSettings, loadPreferences } from './utils/main/db/preferences';
-import { setupScanTask } from '@/utils/main/scheduler/index';
-import { setupDefaultThemes, setupSystemThemes } from './utils/main/themes/preferences';
-import { logger } from './utils/main/logger/index';
-
+import { oauthHandler } from '@/utils/main/oauth/handler'
+import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
+import { extensionHost } from '@/utils/extensions'
+import { registerIpcChannels } from '@/utils/main/ipc'
+import { setInitialInterfaceSettings, loadPreferences } from './utils/main/db/preferences'
+import { setupScanTask } from '@/utils/main/scheduler/index'
+import { setupDefaultThemes, setupSystemThemes } from './utils/main/themes/preferences'
+import { logger } from './utils/main/logger/index'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -31,11 +30,11 @@ nativeTheme.themeSource = 'dark'
 
 overrideConsole()
 
-process.on('uncaughtException', err => {
+process.on('uncaughtException', (err) => {
   console.error(err)
 })
 
-process.on('unhandledRejection', err => {
+process.on('unhandledRejection', (err) => {
   console.error(err)
 })
 
@@ -51,7 +50,6 @@ if (!app.requestSingleInstanceLock() && !isDevelopment) {
   app.on('ready', onReady)
   app.on('open-url', openURL)
   app.on('second-instance', handleSecondInstance)
-
 }
 
 function interceptHttp() {
@@ -101,23 +99,22 @@ function windowsClosed() {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    app.quit();
+    app.quit()
   }
 }
 
 function activateMac() {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0)
-    _windowHandler.createWindow(true);
+  if (BrowserWindow.getAllWindows().length === 0) _windowHandler.createWindow(true)
 }
 function beforeQuit() {
-  setIsQuitting(true);
+  setIsQuitting(true)
 }
 
-function openURL(event: Electron.Event, data: any) {
-  event.preventDefault();
-  oauthHandler.handleEvents(data);
+function openURL(event: Electron.Event, data: string) {
+  event.preventDefault()
+  oauthHandler.handleEvents(data)
 }
 
 async function onReady() {
@@ -128,30 +125,30 @@ async function onReady() {
 
   await setupSystemThemes()
 
-  registerIpcChannels();
-  setInitialInterfaceSettings();
+  registerIpcChannels()
+  setInitialInterfaceSettings()
 
-  await _windowHandler.installExtensions();
-  _windowHandler.registerProtocol('media');
-  createProtocol('moosync');
+  await _windowHandler.installExtensions()
+  _windowHandler.registerProtocol('media')
+  createProtocol('moosync')
 
-  interceptHttp();
+  interceptHttp()
 
-  await _windowHandler.createWindow(true);
+  await _windowHandler.createWindow(true)
 
   // Notify extension host of main window creation
-  extensionHost.mainWindowCreated();
+  extensionHost.mainWindowCreated()
 
-  _windowHandler.handleFileOpen();
+  _windowHandler.handleFileOpen()
 
   // Setup scan scheduler
-  setupScanTask();
+  setupScanTask()
 }
 
 function registerProtocols() {
   // Scheme must be registered before the app is ready
-  protocol.registerSchemesAsPrivileged([{ scheme: 'moosync', privileges: { secure: true, standard: true } }]);
-  protocol.registerSchemesAsPrivileged([{ scheme: 'media', privileges: { corsEnabled: true, supportFetchAPI: true } }]);
+  protocol.registerSchemesAsPrivileged([{ scheme: 'moosync', privileges: { secure: true, standard: true } }])
+  protocol.registerSchemesAsPrivileged([{ scheme: 'media', privileges: { corsEnabled: true, supportFetchAPI: true } }])
 }
 
 // Exit cleanly on request from parent process in development mode.
@@ -174,9 +171,7 @@ if (process.defaultApp) {
     // Set the path of electron.exe and your app.
     // These two additional parameters are only available on windows.
     // Setting this is required to get this working in dev mode.
-    app.setAsDefaultProtocolClient('moosync', process.execPath, [
-      resolve(process.argv[1])
-    ])
+    app.setAsDefaultProtocolClient('moosync', process.execPath, [resolve(process.argv[1])])
   }
 } else {
   app.setAsDefaultProtocolClient('moosync')
@@ -214,23 +209,23 @@ function handleSecondInstance(_: Event, argv: string[]) {
  * Overrides console with logger
  */
 function overrideConsole() {
-  console.info = (...args: any[]) => {
+  console.info = (...args: unknown[]) => {
     logger.info(...args)
   }
 
-  console.error = (...args: any[]) => {
+  console.error = (...args: unknown[]) => {
     logger.error(...args)
   }
 
-  console.warn = (...args: any[]) => {
+  console.warn = (...args: unknown[]) => {
     logger.warn(...args)
   }
 
-  console.debug = (...args: any[]) => {
+  console.debug = (...args: unknown[]) => {
     logger.debug(...args)
   }
 
-  console.trace = (...args: any[]) => {
+  console.trace = (...args: unknown[]) => {
     logger.trace(...args)
   }
 }

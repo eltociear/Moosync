@@ -1,9 +1,9 @@
-/* 
+/*
  *  syncHandler.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -15,7 +15,7 @@ import { PeerMode } from '@/mainWindow/store/syncState'
 enum peerConnectionState {
   CONNECTED,
   CONNECTING,
-  DISCONNECTED,
+  DISCONNECTED
 }
 
 const STUN = {
@@ -34,14 +34,14 @@ const STUN = {
     'stun:stun.voiparound.com',
     'stun:stun.voipbuster.com',
     'stun:stun.voipstunt.com',
-    'stun:stun.voxgratia.org',
-  ],
+    'stun:stun.voxgratia.org'
+  ]
 }
 
 const TURN = {
   urls: 'turn:retardnetwork.cf:7888',
   username: 'oveno',
-  credential: '1234',
+  credential: '1234'
 }
 
 const connectionOptions: Partial<ManagerOptions> = {
@@ -49,7 +49,7 @@ const connectionOptions: Partial<ManagerOptions> = {
   reconnection: true,
   reconnectionAttempts: 2,
   timeout: 10000,
-  transports: ['websocket'],
+  transports: ['websocket']
 }
 
 export class SyncHolder {
@@ -72,13 +72,13 @@ export class SyncHolder {
     return this.mode
   }
 
-  private BroadcasterID: string = ''
+  private BroadcasterID = ''
   private isNegotiating: { [id: string]: boolean } = {}
-  public socketID: string = ''
+  public socketID = ''
 
-  private isListeningReady: boolean = false
+  private isListeningReady = false
 
-  private initialized: boolean = false
+  private initialized = false
 
   private readyPeers: string[] = []
 
@@ -104,24 +104,24 @@ export class SyncHolder {
 
   constructor() {
     const handler = {
-      get: function (obj: any, methodName: any) {
-        return typeof obj[methodName] !== "function"
+      get: function (obj: SyncHolder, methodName: keyof SyncHolder) {
+        return typeof obj[methodName] !== 'function'
           ? obj[methodName]
-          : function (...args: any[]) {
-            if (obj.isInitialized(methodName)) {
-              return obj[methodName](...args);
+          : function (...args: unknown[]) {
+              if (obj.isInitialized(methodName)) {
+                return (obj[methodName] as (...args: unknown[]) => void)(...args)
+              }
             }
-          };
-      },
-    };
+      }
+    }
 
-    return new Proxy(this, handler);
+    return new Proxy(this, handler)
   }
 
   private isInitialized(methodName: string) {
     if (methodName !== 'isInitialized' && methodName !== 'initialize') {
       if (!this.socketConnection) {
-        throw new Error("Handler not initialized, call initialize()")
+        throw new Error('Handler not initialized, call initialize()')
       }
 
       return this.initialized
@@ -133,17 +133,18 @@ export class SyncHolder {
     return new Promise<boolean>((resolve, reject) => {
       this.socketConnection = io(url ? url : 'http://localhost:4000', connectionOptions)
       this.socketConnection.on('connect', () => {
-        this.socketID = this.socketConnection!.id
-        this.initialized = true
-        resolve(true)
+        if (this.socketConnection?.id) {
+          this.socketID = this.socketConnection.id
+          this.initialized = true
+          resolve(true)
+        }
       })
 
       let tries = 0
 
       this.socketConnection?.on('connect_error', (error: Error) => {
         tries++
-        if (tries === 3)
-          reject(error)
+        if (tries === 3) reject(error)
       })
 
       this.joinedRoom()
@@ -244,7 +245,7 @@ export class SyncHolder {
 
   private addRemoteCandidate() {
     this.socketConnection?.on('candidate', (id: string, candidate: RTCIceCandidate) => {
-      this.peerConnection[id].peer!.addIceCandidate(new RTCIceCandidate(candidate))
+      this.peerConnection[id].peer?.addIceCandidate(new RTCIceCandidate(candidate))
     })
   }
 
@@ -292,7 +293,7 @@ export class SyncHolder {
       }
       return
     }
-    console.info('data channel', channel.label, 'is in state: ', this.peerConnection[id].streamChannel!.readyState)
+    console.info('data channel', channel.label, 'is in state: ', this.peerConnection[id].streamChannel?.readyState)
   }
 
   public playSong(index: number) {
@@ -357,13 +358,18 @@ export class SyncHolder {
   }
 
   private sendSongBuffer(id: string, songID: string) {
-    this.getLocalSongCallback
-      && this.getLocalSongCallback(songID).then((buf) => this.sendStream(id, buf, this.peerConnection[id].streamChannel!))
+    const channel = this.peerConnection[id].streamChannel
+    if (channel) {
+      this.getLocalSongCallback && this.getLocalSongCallback(songID).then((buf) => this.sendStream(id, buf, channel))
+    }
   }
 
   private sendCoverBuffer(id: string, songID: string) {
-    this.getLocalCoverCallback
-      && this.getLocalCoverCallback(songID).then((buf) => this.sendStream(id, buf, this.peerConnection[id].coverChannel!))
+    const channel = this.peerConnection[id].streamChannel
+
+    if (channel) {
+      this.getLocalCoverCallback && this.getLocalCoverCallback(songID).then((buf) => this.sendStream(id, buf, channel))
+    }
   }
 
   /**
@@ -636,7 +642,7 @@ export class SyncHolder {
 
   private onAnswer() {
     this.socketConnection?.on('answer', (id: string, description: RTCSessionDescription) => {
-      if (this.isNegotiating[id]) this.peerConnection[id].peer!.setRemoteDescription(description)
+      if (this.isNegotiating[id]) this.peerConnection[id].peer?.setRemoteDescription(description)
     })
   }
 
@@ -652,7 +658,8 @@ export class SyncHolder {
   private setupWatcher(id: string, description: RTCSessionDescription) {
     let peer: RTCPeerConnection
 
-    if (this.peerConnection[id] && this.peerConnection[id].peer) peer = this.peerConnection[id].peer!
+    const existingPeer = this.peerConnection[id]?.peer
+    if (existingPeer) peer = existingPeer
     else peer = this.makePeer(id)
 
     this.listenSignalingState(id, peer)

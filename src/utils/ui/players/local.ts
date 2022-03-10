@@ -1,9 +1,9 @@
-/* 
+/*
  *  local.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -21,25 +21,22 @@ export class LocalPlayer extends Player {
   load(src?: string, volume?: number, autoplay?: boolean): void {
     src && (this.playerInstance.src = src)
     this.playerInstance.load()
-    volume && (this.volume = volume);
+    volume && (this.volume = volume)
     autoplay && this.play()
   }
 
   async play(): Promise<void> {
-    if (this.playerInstance.paused)
-      await this.playerInstance.play()
+    if (this.playerInstance.paused) await this.playerInstance.play()
   }
 
   pause(): void {
-    if (!this.playerInstance.paused)
-      this.playerInstance.pause()
+    if (!this.playerInstance.paused) this.playerInstance.pause()
   }
 
   stop(): void {
     this.playerInstance.removeAttribute('src')
     this.playerInstance.srcObject = null
     this.playerInstance.load()
-
   }
 
   get currentTime(): number {
@@ -58,39 +55,36 @@ export class LocalPlayer extends Player {
     this.playerInstance.volume = volume / 100
   }
 
-  protected listenOnEnded(): void {
-    this.playerInstance.addEventListener('ended', this.onEndedCallback!)
+  protected listenOnEnded(callback: () => void): void {
+    this.playerInstance.addEventListener('ended', callback)
   }
 
-  protected listenOnTimeUpdate(): void {
-    this.playerInstance.ontimeupdate = (e) =>
-      this.onTimeUpdateCallback!((e.currentTarget as HTMLAudioElement).currentTime)
+  protected listenOnTimeUpdate(callback: (time: number) => void): void {
+    this.playerInstance.ontimeupdate = (e) => callback((e.currentTarget as HTMLAudioElement).currentTime)
   }
 
-  protected listenOnLoad(): void {
-    this.playerInstance.onload = this.onLoadCallback!
+  protected listenOnLoad(callback: () => void): void {
+    this.playerInstance.onload = callback
   }
 
-  protected listenOnError(): void {
-    this.playerInstance.onerror = this.onErrorCallback as OnErrorEventHandler
+  protected listenOnError(callback: OnErrorEventHandler | ((err: ErrorEvent) => void)): void {
+    this.playerInstance.onerror = callback as OnErrorEventHandler
   }
 
-  private listeners: { [key: string]: Function } = {}
+  private listeners: { [key: string]: () => void } = {}
 
-  protected listenOnStateChange(): void {
-    if (this.onStateChangeCallback) {
-      const play = () => this.onStateChangeCallback!('PLAYING')
-      const pause = () => this.onStateChangeCallback!('PAUSED')
-      const stop = () => this.onStateChangeCallback!('STOPPED')
+  protected listenOnStateChange(callback: (state: PlayerState) => void): void {
+    const play = () => callback('PLAYING')
+    const pause = () => callback('PAUSED')
+    const stop = () => callback('STOPPED')
 
-      this.playerInstance.addEventListener('play', play)
-      this.playerInstance.addEventListener('pause', pause)
-      this.playerInstance.addEventListener('ended', stop)
+    this.playerInstance.addEventListener('play', play)
+    this.playerInstance.addEventListener('pause', pause)
+    this.playerInstance.addEventListener('ended', stop)
 
-      this.listeners['play'] = play
-      this.listeners['pause'] = pause
-      this.listeners['ended'] = stop
-    }
+    this.listeners['play'] = play
+    this.listeners['pause'] = pause
+    this.listeners['ended'] = stop
   }
 
   protected listenOnBuffer(): void {
@@ -101,7 +95,7 @@ export class LocalPlayer extends Player {
     this.playerInstance.onended = null
     this.playerInstance.ontimeupdate = null
     for (const [key, value] of Object.entries(this.listeners)) {
-      this.playerInstance.removeEventListener(key as keyof HTMLMediaElementEventMap, value as any)
+      this.playerInstance.removeEventListener(key as keyof HTMLMediaElementEventMap, value)
     }
   }
 }

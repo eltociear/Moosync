@@ -1,9 +1,9 @@
-/* 
+/*
  *  AccountsMixin.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -17,10 +17,9 @@ type Providers = 'Youtube' | 'Spotify' | 'LastFM'
 
 @Component
 export default class AccountsMixin extends Vue {
+  private _signoutProvider?: (provider: Providers) => void
 
-  private _signoutProvider: any
-
-  set signoutMethod(signout: (provider: Providers) => void) {
+  set signoutMethod(signout: ((provider: Providers) => void) | undefined) {
     this._signoutProvider = signout
   }
 
@@ -35,28 +34,28 @@ export default class AccountsMixin extends Vue {
     icon: string
     provider: GenericAuth
   }[] = [
-      {
-        name: 'Youtube',
-        bgColor: '#E62017',
-        username: '',
-        icon: 'YoutubeIcon',
-        provider: this.youtube
-      },
-      {
-        name: 'Spotify',
-        bgColor: '#1ED760',
-        username: '',
-        icon: 'SpotifyIcon',
-        provider: this.spotify
-      },
-      {
-        name: 'LastFM',
-        bgColor: '#BA0000',
-        username: '',
-        icon: 'LastFMIcon',
-        provider: this.lastFm
-      }
-    ]
+    {
+      name: 'Youtube',
+      bgColor: '#E62017',
+      username: '',
+      icon: 'YoutubeIcon',
+      provider: this.youtube
+    },
+    {
+      name: 'Spotify',
+      bgColor: '#1ED760',
+      username: '',
+      icon: 'SpotifyIcon',
+      provider: this.spotify
+    },
+    {
+      name: 'LastFM',
+      bgColor: '#BA0000',
+      username: '',
+      icon: 'LastFMIcon',
+      provider: this.lastFm
+    }
+  ]
 
   protected getProvider(provider: Providers) {
     return this.providers.find((val) => val.name === provider)
@@ -84,7 +83,7 @@ export default class AccountsMixin extends Vue {
         }
         return this.login(provider)
       }
-      this._signoutProvider(provider)
+      this._signoutProvider && this._signoutProvider(provider)
     }
   }
 

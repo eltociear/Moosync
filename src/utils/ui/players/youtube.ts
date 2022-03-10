@@ -1,16 +1,16 @@
-/* 
+/*
  *  youtube.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
 import { Player } from './player'
 import YTPlayer from 'yt-player'
 
-type YouTubePlayerQuality = 'small' | 'medium' | 'large' | 'hd720' | 'hd1080' | 'highres' | 'default';
+type YouTubePlayerQuality = 'small' | 'medium' | 'large' | 'hd720' | 'hd1080' | 'highres' | 'default'
 
 export class YoutubePlayer extends Player {
   playerInstance: YTPlayer
@@ -53,31 +53,31 @@ export class YoutubePlayer extends Player {
     this.playerInstance.setVolume(volume)
   }
 
-  protected listenOnEnded(): void {
-    this.playerInstance.addListener('ended', this.onEndedCallback!)
+  protected listenOnEnded(callback: () => void): void {
+    this.playerInstance.addListener('ended', callback)
   }
 
-  protected listenOnTimeUpdate(): void {
-    this.playerInstance.addListener('timeupdate', this.onTimeUpdateCallback!)
+  protected listenOnTimeUpdate(callback: (time: number) => void): void {
+    this.playerInstance.addListener('timeupdate', callback)
   }
 
-  protected listenOnLoad(): void {
-    this.playerInstance.addListener('cued', this.onLoadCallback!)
+  protected listenOnLoad(callback: () => void): void {
+    this.playerInstance.addListener('cued', callback)
   }
 
-  protected listenOnError(): void {
-    this.playerInstance.addListener('error', this.onErrorCallback as (err: any) => void)
-    this.playerInstance.addListener('unplayable', this.onErrorCallback as (err: any) => void)
+  protected listenOnError(callback: OnErrorEventHandlerNonNull | ((err: ErrorEvent) => void)): void {
+    this.playerInstance.addListener('error', callback)
+    this.playerInstance.addListener('unplayable', callback)
   }
 
-  protected listenOnStateChange(): void {
-    this.playerInstance.addListener('playing', () => this.onStateChangeCallback!('PLAYING'))
-    this.playerInstance.addListener('paused', () => this.onStateChangeCallback!('PAUSED'))
-    this.playerInstance.addListener('ended', () => this.onStateChangeCallback!('STOPPED'))
+  protected listenOnStateChange(callback: (state: PlayerState) => void): void {
+    this.playerInstance.addListener('playing', () => callback('PLAYING'))
+    this.playerInstance.addListener('paused', () => callback('PAUSED'))
+    this.playerInstance.addListener('ended', () => callback('STOPPED'))
   }
 
-  protected listenOnBuffer(): void {
-    this.playerInstance.addListener('buffering', this.onBufferCallback!)
+  protected listenOnBuffer(callback: () => void): void {
+    this.playerInstance.addListener('buffering', callback)
   }
 
   removeAllListeners(): void {

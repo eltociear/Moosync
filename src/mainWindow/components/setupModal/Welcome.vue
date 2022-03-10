@@ -86,5 +86,3 @@ export default class Welcome extends Vue {
   color: var(--textSecondary)
   cursor: pointer
 </style>
-
-

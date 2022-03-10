@@ -77,8 +77,8 @@ import { vxm } from '@/mainWindow/store'
   }
 })
 export default class Sidebar extends Vue {
-  private roomInput: String = ''
-  private showRoomsButton: boolean = true
+  private roomInput = ''
+  private showRoomsButton = true
   private hasFrame = false
 
   get roomID() {

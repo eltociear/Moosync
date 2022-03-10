@@ -1,21 +1,23 @@
-/* 
+/*
  *  lastfm.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
-import { app } from 'electron';
-import { promises as fsP } from 'fs';
+import { app } from 'electron'
+import { promises as fsP } from 'fs'
 import https from 'https'
-import path from 'path';
+import path from 'path'
 
 const CachePath = path.join(app.getPath('cache'), 'lastfm_cache')
 
+type Cache = { [key: string]: { expiry: number; data: string } }
+
 class WebScraper {
-  private cache: { [key: string]: { expiry: number, data: any } } = {}
+  private cache: Cache = {}
 
   constructor() {
     this.readCache()
@@ -34,32 +36,32 @@ class WebScraper {
     this.cache = JSON.parse(data)
   }
 
-  private async addToCache(url: string, data: any) {
+  private async addToCache(url: string, data: string) {
     if (JSON.parse(data)) {
-      const expiry = Date.now() + (2 * 60 * 60 * 1000)
+      const expiry = Date.now() + 2 * 60 * 60 * 1000
       this.cache[url] = { expiry, data }
       await this.dumpCache()
     }
   }
 
-  private getCache(url: string): any {
+  private getCache(url: string): string | undefined {
     const data = this.cache[url]
     if (data && data.expiry > Date.now()) {
       return data.data
     }
   }
 
-  public async scrapeURL(url: string): Promise<any> {
+  public async scrapeURL(url: string): Promise<string> {
     const cached = this.getCache(url)
     if (cached) {
       return cached
     }
-    return new Promise<any>((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
       if (url.startsWith('https')) {
         const request = https.request(new URL(url), (res) => {
           let data = ''
           res.on('data', (chunk) => {
-            data += chunk;
+            data += chunk
           })
           res.on('end', () => {
             resolve(data)
@@ -68,7 +70,7 @@ class WebScraper {
         })
 
         request.on('error', function (e) {
-          reject(e.message);
+          reject(e.message)
         })
 
         request.end()

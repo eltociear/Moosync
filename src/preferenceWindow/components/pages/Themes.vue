@@ -112,7 +112,7 @@ export default class Themes extends Vue {
     this.allThemes = (await window.ThemeUtils.getAllThemes()) ?? {}
   }
 
-  private activeTheme: string = 'default'
+  private activeTheme = 'default'
   private activeView: songMenu = 'compact'
 
   private get themesComponent() {

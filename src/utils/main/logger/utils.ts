@@ -1,39 +1,46 @@
-/* 
+/*
  *  index.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
 import { WriteStream, createWriteStream } from 'fs'
 
-import log from 'loglevel';
-import path from "path";
-import stripAnsi from 'strip-ansi';
+import log from 'loglevel'
+import path from 'path'
+import stripAnsi from 'strip-ansi'
 
 let fileName: string
 let fileStream: WriteStream
 
-
 function getLevel(method: string) {
-  return method.toUpperCase();
+  return method.toUpperCase()
 }
 
 function getTimestamp() {
-  const dt = new Date();
+  const dt = new Date()
 
-  return `${(dt.getMonth() + 1).toString().padStart(2, '0')}-${dt.getDate().toString().padStart(2, '0')}-${dt.getFullYear().toString().padStart(4, '0')} ${dt.getHours().toString().padStart(2, '0')}:${dt.getMinutes().toString().padStart(2, '0')}:${dt.getSeconds().toString().padStart(2, '0')}`
+  return `${(dt.getMonth() + 1).toString().padStart(2, '0')}-${dt.getDate().toString().padStart(2, '0')}-${dt
+    .getFullYear()
+    .toString()
+    .padStart(4, '0')} ${dt.getHours().toString().padStart(2, '0')}:${dt.getMinutes().toString().padStart(2, '0')}:${dt
+    .getSeconds()
+    .toString()
+    .padStart(2, '0')}`
 }
 
 function generatePrefix(level: string, loggerName: string | symbol) {
-  return `\u001b[1m${getColor(level)}[${getTimestamp()}] [${getLevel(level)}] [${String(loggerName) ?? 'Main'}]: \u001b[0m${getColor(level)}`
+  return `\u001b[1m${getColor(level)}[${getTimestamp()}] [${getLevel(level)}] [${
+    String(loggerName) ?? 'Main'
+  }]: \u001b[0m${getColor(level)}`
 }
 
-function concatArgs(...messages: any[]) {
+function concatArgs(...messages: (string | object)[]) {
   let ret = ''
-  for (const m of messages) ret += ((typeof m === 'object') ? JSON.stringify(m) : m) + ' '
+  for (const m of messages) ret += (typeof m === 'object' ? JSON.stringify(m) : m) + ' '
 
   return ret.trim() + '\n'
 }
@@ -70,12 +77,12 @@ export function prefixLogger(basePath: string, logger: log.Logger) {
   const originalFactory = log.methodFactory
   logger.methodFactory = (methodName, logLevel, loggerName) => {
     const originalMethod = originalFactory(methodName, logLevel, loggerName)
-    return (...args: any[]) => {
+    return (...args) => {
       const prefix = generatePrefix(methodName, loggerName)
       const final = concatArgs(prefix, ...args).trim() + '\u001b[0m'
       originalMethod(final)
       streamToFile(basePath, stripAnsi(final) + '\n')
-    };
-  };
-  logger.setLevel(logger.getLevel());
+    }
+  }
+  logger.setLevel(logger.getLevel())
 }

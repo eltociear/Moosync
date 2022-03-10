@@ -21,19 +21,22 @@ import ContextMenu from 'vue-context-menu-popup'
 import { ContextMenuComponent, MenuItem } from 'vue-context-menu-popup'
 
 Vue.directive('click-outside', {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   bind: function (el: any, binding) {
     // Define Handler and cache it on the element
     const bubble = binding.modifiers.bubble
-    const handler = (e: Event) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handler = (e: any) => {
       const isImage = !!(e.target as HTMLElement).parentElement?.querySelector('img')
       if ((bubble || (!el.contains(e.target) && el !== e.target)) && !isImage) {
         binding.value(e)
       }
     }
-    el.__vueClickOutside__ = handler
+    el['__vueClickOutside__'] = handler
     // add Event Listeners
     document.addEventListener('mousedown', handler)
   },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   unbind: function (el: any) {
     // Remove Event Listeners
     document.removeEventListener('mousedown', el.__vueClickOutside__)

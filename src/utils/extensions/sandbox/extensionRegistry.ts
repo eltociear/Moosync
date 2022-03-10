@@ -1,20 +1,19 @@
-/* 
+/*
  *  extensionRegistry.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
 export abstract class AbstractExtensionRegistry {
-  abstract register(extension: ExtensionItem): void;
+  abstract register(extension: ExtensionItem): void
   abstract get(options?: getExtensionOptions): Iterable<ExtensionItem>
   abstract setStarted(packageName: string, status: boolean): void
 }
 
 export class InMemoryRegistry extends AbstractExtensionRegistry {
-
   private extensionStore: ExtensionItem[] = []
 
   register(extension: ExtensionItem) {
@@ -22,7 +21,7 @@ export class InMemoryRegistry extends AbstractExtensionRegistry {
   }
 
   deregister(packageName: string) {
-    const index = this.extensionStore.findIndex(val => val.packageName === packageName)
+    const index = this.extensionStore.findIndex((val) => val.packageName === packageName)
     if (index !== -1) {
       this.extensionStore.splice(index, 1)
     }
@@ -43,12 +42,13 @@ export class InMemoryRegistry extends AbstractExtensionRegistry {
   }
 
   get(options?: getExtensionOptions): Iterable<ExtensionItem> {
-    return this.extensionStore.filter(val => options ? !!(this.checkPackageName(options.packageName, val) && this.checkStarted(options.started, val)) : true)
+    return this.extensionStore.filter((val) =>
+      options ? !!(this.checkPackageName(options.packageName, val) && this.checkStarted(options.started, val)) : true
+    )
   }
 
   setStarted(packageName: string, status: boolean) {
-    const extension = this.extensionStore.find(val => val.packageName === packageName)
-    if (extension)
-      extension.hasStarted = status
+    const extension = this.extensionStore.find((val) => val.packageName === packageName)
+    if (extension) extension.hasStarted = status
   }
 }

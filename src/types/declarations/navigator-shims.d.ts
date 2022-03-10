@@ -1,9 +1,9 @@
-/* 
+/*
  *  navigator-shims.d.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -15,88 +15,93 @@
 // Minimum TypeScript Version: 4.4
 
 interface Navigator {
-  readonly mediaSession?: MediaSession;
+  readonly mediaSession?: MediaSession
 }
 
 interface Window {
-  MediaSession?: MediaSession | undefined;
+  MediaSession?: MediaSession | undefined
 }
 
 interface SetPositionState {
-  (playbackState?: MediaPositionState): void;
+  (playbackState?: MediaPositionState): void
 }
 
 interface MediaSession {
   // Current media session playback state.
-  playbackState: MediaSessionPlaybackState;
+  playbackState: MediaSessionPlaybackState
   // Current media session meta data.
-  metadata: MediaMetadata | null;
+  metadata: MediaMetadata | null
 
   // Set/Unset actions handlers.
-  setActionHandler(action: "seekto", listener: ((details: Required<Pick<MediaSessionActionDetails, "seekTime">> & MediaSessionActionDetails) => void) | null): void;
-  setActionHandler(action: MediaSessionAction, listener: ((details: MediaSessionActionDetails) => void) | null): void;
+  setActionHandler(
+    action: 'seekto',
+    listener:
+      | ((details: Required<Pick<MediaSessionActionDetails, 'seekTime'>> & MediaSessionActionDetails) => void)
+      | null
+  ): void
+  setActionHandler(action: MediaSessionAction, listener: ((details: MediaSessionActionDetails) => void) | null): void
 
   // Set/unset position state
-  setPositionState: SetPositionState;
+  setPositionState: SetPositionState
 }
 
 interface MediaImage {
   // URL from which the user agent can fetch the image’s data.
-  src: string;
+  src: string
   // Specify the MediaImage object’s sizes. It follows the spec of sizes attribute in HTML link element.
-  sizes?: string | undefined;
+  sizes?: string | undefined
   // A hint as to the media type of the image.
-  type?: string | undefined;
+  type?: string | undefined
 }
 
 interface MediaMetadataInit {
   // Media's title.
-  title?: string | undefined;
+  title?: string | undefined
   // Media's artist.
-  artist?: string | undefined;
+  artist?: string | undefined
   // Media's album.
-  album?: string | undefined;
+  album?: string | undefined
   // Media's artwork.
-  artwork?: MediaImage[] | undefined;
+  artwork?: MediaImage[] | undefined
 }
 
 interface MediaMetadata {
   // Media's title.
-  title: string;
+  title: string
   // Media's artist.
-  artist: string;
+  artist: string
   // Media's album.
-  album: string;
+  album: string
   // Media's artwork.
-  artwork: ReadonlyArray<MediaImage>;
+  artwork: ReadonlyArray<MediaImage>
 }
 
 declare let MediaMetadata: {
-  prototype: MediaMetadata;
-  new(init?: MediaMetadataInit): MediaMetadata;
-};
+  prototype: MediaMetadata
+  new (init?: MediaMetadataInit): MediaMetadata
+}
 
 interface MediaPositionState {
   // Duration of media in seconds
-  duration?: number | undefined;
+  duration?: number | undefined
 
   // Playback rate of media, positive for forward playback, negative for backward playback. This number should not be zero
-  playbackRate?: number | undefined;
+  playbackRate?: number | undefined
 
   // Last reported playback position in seconds, should be positive.
-  position?: number | undefined;
+  position?: number | undefined
 }
 
 interface MediaSessionActionDetails {
   // The action that the handler is associated with
-  action: MediaSessionAction;
+  action: MediaSessionAction
 
   // This MAY be provided when the action is seekbackward or seekforward. Stores number of seconds to move the playback time by.
-  seekOffset?: number | null | undefined;
+  seekOffset?: number | null | undefined
 
   // MUST be provided when action is seekto. Stores the time in seconds to move the playback time to.
-  seekTime?: number | null | undefined;
+  seekTime?: number | null | undefined
 
   // MAY be provided when action is seekto. Stores true if the action is being called multiple times as part of a sequence and this is not the last call in that sequence.
-  fastSeek?: boolean | null | undefined;
+  fastSeek?: boolean | null | undefined
 }

@@ -1,8 +1,8 @@
-import { exec } from "child_process"
-import { access, readFile } from "fs/promises"
-import path from 'path';
+import { exec } from 'child_process'
+import { access, readFile } from 'fs/promises'
+import path from 'path'
 import ini from 'ini'
-import { app } from "electron";
+import { app } from 'electron'
 
 enum DesktopEnvironments {
   PLASMA = 'plasma',
@@ -27,22 +27,22 @@ const defaultTheme = {
 }
 
 interface KdeGlobals {
-  'General': {
-    'Name': string
-    'ColorSchemeHash': string
+  General: {
+    Name: string
+    ColorSchemeHash: string
   }
   'Colors:View': {
-    'BackgroundNormal': string
-    'BackgroundAlternate': string
-    'ForegroundNormal': string
-    'ForegroundInactive': string
-    'DecorationFocus': string
+    BackgroundNormal: string
+    BackgroundAlternate: string
+    ForegroundNormal: string
+    ForegroundInactive: string
+    DecorationFocus: string
   }
   'Colors:Window': {
-    'BackgroundNormal': string
+    BackgroundNormal: string
   }
   'Colors:Selection': {
-    'BackgroundNormal': string
+    BackgroundNormal: string
   }
 }
 
@@ -121,7 +121,6 @@ export class SystemThemeHandler {
           const config = path.join(directory, 'kdeglobals')
           access(path.join(directory, 'kdeglobals'))
           return this.parseKDETheme(config)
-
         } catch (_) {
           console.info(path.join(directory, 'kdeglobals'), 'does not exist')
         }
@@ -156,13 +155,15 @@ export class SystemThemeHandler {
 
   private async findVar(varName: string, filename: string): Promise<string | undefined> {
     try {
-      const themeVar = (await execAsync(`grep '@define-color ${varName} ' ${filename}`)).stdout.replaceAll(`@define-color ${varName}`, '').replaceAll(';', '').trim()
+      const themeVar = (await execAsync(`grep '@define-color ${varName} ' ${filename}`)).stdout
+        .replaceAll(`@define-color ${varName}`, '')
+        .replaceAll(';', '')
+        .trim()
       if (themeVar.startsWith('@')) {
         return this.findVar(themeVar.substring(1, themeVar.length), filename)
       }
 
       return themeVar
-
     } catch (e) {
       console.error('error while grep', filename, varName, e)
     }
@@ -172,14 +173,14 @@ export class SystemThemeHandler {
     const filename = path.join(themePath, 'gtk-3.0', 'gtk.css')
 
     const theme = {
-      primary: await this.findVar('theme_base_color', filename) ?? defaultTheme.primary,
-      secondary: await this.findVar('wm_bg', filename) ?? defaultTheme.secondary,
-      tertiary: await this.findVar('theme_bg_color', filename) ?? defaultTheme.tertiary,
-      textPrimary: await this.findVar('theme_text_color', filename) ?? defaultTheme.textPrimary,
-      textSecondary: await this.findVar('placeholder_text_color', filename) ?? defaultTheme.textSecondary,
-      textInverse: await this.findVar('theme_unfocused_selected_fg_color', filename) ?? defaultTheme.textInverse,
-      accent: await this.findVar('theme_selected_bg_color', filename) ?? defaultTheme.accent,
-      divider: await this.findVar('borders', filename) ?? defaultTheme.divider
+      primary: (await this.findVar('theme_base_color', filename)) ?? defaultTheme.primary,
+      secondary: (await this.findVar('wm_bg', filename)) ?? defaultTheme.secondary,
+      tertiary: (await this.findVar('theme_bg_color', filename)) ?? defaultTheme.tertiary,
+      textPrimary: (await this.findVar('theme_text_color', filename)) ?? defaultTheme.textPrimary,
+      textSecondary: (await this.findVar('placeholder_text_color', filename)) ?? defaultTheme.textSecondary,
+      textInverse: (await this.findVar('theme_unfocused_selected_fg_color', filename)) ?? defaultTheme.textInverse,
+      accent: (await this.findVar('theme_selected_bg_color', filename)) ?? defaultTheme.accent,
+      divider: (await this.findVar('borders', filename)) ?? defaultTheme.divider
     }
 
     return {
@@ -198,7 +199,6 @@ export class SystemThemeHandler {
         const themeDir = path.join(dir, theme.trim())
         access(themeDir)
         return this.parseGTKTheme(themeDir)
-
       } catch (e) {
         console.error('Cant access', dir)
       }
@@ -236,7 +236,9 @@ export class SystemThemeHandler {
 function rgbToHex(commaSeperated: string, inverse = false) {
   if (commaSeperated) {
     const split = commaSeperated.split(',')
-    let r = parseInt(split[0]), g = parseInt(split[1]), b = parseInt(split[2])
+    let r = parseInt(split[0]),
+      g = parseInt(split[1]),
+      b = parseInt(split[2])
 
     if (inverse) {
       r = 255 - r
@@ -244,19 +246,12 @@ function rgbToHex(commaSeperated: string, inverse = false) {
       b = 255 - b
     }
 
-    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
   }
-}
-
-function invertHex(hex: string) {
-  if (hex.startsWith('#')) {
-    hex = hex.substring(1)
-  }
-  return '#' + (Number(`0x1${hex}`) ^ 0xFFFFFF).toString(16).substring(1).toUpperCase()
 }
 
 async function execAsync(command: string) {
-  return new Promise<{ stdout: string, stderr: string }>((resolve, reject) => {
+  return new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
     exec(command, (err, stdout, stderr) => {
       if (err) {
         reject(err)
