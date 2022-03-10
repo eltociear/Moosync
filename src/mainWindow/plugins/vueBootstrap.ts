@@ -16,6 +16,7 @@ import {
   TabsPlugin,
   ImagePlugin,
   FormInputPlugin,
+  FormTextareaPlugin,
   LinkPlugin,
   SpinnerPlugin
 } from 'bootstrap-vue'
@@ -29,5 +30,6 @@ Vue.use(PopoverPlugin)
 Vue.use(TabsPlugin)
 Vue.use(ImagePlugin)
 Vue.use(FormInputPlugin)
+Vue.use(FormTextareaPlugin)
 Vue.use(LinkPlugin)
 Vue.use(SpinnerPlugin)
