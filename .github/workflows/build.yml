@@ -40,6 +40,7 @@ jobs:
         run: sudo apt-get update -y && sudo apt-get install -y libarchive-tools
 
       - name: Sets env vars for release
+        shell: bash
         run: |
           if [[ $GITHUB_REF == 'refs/heads/dev' ]]; then
             echo "DEBUG_LOGGING=true" >> $GITHUB_ENV
