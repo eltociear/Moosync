@@ -46,7 +46,7 @@ function concatArgs(...messages: (string | object)[]) {
 }
 
 function createFile(basePath: string) {
-  const isDevelopment = process.env.NODE_ENV !== 'production' ? log.levels.DEBUG : log.levels.INFO
+  const isDevelopment = process.env.NODE_ENV !== 'production'
   const newFile = `moosync-${new Date().toLocaleDateString('en-GB').replaceAll('/', '-')}${
     isDevelopment && '-development'
   }.log`
