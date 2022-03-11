@@ -23,6 +23,8 @@ import { setInitialInterfaceSettings, loadPreferences } from './utils/main/db/pr
 import { setupScanTask } from '@/utils/main/scheduler/index'
 import { setupDefaultThemes, setupSystemThemes } from './utils/main/themes/preferences'
 import { logger } from './utils/main/logger/index'
+import { ToadScheduler } from 'toad-scheduler'
+import { setupUpdateCheckTask } from './utils/main/scheduler/index'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -141,8 +143,10 @@ async function onReady() {
 
   _windowHandler.handleFileOpen()
 
-  // Setup scan scheduler
-  setupScanTask()
+  // Setup scheduler tasks
+  const scheduler = new ToadScheduler()
+  setupScanTask(scheduler)
+  setupUpdateCheckTask(scheduler)
 }
 
 function registerProtocols() {
