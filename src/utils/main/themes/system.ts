@@ -148,7 +148,7 @@ export class SystemThemeHandler {
     return {
       id: 'system_default',
       name: 'System Theme (Beta)',
-      author: '',
+      author: 'Moosync',
       theme
     }
   }
@@ -186,7 +186,7 @@ export class SystemThemeHandler {
     return {
       id: 'system_default',
       name: 'System Theme (Beta)',
-      author: '',
+      author: 'Moosync',
       theme: theme as ThemeItem
     }
   }
