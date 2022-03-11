@@ -8,10 +8,10 @@
 -->
 
 <template>
-  <b-container fluid class="h-100">
-    <b-row no-gutters class="h-100">
-      <b-col class="h-100 position-relative">
-        <div class="image-container w-100 h-100">
+  <b-container fluid class="h-100 scrollable">
+    <b-row no-gutters>
+      <b-col class="position-relative">
+        <div class="image-container w-100">
           <div class="embed-responsive embed-responsive-1by1">
             <div class="embed-responsive-item">
               <transition
@@ -45,7 +45,7 @@
         </div>
       </b-col>
     </b-row>
-    <b-row no-gutters align-v="end" class="flex-fill mt-2">
+    <b-row no-gutters class="flex-fill mt-2">
       <b-col>
         <div v-if="buttonGroup.enableContainer" class="button-group d-flex">
           <PlainPlay :title="`Play ${title}`" @click.native="playAll" />
@@ -166,12 +166,7 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
 
 .image-container
   position: relative
-  overflow-y: scroll
-  transition: color 0.3s ease
-  color: transparent
   text-shadow: 0 0 white
-  &:hover
-    color: white
 
 .song-info-container
   text-align: left
@@ -212,4 +207,11 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
 
 .animate__animated.animate__fadeOut
   --animate-duration: 0.3s
+
+.scrollable
+  overflow-y: scroll
+  color: transparent
+  transition: color 0.3s ease
+  &:hover
+    color: white
 </style>
