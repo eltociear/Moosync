@@ -31,7 +31,7 @@ export class ExtensionFinder extends AbstractExtensionFinder {
     for (const searchPath of this.searchPaths) {
       try {
         // Should proceed if file exists
-        fsP.access(searchPath)
+        await fsP.access(searchPath)
 
         const dirents = await fsP.readdir(searchPath, { withFileTypes: true })
         const filtered = dirents.filter((val) => val.isDirectory())
