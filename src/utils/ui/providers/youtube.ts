@@ -96,9 +96,11 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
           await this.auth.performWithFreshTokens()
           return true
         }
-        bus.$emit(EventBus.SHOW_OAUTH_MODAL, 'Youtube')
 
-        await this.auth.makeAuthorizationRequest()
+        const url = await this.auth.makeAuthorizationRequest()
+        bus.$emit(EventBus.SHOW_OAUTH_MODAL, 'Youtube', url, '#E62017')
+        window.WindowUtils.openExternal(url)
+
         await once(this.auth.authStateEmitter, AuthStateEmitter.ON_TOKEN_RESPONSE)
 
         bus.$emit(EventBus.HIDE_OAUTH_MODAL)

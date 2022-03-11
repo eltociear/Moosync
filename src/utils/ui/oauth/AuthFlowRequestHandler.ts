@@ -39,7 +39,7 @@ export class AuthFlowRequestHandler extends AuthorizationRequestHandler {
     this.channelID = channel
   }
 
-  performAuthorizationRequest(configuration: AuthorizationServiceConfiguration, request: AuthorizationRequest): void {
+  performAuthorizationRequest(configuration: AuthorizationServiceConfiguration, request: AuthorizationRequest): string {
     const emitter = new ServerEventsEmitter()
 
     window.WindowUtils.listenOAuth(this.channelID, (data) => {
@@ -88,7 +88,8 @@ export class AuthFlowRequestHandler extends AuthorizationRequestHandler {
       })
     })
 
-    window.WindowUtils.openExternal(this.buildRequestUrl(configuration, request))
+    const url = this.buildRequestUrl(configuration, request)
+    return url
   }
   protected completeAuthorizationRequest(): Promise<AuthorizationRequestResponse | null> {
     if (!this.authorizationPromise) {

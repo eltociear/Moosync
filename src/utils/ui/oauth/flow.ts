@@ -24,7 +24,7 @@
  */
 
 import { AppAuthError, FetchRequestor } from '@openid/appauth'
-import { AuthorizationNotifier, AuthorizationRequestHandler } from '@openid/appauth/built/authorization_request_handler'
+import { AuthorizationNotifier } from '@openid/appauth/built/authorization_request_handler'
 import {
   GRANT_TYPE_AUTHORIZATION_CODE,
   GRANT_TYPE_REFRESH_TOKEN,
@@ -49,7 +49,7 @@ const requestor = new FetchRequestor()
 
 export class AuthFlow {
   private notifier: AuthorizationNotifier
-  private authorizationHandler: AuthorizationRequestHandler
+  private authorizationHandler: AuthFlowRequestHandler
   private tokenHandler: TokenRequestHandler
   authStateEmitter: AuthStateEmitter
 
@@ -133,7 +133,7 @@ export class AuthFlow {
       new WebCrypto()
     )
 
-    this.authorizationHandler.performAuthorizationRequest(this.serviceConfig, request)
+    return this.authorizationHandler.performAuthorizationRequest(this.serviceConfig, request)
   }
 
   private async makeRefreshTokenRequest(code: string, codeVerifier: string | undefined): Promise<void> {

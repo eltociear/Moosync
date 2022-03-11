@@ -95,12 +95,15 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
           await this.auth.performWithFreshTokens()
           return true
         }
-        bus.$emit(EventBus.SHOW_OAUTH_MODAL, 'Spotify')
 
-        this.auth.makeAuthorizationRequest()
+        const url = await this.auth.makeAuthorizationRequest()
+        bus.$emit(EventBus.SHOW_OAUTH_MODAL, 'Spotify', url, '#1ED760')
+        window.WindowUtils.openExternal(url)
+
         await once(this.auth.authStateEmitter, AuthStateEmitter.ON_TOKEN_RESPONSE)
 
         bus.$emit(EventBus.HIDE_OAUTH_MODAL)
+
         return true
       }
       return false

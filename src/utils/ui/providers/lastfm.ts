@@ -147,7 +147,6 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
 
   public async login() {
     if (!this._session) {
-      bus.$emit(EventBus.SHOW_OAUTH_MODAL, 'LastFM')
       if (!this.oAuthChannel) {
         this.oAuthChannel = await window.WindowUtils.registerOAuthCallback('lastfmcallback')
       }
@@ -167,6 +166,13 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
           }
           resolve(false)
         })
+
+        bus.$emit(
+          EventBus.SHOW_OAUTH_MODAL,
+          'LastFM',
+          'AUTH_BASE_URL + `auth/?api_key=${this._config?.key}&cb=https://moosync.app/lastfm`',
+          '#BA0000'
+        )
 
         window.WindowUtils.openExternal(
           AUTH_BASE_URL + `auth/?api_key=${this._config?.key}&cb=https://moosync.app/lastfm`
