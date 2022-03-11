@@ -10,6 +10,7 @@
 <template>
   <div class="sidebar-container">
     <b-sidebar
+      no-close-on-esc
       :width="isOpen ? '261px' : '70px'"
       visible
       id="sidebar"
