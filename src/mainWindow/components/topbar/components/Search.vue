@@ -23,6 +23,7 @@
         @focus="handleInputFocus"
         @keyup.enter="openSearchPage"
       />
+      <AltArrowIcon @click.native="openSearchPage" v-if="inputText !== ''" class="go-arrow button-grow" />
     </div>
     <div class="search-results d-flex" :class="showSearchResults ? 'search-visible' : 'search-invisible'">
       <div v-if="results && results.length !== 0" class="w-100">
@@ -53,6 +54,8 @@
 <script lang="ts">
 import { Component } from 'vue-property-decorator'
 import Search from '@/icons/SearchIcon.vue'
+import AltArrowIcon from '@/icons/AltArrowIcon.vue'
+
 import SingleSearchResult from '@/mainWindow/components/generic/SingleSearchResult.vue'
 import { mixins } from 'vue-class-component'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
@@ -61,7 +64,8 @@ import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 @Component({
   components: {
     Search,
-    SingleSearchResult
+    SingleSearchResult,
+    AltArrowIcon
   }
 })
 export default class Sidebar extends mixins(PlayerControls, ImgLoader) {
@@ -158,6 +162,14 @@ export default class Sidebar extends mixins(PlayerControls, ImgLoader) {
   left: 0
   margin-top: -12px
   margin-left: 15px
+
+.go-arrow
+  position: absolute
+  height: 20px
+  top: 50%
+  right: 0
+  margin-top: -12px
+  margin-right: 20px
 
 .search-results
   position: absolute
