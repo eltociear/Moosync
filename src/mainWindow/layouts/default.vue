@@ -20,7 +20,7 @@
         enter-active-class="animate__animated animate__slideInLeft animate__fast"
         leave-active-class="animate__animated animate__slideOutRight animate__fast"
       >
-        <router-view :key="refreshPage" class="animate_absolute"></router-view>
+        <router-view :enableRefresh="enableRefreshIcon" :key="refreshPage" class="animate_absolute"></router-view>
       </transition>
     </div>
   </div>
