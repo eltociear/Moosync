@@ -7,20 +7,20 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { v4 } from 'uuid'
 import ytMusic from 'node-youtube-music'
 
 export function toSong(...item: ytMusic.MusicVideo[]): Song[] {
   const songs: Song[] = []
   for (const s of item) {
+    const highResThumbnail = s.thumbnailUrl && getHighResThumbnail(s.thumbnailUrl)
     songs.push({
-      _id: v4(),
+      _id: 'youtube-' + s.youtubeId,
       title: s.title ? s.title.trim() : '',
-      song_coverPath_high: s.thumbnailUrl?.replace('w60', 'w300').replace('h60', 'h300'),
+      song_coverPath_high: highResThumbnail,
       song_coverPath_low: s.thumbnailUrl,
       album: {
         album_name: s.album ? s.album.trim() : '',
-        album_coverPath_high: s.thumbnailUrl?.replace('w60', 'w300').replace('h60', 'h300'),
+        album_coverPath_high: highResThumbnail,
         album_coverPath_low: s.thumbnailUrl
       },
       artists: s.artists?.map((val) => val.name) ?? [],
@@ -29,6 +29,24 @@ export function toSong(...item: ytMusic.MusicVideo[]): Song[] {
       date_added: Date.now(),
       type: 'YOUTUBE'
     })
+
+    console.log(songs)
   }
+
   return songs
+}
+
+function getHighResThumbnail(url: string) {
+  const urlParts = url.split('=')
+  if (urlParts.length === 2) {
+    const queryParts = urlParts[1].split('-')
+    if (queryParts.length >= 4) {
+      queryParts[0] = 'w800'
+      queryParts[1] = 'h800'
+    }
+
+    return urlParts[0] + '=' + queryParts.join('-')
+  }
+
+  return url.replace('w60', 'w800').replace('h60', 'h800').replace('w120', 'w800').replace('h120', 'h800')
 }
