@@ -1,9 +1,9 @@
-/* 
+/*
  *  index.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -19,7 +19,7 @@ import { SongsChannel } from './songs'
 import { StoreChannel } from './store'
 import { WindowHandler } from '../windowManager'
 import { ipcMain } from 'electron'
-import { UpdateChannel } from './update';
+import { UpdateChannel } from './update'
 
 export const scannerChannel = new ScannerChannel()
 export const updateChannel = new UpdateChannel()
@@ -43,5 +43,3 @@ export function registerIpcChannels() {
 export function notifyRenderer(notif: NotificationObject) {
   WindowHandler.getWindow(true)?.webContents.send(IpcEvents.NOTIFIER, notif)
 }
-
-

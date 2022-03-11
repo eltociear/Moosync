@@ -1,9 +1,9 @@
-/* 
+/*
  *  flow.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -23,55 +23,49 @@
  * the License.
  */
 
-import { AppAuthError, FetchRequestor } from '@openid/appauth';
-import {
-  AuthorizationNotifier,
-  AuthorizationRequestHandler
-} from "@openid/appauth/built/authorization_request_handler";
+import { AppAuthError, FetchRequestor } from '@openid/appauth'
+import { AuthorizationNotifier } from '@openid/appauth/built/authorization_request_handler'
 import {
   GRANT_TYPE_AUTHORIZATION_CODE,
   GRANT_TYPE_REFRESH_TOKEN,
   TokenRequest
-} from "@openid/appauth/built/token_request";
+} from '@openid/appauth/built/token_request'
 
-import { AuthFlowRequestHandler } from './AuthFlowRequestHandler';
-import { AuthorizationRequest } from "@openid/appauth/built/authorization_request";
-import { AuthorizationServiceConfiguration } from "@openid/appauth/built/authorization_service_configuration";
-import EventEmitter from 'events';
-import { StringMap } from "@openid/appauth/built/types";
-import {
-  TokenRequestHandler,
-} from "@openid/appauth/built/token_request_handler";
-import { TokenRequestHandlerWClientSecret } from './tokenHandler';
-import {
-  TokenResponse
-} from "@openid/appauth/built/token_response";
-import { WebCrypto } from "./crypto_utils";
+import { AuthFlowRequestHandler } from './AuthFlowRequestHandler'
+import { AuthorizationRequest } from '@openid/appauth/built/authorization_request'
+import { AuthorizationServiceConfiguration } from '@openid/appauth/built/authorization_service_configuration'
+import EventEmitter from 'events'
+import { StringMap } from '@openid/appauth/built/types'
+import { TokenRequestHandler } from '@openid/appauth/built/token_request_handler'
+import { TokenRequestHandlerWClientSecret } from './tokenHandler'
+import { TokenResponse } from '@openid/appauth/built/token_response'
+import { WebCrypto } from './crypto_utils'
 
 export class AuthStateEmitter extends EventEmitter {
-  static ON_TOKEN_RESPONSE = "on_token_response"
+  static ON_TOKEN_RESPONSE = 'on_token_response'
 }
 
 const requestor = new FetchRequestor()
 
 export class AuthFlow {
-  private notifier?: AuthorizationNotifier
-  private authorizationHandler?: AuthorizationRequestHandler
-  private tokenHandler?: TokenRequestHandler
-  authStateEmitter?: AuthStateEmitter
+  private notifier: AuthorizationNotifier
+  private authorizationHandler: AuthFlowRequestHandler
+  private tokenHandler: TokenRequestHandler
+  authStateEmitter: AuthStateEmitter
 
   // state
-  private serviceConfig: AuthorizationServiceConfiguration | undefined
+  private serviceConfig: AuthorizationServiceConfiguration
 
   private refreshToken: string | undefined
   private accessTokenResponse: TokenResponse | undefined
 
-  config?: OAuthProviderConfig
+  config: OAuthProviderConfig
 
-  private fetchedToken?: Promise<void>
+  private fetchedToken: Promise<void>
 
   constructor(config: OAuthProviderConfig, serviceConfig: AuthorizationServiceConfiguration) {
-    if (!config.oAuthChannel && process.env.NODE_ENV === 'production') throw new Error('oAuth callback failed to register')
+    if (!config.oAuthChannel && process.env.NODE_ENV === 'production')
+      throw new Error('oAuth callback failed to register')
 
     this.config = config
     this.serviceConfig = serviceConfig
@@ -89,7 +83,7 @@ export class AuthFlow {
     // set a listener to listen for authorization responses
     // make refresh and access token requests.
 
-    this.fetchedToken = new Promise<void>(resolve => {
+    this.fetchedToken = new Promise<void>((resolve) => {
       this.fetchRefreshToken().then(resolve)
     })
 
@@ -103,20 +97,18 @@ export class AuthFlow {
         this.makeRefreshTokenRequest(response.code, codeVerifier)
           .then(() => this.performWithFreshTokens())
           .then(() => {
-            this.authStateEmitter!.emit(AuthStateEmitter.ON_TOKEN_RESPONSE)
+            this.authStateEmitter.emit(AuthStateEmitter.ON_TOKEN_RESPONSE)
           })
       }
     })
   }
 
   private async fetchRefreshToken() {
-    if (this.config)
-      this.refreshToken = (await window.Store.getSecure(this.config.keytarService)) ?? undefined
+    if (this.config) this.refreshToken = (await window.Store.getSecure(this.config.keytarService)) ?? undefined
   }
 
   private async storeRefreshToken() {
-    if (this.config && this.refreshToken)
-      return window.Store.setSecure(this.config.keytarService, this.refreshToken)
+    if (this.config && this.refreshToken) return window.Store.setSecure(this.config.keytarService, this.refreshToken)
   }
 
   public async makeAuthorizationRequest(username?: string) {
@@ -124,25 +116,24 @@ export class AuthFlow {
 
     if (!this.fetchedToken) throw new AppAuthError('service not yet initialized')
 
-    const extras: StringMap = { prompt: "consent", access_type: "offline" }
+    const extras: StringMap = { prompt: 'consent', access_type: 'offline' }
     if (username) {
-      extras["login_hint"] = username
+      extras['login_hint'] = username
     }
 
     // create a request
-    const request = new AuthorizationRequest({
-      client_id: this.config.clientId,
-      redirect_uri: this.config.redirectUri,
-      scope: this.config.scope,
-      response_type: AuthorizationRequest.RESPONSE_TYPE_CODE,
-      extras: extras
-    }, new WebCrypto())
-
-
-    this.authorizationHandler!.performAuthorizationRequest(
-      this.serviceConfig!,
-      request
+    const request = new AuthorizationRequest(
+      {
+        client_id: this.config.clientId,
+        redirect_uri: this.config.redirectUri,
+        scope: this.config.scope,
+        response_type: AuthorizationRequest.RESPONSE_TYPE_CODE,
+        extras: extras
+      },
+      new WebCrypto()
     )
+
+    return this.authorizationHandler.performAuthorizationRequest(this.serviceConfig, request)
   }
 
   private async makeRefreshTokenRequest(code: string, codeVerifier: string | undefined): Promise<void> {
@@ -170,7 +161,7 @@ export class AuthFlow {
     })
 
     try {
-      const response = await this.tokenHandler!.performTokenRequest(this.serviceConfig, request)
+      const response = await this.tokenHandler.performTokenRequest(this.serviceConfig, request)
       this.refreshToken = response.refreshToken
       this.accessTokenResponse = response
       this.storeRefreshToken()
@@ -201,10 +192,10 @@ export class AuthFlow {
   async performWithFreshTokens(): Promise<string | undefined> {
     if (!this.config) throw new AppAuthError('config not yet initialized')
 
-    if (!this.fetchedToken) return Promise.reject("Service not initialized")
+    if (!this.fetchedToken) return Promise.reject('Service not initialized')
 
     if (!this.refreshToken) {
-      return Promise.resolve("Missing refreshToken.")
+      return Promise.resolve('Missing refreshToken.')
     }
     if (this.accessTokenResponse && this.accessTokenResponse.isValid()) {
       return this.accessTokenResponse.accessToken
@@ -214,11 +205,11 @@ export class AuthFlow {
       client_id: this.config.clientId,
       redirect_uri: this.config.redirectUri,
       grant_type: GRANT_TYPE_REFRESH_TOKEN,
-      refresh_token: this.refreshToken,
+      refresh_token: this.refreshToken
     })
 
     try {
-      const response = await this.tokenHandler!.performTokenRequest(this.serviceConfig!, request)
+      const response = await this.tokenHandler.performTokenRequest(this.serviceConfig, request)
       this.accessTokenResponse = response
       return response.accessToken
     } catch (err) {

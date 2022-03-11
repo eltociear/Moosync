@@ -49,7 +49,6 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { ActiveTab } from '@/utils/ui/enums'
 import Extensions from '@/icons/ExtensionsIcon.vue'
 import Paths from '@/icons/PathsIcon.vue'
 import System from '@/icons/SystemIcon.vue'
@@ -70,13 +69,6 @@ export default class Sidebar extends Vue {
     { component: 'Extensions', title: 'Extensions', link: '/extensions' },
     { component: 'System', title: 'System', link: '/system' }
   ]
-
-  private active: ActiveTab = ActiveTab.ALLSONGS
-
-  private setActive(i: number, navigate: Function): void {
-    this.active = i
-    navigate(this)
-  }
 }
 </script>
 

@@ -1,9 +1,9 @@
 /**
  * @jest-environment ./tests/environment/playwrightEnvironment.ts
  */
-import { Page, ElectronApplication } from 'playwright-core';
+import { Page, ElectronApplication } from 'playwright-core'
 import { skipSetup } from '../common'
-import { CustomGlobal } from '../../environment/playwrightEnvironment';
+import { CustomGlobal } from '../../environment/playwrightEnvironment'
 
 jest.setTimeout(500000)
 
@@ -21,9 +21,8 @@ test('a window is created', async () => {
 })
 
 test('window title', async () => {
-
   const title = await electronApp.windows()[0].title()
-  expect(title).toBe("Moosync")
+  expect(title).toBe('Moosync')
 })
 
 test('open settings', async () => {
@@ -39,8 +38,7 @@ test('open settings', async () => {
   electronApp.once('window', windowCreationCallback)
   await window.click('#settings')
 
-  await new Promise((r) => setTimeout(r, 1000));
+  await new Promise((r) => setTimeout(r, 1000))
 
   expect(windowCreationCallback).toHaveBeenCalled()
-
 })

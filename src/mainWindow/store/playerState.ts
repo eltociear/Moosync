@@ -1,32 +1,31 @@
-/* 
+/*
  *  playerState.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
-import { action, mutation } from 'vuex-class-component';
+import { action, mutation } from 'vuex-class-component'
 
-import { VuexModule } from './module';
-import { v1 } from 'uuid';
+import { VuexModule } from './module'
+import { v1 } from 'uuid'
 
 class Queue implements GenericQueue<Song> {
   data: QueueData<Song> = {}
   order: QueueOrder = []
-  index: number = -1
+  index = -1
 }
 
 export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
   private state: PlayerState = 'PAUSED'
   public currentSong: Song | null | undefined | undefined = null
   private songQueue = new Queue()
-  private repeat: boolean = false
-  public volume: number = 50
-  public timestamp: number = 0
-  public loading: boolean = false
-
+  private repeat = false
+  public volume = 50
+  public timestamp = 0
+  public loading = false
 
   get currentTime() {
     return this.timestamp
@@ -91,7 +90,7 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
     const oldOrder = this.songQueue.order
     this._setSongQueueOrder(order)
 
-    const diff = oldOrder.filter(x => !order.includes(x));
+    const diff = oldOrder.filter((x) => !order.includes(x))
     for (const item of diff) {
       this.removeFromQueueData(item)
     }
@@ -100,8 +99,7 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
   get queueTop(): Song | null | undefined {
     if (this.songQueue.index > -1 && this.songQueue.data) {
       const songID = this.songQueue.order[this.songQueue.index]
-      if (songID)
-        return this.songQueue.data[songID.songID]
+      if (songID) return this.songQueue.data[songID.songID]
     }
     return null
   }
@@ -109,8 +107,8 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
   @mutation
   private addSong(item: Song[]) {
     for (const s of item) {
-      if (s && !this.songQueue.data[s._id!]) {
-        this.songQueue.data[s._id!] = s
+      if (s && !this.songQueue.data[s._id]) {
+        this.songQueue.data[s._id] = s
       }
     }
   }
@@ -118,7 +116,7 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
   @mutation
   private removeFromQueueData(orderData: QueueOrder[0] | undefined) {
     if (orderData) {
-      if (this.songQueue.order.findIndex(val => val.songID === orderData.songID) === -1) {
+      if (this.songQueue.order.findIndex((val) => val.songID === orderData.songID) === -1) {
         delete this.songQueue.data[orderData.songID]
       }
     }
@@ -148,11 +146,15 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
 
   @mutation
   private addInSongQueue(item: Song[]) {
-    this.songQueue.order.push(...item.map(obj => { return { id: v1(), songID: obj._id! } }))
+    this.songQueue.order.push(
+      ...item.map((obj) => {
+        return { id: v1(), songID: obj._id }
+      })
+    )
   }
 
   @action
-  async pushInQueue(payload: { item: Song[], top: boolean }) {
+  async pushInQueue(payload: { item: Song[]; top: boolean }) {
     if (payload.item.length > 0) {
       if (!this.currentSong) {
         // Add first item immediately to start playing
@@ -165,16 +167,19 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
       this.addSong(payload.item)
       payload.top ? this.addInQueueTop(payload.item) : this.addInSongQueue(payload.item)
 
-      console.trace(payload.top)
-      payload.top && await this.nextSong()
+      payload.top && (await this.nextSong())
     }
   }
 
   @mutation
   private addInQueueTop(item: Song[]) {
-    this.songQueue.order.splice(this.songQueue.index + 1, 0, ...item.map(obj => {
-      return { id: v1(), songID: obj._id! }
-    }))
+    this.songQueue.order.splice(
+      this.songQueue.index + 1,
+      0,
+      ...item.map((obj) => {
+        return { id: v1(), songID: obj._id }
+      })
+    )
   }
 
   @mutation
@@ -230,12 +235,39 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
 
   @mutation
   private moveIndexTo(index: number) {
-    if (index >= 0)
-      this.songQueue.index = index
+    if (index >= 0) this.songQueue.index = index
   }
 
   @action async playQueueSong(index: number) {
     this.moveIndexTo(index)
     this.loadSong(this.queueTop)
+  }
+
+  @mutation
+  setSongIndex({ oldIndex, newIndex, ignoreMove }: { oldIndex: number; newIndex: number; ignoreMove: boolean }) {
+    if (newIndex < 0) {
+      newIndex = this.songQueue.order.length - -newIndex
+    }
+
+    if (newIndex >= this.songQueue.order.length) {
+      newIndex = this.songQueue.order.length - 1
+    }
+
+    if (!ignoreMove) {
+      const data = this.songQueue.order[oldIndex]
+      this.songQueue.order.splice(oldIndex, 1)
+      this.songQueue.order.splice(newIndex, 0, data)
+    }
+
+    if (oldIndex === this.songQueue.index) {
+      this.songQueue.index = newIndex
+      return
+    }
+
+    if (oldIndex < this.songQueue.index) {
+      if (newIndex >= this.songQueue.index) this.songQueue.index -= 1
+    } else if (oldIndex > this.songQueue.index) {
+      if (newIndex <= this.songQueue.index) this.songQueue.index += 1
+    }
   }
 }

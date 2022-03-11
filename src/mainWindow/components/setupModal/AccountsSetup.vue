@@ -133,5 +133,3 @@ export default class AccountsSetup extends mixins(AccountsMixin) {
 .button-row
   margin-right: 15px
 </style>
-
-

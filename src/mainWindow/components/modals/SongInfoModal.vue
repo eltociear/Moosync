@@ -84,12 +84,13 @@ export default class SongInfoModal extends mixins(ImgLoader) {
 
   private song: Song | null = null
 
-  private forceEmptyImg: boolean = false
+  private forceEmptyImg = false
 
   private popoverTarget: string = this.getKey('path')
-  private showPopover: boolean = false
+  private showPopover = false
   private popoverTimeout: ReturnType<typeof setTimeout> | undefined
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private fieldFilter: ([keyof Song, ((value: any) => string)?] | keyof Song)[] = [
     ['artists', (a: string[]) => this.getFirstFromArray(a)],
     ['genre', (g: string[]) => this.getFirstFromArray(g)],
@@ -117,7 +118,11 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   private getValue(t: typeof this.fieldFilter[0]): string {
     if (this.song !== null) {
       if (typeof t === 'string') return this.song[t] as string
-      else return t[1]!(this.song[t[0]])
+      else {
+        if (t[1] && this.song[t[0]]) {
+          return t[1](this.song[t[0]])
+        }
+      }
     }
     return ''
   }
@@ -126,7 +131,7 @@ export default class SongInfoModal extends mixins(ImgLoader) {
     return arr.length > 0 ? arr[0] : ''
   }
 
-  private handleImageError(e: Error) {
+  private handleImageError() {
     this.forceEmptyImg = true
   }
 

@@ -8,7 +8,7 @@
 -->
 
 <template>
-  <div>
+  <div class="w-100 h-100">
     <ContextMenu ref="contextMenu" v-click-outside="hideContextMenu" :menu-items="menu" />
     <b-container fluid>
       <b-row>
@@ -49,9 +49,10 @@
             <component
               :is="themesComponent"
               @click.native="setTheme('default')"
+              @contextmenu.native="themeMenu(arguments[0], defaultTheme)"
               :selected="isThemeActive('default')"
               :id="getRandomID()"
-              :colors="defaultTheme"
+              :colors="defaultTheme.theme"
             />
             Default
           </div>
@@ -111,7 +112,7 @@ export default class Themes extends Vue {
     this.allThemes = (await window.ThemeUtils.getAllThemes()) ?? {}
   }
 
-  private activeTheme: string = 'default'
+  private activeTheme = 'default'
   private activeView: songMenu = 'compact'
 
   private get themesComponent() {
@@ -119,7 +120,7 @@ export default class Themes extends Vue {
   }
 
   private get currentTheme() {
-    return this.allThemes[this.activeTheme]?.theme ?? this.defaultTheme
+    return this.allThemes[this.activeTheme]?.theme ?? this.defaultTheme.theme
   }
 
   private isThemeActive(themeId: string) {
@@ -140,30 +141,33 @@ export default class Themes extends Vue {
   }
 
   private themeToRemove: ThemeDetails | null = null
-  private menu: MenuItem[] = [
-    {
-      label: 'Delete',
-      handler: () => {
-        this.$bvModal.show('themeDeleteModal')
-      }
-    }
-  ]
+  private menu: MenuItem[] = []
 
   private themeMenu(event: Event, theme: ThemeDetails) {
-    this.themeToRemove = theme
-    this.menu[1] = {
+    this.menu = []
+    if (theme.id !== 'system_default' && theme.id !== 'default') {
+      this.themeToRemove = theme
+      this.menu.push({
+        label: 'Delete',
+        handler: () => {
+          this.$bvModal.show('themeDeleteModal')
+        }
+      })
+
+      this.menu.push({
+        label: 'Edit',
+        handler: () => {
+          this.editTheme(theme)
+        }
+      })
+    }
+
+    this.menu.push({
       label: 'Copy to clipboard',
       handler: () => {
         navigator.clipboard.writeText(JSON.stringify(theme))
       }
-    }
-
-    this.menu[2] = {
-      label: 'Edit',
-      handler: () => {
-        this.editTheme(theme)
-      }
-    }
+    })
     ;(this.$refs['contextMenu'] as ContextMenuComponent).open(event)
   }
 
@@ -176,16 +180,21 @@ export default class Themes extends Vue {
     this.getAllThemes()
   }
 
-  get defaultTheme() {
+  get defaultTheme(): ThemeDetails {
     return {
-      primary: '#212121',
-      secondary: '#282828',
-      tertiary: '#151515',
-      textPrimary: '#ffffff',
-      textSecondary: '#565656',
-      textInverse: '#000000',
-      accent: '#65CB88',
-      divider: 'rgba(79, 79, 79, 0.67)'
+      id: 'default',
+      name: 'Default',
+      author: 'Moosync',
+      theme: {
+        primary: '#212121',
+        secondary: '#282828',
+        tertiary: '#151515',
+        textPrimary: '#ffffff',
+        textSecondary: '#565656',
+        textInverse: '#000000',
+        accent: '#65CB88',
+        divider: 'rgba(79, 79, 79, 0.67)'
+      }
     }
   }
 

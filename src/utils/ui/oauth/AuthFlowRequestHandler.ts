@@ -1,16 +1,26 @@
-/* 
+/*
  *  AuthFlowRequestHandler.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
-import { AuthorizationError, AuthorizationRequest, AuthorizationRequestHandler, AuthorizationRequestResponse, AuthorizationResponse, AuthorizationServiceConfiguration, BasicQueryStringUtils, Crypto, QueryStringUtils } from "@openid/appauth"
+import {
+  AuthorizationError,
+  AuthorizationRequest,
+  AuthorizationRequestHandler,
+  AuthorizationRequestResponse,
+  AuthorizationResponse,
+  AuthorizationServiceConfiguration,
+  BasicQueryStringUtils,
+  Crypto,
+  QueryStringUtils
+} from '@openid/appauth'
 
 import EventEmitter from 'events'
-import { WebCrypto } from "./crypto_utils"
+import { WebCrypto } from './crypto_utils'
 
 class ServerEventsEmitter extends EventEmitter {
   static ON_AUTHORIZATION_RESPONSE = 'authorization_response'
@@ -23,14 +33,13 @@ export class AuthFlowRequestHandler extends AuthorizationRequestHandler {
   constructor(
     channel: string,
     utils: QueryStringUtils = new BasicQueryStringUtils(),
-    crypto: Crypto = new WebCrypto(),) {
+    crypto: Crypto = new WebCrypto()
+  ) {
     super(utils, crypto)
     this.channelID = channel
   }
 
-
-  performAuthorizationRequest(configuration: AuthorizationServiceConfiguration, request: AuthorizationRequest): void {
-
+  performAuthorizationRequest(configuration: AuthorizationServiceConfiguration, request: AuthorizationRequest): string {
     const emitter = new ServerEventsEmitter()
 
     window.WindowUtils.listenOAuth(this.channelID, (data) => {
@@ -52,10 +61,14 @@ export class AuthFlowRequestHandler extends AuthorizationRequestHandler {
         // get additional optional info.
         const errorUri = searchParams.get('error_uri') || undefined
         const errorDescription = searchParams.get('error_description') || undefined
-        authorizationError = new AuthorizationError(
-          { error: error, error_description: errorDescription!, error_uri: errorUri!, state: state! })
+        authorizationError = new AuthorizationError({
+          error: error,
+          error_description: errorDescription,
+          error_uri: errorUri,
+          state: state
+        })
       } else {
-        authorizationResponse = new AuthorizationResponse({ code: code!, state: state! })
+        authorizationResponse = new AuthorizationResponse({ code: code as string, state: state as string })
       }
 
       const completeResponse = {
@@ -75,12 +88,12 @@ export class AuthFlowRequestHandler extends AuthorizationRequestHandler {
       })
     })
 
-    window.WindowUtils.openExternal(this.buildRequestUrl(configuration, request))
+    const url = this.buildRequestUrl(configuration, request)
+    return url
   }
   protected completeAuthorizationRequest(): Promise<AuthorizationRequestResponse | null> {
     if (!this.authorizationPromise) {
-      return Promise.reject(
-        'No pending authorization request. Call performAuthorizationRequest() ?')
+      return Promise.reject('No pending authorization request. Call performAuthorizationRequest() ?')
     }
     return this.authorizationPromise
   }

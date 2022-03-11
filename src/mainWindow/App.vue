@@ -20,6 +20,7 @@
     <SongInfoModal />
     <SetupModal />
     <OAuthModal />
+    <FormModal />
   </div>
 </template>
 
@@ -39,12 +40,9 @@ import { vxm } from './store'
 import { bus } from './main'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import { v1 } from 'uuid'
-import 'animate.css'
-import Vue from 'vue'
 import { EventBus } from '@/utils/main/ipc/constants'
 import OAuthModal from './components/modals/OAuthModal.vue'
-
-const stun = require('stun')
+import FormModal from './components/modals/FormModal.vue'
 
 @Component({
   components: {
@@ -55,12 +53,12 @@ const stun = require('stun')
     PlaylistFromUrlModal,
     SetupModal,
     SongInfoModal,
-    OAuthModal
+    OAuthModal,
+    FormModal
   }
 })
 export default class App extends mixins(ThemeHandler, PlayerControls) {
   created() {
-    this.registerLogger()
     this.registerNotifier()
     this.listenThemeChanges()
     this.listenExtensionEvents()
@@ -77,7 +75,6 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     this.registerFileDragListener()
     this.handleInitialSetup()
     this.checkUpdate()
-    // this.testStun()
   }
 
   private checkUpdate() {
@@ -93,17 +90,6 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
         window.WindowUtils.toggleDevTools(true)
       } else if (e.code === 'F5') {
         location.reload()
-      }
-    })
-  }
-
-  public testStun(): void {
-    stun.request('stun.l.google.com:19302', (err: any, res: any) => {
-      if (err) {
-        console.error(err)
-      } else {
-        const { address } = res.getXorAddress()
-        console.log('ip: ', address)
       }
     })
   }
@@ -126,46 +112,6 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
       playlists[p.playlist_id] = p.playlist_name
     }
     vxm.playlist.playlists = playlists
-  }
-
-  private getErrorMessage(...args: any[]) {
-    let ret = []
-    for (const data of args) {
-      if (data instanceof Error) {
-        ret.push(args[0].stack)
-      } else {
-        ret.push(data)
-      }
-    }
-
-    return ret
-  }
-
-  private registerLogger() {
-    const preservedConsoleInfo = console.info
-    const preservedConsoleError = console.error
-
-    if (window.LoggerUtils && window.LoggerUtils.info && window.LoggerUtils.error) {
-      console.info = (...args: any[]) => {
-        preservedConsoleInfo.apply(console, args)
-        window.LoggerUtils.info(args)
-      }
-
-      console.error = (...args: any[]) => {
-        const error = this.getErrorMessage(...args)
-        preservedConsoleError.apply(console, args)
-        window.LoggerUtils.error(error)
-      }
-
-      window.onerror = (err) => {
-        const error = this.getErrorMessage(err)
-        window.LoggerUtils.error(error)
-      }
-
-      Vue.config.errorHandler = (err, vm, info) => {
-        window.LoggerUtils.error(err)
-      }
-    }
   }
 
   private registerNotifier() {
@@ -241,7 +187,7 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
       event.preventDefault()
       event.stopPropagation()
       if (event.dataTransfer) {
-        console.info('got drag files', event.dataTransfer.files.length)
+        console.debug('Got drag files', event.dataTransfer.files.length)
         for (const f of event.dataTransfer.files) {
           if (f) {
             const song = await this.getSongFromPath(f.path)
@@ -306,17 +252,22 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
   }
 
   private listenExtensionEvents() {
-    vxm.player.$watch('currentSong', (newVal: Song | undefined | null) => {
-      if (newVal?.type !== 'LOCAL' && !newVal?.playbackUrl) {
-        return
-      }
-      window.ExtensionUtils.sendEvent({
-        type: 'onSongChanged',
-        data: newVal
-      })
+    vxm.player.$watch(
+      'currentSong',
+      (newVal: Song | undefined | null) => {
+        if (newVal?.type !== 'LOCAL' && !newVal?.playbackUrl) {
+          return
+        }
 
-      vxm.providers.lastfmProvider.scrobble(newVal)
-    })
+        window.ExtensionUtils.sendEvent({
+          type: 'onSongChanged',
+          data: newVal
+        })
+
+        vxm.providers.lastfmProvider.scrobble(newVal)
+      },
+      { deep: true, immediate: true }
+    )
 
     vxm.player.$watch('playerState', (newVal: PlayerState) =>
       window.ExtensionUtils.sendEvent({

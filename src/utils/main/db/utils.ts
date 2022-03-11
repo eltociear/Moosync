@@ -1,9 +1,9 @@
-/* 
+/*
  *  utils.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -23,18 +23,16 @@ export class DBUtils {
       fileMustExist: false,
       WAL: true,
       migrate: {
-        migrations: migrations,
-      },
+        migrations: migrations
+      }
     })
     this.registerRegexp()
 
-    if (app)
-      app.addListener('before-quit', this.close)
+    if (app) app.addListener('before-quit', this.close)
   }
 
   public close() {
-    if (this.db && this.db.open)
-      this.db.close()
+    if (this.db && this.db.open) this.db.close()
   }
 
   protected unMarshalSong(dbSong: marshaledSong): Song {
@@ -51,7 +49,7 @@ export class DBUtils {
         album_coverPath_high: dbSong.album_coverPath_high,
         album_coverPath_low: dbSong.album_coverPath_low,
         album_song_count: dbSong.album_song_count,
-        year: dbSong.year,
+        year: dbSong.year
       },
       date: dbSong.date,
       year: dbSong.year,
@@ -76,7 +74,7 @@ export class DBUtils {
 
   protected marshalSong(song: Song): marshaledSong {
     if (!song._id) {
-      throw new Error("song _id cannot be null")
+      throw new Error('song _id cannot be null')
     }
 
     return {

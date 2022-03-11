@@ -1,19 +1,24 @@
-/* 
+/*
  *  genericProvider.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
 import localforage from 'localforage'
 import { setupCache } from 'axios-cache-adapter'
 
+type Config = {
+  store: {
+    removeItem: (uid: string) => Promise<void>
+  }
+  uuid: string
+}
+
 export const forageStore = localforage.createInstance({
-  driver: [
-    localforage.INDEXEDDB,
-  ],
+  driver: [localforage.INDEXEDDB],
   name: 'yt-cache'
 })
 
@@ -21,13 +26,12 @@ export const cache = setupCache({
   maxAge: 15 * 60 * 1000,
   store: forageStore,
   exclude: { query: false },
-  invalidate: async (config, request) => {
+  invalidate: async (config: Config, request) => {
     if (request.clearCacheEntry) {
-      await (config.store as any)?.removeItem((config as any).uuid)
+      await config.store.removeItem(config.uuid)
     }
   }
 })
-
 
 export abstract class GenericProvider {
   /**
@@ -38,7 +42,7 @@ export abstract class GenericProvider {
 
   /**
    * Gets details of single playlist.
-   * 
+   *
    * @param id id of playlist
    * @returns Playlist if data is found otherwise undefined
    */
@@ -46,7 +50,7 @@ export abstract class GenericProvider {
 
   /**
    * Gets songs present in playlist
-   * @param id 
+   * @param id
    * @returns Generator of array {@link Song}
    */
   public abstract getPlaylistContent(id: string, invalidateCache?: boolean): AsyncGenerator<Song[]>
@@ -61,9 +65,11 @@ export abstract class GenericProvider {
   /**
    * Gets playback url and duration of song from provider. When song conversion to youtube is rate limited then url and duration fetching can be deferred
    * @param song whose url and duration is to be fetched
-   * @returns playback url and duration 
+   * @returns playback url and duration
    */
-  public abstract getPlaybackUrlAndDuration(song: Song): Promise<{ url: string | undefined, duration: number } | undefined>
+  public abstract getPlaybackUrlAndDuration(
+    song: Song
+  ): Promise<{ url: string | undefined; duration: number } | undefined>
 
   /**
    * Gets details of a song from its url

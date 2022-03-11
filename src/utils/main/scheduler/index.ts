@@ -1,39 +1,41 @@
-/* 
+/*
  *  index.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
-import { AsyncTask, SimpleIntervalJob, ToadScheduler } from 'toad-scheduler';
+import { AsyncTask, SimpleIntervalJob, ToadScheduler } from 'toad-scheduler'
 
-import { scannerChannel } from '@/utils/main/ipc';
-import { updateChannel } from '../ipc/index';
+import { scannerChannel } from '@/utils/main/ipc'
+import { updateChannel } from '../ipc/index'
 
-export const scheduler = new ToadScheduler()
-
-export function setupScanTask() {
+export function setupScanTask(scheduler: ToadScheduler) {
   const task = new AsyncTask(
     'scan task',
     () => scannerChannel.ScanSongs(),
-    (err: Error) => { console.error(err) }
+    (err: Error) => {
+      console.error(err)
+    }
   )
 
-  const job = new SimpleIntervalJob({ hours: 1, }, task)
+  const job = new SimpleIntervalJob({ hours: 1 }, task)
 
   scheduler.addSimpleIntervalJob(job)
 }
 
-export function setupUpdateCheckTask() {
+export function setupUpdateCheckTask(scheduler: ToadScheduler) {
   const task = new AsyncTask(
     'update task',
     () => updateChannel.checkUpdates(),
-    (err: Error) => { console.error(err) }
+    (err: Error) => {
+      console.error(err)
+    }
   )
 
-  const job = new SimpleIntervalJob({ hours: 3, }, task)
+  const job = new SimpleIntervalJob({ hours: 3 }, task)
 
   scheduler.addSimpleIntervalJob(job)
 }

@@ -1,9 +1,9 @@
-/* 
+/*
  *  RouterPushes.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -15,8 +15,8 @@ export default class PlayerControls extends Vue {
     this.$router.push({
       name: 'albums-id',
       params: {
-        id: album.album_id!,
-      },
+        id: album.album_id as string
+      }
     })
   }
 
@@ -24,8 +24,8 @@ export default class PlayerControls extends Vue {
     this.$router.push({
       name: 'genre-id',
       params: {
-        id: genre.genre_id!,
-      },
+        id: genre.genre_id
+      }
     })
   }
 
@@ -33,8 +33,8 @@ export default class PlayerControls extends Vue {
     this.$router.push({
       name: 'artists-id',
       params: {
-        id: artist.artist_id!,
-      },
+        id: artist.artist_id
+      }
     })
   }
 
@@ -42,8 +42,8 @@ export default class PlayerControls extends Vue {
     this.$router.push({
       name: 'playlists-id',
       params: {
-        id: playlist.playlist_id,
-      },
+        id: playlist.playlist_id
+      }
     })
   }
 }

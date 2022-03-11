@@ -13,7 +13,7 @@
 }
 </route>
 <template>
-  <div class="w-100">
+  <div class="w-100 h-100">
     <SongView
       :defaultDetails="defaultDetails"
       :songList="songList"

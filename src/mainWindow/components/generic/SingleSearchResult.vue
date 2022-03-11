@@ -72,14 +72,14 @@ export default class SingleSearchResult extends mixins(PlayerControls, ImgLoader
   divider!: boolean
 
   @Prop({ default: null })
-  id!: any
+  id!: string | null
 
   @Prop({ default: false })
   showButtons!: boolean
 
   private forceEmptyImg = false
 
-  private handleCoverError(err: any) {
+  private handleCoverError() {
     this.forceEmptyImg = true
   }
 
@@ -97,6 +97,10 @@ export default class SingleSearchResult extends mixins(PlayerControls, ImgLoader
 
   private emitContextMenu(event: Event) {
     this.$emit('onContextMenu', event, this.id)
+  }
+
+  mounted() {
+    // console.log(this.title, this.id, this.subtitle)
   }
 }
 </script>

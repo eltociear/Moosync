@@ -1,54 +1,48 @@
-/* 
+/*
  *  background.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
 'use strict'
 
-import 'threads/register';
+import 'threads/register'
 
-import { BrowserWindow, app, nativeTheme, protocol, session } from 'electron';
-import { WindowHandler, setIsQuitting, _windowHandler } from './utils/main/windowManager';
-import path, { resolve } from 'path';
+import { BrowserWindow, app, nativeTheme, protocol, session } from 'electron'
+import { WindowHandler, setIsQuitting, _windowHandler } from './utils/main/windowManager'
+import path, { resolve } from 'path'
 
-import { oauthHandler } from '@/utils/main/oauth/handler';
-import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
-import { extensionHost } from '@/utils/extensions';
-import log from 'loglevel'
-import { prefixLogger } from './utils/main/logger';
-import { registerIpcChannels } from '@/utils/main/ipc'; // Import for side effects
-import { setInitialInterfaceSettings, loadPreferences } from './utils/main/db/preferences';
-import { setupScanTask } from '@/utils/main/scheduler/index';
-import { flipFuses, FuseVersion, FuseV1Options } from '@electron/fuses';
-import { setupDefaultThemes } from './utils/main/themes/preferences';
-
+import { oauthHandler } from '@/utils/main/oauth/handler'
+import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
+import { extensionHost } from '@/utils/extensions'
+import { registerIpcChannels } from '@/utils/main/ipc'
+import { setInitialInterfaceSettings, loadPreferences } from './utils/main/db/preferences'
+import { setupScanTask } from '@/utils/main/scheduler/index'
+import { setupDefaultThemes, setupSystemThemes } from './utils/main/themes/preferences'
+import { logger } from './utils/main/logger/index'
+import { ToadScheduler } from 'toad-scheduler'
+import { setupUpdateCheckTask } from './utils/main/scheduler/index'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 nativeTheme.themeSource = 'dark'
 
-flipFuses(
-  require('electron') as unknown as string, // Returns the path to the electron binary
-  {
-    version: FuseVersion.V1,
-    [FuseV1Options.RunAsNode]: false,
-    [FuseV1Options.EnableCookieEncryption]: true,
-    [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
-    [FuseV1Options.EnableNodeCliInspectArguments]: false,
-    [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
-    [FuseV1Options.OnlyLoadAppFromAsar]: true,
-  },
-);
+overrideConsole()
+
+process.on('uncaughtException', (err) => {
+  console.error(err)
+})
+
+process.on('unhandledRejection', (err) => {
+  console.error(err)
+})
 
 if (!app.requestSingleInstanceLock() && !isDevelopment) {
   app.exit()
 } else {
-  // Override console.info and console.error with custom logging
-  overrideConsole()
   registerProtocols()
 
   // Quit when all windows are closed.
@@ -58,7 +52,6 @@ if (!app.requestSingleInstanceLock() && !isDevelopment) {
   app.on('ready', onReady)
   app.on('open-url', openURL)
   app.on('second-instance', handleSecondInstance)
-
 }
 
 function interceptHttp() {
@@ -98,7 +91,7 @@ function interceptHttp() {
       try {
         callback(filePath)
       } catch (e) {
-        console.error(e)
+        logger.error(e)
       }
     })
   }
@@ -108,23 +101,22 @@ function windowsClosed() {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    app.quit();
+    app.quit()
   }
 }
 
 function activateMac() {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0)
-    _windowHandler.createWindow(true);
+  if (BrowserWindow.getAllWindows().length === 0) _windowHandler.createWindow(true)
 }
 function beforeQuit() {
-  setIsQuitting(true);
+  setIsQuitting(true)
 }
 
-function openURL(event: Electron.Event, data: any) {
-  event.preventDefault();
-  oauthHandler.handleEvents(data);
+function openURL(event: Electron.Event, data: string) {
+  event.preventDefault()
+  oauthHandler.handleEvents(data)
 }
 
 async function onReady() {
@@ -133,30 +125,34 @@ async function onReady() {
     setupDefaultThemes()
   }
 
-  registerIpcChannels();
-  setInitialInterfaceSettings();
+  await setupSystemThemes()
 
-  await _windowHandler.installExtensions();
-  _windowHandler.registerProtocol('media');
-  createProtocol('moosync');
+  registerIpcChannels()
+  setInitialInterfaceSettings()
 
-  interceptHttp();
+  await _windowHandler.installExtensions()
+  _windowHandler.registerProtocol('media')
+  createProtocol('moosync')
 
-  await _windowHandler.createWindow(true);
+  interceptHttp()
+
+  await _windowHandler.createWindow(true)
 
   // Notify extension host of main window creation
-  extensionHost.mainWindowCreated();
+  extensionHost.mainWindowCreated()
 
-  _windowHandler.handleFileOpen();
+  _windowHandler.handleFileOpen()
 
-  // Setup scan scheduler
-  setupScanTask();
+  // Setup scheduler tasks
+  const scheduler = new ToadScheduler()
+  setupScanTask(scheduler)
+  setupUpdateCheckTask(scheduler)
 }
 
 function registerProtocols() {
   // Scheme must be registered before the app is ready
-  protocol.registerSchemesAsPrivileged([{ scheme: 'moosync', privileges: { secure: true, standard: true } }]);
-  protocol.registerSchemesAsPrivileged([{ scheme: 'media', privileges: { corsEnabled: true, supportFetchAPI: true } }]);
+  protocol.registerSchemesAsPrivileged([{ scheme: 'moosync', privileges: { secure: true, standard: true } }])
+  protocol.registerSchemesAsPrivileged([{ scheme: 'media', privileges: { corsEnabled: true, supportFetchAPI: true } }])
 }
 
 // Exit cleanly on request from parent process in development mode.
@@ -179,9 +175,7 @@ if (process.defaultApp) {
     // Set the path of electron.exe and your app.
     // These two additional parameters are only available on windows.
     // Setting this is required to get this working in dev mode.
-    app.setAsDefaultProtocolClient('moosync', process.execPath, [
-      resolve(process.argv[1])
-    ])
+    app.setAsDefaultProtocolClient('moosync', process.execPath, [resolve(process.argv[1])])
   }
 } else {
   app.setAsDefaultProtocolClient('moosync')
@@ -219,14 +213,24 @@ function handleSecondInstance(_: Event, argv: string[]) {
  * Overrides console with logger
  */
 function overrideConsole() {
-  const child = log.getLogger('Main')
-  prefixLogger(app.getPath('logs'), child)
-  console.info = (...args: any[]) => {
-    child.info(...args)
+  console.info = (...args: unknown[]) => {
+    logger.info(...args)
   }
 
-  console.error = (...args: any[]) => {
-    child.error(...args)
+  console.error = (...args: unknown[]) => {
+    logger.error(...args)
+  }
+
+  console.warn = (...args: unknown[]) => {
+    logger.warn(...args)
+  }
+
+  console.debug = (...args: unknown[]) => {
+    logger.debug(...args)
+  }
+
+  console.trace = (...args: unknown[]) => {
+    logger.trace(...args)
   }
 }
 

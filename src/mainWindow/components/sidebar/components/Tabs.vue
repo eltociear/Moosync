@@ -37,20 +37,22 @@
           <div class="icon">
             <component :active="item.custom ? false : isActive" v-bind:is="item.component"></component>
           </div>
-          <div
-            class="text-padding text-format"
-            v-bind:class="{
-              'text-active': item.custom ? false : isActive
-            }"
-          >
-            {{ item.title }}
-          </div>
+          <transition name="text-delay">
+            <div
+              class="text-padding text-format"
+              v-if="isOpen"
+              v-bind:class="{
+                'text-active': item.custom ? false : isActive
+              }"
+            >
+              {{ item.title }}
+            </div>
+          </transition>
         </div>
       </div>
     </router-link>
   </div>
 </template>
-
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
@@ -105,6 +107,7 @@ export default class Sidebar extends Vue {
     return this.componentNames.filter((val) => typeof val.link === 'function')
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private getOnClick(item: typeof this.componentNames[0], navigate: (...args: any[]) => void, ...args: any[]) {
     if (item.custom) {
       item.custom()
@@ -168,5 +171,10 @@ export default class Sidebar extends Vue {
 
 .icon-active
   padding-left: calc(1.8rem - 3px)
-</style>
 
+.text-delay-enter-active
+  display: none
+  transition-delay: 0.08s
+
+.text-delay-leave-to
+</style>

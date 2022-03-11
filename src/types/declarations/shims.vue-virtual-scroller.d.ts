@@ -1,9 +1,10 @@
-/* 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/*
  *  shims.vue-virtual-scroller.d.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -21,36 +22,36 @@ declare module 'vue-virtual-scroller' {
 
   export const RecycleScroller:
     | Component<
-      Vue,
-      DefaultData<Vue>,
-      DefaultMethods<Vue>,
-      DefaultMethods<Vue>,
-      DefaultComputed,
-      PropsDefinition<DefaultProps>,
-      DefaultProps
-    >
+        Vue,
+        DefaultData<Vue>,
+        DefaultMethods<Vue>,
+        DefaultMethods<Vue>,
+        DefaultComputed,
+        PropsDefinition<DefaultProps>,
+        DefaultProps
+      >
     | undefined
   export const DynamicScroller:
     | Component<
-      Vue,
-      DefaultData<Vue>,
-      DefaultMethods<Vue>,
-      DefaultMethods<Vue>,
-      DefaultComputed,
-      PropsDefinition<DefaultProps>,
-      DefaultProps
-    >
+        Vue,
+        DefaultData<Vue>,
+        DefaultMethods<Vue>,
+        DefaultMethods<Vue>,
+        DefaultComputed,
+        PropsDefinition<DefaultProps>,
+        DefaultProps
+      >
     | undefined
   export const DynamicScrollerItem:
     | Component<
-      Vue,
-      DefaultData<Vue>,
-      DefaultMethods<Vue>,
-      DefaultMethods<Vue>,
-      DefaultComputed,
-      PropsDefinition<DefaultProps>,
-      DefaultProps
-    >
+        Vue,
+        DefaultData<Vue>,
+        DefaultMethods<Vue>,
+        DefaultMethods<Vue>,
+        DefaultComputed,
+        PropsDefinition<DefaultProps>,
+        DefaultProps
+      >
     | undefined
 
   export function IdState(options?: { idProp?: (vm: any) => any }): ComponentOptions<Vue> | typeof Vue

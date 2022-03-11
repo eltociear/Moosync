@@ -9,6 +9,7 @@
 
 <template>
   <b-sidebar
+    no-close-on-esc
     width="261px"
     visible
     id="sidebar"

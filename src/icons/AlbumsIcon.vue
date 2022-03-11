@@ -26,5 +26,3 @@ export default class Albums extends Vue {
   private active!: boolean
 }
 </script>
-
-

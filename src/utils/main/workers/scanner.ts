@@ -1,9 +1,9 @@
-/* 
+/*
  *  scanner.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -11,7 +11,7 @@ import * as mm from 'music-metadata'
 
 import { Observable, SubscriptionObserver } from 'observable-fns'
 import { Transfer, TransferDescriptor } from 'threads'
-import { expose } from 'threads/worker';
+import { expose } from 'threads/worker'
 import fs, { promises as fsP } from 'fs'
 
 import crypto from 'crypto'
@@ -22,13 +22,13 @@ const audioPatterns = new RegExp('.flac|.mp3|.ogg|.m4a|.webm|.wav|.wv|.aac', 'i'
 
 expose({
   start(paths: togglePaths) {
-    return new Observable<any>((observer) => {
+    return new Observable((observer) => {
       start(paths, observer)
     })
-  },
+  }
 })
 
-async function scanFile(filePath: string): Promise<{ song: Song, cover: Buffer | undefined }> {
+async function scanFile(filePath: string): Promise<{ song: Song; cover: Buffer | undefined }> {
   const fsStats = await fsP.stat(filePath)
   const hash = await generateChecksum(filePath)
 
@@ -37,11 +37,11 @@ async function scanFile(filePath: string): Promise<{ song: Song, cover: Buffer |
     inode: fsStats.ino.toString(),
     deviceno: fsStats.dev.toString(),
     size: fsStats.size,
-    hash: hash,
+    hash: hash
   })
 }
 
-async function processFile(stat: stats): Promise<{ song: Song, cover: Buffer | undefined }> {
+async function processFile(stat: stats): Promise<{ song: Song; cover: Buffer | undefined }> {
   const metadata = await mm.parseFile(stat.path)
   const info = await getInfo(metadata, stat)
   const cover = metadata.common.picture && metadata.common.picture[0].data
@@ -65,7 +65,7 @@ async function getInfo(data: mm.IAudioMetadata, stats: stats): Promise<Song> {
       album_name: data.common.album,
       album_song_count: 0,
       year: data.common.year,
-      album_artist: data.common.albumartist,
+      album_artist: data.common.albumartist
     },
     artists: artists,
     date: data.common.date,
@@ -82,11 +82,14 @@ async function getInfo(data: mm.IAudioMetadata, stats: stats): Promise<Song> {
     inode: stats.inode,
     deviceno: stats.deviceno,
     date_added: Date.now(),
-    type: 'LOCAL',
+    type: 'LOCAL'
   }
 }
 
-async function scanDir(directory: string, observer: SubscriptionObserver<{ song: Song, cover: TransferDescriptor<Buffer> | undefined }>) {
+async function scanDir(
+  directory: string,
+  observer: SubscriptionObserver<{ song: Song; cover: TransferDescriptor<Buffer> | undefined }>
+) {
   if (fs.existsSync(directory)) {
     const files = fs.readdirSync(directory)
     for (const file of files) {
@@ -108,9 +111,9 @@ async function scanDir(directory: string, observer: SubscriptionObserver<{ song:
   }
 }
 
-async function start(paths: togglePaths, observer: SubscriptionObserver<any>) {
+async function start(paths: togglePaths, observer: SubscriptionObserver<unknown>) {
   for (const i in paths) {
-    paths[i].enabled && await scanDir(paths[i].path, observer)
+    paths[i].enabled && (await scanDir(paths[i].path, observer))
   }
   observer.complete()
 }

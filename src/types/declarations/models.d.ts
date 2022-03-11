@@ -1,9 +1,9 @@
-/* 
+/*
  *  models.d.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -13,7 +13,7 @@ interface SearchResult {
   artists?: artists[]
   genres?: Genre[]
   playlists?: Playlist[]
-  youtube?: import('node-youtube-music').MusicVideo[]
+  youtube?: YTMusicVideo[]
 }
 
 interface marshaledSong {
@@ -70,8 +70,14 @@ interface ThemeDetails {
   theme: ThemeItem
 }
 
-type ThemeKey = 'primary' | 'secondary' | 'tertiary' | 'textPrimary' | 'textSecondary' | 'textInverse' | 'accent' | 'divider'
+type ThemeKey =
+  | 'primary'
+  | 'secondary'
+  | 'tertiary'
+  | 'textPrimary'
+  | 'textSecondary'
+  | 'textInverse'
+  | 'accent'
+  | 'divider'
 
 type ThemeItem = { [key in ThemeKey]: string }
-
-

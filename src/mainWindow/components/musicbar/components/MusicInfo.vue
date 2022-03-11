@@ -20,7 +20,7 @@
     <b-container fluid class="w-100 h-100 main-container">
       <b-row no-gutters align-h="end">
         <b-col cols="auto">
-          <CrossIcon class="cross-icon" @click.native="close" />
+          <CrossIcon class="cross-icon button-grow" @click.native="close" />
         </b-col>
       </b-row>
       <b-row no-gutters align-h="center" class="h-100 flex-nowrap">
@@ -42,7 +42,12 @@
                   v-model="queueOrder"
                   ghost-class="ghost"
                   @start="drag = true"
-                  @end="drag = false"
+                  @end="
+                    () => {
+                      drag = false
+                      onDragEnd()
+                    }
+                  "
                   @change="handleIndexChange"
                 >
                   <transition-group name="flip-list">
@@ -96,6 +101,7 @@ import CrossIcon from '@/icons/CrossIcon.vue'
 })
 export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   private hasFrame = false
+  private ignoreScroll = false
 
   get queueProvider() {
     return vxm.sync.mode !== PeerMode.UNDEFINED ? vxm.sync : vxm.player
@@ -109,11 +115,22 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
     bus.$emit('onToggleSlider', false)
   }
 
+  private onDragEnd() {
+    this.ignoreScroll = true
+  }
+
   private scrollToActive() {
+    if (this.ignoreScroll) {
+      this.ignoreScroll = false
+      return
+    }
+
     const elem = this.$refs[`queue-item-${this.queueOrder[this.currentIndex]?.id}`]
     if (elem) {
       ;((elem as (Vue | Element)[])[0] as Vue).$el.scrollIntoView({
-        behavior: 'smooth'
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center'
       })
     }
   }
@@ -127,7 +144,8 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   }
 
   @Watch('currentIndex')
-  onIndexChange() {
+  async onIndexChange() {
+    await this.$nextTick()
     this.scrollToActive()
   }
 
@@ -182,19 +200,15 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   private handleIndexChange(change: {
     moved: { element: { id: string; songID: string }; newIndex: number; oldIndex: number }
   }) {
-    if (change.moved.oldIndex === this.currentIndex) {
-      this.queueProvider.queueIndex = change.moved.newIndex
-    } else if (change.moved.newIndex === this.currentIndex) {
-      if (change.moved.oldIndex < this.currentIndex) {
-        this.queueProvider.queueIndex = this.queueProvider.queueIndex - 1
-      } else {
-        this.queueProvider.queueIndex = this.queueProvider.queueIndex + 1
-      }
-    }
+    this.queueProvider.setSongIndex({
+      oldIndex: change.moved.oldIndex,
+      newIndex: change.moved.newIndex,
+      ignoreMove: true
+    })
   }
 
-  @Prop({ default: () => {} })
-  private currentSong!: Song
+  @Prop({ default: () => null })
+  private currentSong!: Song | null
 
   private formattedDuration = convertDuration
 }

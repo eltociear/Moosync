@@ -612,8 +612,8 @@ export default class ThemeComponentCompact extends Vue {
   @Prop({ default: 'theme' })
   private id!: string
 
-  @Prop({ default: () => {} })
-  private colors!: ThemeItem
+  @Prop({ default: () => null })
+  private colors!: ThemeItem | null
 
   @Prop({ default: false })
   private selected!: boolean

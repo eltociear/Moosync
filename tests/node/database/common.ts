@@ -1,14 +1,14 @@
-/* 
+/*
  *  common.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
-import { SongDBInstance } from "@/utils/main/db/database"
-import { v1, v4 } from "uuid"
+import { SongDBInstance } from '@/utils/main/db/database'
+import { v1, v4 } from 'uuid'
 
 interface options {
   size?: number
@@ -34,20 +34,25 @@ function generateSong(options: options): Song {
     title: v1(),
     artists: options.sameArtists ? ['Test artist 1', 'Test artist 2'] : [v4(), v4()],
     album: {
-      album_name: options.sameAlbum ? 'Test album' : v1(),
+      album_name: options.sameAlbum ? 'Test album' : v1()
     },
     duration: 69,
     date_added: Date.now(),
+    hash: Date.now().toString(),
     type: 'LOCAL'
   }
 }
 
-export function insertPlaylist(SongDB: SongDBInstance): Playlist {
+export function insertPlaylist(SongDB: SongDBInstance) {
   const playlist = generatePlaylist()
-  const id = SongDB.createPlaylist(playlist.playlist_name!, playlist.playlist_name!, playlist.playlist_coverPath)
+  const id = SongDB.createPlaylist(
+    playlist.playlist_name ?? '',
+    playlist.playlist_name ?? '',
+    playlist.playlist_coverPath
+  )
   return {
     playlist_id: id,
-    playlist_name: playlist.playlist_name!,
+    playlist_name: playlist.playlist_name,
     playlist_coverPath: playlist.playlist_coverPath
   }
 }

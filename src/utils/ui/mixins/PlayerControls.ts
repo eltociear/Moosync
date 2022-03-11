@@ -1,9 +1,9 @@
-/* 
+/*
  *  PlayerControls.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -91,5 +91,9 @@ export default class PlayerControls extends Vue {
 
   public removeFromQueue(index: number) {
     vxm.player.pop(index)
+  }
+
+  public setSongIndex(oldIndex: number, newIndex: number) {
+    vxm.player.setSongIndex({ oldIndex, newIndex, ignoreMove: false })
   }
 }

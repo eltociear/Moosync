@@ -61,7 +61,7 @@ import { EventBus } from '@/utils/main/ipc/constants'
   }
 })
 export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
-  @Prop({ default: () => () => {} })
+  @Prop({ default: () => () => undefined })
   private enableRefresh!: () => void
 
   private allPlaylists: Playlist[] = []

@@ -69,7 +69,9 @@ export default class CardCarousel extends mixins(ImgLoader, PlayerControls, Cont
       args: {
         isRemote: true,
         songs: [song],
-        refreshCallback: () => {}
+        refreshCallback: () => {
+          // Empty Callback
+        }
       }
     })
   }

@@ -8,7 +8,7 @@
 -->
 
 <template>
-  <div>
+  <div class="w-100 h-100">
     <b-container fluid>
       <b-row no-gutters class="w-100">
         <div class="path-selector w-100">

@@ -1,11 +1,3 @@
-.slide-fade-enter-active
-  transition: all .3s ease
-.slide-fade-leave-active
-  transition: all .2s ease
-.slide-fade-enter, .slide-fade-leave-to
-  transform: translateY(300px)
-  opacity: 0
-
 .fade-leave-active, .fade-enter-active
   transition: opacity 0.3s ease-out
   transition-delay: 0.15s
@@ -17,8 +9,11 @@
 .fade-enter, .fade-leave-to
   opacity: 0
 
-.animate__animated.animate__slideOutRight
+.animate__slideOutRight_faster
   --animate-duration: 0.5s
 
-.animate__animated.animate__slideInLeft
+.animate__slideInLeft_delay
   --animate-delay: 0.3s
+
+.animate_absolute
+  position: absolute

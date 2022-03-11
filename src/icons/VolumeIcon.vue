@@ -43,5 +43,3 @@ export default class SpotifyIcon extends Vue {
   private cut!: boolean
 }
 </script>
-
-

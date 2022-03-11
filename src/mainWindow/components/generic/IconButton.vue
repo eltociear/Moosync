@@ -46,7 +46,7 @@ export default class IconButton extends mixins(ImageLoader) {
   @Prop({ default: undefined })
   private hoverText: string | undefined
 
-  private hover: boolean = false
+  private hover = false
 }
 </script>
 
