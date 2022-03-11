@@ -98,6 +98,10 @@ export default class SingleSearchResult extends mixins(PlayerControls, ImgLoader
   private emitContextMenu(event: Event) {
     this.$emit('onContextMenu', event, this.id)
   }
+
+  mounted() {
+    // console.log(this.title, this.id, this.subtitle)
+  }
 }
 </script>
 

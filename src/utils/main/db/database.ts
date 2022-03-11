@@ -134,6 +134,7 @@ export class SongDBInstance extends DBUtils {
     const songs = this.getSongByOptions(
       {
         song: {
+          title: term,
           path: term
         }
       },
