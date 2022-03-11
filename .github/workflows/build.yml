@@ -41,8 +41,9 @@ jobs:
 
       - name: Sets env vars for release
         run: |
-          echo "DEBUG_LOGGING=true" >> $GITHUB_ENV
-        if: ${GITHUB_REF##*/} == 'dev'
+          if [[ $GITHUB_REF == 'refs/heads/dev' ]]; then
+            echo "DEBUG_LOGGING=true" >> $GITHUB_ENV
+          fi
 
       - name: yarn install
         run: yarn install
