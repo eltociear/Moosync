@@ -13,7 +13,7 @@ interface SearchResult {
   artists?: artists[]
   genres?: Genre[]
   playlists?: Playlist[]
-  youtube?: import('node-youtube-music').MusicVideo[]
+  youtube?: YTMusicVideo[]
 }
 
 interface marshaledSong {

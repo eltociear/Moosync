@@ -44,7 +44,6 @@ import { mixins } from 'vue-class-component'
 import RouterPushes from '@/utils/ui/mixins/RouterPushes'
 import { toSong } from '@/utils/models/youtube'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
-import ytMusic from 'node-youtube-music'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 
 @Component({
@@ -138,7 +137,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Playlists':
           return (item as Playlist).playlist_name
         case 'Youtube':
-          return (item as ytMusic.MusicVideo).title
+          return (item as YTMusicVideo).title
       }
     }
     return ''
@@ -158,7 +157,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Playlists':
           return `${(item as Playlist).playlist_songs} Songs`
         case 'Youtube':
-          return `${(item as ytMusic.MusicVideo).album} - ${(item as ytMusic.MusicVideo).artists
+          return `${(item as YTMusicVideo).album} - ${(item as YTMusicVideo).artists
             ?.map((val) => val.name)
             ?.join(', ')}}`
       }
@@ -180,7 +179,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Playlists':
           return (item as Playlist).playlist_coverPath
         case 'Youtube':
-          return (item as ytMusic.MusicVideo).thumbnailUrl
+          return (item as YTMusicVideo).thumbnailUrl
       }
     }
     return ''
@@ -206,7 +205,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     }
   }
 
-  private imgClickHandler(tab: string, item: Song | Album | Artists | Genre | Playlist | ytMusic.MusicVideo) {
+  private imgClickHandler(tab: string, item: Song | Album | Artists | Genre | Playlist | YTMusicVideo) {
     switch (tab) {
       case 'Songs':
         this.playTop([item as Song])
@@ -224,14 +223,14 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         this.playPlaylist(item as Playlist)
         return
       case 'Youtube':
-        this.playTop(toSong(item as ytMusic.MusicVideo))
+        this.playTop(toSong(item as YTMusicVideo))
     }
   }
 
-  private contextMenuHandler(tab: string, event: Event, item: Song | ytMusic.MusicVideo) {
+  private contextMenuHandler(tab: string, event: Event, item: Song | YTMusicVideo) {
     switch (tab) {
       case 'Youtube':
-        this.getContextMenu(event, { type: 'YOUTUBE', args: { ytItems: [item as ytMusic.MusicVideo] } })
+        this.getContextMenu(event, { type: 'YOUTUBE', args: { ytItems: [item as YTMusicVideo] } })
         break
       case 'Songs':
         this.getContextMenu(event, { type: 'SONGS', args: { songs: [item as Song] } })

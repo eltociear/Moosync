@@ -10,11 +10,10 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 import { toSong } from '@/utils/models/youtube'
-import ytMusic from 'node-youtube-music'
 
 @Component
 export default class RemoteSong extends Vue {
-  public addYTItemsToLibrary(...songs: ytMusic.MusicVideo[]) {
+  public addYTItemsToLibrary(...songs: YTMusicVideo[]) {
     window.DBUtils.storeSongs(toSong(...songs))
     this.$toasted.show(`Added ${songs.length} songs to library`)
   }

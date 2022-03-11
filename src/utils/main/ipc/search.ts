@@ -12,7 +12,7 @@ import { getDisabledPaths, loadPreferences } from '@/utils/main/db/preferences'
 
 import { SongDB } from '@/utils/main/db'
 import { webScraper } from '../fetchers/lastfm'
-import { ytScraper } from '@/utils/main/fetchers/searchYT'
+import { YTScraper } from '../fetchers/searchYT'
 
 export class SearchChannel implements IpcChannelInterface {
   name = IpcEvents.SEARCH
@@ -52,7 +52,7 @@ export class SearchChannel implements IpcChannelInterface {
 
   private searchYT(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.Search>) {
     if (request.params && request.params.searchTerm) {
-      ytScraper
+      new YTScraper()
         .searchTerm(request.params.searchTerm)
         .then((data) => event.reply(request.responseChannel, data))
         .catch((e) => {
@@ -64,7 +64,7 @@ export class SearchChannel implements IpcChannelInterface {
 
   private getYTSuggestions(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.YTSuggestions>) {
     if (request.params && request.params.videoID) {
-      ytScraper
+      new YTScraper()
         .getSuggestions(request.params.videoID)
         .then((data) => event.reply(request.responseChannel, data))
         .catch((e) => {

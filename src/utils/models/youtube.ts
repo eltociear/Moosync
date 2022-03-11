@@ -7,9 +7,7 @@
  *  See LICENSE in the project root for license information.
  */
 
-import ytMusic from 'node-youtube-music'
-
-export function toSong(...item: ytMusic.MusicVideo[]): Song[] {
+export function toSong(...item: YTMusicVideo[]): Song[] {
   const songs: Song[] = []
   for (const s of item) {
     const highResThumbnail = s.thumbnailUrl && getHighResThumbnail(s.thumbnailUrl)

@@ -9,14 +9,22 @@
 
 import * as ytMusic from 'node-youtube-music'
 
-class YTScraper {
+export class YTScraper {
   public async searchTerm(term: string) {
-    return await ytMusic.searchMusics(term)
+    try {
+      return await ytMusic.searchMusics(term)
+    } catch (e) {
+      console.error('Failed to fetch search results from Youtube', e)
+    }
   }
 
   public async getSuggestions(videoID: string) {
-    return ytMusic.getSuggestions(videoID)
+    try {
+      return ytMusic.getSuggestions(videoID)
+    } catch (e) {
+      console.error('Failed to fetch suggestions from Youtube', e)
+    }
+
+    return []
   }
 }
-
-export const ytScraper = new YTScraper()
