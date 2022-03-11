@@ -11,3 +11,15 @@ type SongAPIOptions = import('@moosync/moosync-types').SongAPIOptions
 
 type ExtensionFactory = import('@moosync/moosync-types').ExtensionFactory
 type MoosyncExtensionTemplate = import('@moosync/moosync-types').MoosyncExtensionTemplate
+
+declare namespace NodeJS {
+  export interface ProcessEnv {
+    DEBUG_LOGGING: boolean
+    YoutubeClientID: string
+    YoutubeClientSecret: string
+    LastFmApiKey: string
+    LastFmSecret: string
+    SpotifyClientID: string
+    SpotifyClientSecret: string
+  }
+}

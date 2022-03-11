@@ -42,6 +42,7 @@ module.exports = {
     plugins: [
       new webpack.DefinePlugin({
         'process.browser': 'true',
+        'process.env.DEBUG_LOGGING': process.env.DEBUG_LOGGING,
         ...secrets
       }),
 
