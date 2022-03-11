@@ -133,3 +133,18 @@ export function stripSong(song?: RemoteSong): RemoteSong {
 
   return tmp
 }
+
+export function getErrorMessage(...args: unknown[]) {
+  const ret = []
+  for (const data of args) {
+    if (data instanceof Error) {
+      ret.push(data.name)
+      ret.push(data.message)
+      ret.push(data.stack)
+    } else {
+      ret.push(data)
+    }
+  }
+
+  return ret
+}

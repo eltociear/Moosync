@@ -19,22 +19,10 @@ import App from '@/mainWindow/App.vue'
 import Vue from 'vue'
 import router from '@/mainWindow/plugins/router'
 import { store } from '@/mainWindow/store'
+import { getErrorMessage } from '@/utils/common'
 
 Vue.config.productionTip = false
 Vue.config.devtools = false
-
-function getErrorMessage(...args: unknown[]) {
-  const ret = []
-  for (const data of args) {
-    if (data instanceof Error) {
-      ret.push(data.stack)
-    } else {
-      ret.push(data)
-    }
-  }
-
-  return ret
-}
 
 function registerLogger() {
   const preservedConsoleInfo = console.info
