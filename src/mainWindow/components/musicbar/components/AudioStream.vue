@@ -381,13 +381,26 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       }
     } else {
       if (!song.playbackUrl || !song.duration) {
+        console.debug('PlaybackUrl or Duration empty for', song._id)
+
         const res = await this.getPlaybackUrlAndDuration(song)
         if (res) {
-          // song is a reference to vxm.sync.currentSong or vxm.player.currentSong
-          song.duration = res.duration
-          song.playbackUrl = res.url
+          if (!this.isSyncing) {
+            if (vxm.player.currentSong) {
+              vxm.player.currentSong.duration = res.duration
+              Vue.set(vxm.player.currentSong, 'playbackUrl', res.url)
+            }
+          } else {
+            if (vxm.sync.currentSong) {
+              vxm.sync.currentSong.duration = res.duration
+              Vue.set(vxm.sync.currentSong, 'playbackUrl', res.url)
+            }
+          }
+
+          return
         }
       }
+      console.debug('PlaybackUrl for song', song._id, 'is', song.playbackUrl)
 
       console.debug('Loaded song at', song.playbackUrl)
       this.activePlayer.load(song.playbackUrl, this.volume, this.playerState !== 'PAUSED')
