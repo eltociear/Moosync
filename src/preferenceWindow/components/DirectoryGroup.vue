@@ -9,9 +9,16 @@
 
 <template>
   <b-container fluid class="path-container w-100">
-    <b-row no-gutters>
+    <b-row no-gutters align-v="center">
       <PreferenceHeader v-if="title" :title="title" :tooltip="tooltip" />
-      <b-col cols="auto" align-self="center" class="new-directories ml-auto">
+      <b-col cols="auto" align-self="start" class="new-directories ml-auto justify-content-center">
+        <RefreshIcon
+          title="Rescan directories for music"
+          @click.native="emitRefresh"
+          class="refresh-icon button-grow"
+        />
+      </b-col>
+      <b-col cols="auto" class="new-directories ml-4">
         <div class="add-directories-button" v-if="!bottomButton" @click="openFileBrowser">Add Folder...</div>
       </b-col>
     </b-row>
@@ -58,10 +65,12 @@ import { Component, Prop, Mixins } from 'vue-property-decorator'
 import Tooltip from '@/commonComponents/Tooltip.vue'
 import { ExtensionPreferenceMixin } from '../mixins/extensionPreferenceMixin'
 import PreferenceHeader from './PreferenceHeader.vue'
+import RefreshIcon from '@/icons/RefreshIcon.vue'
 @Component({
   components: {
     Tooltip,
-    PreferenceHeader
+    PreferenceHeader,
+    RefreshIcon
   }
 })
 export default class DirectoryGroup extends Mixins(ExtensionPreferenceMixin) {
@@ -91,6 +100,10 @@ export default class DirectoryGroup extends Mixins(ExtensionPreferenceMixin) {
       ).checked
       this.onInputChange()
     }
+  }
+
+  private emitRefresh() {
+    this.$emit('refresh')
   }
 
   private removePath(index: number) {
@@ -169,4 +182,7 @@ export default class DirectoryGroup extends Mixins(ExtensionPreferenceMixin) {
 
 .no-checkbox-margin
   margin-left: 25px
+
+.refresh-icon
+  width: 16px
 </style>
