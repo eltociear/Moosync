@@ -1,9 +1,10 @@
-/* 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/*
  *  shims-youtube-music-api.d.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -38,7 +39,7 @@ declare module 'youtube-music-api' {
   }
   export default class YoutubeMusicApi {
     // constructor()
-    initalize(): Promise<{ locale: string, logged_in: string }>
+    initalize(): Promise<{ locale: string; logged_in: string }>
     getSearchSuggestions(query: string): string[]
     search(query: string, categoryName: string, _pageLimit?: number): Promise<SearchResult>
 

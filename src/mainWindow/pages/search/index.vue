@@ -8,14 +8,14 @@
 -->
 
 <template>
-  <div class="search-content w-100">
-    <b-tabs content-class="mt-3 tab-inner-container" justified v-model="tabModel" class="tab-container">
-      <b-tab :title="item.tab" v-for="item in items" :id="item.tab" :key="item.key" class="tab-content">
+  <div class="w-100 h-100 tab-outer-container">
+    <b-tabs content-class="mt-3 tab-inner-container" justified v-model="tabModel" class="h-100">
+      <b-tab :title="i.tab" v-for="i in items" :id="i.tab" :key="i.key">
         <RecycleScroller
           class="scroller"
-          :items="ComputeTabContent(item.tab)"
+          :items="ComputeTabContent(i.tab)"
           :item-size="80"
-          :key-field="item.tab === 'Youtube' ? 'youtubeId' : '_id'"
+          :key-field="ComputeTabKeyField(i.tab)"
           v-slot="{ item, index }"
           v-if="result"
           :direction="'vertical'"
@@ -44,7 +44,6 @@ import { mixins } from 'vue-class-component'
 import RouterPushes from '@/utils/ui/mixins/RouterPushes'
 import { toSong } from '@/utils/models/youtube'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
-import ytMusic from 'node-youtube-music'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 
 @Component({
@@ -53,7 +52,7 @@ import ImgLoader from '@/utils/ui/mixins/ImageLoader'
   }
 })
 export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, ImgLoader) {
-  private term: string = ''
+  private term = ''
   private tabModel = 0
   private result: SearchResult = {}
   private items = [
@@ -66,7 +65,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   ]
 
   get tab() {
-    return this.items[this.tabModel!].tab
+    return this.items[this.tabModel].tab
   }
 
   private async fetchData() {
@@ -87,21 +86,38 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     this.items[5].key = 'Youtube' + this.items[5].count++
   }
 
+  private ComputeTabKeyField(tab: string) {
+    switch (tab) {
+      case 'Songs':
+        return '_id'
+      case 'Albums':
+        return 'album_id'
+      case 'Artists':
+        return 'artist_id'
+      case 'Genres':
+        return 'genre_id'
+      case 'Playlists':
+        return 'playlist_id'
+      case 'Youtube':
+        return 'youtubeId'
+    }
+  }
+
   private ComputeTabContent(tab: string) {
     if (this.result) {
       switch (tab) {
         case 'Songs':
-          return this.result.songs || []
+          return this.result.songs ?? []
         case 'Albums':
-          return this.result.albums || []
+          return this.result.albums ?? []
         case 'Artists':
-          return this.result.artists || []
+          return this.result.artists ?? []
         case 'Genres':
-          return this.result.genres || []
+          return this.result.genres ?? []
         case 'Playlists':
-          return this.result.playlists || []
+          return this.result.playlists ?? []
         case 'Youtube':
-          return this.result.youtube || []
+          return this.result.youtube ?? []
       }
     }
     return []
@@ -121,7 +137,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Playlists':
           return (item as Playlist).playlist_name
         case 'Youtube':
-          return (item as ytMusic.MusicVideo).title
+          return (item as YTMusicVideo).title
       }
     }
     return ''
@@ -131,7 +147,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     if (item) {
       switch (tab) {
         case 'Songs':
-          return (item as Song).artists ? (item as Song).artists!.join(', ') : ''
+          return (item as Song).artists?.join(', ')
         case 'Albums':
           return `${(item as Album).album_song_count} Songs`
         case 'Artists':
@@ -141,7 +157,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Playlists':
           return `${(item as Playlist).playlist_songs} Songs`
         case 'Youtube':
-          return `${(item as ytMusic.MusicVideo).album} - ${(item as ytMusic.MusicVideo).artists
+          return `${(item as YTMusicVideo).album} - ${(item as YTMusicVideo).artists
             ?.map((val) => val.name)
             ?.join(', ')}}`
       }
@@ -155,7 +171,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Songs':
           return this.getValidImageLow(item as Song) ?? this.getValidImageHigh(item as Song)
         case 'Albums':
-          return (item as Album).album_coverPath_low
+          return (item as Album).album_coverPath_low ?? (item as Album).album_coverPath_high
         case 'Artists':
           return (item as Artists).artist_coverPath
         case 'Genres':
@@ -163,13 +179,13 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Playlists':
           return (item as Playlist).playlist_coverPath
         case 'Youtube':
-          return (item as ytMusic.MusicVideo).thumbnailUrl
+          return (item as YTMusicVideo).thumbnailUrl
       }
     }
     return ''
   }
 
-  private titleClickHandler(tab: string, item: any) {
+  private titleClickHandler(tab: string, item: Album | Artists | Genre | Playlist) {
     switch (tab) {
       case 'Songs':
         // TODO: Redirect to a seperate page with song details
@@ -189,7 +205,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     }
   }
 
-  private imgClickHandler(tab: string, item: any) {
+  private imgClickHandler(tab: string, item: Song | Album | Artists | Genre | Playlist | YTMusicVideo) {
     switch (tab) {
       case 'Songs':
         this.playTop([item as Song])
@@ -207,14 +223,14 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         this.playPlaylist(item as Playlist)
         return
       case 'Youtube':
-        this.playTop(toSong(item as ytMusic.MusicVideo))
+        this.playTop(toSong(item as YTMusicVideo))
     }
   }
 
-  private contextMenuHandler(tab: string, event: Event, item: any) {
+  private contextMenuHandler(tab: string, event: Event, item: Song | YTMusicVideo) {
     switch (tab) {
       case 'Youtube':
-        this.getContextMenu(event, { type: 'YOUTUBE', args: { ytItems: [item as ytMusic.MusicVideo] } })
+        this.getContextMenu(event, { type: 'YOUTUBE', args: { ytItems: [item as YTMusicVideo] } })
         break
       case 'Songs':
         this.getContextMenu(event, { type: 'SONGS', args: { songs: [item as Song] } })
@@ -277,3 +293,12 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   }
 }
 </script>
+
+<style lang="sass">
+.tab-inner-container
+  overflow-y: scroll
+  height: calc(100% - 58px)
+
+.tab-outer-container
+  overflow-y: scroll
+</style>

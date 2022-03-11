@@ -46,7 +46,7 @@ import { bus } from '@/mainWindow/main'
   }
 })
 export default class MusicBar extends Vue {
-  private sliderOpen: boolean = false
+  private sliderOpen = false
   private oldVolume = 50
 
   get volume() {

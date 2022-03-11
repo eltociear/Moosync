@@ -95,7 +95,7 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
   @Prop({ default: 'PlaylistFromURL' })
   private id!: string
 
-  private forceEmptyImg: boolean = false
+  private forceEmptyImg = false
 
   private songList: Song[] = []
   private playlist: Playlist | null = null
@@ -132,8 +132,8 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
     }
   }
 
-  private handleClick(index: any) {
-    this.playTop([this.songList![index]])
+  private handleClick(index: number) {
+    this.playTop([this.songList[index]])
   }
 
   private async addToLibrary() {
@@ -147,14 +147,14 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
       await window.DBUtils.storeSongs(this.songList)
       await window.DBUtils.addToPlaylist(playlistId, ...this.songList)
 
+      this.$toasted.show(`Added ${this.playlist.playlist_name} to library`)
+
       this.playlist = null
       this.songList = []
 
       this.refreshCallback && this.refreshCallback()
 
       this.$bvModal.hide(this.id)
-
-      this.$toasted.show(`Added ${this.playlist!.playlist_name} to library`)
     }
   }
 

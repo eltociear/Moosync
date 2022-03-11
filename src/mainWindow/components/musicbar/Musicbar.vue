@@ -87,10 +87,10 @@ import Timestamp from '@/mainWindow/components/musicbar/components/Timestamp.vue
   }
 })
 export default class MusicBar extends mixins(ImgLoader) {
-  private forceSeek: number = 0
+  private forceSeek = 0
   private PlayerState: PlayerState = 'PAUSED'
-  private sliderPosition: boolean = false
-  private hasFrame: boolean = false
+  private sliderPosition = false
+  private hasFrame = false
 
   get timestamp() {
     return vxm.player.currentTime

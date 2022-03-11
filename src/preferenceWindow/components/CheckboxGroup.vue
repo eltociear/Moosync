@@ -26,6 +26,11 @@
 </template>
 
 <script lang="ts">
+type CheckboxValue = {
+  key: number
+  enabled: boolean
+}[]
+
 import { Component, Prop, Mixins } from 'vue-property-decorator'
 import { ExtensionPreferenceMixin } from '../mixins/extensionPreferenceMixin'
 import PreferenceHeader from './PreferenceHeader.vue'
@@ -42,8 +47,10 @@ export default class CheckboxGroup extends Mixins(ExtensionPreferenceMixin) {
   private tooltip!: string
 
   private toggleCheck(index: number) {
-    this.value[index].enabled = (
-      document.getElementById(`checkbox-${this.packageName}-${this.value[index].key}`) as HTMLInputElement
+    ;(this.value as CheckboxValue)[index].enabled = (
+      document.getElementById(
+        `checkbox-${this.packageName}-${(this.value as CheckboxValue)[index].key}`
+      ) as HTMLInputElement
     ).checked
     this.onInputChange()
   }

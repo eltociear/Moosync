@@ -8,8 +8,8 @@
 -->
 
 <template>
-  <div>
-    <b-container fluid class="h-100">
+  <div class="w-100 h-100">
+    <b-container fluid class="h-100 w-100">
       <b-row no-gutters>
         <b-col cols="8" md="8" class="tabs-col">
           <ul role="tablist" class="nav nav-tabs">

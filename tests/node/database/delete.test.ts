@@ -5,7 +5,7 @@ import { SongDBInstance } from '@/utils/main/db/database'
 import { CustomGlobal } from '../../environment/databaseEnvironment'
 import { insertSong } from './common'
 
-declare const global: (typeof globalThis) & CustomGlobal
+declare const global: typeof globalThis & CustomGlobal
 
 let SongDB: SongDBInstance
 

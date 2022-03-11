@@ -1,15 +1,15 @@
-/* 
+/*
  *  scraper.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
 import { Observable, SubscriptionObserver } from 'observable-fns'
 import { Transfer, TransferDescriptor } from 'threads'
-import { expose } from 'threads/worker';
+import { expose } from 'threads/worker'
 
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
@@ -28,35 +28,37 @@ expose({
     return new Observable((observer) => {
       fetchArtworks(artists, observer)
     })
-  },
+  }
 })
 
 // const coverPath: string
 const musicbrainz = rateLimit(
   axios.create({
     baseURL: 'https://musicbrainz.org/ws/2/artist/',
-    headers: { 'User-Agent': 'moosync/0.1.0 (ovenoboyo@gmail.com)' },
+    headers: { 'User-Agent': 'moosync/0.1.0 (ovenoboyo@gmail.com)' }
   }),
   {
     maxRequests: 1,
-    perMilliseconds: 1250,
+    perMilliseconds: 1250
   }
 )
 
 axiosRetry(axios, {
   retryDelay: (retryCount) => {
     return retryCount * 1000
-  },
+  }
 })
 
 async function queryMbid(name: string) {
-  return musicbrainz.get<any>(`/?limit=1&query=artist:${name.replace(' ', '%20').replace('.', '')}`)
+  return musicbrainz.get(encodeURI(`/?limit=1&query=artist:${name.replace(' ', '%20').replace('.', '')}`))
 }
 
 async function getAndUpdateMBID(a: Artists): Promise<Artists | undefined> {
-  const data = await queryMbid(a.artist_name!)
-  if (data.data && data.data.artists.length > 0 && data.data.artists[0].id) {
-    return { artist_id: a.artist_id, artist_mbid: data.data.artists[0].id }
+  if (a.artist_name) {
+    const data = await queryMbid(a.artist_name)
+    if (data.data && data.data.artists.length > 0 && data.data.artists[0].id) {
+      return { artist_id: a.artist_id, artist_mbid: data.data.artists[0].id }
+    }
   }
 }
 
@@ -71,7 +73,7 @@ export function fetchMBID(artists: Artists[], observer: SubscriptionObserver<Art
 }
 
 async function queryArtistUrls(id: string) {
-  return musicbrainz.get<any>(`/${id}?inc=url-rels`)
+  return musicbrainz.get(encodeURI(`/${id}?inc=url-rels`))
 }
 
 async function fetchImagesRemote(a: Artists) {
@@ -100,7 +102,9 @@ async function fetchImagesRemote(a: Artists) {
 
 async function fetchTheAudioDB(artist_name: string) {
   try {
-    const data = await axios.get<any>(`https://theaudiodb.com/api/v1/json/1/search.php?s=${artist_name.replace(' ', '%20')}`)
+    const data = await axios.get(
+      encodeURI(`https://theaudiodb.com/api/v1/json/1/search.php?s=${artist_name.replace(' ', '%20')}`)
+    )
     if (data.data && data.data.artists && data.data.artists.length > 0) {
       for (const art in data.data.artists[0]) {
         if (art.includes('strArtistThumb') || art.includes('strArtistFanart')) {
@@ -116,7 +120,9 @@ async function fetchTheAudioDB(artist_name: string) {
 }
 
 async function fetchFanartTv(mbid: string): Promise<string | undefined> {
-  const data = await axios.get<any>(`http://webservice.fanart.tv/v3/music/${mbid}?api_key=68746a37e506c5fe70c80e13dc84d8b2`)
+  const data = await axios.get(
+    encodeURI(`http://webservice.fanart.tv/v3/music/${mbid}?api_key=68746a37e506c5fe70c80e13dc84d8b2`)
+  )
   if (data.data) {
     return data.data.artistthumb ? data.data.artistthumb[0].url : undefined
   }
@@ -124,7 +130,9 @@ async function fetchFanartTv(mbid: string): Promise<string | undefined> {
 
 async function followWikimediaRedirects(fileName: string): Promise<string | undefined> {
   const data = (
-    await axios.get<any>(`https://commons.wikimedia.org/w/api.php?action=query&redirects=1&titles=${fileName}&format=json`)
+    await axios.get(
+      encodeURI(`https://commons.wikimedia.org/w/api.php?action=query&redirects=1&titles=${fileName}&format=json`)
+    )
   ).data.query
   let filename = ''
   for (const i in data.pages) {
@@ -133,7 +141,7 @@ async function followWikimediaRedirects(fileName: string): Promise<string | unde
   }
   if (filename) {
     const md5 = createHash('md5').update(filename).digest('hex')
-    return `https://upload.wikimedia.org/wikipedia/commons/${md5[0]}/${md5[0] + md5[1]}/${filename}`
+    return encodeURI(`https://upload.wikimedia.org/wikipedia/commons/${md5[0]}/${md5[0] + md5[1]}/${filename}`)
   }
 
   return undefined
@@ -167,18 +175,20 @@ async function checkCoverExists(coverPath: string | undefined): Promise<boolean>
       await fs.promises.access(coverPath)
       return true
     } catch (e) {
-      console.info(`${coverPath} not accessible`)
+      console.warn(`${coverPath} not accessible`)
       return false
     }
   }
   return false
 }
 
-
 // Await for each download to complete
 // This way we can avoid being rate limited unless ofc you are at nasa and got 10gbps with real low latency
 // Even then axios will handle rate limits
-export async function fetchArtworks(artists: Artists[], observer: SubscriptionObserver<{ artist: Artists, cover: TransferDescriptor<Buffer> | undefined }>) {
+export async function fetchArtworks(
+  artists: Artists[],
+  observer: SubscriptionObserver<{ artist: Artists; cover: TransferDescriptor<Buffer> | undefined }>
+) {
   for (const a of artists) {
     const coverExists = await checkCoverExists(a.artist_coverPath)
     if (!coverExists) {

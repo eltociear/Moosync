@@ -8,7 +8,7 @@
 -->
 
 <template>
-  <div class="w-100" @contextmenu="getGeneralSongsMenu">
+  <div class="w-100 h-100" @contextmenu="getGeneralSongsMenu">
     <SongView
       :detailsButtonGroup="buttonGroups"
       :defaultDetails="defaultDetails"

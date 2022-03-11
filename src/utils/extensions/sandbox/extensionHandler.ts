@@ -1,23 +1,23 @@
-/* 
+/*
  *  extensionHandler.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
-import { AbstractExtensionFinder, ExtensionFinder } from './extensionFinder';
-import { AbstractExtensionManager, ExtensionManager } from '@/utils/extensions/sandbox/extensionManager';
+import { AbstractExtensionFinder, ExtensionFinder } from './extensionFinder'
+import { AbstractExtensionManager, ExtensionManager } from '@/utils/extensions/sandbox/extensionManager'
 
-import { getVersion } from '@/utils/common';
+import { getVersion } from '@/utils/common'
 
 export class ExtensionHandler {
-
   private extensionManager: AbstractExtensionManager
   private extensionFinder: AbstractExtensionFinder
-  private initialized: boolean = false
-  private preInitializedCalls: { func: Function, args?: any[] }[]
+  private initialized = false
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  private preInitializedCalls: { func: Function; args?: unknown[] }[]
 
   constructor(searchPaths: string[], logsPath: string) {
     this.preInitializedCalls = []
@@ -29,8 +29,7 @@ export class ExtensionHandler {
       for (const [index, f] of this.preInitializedCalls.entries()) {
         if (f.args) {
           f.func.bind(this)(...f.args)
-        } else
-          f.func.bind(this)()
+        } else f.func.bind(this)()
 
         this.preInitializedCalls.splice(index)
       }
@@ -73,9 +72,9 @@ export class ExtensionHandler {
     const ext = this.extensionManager.getExtensions({ packageName })
     for (const e of ext) {
       if (enabled) {
-        e.instance.onStarted && await e.instance.onStarted()
+        e.instance.onStarted && (await e.instance.onStarted())
       } else {
-        e.instance.onStopped && await e.instance.onStopped()
+        e.instance.onStopped && (await e.instance.onStopped())
       }
       this.extensionManager.setStarted(packageName, enabled)
     }
@@ -119,11 +118,14 @@ export class ExtensionHandler {
     return parsed
   }
 
-  public sendToExtensions(packageName: string | undefined, method: keyof MoosyncExtensionTemplate, args?: any) {
+  public sendToExtensions(packageName: string | undefined, method: keyof MoosyncExtensionTemplate, args?: unknown) {
     for (const ext of this.extensionManager.getExtensions({ started: true, packageName })) {
       try {
-        if (ext.instance[method])
-          (ext.instance[method] as Function)(args)
+        console.debug('Trying to send event:', method, 'to', ext.packageName)
+        if (ext.instance[method]) {
+          console.debug('Extension can handle event, sending')
+          ;(ext.instance[method] as (args: unknown) => void)(args)
+        }
       } catch (e) {
         console.error(e)
       }

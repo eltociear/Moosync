@@ -86,7 +86,7 @@ import ErrorHandler from '@/utils/ui/mixins/errorHandler'
   }
 })
 export default class MusicInfo extends mixins(ImgLoader, PlayerControls, ContextMenuMixin, ErrorHandler) {
-  @Prop({ default: () => {} })
+  @Prop({ default: '' })
   private songID!: string
 
   @Prop({ default: false })
@@ -127,14 +127,15 @@ export default class MusicInfo extends mixins(ImgLoader, PlayerControls, Context
       args: {
         isRemote: this.song.type === 'YOUTUBE' || this.song.type === 'SPOTIFY',
         song: this.song,
+        songIndex: this.index,
         refreshCallback: () => this.removeSong()
       }
     })
   }
 
-  private forceEmptyImg: boolean = false
+  private forceEmptyImg = false
 
-  private handlerError(e: any) {
+  private handlerError() {
     this.forceEmptyImg = true
   }
 }

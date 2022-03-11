@@ -1,14 +1,19 @@
 module.exports = {
   plugins: [
-    ["@babel/plugin-transform-runtime",
+    [
+      '@babel/plugin-transform-runtime',
       {
-        "regenerator": true,
-      }]
+        regenerator: true
+      }
+    ]
   ],
   presets: [
     '@vue/cli-plugin-babel/preset',
-    ["@babel/preset-env", {
-      modules: false
-    }]
+    [
+      '@babel/preset-env',
+      {
+        modules: false
+      }
+    ]
   ]
 }

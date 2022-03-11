@@ -14,8 +14,13 @@
     <MusicBar class="musicbar" />
 
     <div class="d-flex main-content" :class="{ 'is-open': isSidebarOpen }">
-      <transition name="slide-fade">
-        <router-view :enableRefresh="enableRefreshIcon" :key="refreshPage"></router-view>
+      <transition
+        appear
+        name="custom-slide-fade"
+        enter-active-class="animate__animated animate__slideInLeft animate__fast"
+        leave-active-class="animate__animated animate__slideOutRight animate__fast"
+      >
+        <router-view :enableRefresh="enableRefreshIcon" :key="refreshPage" class="animate_absolute"></router-view>
       </transition>
     </div>
   </div>

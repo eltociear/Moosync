@@ -5,7 +5,7 @@ import { SongDBInstance } from '@/utils/main/db/database'
 import { CustomGlobal } from '../../environment/databaseEnvironment'
 import { insertPlaylist, insertSong } from './common'
 
-declare const global: (typeof globalThis) & CustomGlobal
+declare const global: typeof globalThis & CustomGlobal
 
 let SongDB: SongDBInstance
 
@@ -34,7 +34,7 @@ test('Insert a song in DB', async () => {
   }
 })
 
-test("Album was inserted", async () => {
+test('Album was inserted', async () => {
   for (const i of inserted) {
     const albumResult = SongDB.getEntityByOptions<Album>({
       album: {
@@ -48,7 +48,7 @@ test("Album was inserted", async () => {
   }
 })
 
-test("Album count", async () => {
+test('Album count', async () => {
   const albumResult = SongDB.getEntityByOptions<Album>({
     album: true
   })
@@ -61,7 +61,7 @@ test("Album count", async () => {
   }
 })
 
-test("Artist was inserted", async () => {
+test('Artist was inserted', async () => {
   for (const i of inserted) {
     const artistResult = SongDB.getEntityByOptions<Artists>({
       artist: {
@@ -75,7 +75,7 @@ test("Artist was inserted", async () => {
   }
 })
 
-test("Artist count", async () => {
+test('Artist count', async () => {
   const artistResult = SongDB.getEntityByOptions<Artists>({
     artist: true
   })
@@ -87,7 +87,7 @@ test("Artist count", async () => {
   }
 })
 
-test("Create playlist", async () => {
+test('Create playlist', async () => {
   const playlist = insertPlaylist(SongDB)
 
   const data = SongDB.getEntityByOptions<Playlist>({
@@ -98,7 +98,7 @@ test("Create playlist", async () => {
   expect(data[0].playlist_name).toBe(playlist.playlist_name)
 })
 
-test("Insert into playlist", async () => {
+test('Insert into playlist', async () => {
   const playlist = insertPlaylist(SongDB)
   const song = await insertSong(SongDB, { size: 1 })
   SongDB.addToPlaylist(playlist.playlist_id, ...song)

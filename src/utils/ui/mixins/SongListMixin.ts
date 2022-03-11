@@ -1,9 +1,9 @@
-/* 
+/*
  *  SongListMixin.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -11,7 +11,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component
 export default class SongListMixin extends Vue {
-  private lastSelect: string = ''
+  private lastSelect = ''
   protected selected: number[] = []
 
   private keyPressed: 'Control' | 'Shift' | undefined
@@ -71,7 +71,6 @@ export default class SongListMixin extends Vue {
     )
   }
 
-
   mounted() {
     this.setupKeyEvents()
   }
@@ -79,5 +78,4 @@ export default class SongListMixin extends Vue {
   beforeDestroy() {
     this.destroyKeyEvents()
   }
-
 }

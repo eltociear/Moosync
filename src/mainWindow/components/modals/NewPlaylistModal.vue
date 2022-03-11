@@ -70,15 +70,15 @@ export default class NewPlaylistModal extends mixins(ImgLoader) {
   @Prop({ default: 'NewPlaylistModal' })
   private id!: string
 
-  private title: string = 'New Playlist'
-  private desc: string = ''
+  private title = 'New Playlist'
+  private desc = ''
 
   private songs: Song[] = []
-  private songCount: number = 0
+  private songCount = 0
 
-  private forceEmptyImg: boolean = true
+  private forceEmptyImg = true
 
-  private showing: boolean = false
+  private showing = false
 
   @Ref('canvas') private canvas!: HTMLCanvasElement
 
@@ -169,9 +169,11 @@ export default class NewPlaylistModal extends mixins(ImgLoader) {
     } else {
       if (this.canvas) {
         let ctx = this.canvas.getContext('2d')
-        ctx!.clearRect(0, 0, this.canvas.width, this.canvas.height)
-        for (let i = 0; i < mergableImages.length; i++)
-          this.createImage(mergableImages[i], i, mergableImages.length, ctx!)
+        if (ctx) {
+          ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+          for (let i = 0; i < mergableImages.length; i++)
+            this.createImage(mergableImages[i], i, mergableImages.length, ctx)
+        }
       }
     }
   }

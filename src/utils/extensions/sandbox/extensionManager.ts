@@ -1,19 +1,19 @@
-/* 
+/*
  *  extensionManager.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
-import { ExtensionRequestGenerator } from './api';
-import { InMemoryRegistry } from './extensionRegistry';
-import { NodeVM } from 'vm2';
+import { ExtensionRequestGenerator } from './api'
+import { InMemoryRegistry } from './extensionRegistry'
+import { NodeVM } from 'vm2'
 import log from 'loglevel'
-import path from 'path';
-import { prefixLogger } from '../../main/logger/index';
-import { readFile } from 'fs/promises';
+import path from 'path'
+import { prefixLogger } from '../../main/logger/utils'
+import { readFile } from 'fs/promises'
 
 export abstract class AbstractExtensionManager {
   abstract instantiateAndRegister(extension: UnInitializedExtensionItem): Promise<void>
@@ -23,7 +23,7 @@ export abstract class AbstractExtensionManager {
 }
 
 export class ExtensionManager extends AbstractExtensionManager {
-  private extensionRegistry = new InMemoryRegistry();
+  private extensionRegistry = new InMemoryRegistry()
   private logsPath: string
 
   constructor(logsPath: string) {
@@ -40,7 +40,8 @@ export class ExtensionManager extends AbstractExtensionManager {
   }
 
   private async getVM(entryFilePath: string) {
-    const events = require('events');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const events = require('events')
     const vm = new NodeVM({
       console: 'inherit',
       sandbox: {},
@@ -53,7 +54,7 @@ export class ExtensionManager extends AbstractExtensionManager {
         root: [path.dirname(entryFilePath)],
         mock: {
           events
-        },
+        }
       }
     })
 
@@ -69,7 +70,7 @@ export class ExtensionManager extends AbstractExtensionManager {
       __dirname: path.dirname(entryFilePath),
       __filename: entryFilePath,
       api: new ExtensionRequestGenerator(packageName),
-      logger: child,
+      logger: child
     }
   }
 
@@ -77,13 +78,15 @@ export class ExtensionManager extends AbstractExtensionManager {
     return readFile(path, { flag: 'rs', encoding: 'utf-8' })
   }
 
-  private async checkExtValidityAndGetInstance(entryFilePath: string): Promise<{ vm: NodeVM, factory: ExtensionFactory } | undefined> {
+  private async checkExtValidityAndGetInstance(
+    entryFilePath: string
+  ): Promise<{ vm: NodeVM; factory: ExtensionFactory } | undefined> {
     try {
       const file = await this.readFileNoCache(entryFilePath)
       const vm = await this.getVM(entryFilePath)
       const extension = vm.run(file, entryFilePath)
 
-      let instance: any
+      let instance
 
       if (typeof extension === 'function') {
         instance = new extension()
@@ -135,7 +138,7 @@ export class ExtensionManager extends AbstractExtensionManager {
       })
     }
 
-    console.info(`Registered ${extension.name} - ${extension.desc}`)
+    console.debug(`Registered ${extension.name} - ${extension.desc}`)
   }
 
   getExtensions(options?: getExtensionOptions): Iterable<ExtensionItem> {
@@ -146,4 +149,3 @@ export class ExtensionManager extends AbstractExtensionManager {
     this.extensionRegistry.setStarted(packageName, status)
   }
 }
-

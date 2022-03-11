@@ -52,7 +52,7 @@ export default class ExtensionGroup extends Vue {
   @Prop({ default: () => [] })
   private extensions!: ExtensionDetails[]
 
-  private extensionInAction: number = 0
+  private extensionInAction = 0
 
   private togglePath(index: number) {
     if (index >= 0) {

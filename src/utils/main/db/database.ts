@@ -1,9 +1,9 @@
-/* 
+/*
  *  database.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -11,10 +11,10 @@ import { DBUtils } from './utils'
 import { promises as fsP } from 'fs'
 import { v4 } from 'uuid'
 
-type KeysOfUnion<T> = T extends T ? keyof T : never;
-// AvailableKeys will basically be keyof Foo | keyof Bar 
+type KeysOfUnion<T> = T extends T ? keyof T : never
+// AvailableKeys will basically be keyof Foo | keyof Bar
 // so it will be  "foo" | "bar"
-type EntityKeys = KeysOfUnion<EntityApiOptions>;
+type EntityKeys = KeysOfUnion<EntityApiOptions>
 
 export class SongDBInstance extends DBUtils {
   /* ============================= 
@@ -46,10 +46,12 @@ export class SongDBInstance extends DBUtils {
   }
 
   private getCountBySong(bridge: string, column: string, song: string) {
-    const data = this.db.query(`SELECT ${column} FROM ${bridge} WHERE song = ?`, song) as any[]
+    const data = this.db.query(`SELECT ${column} FROM ${bridge} WHERE song = ?`, song)
     const counts = []
     for (const i of data) {
-      counts.push(...this.db.query(`SELECT count(id) as count, ${column} FROM ${bridge} WHERE ${column} = ?`, i[column]))
+      counts.push(
+        ...this.db.query(`SELECT count(id) as count, ${column} FROM ${bridge} WHERE ${column} = ?`, i[column])
+      )
     }
 
     return counts
@@ -61,47 +63,59 @@ export class SongDBInstance extends DBUtils {
    */
   public async removeSong(song_id: string) {
     const pathsToRemove: string[] = []
-    this.db.transaction((song_id: string) => {
-      const album_ids = this.getCountBySong('album_bridge', 'album', song_id)
-      const artist_ids = this.getCountBySong('artists_bridge', 'artist', song_id)
+    this.db
+      .transaction((song_id: string) => {
+        const album_ids = this.getCountBySong('album_bridge', 'album', song_id)
+        const artist_ids = this.getCountBySong('artists_bridge', 'artist', song_id)
 
-      const songCoverPath_low = this.db.queryFirstCell(`SELECT song_coverPath_low from allsongs WHERE _id = ?`, song_id)
-      const songCoverPath_high = this.db.queryFirstCell(`SELECT song_coverPath_high from allsongs WHERE _id = ?`, song_id)
+        const songCoverPath_low = this.db.queryFirstCell(
+          `SELECT song_coverPath_low from allsongs WHERE _id = ?`,
+          song_id
+        )
+        const songCoverPath_high = this.db.queryFirstCell(
+          `SELECT song_coverPath_high from allsongs WHERE _id = ?`,
+          song_id
+        )
 
-      if (songCoverPath_low) pathsToRemove.push(songCoverPath_low)
-      if (songCoverPath_high) pathsToRemove.push(songCoverPath_high)
+        if (songCoverPath_low) pathsToRemove.push(songCoverPath_low)
+        if (songCoverPath_high) pathsToRemove.push(songCoverPath_high)
 
-      this.db.delete('artists_bridge', { song: song_id })
-      this.db.delete('album_bridge', { song: song_id })
-      this.db.delete('genre_bridge', { song: song_id })
-      this.db.delete('playlist_bridge', { song: song_id })
-      this.db.delete('allsongs', { _id: song_id })
+        this.db.delete('artists_bridge', { song: song_id })
+        this.db.delete('album_bridge', { song: song_id })
+        this.db.delete('genre_bridge', { song: song_id })
+        this.db.delete('playlist_bridge', { song: song_id })
+        this.db.delete('allsongs', { _id: song_id })
 
-      for (const id of album_ids) {
-        if (id.count === 1) {
-          const album: Album = (this.getEntityByOptions({
-            album: {
-              album_id: id.album
-            }
-          }) as Album[])[0]
-          this.db.delete('albums', { album_id: id.album })
-          if (album?.album_coverPath_low) pathsToRemove.push(album.album_coverPath_low)
-          if (album?.album_coverPath_high) pathsToRemove.push(album.album_coverPath_high)
+        for (const id of album_ids) {
+          if (id.count === 1) {
+            const album: Album = (
+              this.getEntityByOptions({
+                album: {
+                  album_id: id.album
+                }
+              }) as Album[]
+            )[0]
+            this.db.delete('albums', { album_id: id.album })
+            if (album?.album_coverPath_low) pathsToRemove.push(album.album_coverPath_low)
+            if (album?.album_coverPath_high) pathsToRemove.push(album.album_coverPath_high)
+          }
         }
-      }
 
-      for (const id of artist_ids) {
-        if (id.count === 1) {
-          const artist = (this.getEntityByOptions({
-            artist: {
-              artist_id: id.artist
-            }
-          }) as Artists[])[0]
-          this.db.delete('artists', { artist_id: id.artist })
-          if (artist?.artist_coverPath) pathsToRemove.push(artist.artist_coverPath)
+        for (const id of artist_ids) {
+          if (id.count === 1) {
+            const artist = (
+              this.getEntityByOptions({
+                artist: {
+                  artist_id: id.artist
+                }
+              }) as Artists[]
+            )[0]
+            this.db.delete('artists', { artist_id: id.artist })
+            if (artist?.artist_coverPath) pathsToRemove.push(artist.artist_coverPath)
+          }
         }
-      }
-    }).immediate(song_id)
+      })
+      .immediate(song_id)
 
     for (const path of pathsToRemove) {
       await fsP.rm(path, { force: true })
@@ -117,11 +131,15 @@ export class SongDBInstance extends DBUtils {
    * @returns SearchResult consisting of songs, albums, artists, genre
    */
   public searchAll(term: string, exclude?: string[]): SearchResult {
-    const songs = this.getSongByOptions({
-      song: {
-        path: term
-      }
-    }, exclude)
+    const songs = this.getSongByOptions(
+      {
+        song: {
+          title: term,
+          path: term
+        }
+      },
+      exclude
+    )
 
     const albums = this.getEntityByOptions<Album>({
       album: {
@@ -151,17 +169,20 @@ export class SongDBInstance extends DBUtils {
       let isFirst = true
 
       const addANDorOR = () => {
-        const str = (!isFirst ? ((options.inclusive ? 'AND' : 'OR')) : '')
+        const str = !isFirst ? (options.inclusive ? 'AND' : 'OR') : ''
         isFirst = false
         return str
       }
 
-      for (const [key, _] of Object.entries(options)) {
+      for (const [key] of Object.entries(options)) {
         if (key !== 'inclusive' && key !== 'sortBy') {
           const tableName = this.getTableByProperty(key as keyof SongAPIOptions)
-          for (const [innerKey, innerValue] of Object.entries(options[key as keyof SongAPIOptions]!)) {
-            where += `${addANDorOR()} ${tableName}.${innerKey} LIKE ?`
-            args.push(`${innerValue}`)
+          const data = options[key as keyof SongAPIOptions]
+          if (data) {
+            for (const [innerKey, innerValue] of Object.entries(data)) {
+              where += `${addANDorOR()} ${tableName}.${innerKey} LIKE ?`
+              args.push(`${innerValue}`)
+            }
           }
         }
       }
@@ -175,15 +196,17 @@ export class SongDBInstance extends DBUtils {
     return { where: '', args: [] }
   }
 
-  private addOrderClause(sortBy?: sortOptions, noCase: boolean = false) {
+  private addOrderClause(sortBy?: sortOptions, noCase = false) {
     if (sortBy) {
-      return `ORDER BY ${sortBy.type === 'name' ? 'allsongs.title' : 'allsongs.date_added'} ${noCase ? 'COLLATE NOCASE' : ''} ${sortBy.asc ? 'ASC' : 'DESC'}`
+      return `ORDER BY ${sortBy.type === 'name' ? 'allsongs.title' : 'allsongs.date_added'} ${
+        noCase ? 'COLLATE NOCASE' : ''
+      } ${sortBy.asc ? 'ASC' : 'DESC'}`
     }
     return ''
   }
 
   /**
-   * Gets song by options 
+   * Gets song by options
    * @param [options] SongAPIOptions to search by
    * @param [exclude] paths to exclude from result
    * @returns list of songs matching the query
@@ -195,7 +218,10 @@ export class SongDBInstance extends DBUtils {
       `SELECT *, ${this.addGroupConcatClause()} FROM allsongs
       ${this.addLeftJoinClause(undefined, 'allsongs')}
         ${where}
-        ${this.addExcludeWhereClause(args.length === 0, exclude)} GROUP BY allsongs._id ${this.addOrderClause(options?.sortBy, args.length > 0)}`,
+        ${this.addExcludeWhereClause(args.length === 0, exclude)} GROUP BY allsongs._id ${this.addOrderClause(
+        options?.sortBy,
+        args.length > 0
+      )}`,
       ...args
     )
 
@@ -235,12 +261,12 @@ export class SongDBInstance extends DBUtils {
   /**
    * Get album, genre, playlist, artists by options
    * @param options EntityApiOptions to search by
-   * @returns 
+   * @returns
    */
   public getEntityByOptions<T>(options: EntityApiOptions): T[] {
     let isFirst = true
     const addANDorOR = () => {
-      const str = (!isFirst ? ((options.inclusive ? 'AND' : 'OR')) : '')
+      const str = !isFirst ? (options.inclusive ? 'AND' : 'OR') : ''
       isFirst = false
       return str
     }
@@ -260,11 +286,14 @@ export class SongDBInstance extends DBUtils {
         }
 
         if (typeof value === 'object') {
-          for (const [innerKey, innerValue] of Object.entries(options[key as keyof EntityApiOptions]!)) {
-            where += `${addANDorOR()} ${innerKey} LIKE ?`
-            args.push(innerValue)
+          const data = options[key as keyof EntityApiOptions]
+          if (data) {
+            for (const [innerKey, innerValue] of Object.entries(data)) {
+              where += `${addANDorOR()} ${innerKey} LIKE ?`
+              args.push(innerValue)
+            }
+            break
           }
-          break
         }
       }
     }
@@ -291,10 +320,14 @@ export class SongDBInstance extends DBUtils {
    * @param coverLow low resolution cove image path
    */
   public updateSongCover(id: string, coverHigh: string, coverLow?: string) {
-    this.db.update('allsongs', {
-      song_coverPath_high: coverHigh,
-      song_coverPath_low: coverLow
-    }, ['_id = ?', id])
+    this.db.update(
+      'allsongs',
+      {
+        song_coverPath_high: coverHigh,
+        song_coverPath_low: coverLow
+      },
+      ['_id = ?', id]
+    )
   }
 
   /* ============================= 
@@ -311,22 +344,35 @@ export class SongDBInstance extends DBUtils {
       if (!id) {
         id = v4()
       }
-      this.db.run(`INSERT OR REPLACE INTO albums (album_id, album_name, album_coverPath_low, album_coverPath_high, album_artist) VALUES(?, ?, ?, ?, ?)`, id, album.album_name, album.album_coverPath_low, album.album_coverPath_high, album.album_artist)
+      this.db.run(
+        `INSERT OR REPLACE INTO albums (album_id, album_name, album_coverPath_low, album_coverPath_high, album_artist) VALUES(?, ?, ?, ?, ?)`,
+        id,
+        album.album_name,
+        album.album_coverPath_low,
+        album.album_coverPath_high,
+        album.album_artist
+      )
     }
     return id as string
   }
 
   /**
-  * Updates album covers by song_id
-  * @param songid id of the song belonging to the album whose cover is to be updated
-  * @param coverHigh high resolution cover path
-  * @param coverLow low resolution cover path
-  */
+   * Updates album covers by song_id
+   * @param songid id of the song belonging to the album whose cover is to be updated
+   * @param coverHigh high resolution cover path
+   * @param coverLow low resolution cover path
+   */
   public updateAlbumCovers(songid: string, coverHigh: string, coverLow?: string) {
     this.db.transaction((songid, newHigh, newLow) => {
-      const { album_id } = this.db.queryFirstRowObject(`SELECT album as album_id FROM album_bridge WHERE song = ?`, songid) as { album_id: string }
+      const { album_id } = this.db.queryFirstRowObject(
+        `SELECT album as album_id FROM album_bridge WHERE song = ?`,
+        songid
+      ) as { album_id: string }
       if (album_id) {
-        const { high, low } = this.db.queryFirstRowObject(`SELECT album_coverPath_high as high, album_coverPath_low as low from albums WHERE album_id = ?`, album_id) as { high: string, low: string }
+        const { high, low } = this.db.queryFirstRowObject(
+          `SELECT album_coverPath_high as high, album_coverPath_low as low from albums WHERE album_id = ?`,
+          album_id
+        ) as { high: string; low: string }
         if (!high) {
           this.db.update('albums', { album_coverPath_high: newHigh }, ['album_id = ?', album_id])
         }
@@ -406,8 +452,8 @@ export class SongDBInstance extends DBUtils {
    * Updates artists details
    * artist_id and artist_name are not updated
    * artist is queried by artist_id
-   * @param artist artist with updated details. 
-   * 
+   * @param artist artist with updated details.
+   *
    * @returns number of rows updated
    */
   public async updateArtists(artist: Artists) {
@@ -450,10 +496,12 @@ export class SongDBInstance extends DBUtils {
    * @returns high resolution cover image for artist
    */
   public async getDefaultCoverByArtist(id: string): Promise<string | undefined> {
-    return (this.db.queryFirstRow(
-      `SELECT album_coverPath_high from albums WHERE album_id = (SELECT album FROM album_bridge WHERE song = (SELECT song FROM artists_bridge WHERE artist = ?))`,
-      id
-    ) as marshaledSong)?.album_coverPath_high
+    return (
+      this.db.queryFirstRow(
+        `SELECT album_coverPath_high from albums WHERE album_id = (SELECT album FROM album_bridge WHERE song = (SELECT song FROM artists_bridge WHERE artist = ?))`,
+        id
+      ) as marshaledSong
+    )?.album_coverPath_high
   }
 
   /**
@@ -484,14 +532,19 @@ export class SongDBInstance extends DBUtils {
    */
   public createPlaylist(name: string, desc: string, imgSrc?: string): string {
     const id = v4()
-    this.db.insert('playlists', { playlist_id: id, playlist_name: name, playlist_desc: desc, playlist_coverPath: imgSrc })
+    this.db.insert('playlists', {
+      playlist_id: id,
+      playlist_name: name,
+      playlist_desc: desc,
+      playlist_coverPath: imgSrc
+    })
     return id
   }
 
   /**
    * Updates playlist cover path
    * @param playlist_id id of playlist whose cover is to be updated
-   * @param coverPath hig resolution cover path 
+   * @param coverPath hig resolution cover path
    */
   public updatePlaylistCoverPath(playlist_id: string, coverPath: string) {
     this.db.update('playlists', { playlist_coverPath: coverPath }, ['playlist_id = ?', playlist_id])

@@ -1,16 +1,16 @@
-/* 
+/*
  *  covers.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
-import path from 'path';
+import path from 'path'
 import sharp from 'sharp'
 
-export async function writeBuffer(bufferDesc: Buffer, basePath: string, id: string, low: boolean) {
+export async function writeBuffer(bufferDesc: Buffer, basePath: string, id: string) {
   const highPath = path.join(basePath, id + '-high.jpg')
   await sharp(Buffer.from(bufferDesc)).resize(800, 800).toFile(highPath)
 

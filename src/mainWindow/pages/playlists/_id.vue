@@ -13,13 +13,13 @@
 }
 </route>
 <template>
-  <div class="w-100">
+  <div class="w-100 h-100">
     <SongView
       :defaultDetails="defaultDetails"
       :songList="songList"
       :detailsButtonGroup="buttonGroups"
       :tableBusy="tableBusy"
-      @onRowContext="getSongMenu(arguments[0], arguments[1], undefined)"
+      @onRowContext="getSongMenu(arguments[0], arguments[1])"
       @playAll="playPlaylist"
       @addToQueue="addPlaylistToQueue"
       @addToLibrary="addPlaylistToLibrary"
@@ -44,12 +44,12 @@ import { EventBus } from '@/utils/main/ipc/constants'
   }
 })
 export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
-  @Prop({ default: () => () => {} })
+  @Prop({ default: () => () => undefined })
   private enableRefresh!: () => void
 
   private songList: Song[] = []
 
-  private tableBusy: boolean = false
+  private tableBusy = false
 
   private playlist: Playlist | null = null
 
@@ -170,14 +170,14 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     vxm.themes.sortBy = options
   }
 
-  private getSongMenu(event: Event, songs: Song[], exclude: string | undefined) {
+  private getSongMenu(event: Event, songs: Song[]) {
     this.getContextMenu(event, {
       type: 'PLAYLIST_CONTENT',
       args: {
         songs: songs,
         isRemote: this.isRemote,
         sortOptions: { callback: this.sort, current: vxm.themes.sortBy },
-        refreshCallback: () => (this.songList = arrayDiff(this.songList, songs))
+        refreshCallback: () => (this.songList = arrayDiff<Song>(this.songList, songs))
       }
     })
   }

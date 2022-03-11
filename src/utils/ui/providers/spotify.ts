@@ -1,24 +1,24 @@
-/* 
+/*
  *  spotify.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
-import { AuthFlow, AuthStateEmitter } from '@/utils/ui/oauth/flow';
-import { GenericProvider, cache } from '@/utils/ui/providers/generics/genericProvider';
+import { AuthFlow, AuthStateEmitter } from '@/utils/ui/oauth/flow'
+import { GenericProvider, cache } from '@/utils/ui/providers/generics/genericProvider'
 
-import { AuthorizationServiceConfiguration } from '@openid/appauth';
-import { GenericAuth } from './generics/genericAuth';
-import { GenericRecommendation } from './generics/genericRecommendations';
-import axios from 'axios';
-import { once } from 'events';
-import qs from 'qs';
-import { vxm } from '@/mainWindow/store';
-import { bus } from '@/mainWindow/main';
-import { EventBus } from '@/utils/main/ipc/constants';
+import { AuthorizationServiceConfiguration } from '@openid/appauth'
+import { GenericAuth } from './generics/genericAuth'
+import { GenericRecommendation } from './generics/genericRecommendations'
+import axios from 'axios'
+import { once } from 'events'
+import qs from 'qs'
+import { vxm } from '@/mainWindow/store'
+import { bus } from '@/mainWindow/main'
+import { EventBus } from '@/utils/main/ipc/constants'
 
 /**
  * Spotify API base URL
@@ -39,8 +39,8 @@ enum ApiResources {
  * API Handler for Spotify.
  */
 export class SpotifyProvider extends GenericAuth implements GenericProvider, GenericRecommendation {
-  private auth: AuthFlow | undefined
-  private _config: any
+  private auth!: AuthFlow
+  private _config!: ReturnType<SpotifyProvider['getConfig']>
 
   private api = axios.create({
     adapter: cache.adapter,
@@ -53,15 +53,15 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       openIdConnectUrl: 'https://accounts.spotify.com/authorize',
       clientId: id,
       clientSecret: secret,
-      redirectUri: "https://moosync.app/spotify",
-      scope: "playlist-read-private user-top-read",
+      redirectUri: 'https://moosync.app/spotify',
+      scope: 'playlist-read-private user-top-read',
       keytarService: 'MoosyncSpotifyRefreshToken',
-      oAuthChannel: oauthChannel,
+      oAuthChannel: oauthChannel
     }
   }
 
   public async updateConfig() {
-    const conf = await window.PreferenceUtils.loadSelective('spotify') as { client_id: string, client_secret: string }
+    const conf = (await window.PreferenceUtils.loadSelective('spotify')) as { client_id: string; client_secret: string }
 
     if (conf) {
       const channel = await window.WindowUtils.registerOAuthCallback('spotifyoauthcallback')
@@ -70,7 +70,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       const serviceConfig = new AuthorizationServiceConfiguration({
         authorization_endpoint: this._config.openIdConnectUrl,
         token_endpoint: 'https://accounts.spotify.com/api/token',
-        revocation_endpoint: this._config.openIdConnectUrl,
+        revocation_endpoint: this._config.openIdConnectUrl
       })
 
       this.auth = new AuthFlow(this._config, serviceConfig)
@@ -88,27 +88,38 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   public async login() {
-    if (!this.auth?.loggedIn() && this.auth?.config) {
-      const validRefreshToken = await this.auth.hasValidRefreshToken()
-      if (validRefreshToken) {
-        await this.auth.performWithFreshTokens()
-        return
+    if (!this.auth.loggedIn()) {
+      if (this.auth.config) {
+        const validRefreshToken = await this.auth.hasValidRefreshToken()
+        if (validRefreshToken) {
+          await this.auth.performWithFreshTokens()
+          return true
+        }
+
+        const url = await this.auth.makeAuthorizationRequest()
+        bus.$emit(EventBus.SHOW_OAUTH_MODAL, 'Spotify', url, '#1ED760')
+        window.WindowUtils.openExternal(url)
+
+        await once(this.auth.authStateEmitter, AuthStateEmitter.ON_TOKEN_RESPONSE)
+
+        bus.$emit(EventBus.HIDE_OAUTH_MODAL)
+
+        return true
       }
-      bus.$emit(EventBus.SHOW_OAUTH_MODAL, 'Spotify')
-
-      this.auth.makeAuthorizationRequest()
-      await once(this.auth.authStateEmitter!, AuthStateEmitter.ON_TOKEN_RESPONSE)
-
-      bus.$emit(EventBus.HIDE_OAUTH_MODAL)
-      return true
+      return false
     }
+    return true
   }
 
   public async signOut() {
     this.auth?.signOut()
   }
 
-  private async populateRequest<K extends ApiResources>(resource: K, search: SpotifyResponses.SearchObject<K>, invalidateCache = false): Promise<SpotifyResponses.ResponseType<K>> {
+  private async populateRequest<K extends ApiResources>(
+    resource: K,
+    search: SpotifyResponses.SearchObject<K>,
+    invalidateCache = false
+  ): Promise<SpotifyResponses.ResponseType<K>> {
     const accessToken = await this.auth?.performWithFreshTokens()
 
     let url: string = resource
@@ -129,7 +140,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     const resp = await this.api(url, {
       params: search.params,
       method: 'GET',
-      headers: { 'Authorization': `Bearer ${accessToken}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
       clearCacheEntry: invalidateCache
     })
 
@@ -153,7 +164,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       parsed.push({
         playlist_id: `spotify-${i.id}`,
         playlist_name: i.name,
-        playlist_coverPath: (i.images[0]) ? i.images[0].url : '',
+        playlist_coverPath: i.images[0] ? i.images[0].url : '',
         playlist_song_count: i.tracks.total,
         isRemote: true
       })
@@ -171,9 +182,13 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
 
     if (this.auth?.loggedIn() || validRefreshToken) {
       while (hasNext) {
-        const resp = await this.populateRequest(ApiResources.PLAYLISTS, {
-          params: { limit, offset }
-        }, invalidateCache)
+        const resp = await this.populateRequest(
+          ApiResources.PLAYLISTS,
+          {
+            params: { limit, offset }
+          },
+          invalidateCache
+        )
 
         if (resp.next) {
           hasNext = true
@@ -189,10 +204,9 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   public async spotifyToYoutube(item: Song) {
-    const term = `${(item.artists) ? item.artists.join(' ') : ''} ${item.title}`
+    const term = `${item.artists ? item.artists.join(' ') : ''} ${item.title}`
     const ytItem = await window.SearchUtils.searchYT(term)
-    if (ytItem.length > 0)
-      return ytItem[0]
+    if (ytItem.length > 0) return ytItem[0]
   }
 
   private parseSong(track: SpotifyResponses.PlaylistItems.Track): Song {
@@ -201,11 +215,11 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       title: track.name,
       album: {
         album_name: track.album.name,
-        album_coverPath_high: (track.album.images[0]) ? track.album.images[0].url : ''
+        album_coverPath_high: track.album.images[0] ? track.album.images[0].url : ''
       },
       url: track.id,
-      song_coverPath_high: (track.album.images[0]) ? track.album.images[0].url : '',
-      artists: track.artists.map(artist => artist.name),
+      song_coverPath_high: track.album.images[0] ? track.album.images[0].url : '',
+      artists: track.artists.map((artist) => artist.name),
       duration: track.duration_ms / 1000,
       date_added: Date.now(),
       type: 'SPOTIFY'
@@ -215,8 +229,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   private async parsePlaylistItems(items: SpotifyResponses.PlaylistItems.Item[]) {
     const parsed: Song[] = []
     for (const i of items) {
-      if (!i.is_local && parsed.findIndex((val) => val._id === i.track.id) === -1)
-        parsed.push(this.parseSong(i.track))
+      if (!i.is_local && parsed.findIndex((val) => val._id === i.track.id) === -1) parsed.push(this.parseSong(i.track))
     }
     return parsed
   }
@@ -234,31 +247,35 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     }
   }
 
-  public async * getPlaylistContent(str: string, invalidateCache = false): AsyncGenerator<Song[]> {
+  public async *getPlaylistContent(str: string, invalidateCache = false): AsyncGenerator<Song[]> {
     const id: string | undefined = this.getIDFromURL(str)
 
     if (id) {
       const validRefreshToken = await this.auth?.hasValidRefreshToken()
       if (this.auth?.loggedIn() || validRefreshToken) {
-        let nextOffset: number = 0
+        let nextOffset = 0
         let isNext = false
         const limit = 100
         const parsed: Song[] = []
         do {
-          const resp = await this.populateRequest(ApiResources.PLAYLIST_ITEMS, {
-            params: {
-              playlist_id: id,
-              limit,
-              offset: nextOffset
-            }
-          }, invalidateCache)
+          const resp = await this.populateRequest(
+            ApiResources.PLAYLIST_ITEMS,
+            {
+              params: {
+                playlist_id: id,
+                limit,
+                offset: nextOffset
+              }
+            },
+            invalidateCache
+          )
           const items = await this.parsePlaylistItems(resp.items)
           parsed.push(...items)
           isNext = !!resp.next
           if (resp.next) {
             nextOffset += limit
           }
-          yield items;
+          yield items
         } while (isNext)
       }
     }
@@ -268,7 +285,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   public async getPlaybackUrlAndDuration(song: Song) {
     const ytItem = await this.spotifyToYoutube(song)
     if (ytItem) {
-      return { url: ytItem.youtubeId, duration: ytItem.duration!.totalSeconds }
+      return { url: ytItem.youtubeId, duration: ytItem.duration?.totalSeconds ?? 0 }
     }
   }
 
@@ -278,11 +295,15 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     if (id) {
       const validRefreshToken = await this.auth?.hasValidRefreshToken()
       if (this.auth?.loggedIn() || validRefreshToken) {
-        const resp = await this.populateRequest(ApiResources.PLAYLIST, {
-          params: {
-            playlist_id: id,
-          }
-        }, invalidateCache)
+        const resp = await this.populateRequest(
+          ApiResources.PLAYLIST,
+          {
+            params: {
+              playlist_id: id
+            }
+          },
+          invalidateCache
+        )
 
         return this.parsePlaylists([resp])[0]
       }
@@ -300,7 +321,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       if (this.auth?.loggedIn() || validRefreshToken) {
         const resp = await this.populateRequest(ApiResources.SONG_DETAILS, {
           params: {
-            song_id: songID,
+            song_id: songID
           }
         })
         if (resp) {
@@ -310,7 +331,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
             song.playbackUrl = yt?.youtubeId
             return song
           } else {
-            console.error('Couldn\'t find song on youtube')
+            console.error("Couldn't find song on youtube")
           }
         }
         return
@@ -326,7 +347,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
         title: track.name,
         album: {
           album_name: track.album.name,
-          album_artist: (track.album.artists && track.album.artists.length > 0) ? track.album.artists[0].name : undefined,
+          album_artist: track.album.artists && track.album.artists.length > 0 ? track.album.artists[0].name : undefined
         },
         duration: track.duration_ms / 1000,
         date_added: Date.now(),
@@ -343,13 +364,16 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       if (track.album.images?.length > 0) {
         const high = track.album.images[0].url
         let low = high
-        if (track.album.images[1])
-          low = track.album.images[1].url
+        if (track.album.images[1]) low = track.album.images[1].url
+
+        song.album = {
+          ...song.album,
+          album_coverPath_high: high,
+          album_coverPath_low: low
+        }
 
         song.song_coverPath_high = high
-        song.album!.album_coverPath_high = high
         song.song_coverPath_low = low
-        song.album!.album_coverPath_low = low
       }
 
       songList.push(song)
@@ -357,24 +381,24 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     return songList
   }
 
-  public async * getRecommendations(): AsyncGenerator<Song[]> {
+  public async *getRecommendations(): AsyncGenerator<Song[]> {
     if (this.loggedIn) {
-      const userTracks: any = await this.populateRequest(ApiResources.TOP, {
+      const userTracks = await this.populateRequest(ApiResources.TOP, {
         params: {
           type: 'tracks',
           time_range: 'long_term'
         }
       })
 
-      const userArtists: any = await this.populateRequest(ApiResources.TOP, {
+      const userArtists = await this.populateRequest(ApiResources.TOP, {
         params: {
           type: 'artists',
           time_range: 'long_term'
         }
       })
 
-      const seedTracks = []
-      const seedArtists = []
+      const seedTracks: string[] = []
+      const seedArtists: string[] = []
 
       for (const item of userTracks.items) {
         seedTracks.push(item.id)

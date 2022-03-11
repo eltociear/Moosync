@@ -86,5 +86,3 @@ export default class PathSetup extends Vue {
 .button-row
   margin-right: 15px
 </style>
-
-

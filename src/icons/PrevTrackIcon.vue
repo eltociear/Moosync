@@ -26,7 +26,7 @@ import { Component, Prop } from 'vue-property-decorator'
 @Component({})
 export default class PrevTrack extends Vue {
   @Prop({ default: false })
-  private disabled!: Boolean
+  private disabled!: boolean
 }
 </script>
 

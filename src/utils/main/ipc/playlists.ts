@@ -1,9 +1,9 @@
-/* 
+/*
  *  playlists.ts is a part of Moosync.
- *  
+ *
  *  Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
- *  Licensed under the GNU General Public License. 
- *  
+ *  Licensed under the GNU General Public License.
+ *
  *  See LICENSE in the project root for license information.
  */
 
@@ -20,21 +20,21 @@ export class PlaylistsChannel implements IpcChannelInterface {
   handle(event: Electron.IpcMainEvent, request: IpcRequest): void {
     switch (request.type) {
       case PlaylistEvents.ADD_TO_PLAYLIST:
-        this.addToPlaylist(event, request)
+        this.addToPlaylist(event, request as IpcRequest<PlaylistRequests.AddToPlaylist>)
         break
       case PlaylistEvents.CREATE_PLAYLIST:
-        this.createPlaylist(event, request)
+        this.createPlaylist(event, request as IpcRequest<PlaylistRequests.CreatePlaylist>)
         break
       case PlaylistEvents.SAVE_COVER:
-        this.saveCoverToFile(event, request)
+        this.saveCoverToFile(event, request as IpcRequest<PlaylistRequests.SaveCover>)
         break
       case PlaylistEvents.REMOVE_PLAYLIST:
-        this.removePlaylist(event, request)
+        this.removePlaylist(event, request as IpcRequest<PlaylistRequests.RemovePlaylist>)
         break
     }
   }
 
-  private createPlaylist(event: Electron.IpcMainEvent, request: IpcRequest) {
+  private createPlaylist(event: Electron.IpcMainEvent, request: IpcRequest<PlaylistRequests.CreatePlaylist>) {
     try {
       const data = SongDB.createPlaylist(request.params.name, request.params.desc, request.params.imgSrc)
       event.reply(request.responseChannel, data)
@@ -44,7 +44,7 @@ export class PlaylistsChannel implements IpcChannelInterface {
     }
   }
 
-  private addToPlaylist(event: Electron.IpcMainEvent, request: IpcRequest) {
+  private addToPlaylist(event: Electron.IpcMainEvent, request: IpcRequest<PlaylistRequests.AddToPlaylist>) {
     SongDB.addToPlaylist(request.params.playlist_id, ...request.params.song_ids)
       .then((data) => {
         event.reply(request.responseChannel, data)
@@ -55,10 +55,10 @@ export class PlaylistsChannel implements IpcChannelInterface {
       })
   }
 
-  private async saveCoverToFile(event: Electron.IpcMainEvent, request: IpcRequest) {
+  private async saveCoverToFile(event: Electron.IpcMainEvent, request: IpcRequest<PlaylistRequests.SaveCover>) {
     if (request.params.b64) {
-      const cacheDir = loadPreferences()!.thumbnailPath
-      const filePath = path.join(cacheDir, v4() + ".png")
+      const cacheDir = loadPreferences().thumbnailPath
+      const filePath = path.join(cacheDir, v4() + '.png')
       if (fs.existsSync(cacheDir)) {
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath)
@@ -66,7 +66,7 @@ export class PlaylistsChannel implements IpcChannelInterface {
       } else {
         fs.mkdirSync(cacheDir)
       }
-      fs.writeFile(filePath, request.params.b64.replace(/^data:image\/png;base64,/, ""), 'base64', () => {
+      fs.writeFile(filePath, request.params.b64.replace(/^data:image\/png;base64,/, ''), 'base64', () => {
         event.reply(request.responseChannel, filePath)
       })
       return
@@ -74,7 +74,7 @@ export class PlaylistsChannel implements IpcChannelInterface {
     event.reply(request.responseChannel)
   }
 
-  private async removePlaylist(event: Electron.IpcMainEvent, request: IpcRequest) {
+  private async removePlaylist(event: Electron.IpcMainEvent, request: IpcRequest<PlaylistRequests.RemovePlaylist>) {
     if (request.params.playlist_id) {
       await SongDB.removePlaylist(request.params.playlist_id).then(() => event.reply(request.responseChannel))
     }

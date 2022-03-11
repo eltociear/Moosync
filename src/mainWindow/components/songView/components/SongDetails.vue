@@ -103,8 +103,8 @@ export default class SongDetails extends mixins(ImageLoader, ErrorHandler, FileM
 
   private subtitle: string = this.getConcatedSubtitle()
 
-  @Prop({ default: () => {} })
-  private defaultDetails!: SongDetailDefaults | undefined
+  @Prop({ default: () => null })
+  private defaultDetails!: SongDetailDefaults | null
 
   @Prop({ default: () => undefined })
   private forceCover!: string
