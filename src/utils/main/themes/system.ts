@@ -122,7 +122,7 @@ export class SystemThemeHandler {
           access(path.join(directory, 'kdeglobals'))
           return this.parseKDETheme(config)
         } catch (_) {
-          console.info(path.join(directory, 'kdeglobals'), 'does not exist')
+          console.warn(path.join(directory, 'kdeglobals'), 'does not exist')
         }
       }
     }

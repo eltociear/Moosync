@@ -162,14 +162,15 @@ export class ScannerChannel implements IpcChannelInterface {
         await fs.promises.access(coverPath)
         return true
       } catch (e) {
-        console.error(`${coverPath} not accessible`)
+        console.warn(`${coverPath} not accessible`)
+        await fs.promises.mkdir(coverPath, { recursive: true })
       }
     }
     return false
   }
 
   private async destructiveScan(paths: togglePaths) {
-    const allSongs = await SongDB.getSongByOptions()
+    const allSongs = SongDB.getSongByOptions()
     const regex = new RegExp(paths.join('|'))
     for (const s of allSongs) {
       if (s.type == 'LOCAL') {

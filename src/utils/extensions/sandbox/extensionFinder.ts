@@ -55,7 +55,7 @@ export class ExtensionFinder extends AbstractExtensionFinder {
           }
         }
       } catch (e) {
-        console.error(e)
+        console.warn('Extension search path', searchPath, "doesn't exist. Creating it.")
         // Create directory if it does not exist
         fsP.mkdir(searchPath)
       }

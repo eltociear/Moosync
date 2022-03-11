@@ -175,7 +175,7 @@ async function checkCoverExists(coverPath: string | undefined): Promise<boolean>
       await fs.promises.access(coverPath)
       return true
     } catch (e) {
-      console.info(`${coverPath} not accessible`)
+      console.warn(`${coverPath} not accessible`)
       return false
     }
   }
