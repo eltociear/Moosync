@@ -4,6 +4,7 @@ const dotenv = require('dotenv').config({ path: __dirname + '/config.env' })
 const fs = require('fs')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const { resolve } = require('path')
+const manifest = require('./package.json')
 
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
@@ -16,12 +17,14 @@ if (fs.existsSync('/usr/lib/electron17') && fs.existsSync('/usr/lib/electron17/v
     .replace('v', '')
 }
 
-const secrets = {}
+const RendererSecrets = {}
+const MainSecrets = {}
 if (dotenv.parsed) {
-  secrets['process.env.YoutubeClientID'] = JSON.stringify(dotenv.parsed['YOUTUBECLIENTID'])
-  secrets['process.env.YoutubeClientSecret'] = JSON.stringify(dotenv.parsed['YOUTUBECLIENTSECRET'])
-  secrets['process.env.LastFmApiKey'] = JSON.stringify(dotenv.parsed['LASTFMAPIKEY'])
-  secrets['process.env.LastFmSecret'] = JSON.stringify(dotenv.parsed['LASTFMSECRET'])
+  RendererSecrets['process.env.YoutubeClientID'] = JSON.stringify(dotenv.parsed['YOUTUBECLIENTID'])
+  RendererSecrets['process.env.YoutubeClientSecret'] = JSON.stringify(dotenv.parsed['YOUTUBECLIENTSECRET'])
+  RendererSecrets['process.env.LastFmApiKey'] = JSON.stringify(dotenv.parsed['LASTFMAPIKEY'])
+  RendererSecrets['process.env.LastFmSecret'] = JSON.stringify(dotenv.parsed['LASTFMSECRET'])
+  MainSecrets['process.env.FanartTVApiKey'] = JSON.stringify(dotenv.parsed['FANARTTVAPIKEY'])
 }
 
 module.exports = {
@@ -42,8 +45,7 @@ module.exports = {
     plugins: [
       new webpack.DefinePlugin({
         'process.browser': 'true',
-        'process.env.DEBUG_LOGGING': process.env.DEBUG_LOGGING,
-        ...secrets
+        ...RendererSecrets
       }),
 
       new webpack.ProvidePlugin({
@@ -178,6 +180,17 @@ module.exports = {
               '@babel/plugin-syntax-bigint'
             ]
           })
+
+        config.plugin('define').tap((args) => {
+          args[0] = {
+            ...args[0],
+            'process.env.DEBUG_LOGGING': process.env.DEBUG_LOGGING,
+            'process.env.MOOSYNC_VERSION': JSON.stringify(manifest.version),
+            ...MainSecrets
+          }
+
+          return args
+        })
 
         config
           .entry('sandbox')

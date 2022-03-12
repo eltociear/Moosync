@@ -14,6 +14,7 @@ type MoosyncExtensionTemplate = import('@moosync/moosync-types').MoosyncExtensio
 
 declare namespace NodeJS {
   export interface ProcessEnv {
+    MOOSYNC_VERSION: string
     DEBUG_LOGGING: boolean
     YoutubeClientID: string
     YoutubeClientSecret: string
@@ -21,5 +22,6 @@ declare namespace NodeJS {
     LastFmSecret: string
     SpotifyClientID: string
     SpotifyClientSecret: string
+    FanartTVApiKey: string
   }
 }

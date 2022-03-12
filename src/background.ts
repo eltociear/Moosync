@@ -40,6 +40,8 @@ process.on('unhandledRejection', (err) => {
   console.error(err)
 })
 
+console.log(process.env.FanartTVApiKey)
+
 if (!app.requestSingleInstanceLock() && !isDevelopment) {
   app.exit()
 } else {
