@@ -92,7 +92,7 @@
     "editor.formatOnPaste": true,
     "typescript.tsdk": "node_modules\\typescript\\lib",
     "[vue]": {
-      "editor.defaultFormatter": "octref.vetur"
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "search.exclude": {
       "**/node_modules": false

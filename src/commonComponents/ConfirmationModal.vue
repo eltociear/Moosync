@@ -13,7 +13,11 @@
       <b-container fluid class="p-0">
         <b-row no-gutters class="d-flex">
           <b-col>
-            <h4>Are you sure you want to {{ keyword }} {{ itemName }}?</h4>
+            <h4>
+              Are you sure you want to <span class="keyword">{{ keyword }}</span>
+              <span class="item"> {{ itemName }}</span
+              >?
+            </h4>
             <h6 class="mt-3">Press Confirm if you are sure</h6>
           </b-col>
         </b-row>
@@ -40,7 +44,7 @@ export default class ConfirmationModal extends Vue {
   @Prop({ default: '' })
   private description!: string
 
-  @Prop({ default: 'Delete' })
+  @Prop({ default: 'delete' })
   private keyword!: string
 
   private onCancelPressed() {
@@ -63,13 +67,25 @@ export default class ConfirmationModal extends Vue {
 
 .confirm-button, .cancel-button
   font-size: 16px
-  color: var(--textPrimary)
   border-radius: 6px
   margin-bottom: 20px
   margin-top: 15px
   border: 0
   font-weight: 600
+  box-shadow: 4px 3px 7px 0px rgb(0 0 0 / 25%)
 
 .confirm-button
   background-color: #E62017
+  color: #fff
+
+.cancel-button
+  background-color: var(--tertiary)
+  color: var(--textPrimary)
+
+.keyword
+  font-weight: 700
+  color: #E62017
+
+.item
+  font-weight: 700
 </style>

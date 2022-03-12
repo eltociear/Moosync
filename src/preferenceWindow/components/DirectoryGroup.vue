@@ -129,16 +129,16 @@ export default class DirectoryGroup extends Mixins(ExtensionPreferenceMixin) {
 <style lang="sass">
 .custom-control-input:checked + .custom-control-label::before
   background-color: transparent
-  border-color: white
+  border-color: var(--textPrimary)
 
 .custom-control-input:indeterminate ~ .custom-control-label
   background-image: none
   box-shadow: none
 
 .custom-control-input:focus ~ .custom-control-label::before
-  outline: white !important
-  border: 1px solid white !important
-  box-shadow: 0 0 1px 1px #fff
+  outline: var(--textPrimary) !important
+  border: 1px solid var(--textPrimary) !important
+  box-shadow: 0 0 1px 1px var(--textPrimary)
 
 .custom-control-label
   &::before

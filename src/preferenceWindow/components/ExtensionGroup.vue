@@ -93,16 +93,19 @@ export default class ExtensionGroup extends Vue {
 <style lang="sass">
 .custom-control-input:checked + .custom-control-label::before
   background-color: transparent
-  border-color: white
+  border-color: var(--textPrimary)
 
 .custom-control-input:indeterminate ~ .custom-control-label
   background-image: none
   box-shadow: none
 
 .custom-control-input:focus ~ .custom-control-label::before
-  outline: white !important
-  border: 1px solid white !important
-  box-shadow: 0 0 1px 1px #fff
+  outline: var(--textPrimary) !important
+  border: 1px solid var(--textPrimary) !important
+  box-shadow: 0 0 1px 1px var(--textPrimary)
+
+.custom-checkbox .custom-control-input:checked ~ .custom-control-label::after
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath fill='var(--textPrimary)' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26l2.974 2.99L8 2.193z' /%3E%3C/svg%3E")
 
 .custom-control-label
   &::before
@@ -149,6 +152,7 @@ export default class ExtensionGroup extends Vue {
   color: var(--textSecondary)
   min-width: 0
   text-align: left
+
 
 .remove-button
   color: #E62017
