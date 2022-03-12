@@ -40,7 +40,14 @@ function generatePrefix(level: string, loggerName: string | symbol) {
 
 function concatArgs(...messages: (string | object)[]) {
   let ret = ''
-  for (const m of messages) ret += (typeof m === 'object' ? JSON.stringify(m) : m) + ' '
+  for (const m of messages) {
+    if (m instanceof Error) {
+      ret += m.message
+      ret += m.stack
+    } else {
+      ret += (typeof m === 'object' ? JSON.stringify(m) : m) + ' '
+    }
+  }
 
   return ret.trim() + '\n'
 }
