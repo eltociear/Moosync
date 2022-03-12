@@ -500,13 +500,24 @@ export class SongDBInstance extends DBUtils {
    * @param id of artist whose default cover image is required
    * @returns high resolution cover image for artist
    */
-  public async getDefaultCoverByArtist(id: string): Promise<string | undefined> {
-    return (
+  public getDefaultCoverByArtist(id: string) {
+    const album_cover = (
       this.db.queryFirstRow(
         `SELECT album_coverPath_high from albums WHERE album_id = (SELECT album FROM album_bridge WHERE song = (SELECT song FROM artists_bridge WHERE artist = ?))`,
         id
       ) as marshaledSong
     )?.album_coverPath_high
+
+    if (album_cover) {
+      return album_cover
+    }
+
+    const song_cover = this.db.queryFirstRow(
+      `SELECT song_coverPath_high from allsongs WHERE _id = (SELECT song FROM artists_bridge WHERE artist = ?)`,
+      id
+    )?.song_coverPath_high
+
+    return song_cover
   }
 
   /**
