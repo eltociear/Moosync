@@ -16,7 +16,10 @@
     <b-row no-gutters align-h="between" v-if="showTitlebarIcons">
       <b-col cols="auto" class="h-100">
         <b-row v-if="windowType === 'main-window'" no-gutters align-v="center" class="logo-container">
-          <b-col cols="auto" class="logo-title"> Moosync </b-col>
+          <b-col cols="auto">
+            <Logo />
+          </b-col>
+          <b-col cols="auto" class="logo-title"> oosync </b-col>
         </b-row>
       </b-col>
       <b-col cols="auto" class="buttons-group">
