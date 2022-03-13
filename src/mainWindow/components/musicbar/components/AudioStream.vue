@@ -326,9 +326,13 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
       const artwork: MediaImage[] = []
       for (const a of artworkList) {
-        const blob = await (await fetch('media://' + a)).blob()
-        let objectURL = URL.createObjectURL(blob)
-        artwork.push({ src: objectURL })
+        if (!a.startsWith('http')) {
+          const blob = await (await fetch('media://' + a)).blob()
+          let objectURL = URL.createObjectURL(blob)
+          artwork.push({ src: objectURL })
+        } else {
+          artwork.push({ src: a })
+        }
       }
 
       const metadata = {
