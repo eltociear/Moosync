@@ -100,6 +100,7 @@ export default class Sidebar extends Vue {
 
 .text-active
   color: var(--accent)
+  font-weight: 700
 
 .button-bar
   margin-top: 1.25rem
