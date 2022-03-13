@@ -45,6 +45,7 @@ module.exports = {
     plugins: [
       new webpack.DefinePlugin({
         'process.browser': 'true',
+        'process.env.MOOSYNC_VERSION': JSON.stringify(manifest.version),
         ...RendererSecrets
       }),
 
