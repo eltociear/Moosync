@@ -2,7 +2,7 @@ import { exec } from 'child_process'
 import { access, readFile } from 'fs/promises'
 import path from 'path'
 import ini from 'ini'
-import { app } from 'electron'
+import { app, nativeTheme } from 'electron'
 
 enum DesktopEnvironments {
   PLASMA = 'plasma',
@@ -47,6 +47,48 @@ interface KdeGlobals {
 }
 
 export class SystemThemeHandler {
+  public async getWindowsStyle() {
+    // https://github.com/electron/electron/issues/23487
+
+    const accentQuery = (
+      await execAsync('reg query HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\DWM /v ColorizationAfterglow')
+    ).stdout.split(' ')
+
+    const accent = dwordToRgb(accentQuery[accentQuery.length - 1].trim())
+    let theme: ThemeItem
+
+    if (nativeTheme.shouldUseDarkColors) {
+      theme = {
+        primary: '#1C1C1C',
+        secondary: '#282828',
+        tertiary: '#151515',
+        textPrimary: '#FFFFFF',
+        textSecondary: '#D4D4D4',
+        textInverse: '#000000',
+        accent,
+        divider: 'rgba(79, 79, 79, 0.67)'
+      }
+    } else {
+      theme = {
+        primary: '#EEEEEE',
+        secondary: '#F9F9F9',
+        tertiary: '#FFFFFF',
+        textPrimary: '#000000',
+        textSecondary: '#636363',
+        textInverse: '#000000',
+        accent,
+        divider: 'rgba(79, 79, 79, 0.67)'
+      }
+    }
+
+    return {
+      id: 'system_default',
+      name: 'System Theme (Beta)',
+      author: 'Moosync',
+      theme
+    }
+  }
+
   public async getLinuxStyle(): Promise<ThemeDetails | undefined> {
     const de = this.getDesktopEnvironment()
 
@@ -248,6 +290,10 @@ function rgbToHex(commaSeperated: string, inverse = false) {
 
     return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
   }
+}
+
+function dwordToRgb(dword: string) {
+  return '#' + dword.substring(4)
 }
 
 async function execAsync(command: string) {

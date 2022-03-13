@@ -53,12 +53,15 @@ export default class ThemeHandler extends Vue {
   }
 
   private hexToRgb(hex: string) {
-    const arrBuff = new ArrayBuffer(4)
-    const vw = new DataView(arrBuff)
-    vw.setUint32(0, parseInt(hex.replace('#', ''), 16), false)
-    const arrByte = new Uint8Array(arrBuff)
+    if (hex.startsWith('#')) {
+      hex = hex.substring(1)
+    }
 
-    return arrByte[1] + ',' + arrByte[2] + ',' + arrByte[3]
+    const r = parseInt(hex.substring(0, 2), 16)
+    const g = parseInt(hex.substring(2, 4), 16)
+    const b = parseInt(hex.substring(4, 6), 16)
+
+    return [r, g, b].join(',')
   }
 
   public fetchThemeFromID() {
