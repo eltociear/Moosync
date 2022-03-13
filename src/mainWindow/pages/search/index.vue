@@ -300,5 +300,6 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   height: calc(100% - 58px)
 
 .tab-outer-container
+  padding-top: 15px
   overflow-y: scroll
 </style>
