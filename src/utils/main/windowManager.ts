@@ -14,6 +14,7 @@ import { getWindowSize, setWindowSize } from './db/preferences'
 import { BrowserWindowConstructorOptions } from 'electron/main'
 import path from 'path'
 import { access } from 'fs/promises'
+import { getActiveTheme } from './themes/preferences'
 
 export class WindowHandler {
   private static mainWindow: number
@@ -40,9 +41,13 @@ export class WindowHandler {
     return !this.hasFrame
   }
 
+  private get windowBackgroundColor() {
+    return getActiveTheme()?.theme.primary ?? '#212121'
+  }
+
   private get baseWindowProps(): BrowserWindowConstructorOptions {
     return {
-      backgroundColor: '#212121',
+      backgroundColor: this.windowBackgroundColor,
       titleBarStyle: 'hidden',
       frame: WindowHandler.hasFrame,
       show: true,
@@ -51,7 +56,7 @@ export class WindowHandler {
         contextIsolation: true,
         // Use pluginOptions.nodeIntegration, leave this alone
         // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-        nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION as unknown as boolean,
+        nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
         preload: path.join(__dirname, 'preload.js')
       }
     }
