@@ -78,10 +78,17 @@ export async function setupSystemThemes() {
     if (theme) {
       themes[theme.id] = theme
     }
+  }
 
-    for (const key in themes) {
-      saveTheme(themes[key])
+  if (process.platform === 'win32') {
+    const theme = await systemThemeHandler.getWindowsStyle()
+    if (theme) {
+      themes[theme.id] = theme
     }
+  }
+
+  for (const key in themes) {
+    saveTheme(themes[key])
   }
 }
 

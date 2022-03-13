@@ -40,13 +40,20 @@ function generatePrefix(level: string, loggerName: string | symbol) {
 
 function concatArgs(...messages: (string | object)[]) {
   let ret = ''
-  for (const m of messages) ret += (typeof m === 'object' ? JSON.stringify(m) : m) + ' '
+  for (const m of messages) {
+    if (m instanceof Error) {
+      ret += m.message
+      ret += m.stack
+    } else {
+      ret += (typeof m === 'object' ? JSON.stringify(m) : m) + ' '
+    }
+  }
 
   return ret.trim() + '\n'
 }
 
 function createFile(basePath: string) {
-  const isDevelopment = process.env.NODE_ENV !== 'production' ? log.levels.DEBUG : log.levels.INFO
+  const isDevelopment = process.env.NODE_ENV !== 'production'
   const newFile = `moosync-${new Date().toLocaleDateString('en-GB').replaceAll('/', '-')}${
     isDevelopment && '-development'
   }.log`

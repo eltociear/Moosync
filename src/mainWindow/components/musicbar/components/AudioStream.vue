@@ -308,20 +308,31 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   /**
    * Set media info which is recognised by different applications and OS specific API
    */
-  private setMediaInfo(song: Song) {
+  private async setMediaInfo(song: Song) {
     if (navigator.mediaSession) {
-      const artwork: MediaImage[] = []
+      const artworkList: string[] = []
       if (song.song_coverPath_low) {
-        artwork.push({ src: song.song_coverPath_low })
+        artworkList.push(song.song_coverPath_low)
       }
       if (song.song_coverPath_high) {
-        artwork.push({ src: song.song_coverPath_high })
+        artworkList.push(song.song_coverPath_high)
       }
       if (song.album?.album_coverPath_high) {
-        artwork.push({ src: song.album.album_coverPath_high })
+        artworkList.push(song.album.album_coverPath_high)
       }
       if (song.album?.album_coverPath_low) {
-        artwork.push({ src: song.album.album_coverPath_low })
+        artworkList.push(song.album.album_coverPath_low)
+      }
+
+      const artwork: MediaImage[] = []
+      for (const a of artworkList) {
+        if (!a.startsWith('http')) {
+          const blob = await (await fetch('media://' + a)).blob()
+          let objectURL = URL.createObjectURL(blob)
+          artwork.push({ src: objectURL })
+        } else {
+          artwork.push({ src: a })
+        }
       }
 
       const metadata = {

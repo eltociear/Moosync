@@ -1,6 +1,6 @@
 {
   "name": "moosync",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "private": true,
   "author": "Ovenoboyo <ovenoboyo@gmail.com>",
   "scripts": {
@@ -10,7 +10,7 @@
     "test:unit": "cross-env TEST_MODE=1 ELECTRON_RUN_AS_NODE=1 ./node_modules/.bin/electron ./node_modules/jest/bin/jest.js ./tests/node --runInBand",
     "test:electron": "jest tests/electron --runInBand --detectOpenHandles --forceExit",
     "electron:build": "vue-cli-service electron:build",
-    "electron:serve": "vue-cli-service electron:serve --quiet-deps",
+    "electron:serve": "cross-env DEBUG_LOGGING=true vue-cli-service electron:serve --quiet-deps",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
   },
@@ -61,7 +61,7 @@
     "cross-env": "^7.0.3",
     "deepmerge": "^4.2.2",
     "dotenv": "^16.0.0",
-    "electron": "17.0.1",
+    "electron": "17.1.2",
     "electron-devtools-installer": "^3.2.0",
     "electron-store": "^8.0.1",
     "electron-updater": "^4.6.5",

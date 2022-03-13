@@ -300,6 +300,7 @@ img
   border-radius: 16px !important
   width: 300px !important
   border: none !important
+  box-shadow: 4px 4px 14px 3px rgba(0, 0, 0, 0.25)
   .arrow
     &::after
       border-bottom-color: var(--tertiary) !important
@@ -308,6 +309,7 @@ img
   background-color: var(--tertiary) !important
   border-radius: 16px
   border: none
+  box-shadow: 4px 4px 14px 3px rgba(0, 0, 0, 0.25)
   .arrow
     &::after
       border-bottom-color: var(--tertiary) !important
@@ -342,6 +344,14 @@ img
 
 .parent
   overflow-y: scroll
+
+.tooltip-inner
+  background-color: var(--tertiary) !important
+  color: var(--textPrimary) !important
+  box-shadow: 4px 4px 14px 3px rgba(0, 0, 0, 0.25)
+
+.bs-tooltip-right .arrow::before
+  border-right-color: var(--tertiary) !important
 
 @import "./transitions"
 @import "./scrollbar"

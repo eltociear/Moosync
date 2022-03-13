@@ -10,7 +10,7 @@
 import { IpcEvents, ScannerEvents } from './constants'
 import { Thread, TransferDescriptor, Worker, spawn } from 'threads'
 
-import { IpcMainEvent } from 'electron'
+import { IpcMainEvent, app } from 'electron'
 import { SongDB } from '@/utils/main/db/index'
 import fs from 'fs'
 import { loadPreferences } from '@/utils/main/db/preferences'
@@ -22,6 +22,8 @@ import { access, mkdir } from 'fs/promises'
 import scannerWorker from 'threads-plugin/dist/loader?name=0!/src/utils/main/workers/scanner.ts'
 // @ts-expect-error it don't want .ts
 import scraperWorker from 'threads-plugin/dist/loader?name=1!/src/utils/main/workers/scraper.ts'
+
+const loggerPath = app.getPath('logs')
 
 enum scanning {
   UNDEFINED,
@@ -112,6 +114,23 @@ export class ScannerChannel implements IpcChannelInterface {
     }
   }
 
+  private async storeArtwork(id: string, cover: TransferDescriptor<Buffer> | undefined) {
+    if (cover) {
+      const artworkPath = loadPreferences().artworkPath
+      try {
+        await access(artworkPath)
+      } catch (e) {
+        await mkdir(artworkPath, { recursive: true })
+      }
+
+      try {
+        return writeBuffer(cover.send, artworkPath, id, true)
+      } catch (e) {
+        console.error('Error writing cover', e)
+      }
+    }
+  }
+
   private scanSongs(preferences: Preferences): Promise<void> {
     return new Promise((resolve, reject) => {
       this.scannerWorker.start(preferences.musicPaths).subscribe(
@@ -124,9 +143,16 @@ export class ScannerChannel implements IpcChannelInterface {
 
   private fetchMBID(allArtists: Artists[]) {
     return new Promise((resolve, reject) => {
-      this.scraperWorker.fetchMBID(allArtists).subscribe(
-        (result: Artists) => (result ? SongDB.updateArtists(result) : null),
-        (err: Error) => reject(err),
+      this.scraperWorker.fetchMBID(allArtists, loggerPath).subscribe(
+        (result: Artists) => {
+          if (result) {
+            SongDB.updateArtists(result)
+            this.fetchArtworks([result])
+          }
+        },
+        (err: Error) => {
+          reject(err)
+        },
         () => resolve(undefined)
       )
     })
@@ -136,8 +162,9 @@ export class ScannerChannel implements IpcChannelInterface {
     const ret: Artists = artist
     notifyRenderer({ id: 'artwork-status', message: `Found artwork for ${artist.artist_name}`, type: 'info' })
     if (cover) {
-      ret.artist_coverPath = (await this.storeCover(artist.artist_id, cover))?.high
+      ret.artist_coverPath = (await this.storeArtwork(artist.artist_id, cover))?.high
     } else {
+      console.debug('Getting default cover for', artist.artist_name)
       ret.artist_coverPath = await SongDB.getDefaultCoverByArtist(artist.artist_id)
     }
 
@@ -145,9 +172,8 @@ export class ScannerChannel implements IpcChannelInterface {
   }
 
   private async fetchArtworks(allArtists: Artists[]) {
-    const artworkPath = loadPreferences().artworkPath
     return new Promise((resolve) => {
-      this.scraperWorker.fetchArtworks(allArtists, artworkPath).subscribe(
+      this.scraperWorker.fetchArtworks(allArtists, loggerPath).subscribe(
         (result: { artist: Artists; cover: TransferDescriptor<Buffer> }) =>
           this.updateArtwork(result.artist, result.cover),
         console.error,
@@ -202,14 +228,17 @@ export class ScannerChannel implements IpcChannelInterface {
       artist: true
     })
 
+    console.info('Fetching MBIDs for Artists')
     await this.fetchMBID(allArtists)
+
+    console.info('Fetching Artwork for artists')
     await this.fetchArtworks(allArtists)
 
     await Thread.terminate(this.scraperWorker)
     this.scraperWorker = undefined
   }
 
-  private isScanning() {
+  get isScanning() {
     return this.scanStatus == scanning.SCANNING || this.scanStatus == scanning.QUEUED
   }
 
@@ -230,7 +259,7 @@ export class ScannerChannel implements IpcChannelInterface {
   }
 
   private async scanAll(event?: IpcMainEvent, request?: IpcRequest) {
-    if (this.isScanning()) {
+    if (this.isScanning) {
       this.setQueued()
       return
     }
@@ -267,7 +296,7 @@ export class ScannerChannel implements IpcChannelInterface {
 
     // Run scraping task only if all subsequent scanning tasks are completed
     // And if no other scraping task is ongoing
-    if (!this.isScanning() && !this.scraperWorker) {
+    if (!this.isScanning && !this.scraperWorker) {
       await this.scrapeArtists()
     }
 

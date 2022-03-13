@@ -10,6 +10,7 @@
 import { DBUtils } from './utils'
 import { promises as fsP } from 'fs'
 import { v4 } from 'uuid'
+import { sanitizeArtistName } from '../../common'
 
 type KeysOfUnion<T> = T extends T ? keyof T : never
 // AvailableKeys will basically be keyof Foo | keyof Bar
@@ -472,11 +473,15 @@ export class SongDBInstance extends DBUtils {
   private storeArtists(...artists: string[]): string[] {
     const artistID: string[] = []
     for (const a of artists) {
-      const id = this.db.queryFirstCell(`SELECT artist_id FROM artists WHERE artist_name = ? COLLATE NOCASE`, a.trim())
+      const sanitizedName = sanitizeArtistName(a, true)
+      const id = this.db.queryFirstCell(
+        `SELECT artist_id FROM artists WHERE artist_name = ? COLLATE NOCASE`,
+        sanitizedName
+      )
       if (id) artistID.push(id)
       else {
         const id = v4()
-        this.db.insert('artists', { artist_id: id, artist_name: a.trim() })
+        this.db.insert('artists', { artist_id: id, artist_name: sanitizedName })
         artistID.push(id)
       }
     }
@@ -495,13 +500,24 @@ export class SongDBInstance extends DBUtils {
    * @param id of artist whose default cover image is required
    * @returns high resolution cover image for artist
    */
-  public async getDefaultCoverByArtist(id: string): Promise<string | undefined> {
-    return (
+  public getDefaultCoverByArtist(id: string) {
+    const album_cover = (
       this.db.queryFirstRow(
         `SELECT album_coverPath_high from albums WHERE album_id = (SELECT album FROM album_bridge WHERE song = (SELECT song FROM artists_bridge WHERE artist = ?))`,
         id
       ) as marshaledSong
     )?.album_coverPath_high
+
+    if (album_cover) {
+      return album_cover
+    }
+
+    const song_cover = this.db.queryFirstRow(
+      `SELECT song_coverPath_high from allsongs WHERE _id = (SELECT song FROM artists_bridge WHERE artist = ?)`,
+      id
+    )?.song_coverPath_high
+
+    return song_cover
   }
 
   /**

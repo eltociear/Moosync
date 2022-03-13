@@ -81,6 +81,7 @@ export default class NewTheme extends Vue {
 
   private title = ''
   private author = ''
+  private currentThemeID = ''
 
   get defaultTheme() {
     return {
@@ -114,7 +115,7 @@ export default class NewTheme extends Vue {
 
   private generateThemeMetadata(): ThemeDetails {
     return {
-      id: v1(),
+      id: this.currentThemeID,
       name: this.title,
       author: this.author,
       theme: this.customTheme
@@ -156,12 +157,19 @@ export default class NewTheme extends Vue {
   }
 
   async created() {
-    const currentTheme = this.$route.params['currentTheme']
-    if (currentTheme) {
-      const theme = await window.ThemeUtils.getTheme(currentTheme)
-      if (theme) this.customTheme = theme.theme
-    }
     this.parseClipboard()
+
+    this.currentThemeID = this.$route.params['currentTheme']
+    if (this.currentThemeID) {
+      const theme = await window.ThemeUtils.getTheme(this.currentThemeID)
+      if (theme) {
+        this.customTheme = theme.theme
+        this.title = theme.name
+        this.author = theme.author
+      }
+    } else {
+      this.currentThemeID = v1()
+    }
   }
 }
 </script>
