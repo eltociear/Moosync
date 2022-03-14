@@ -117,6 +117,7 @@ export default class Sidebar extends mixins(PlayerControls, ImgLoader) {
           playlist_name: value
         },
         song: {
+          title: value,
           path: value
         }
       })

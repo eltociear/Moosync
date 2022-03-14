@@ -27,6 +27,8 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
   public timestamp = 0
   public loading = false
 
+  public playAfterLoad = false
+
   get currentTime() {
     return this.timestamp
   }

@@ -261,9 +261,13 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     vxm.player.$watch(
       'currentSong',
       (newVal: Song | undefined | null) => {
+        console.debug('Got song change request for extension host')
         if (newVal?.type !== 'LOCAL' && !newVal?.playbackUrl) {
+          console.debug('Song is missing playback url')
           return
         }
+
+        console.log('Sending song to extension host')
 
         window.ExtensionUtils.sendEvent({
           type: 'onSongChanged',
