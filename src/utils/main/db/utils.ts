@@ -112,7 +112,10 @@ export class DBUtils {
 
   protected registerRegexp() {
     this.db.function('regexp', (pattern: string, str: string) => {
-      return str.match(new RegExp(pattern, 'i')) ? 1 : 0
+      if (str != null) {
+        return str.match(new RegExp(pattern, 'i')) ? 1 : 0
+      }
+      return 0
     })
   }
 

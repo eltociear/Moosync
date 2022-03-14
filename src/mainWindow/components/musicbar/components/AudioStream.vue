@@ -79,11 +79,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
   private stateChangeQueued = false
 
-  /**
-   * True is playerstate is set to be 'PLAYING' ignoring its previous value on new song load
-   */
-  private forcePlay = false
-
   private _bufferTrap: ReturnType<typeof setTimeout> | undefined
 
   get songRepeat() {
@@ -192,7 +187,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   }
 
   private async onSongEnded() {
-    this.forcePlay = true
+    vxm.player.playAfterLoad = true
     if (this.songRepeat && this.currentSong) {
       // Re load entire audio instead of setting current time to 0
       this.loadAudio(this.currentSong, false)
@@ -301,6 +296,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
 
     if (song.type === 'SPOTIFY') {
+      console.debug('getting spotify url')
       return vxm.providers.spotifyProvider.getPlaybackUrlAndDuration(song)
     }
   }
@@ -365,8 +361,17 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
   }
 
+  private duplicateSongChangeRequest: Song | undefined
+
   private async loadAudio(song: Song, loadedState: boolean) {
+    if (this.duplicateSongChangeRequest?._id === song._id) {
+      console.debug('Got duplicate song request, ignoring')
+      this.duplicateSongChangeRequest = undefined
+      return
+    }
+
     this.unloadAudio()
+    vxm.player.loading = true
 
     console.debug('Loading new song', song.title, song.type)
 
@@ -383,10 +388,13 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.onPlayerTypeChanged('YOUTUBE')
     }
 
-    vxm.player.loading = true
     if (song.type === 'LOCAL') {
       if (song.path) {
-        this.activePlayer.load('media://' + song.path, this.volume, this.playerState === 'PLAYING')
+        this.activePlayer.load(
+          'media://' + song.path,
+          this.volume,
+          vxm.player.playAfterLoad || this.playerState === 'PLAYING'
+        )
         console.debug('Loaded song at', 'media://' + song.path)
         vxm.player.loading = false
       }
@@ -395,7 +403,11 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
         console.debug('PlaybackUrl or Duration empty for', song._id)
 
         const res = await this.getPlaybackUrlAndDuration(song)
+        console.debug('Got playback url and duration', res)
         if (res) {
+          this.duplicateSongChangeRequest = song
+          // song is a reference to vxm.player.currentSong or vxm.sync.currentSong.
+          // Mutating those properties should also mutate song
           if (!this.isSyncing) {
             if (vxm.player.currentSong) {
               vxm.player.currentSong.duration = res.duration
@@ -407,19 +419,12 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
               Vue.set(vxm.sync.currentSong, 'playbackUrl', res.url)
             }
           }
-
-          return
         }
       }
       console.debug('PlaybackUrl for song', song._id, 'is', song.playbackUrl)
 
       console.debug('Loaded song at', song.playbackUrl)
-      this.activePlayer.load(song.playbackUrl, this.volume, this.playerState !== 'PAUSED')
-    }
-
-    if (this.forcePlay) {
-      this.forcePlay = false
-      vxm.player.playerState = 'PLAYING'
+      this.activePlayer.load(song.playbackUrl, this.volume, vxm.player.playAfterLoad || this.playerState !== 'PAUSED')
     }
 
     if (this.handleBroadcasterAudioLoad()) return
