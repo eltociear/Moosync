@@ -54,7 +54,8 @@
               :id="getRandomID()"
               :colors="defaultTheme.theme"
             />
-            Default
+            <div class="title">Default</div>
+            <div class="author">Moosync</div>
           </div>
         </b-col>
         <b-col cols="5" xl="3" class="p-2" v-for="(value, key) in allThemes" :key="key">
@@ -67,7 +68,12 @@
               @contextmenu.native="themeMenu(arguments[0], value)"
               :colors="value.theme"
             />
-            {{ value.name }}
+            <div class="title">
+              {{ value.name }}
+            </div>
+            <div class="author">
+              {{ value.author }}
+            </div>
           </div>
         </b-col>
         <b-col cols="5" xl="3" class="p-2">
@@ -240,6 +246,13 @@ export default class Themes extends Vue {
 .path-selector
   max-width: 750px
 
-.title, .theme-component-container
+.title, .author
   text-align: left
+
+.title
+  font-size: 16px
+  font-weight: 700
+
+.author
+  font-size: 14px
 </style>

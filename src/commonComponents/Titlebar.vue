@@ -16,8 +16,12 @@
     <b-row no-gutters align-h="between" v-if="showTitlebarIcons">
       <b-col cols="auto" class="h-100">
         <b-row v-if="windowType === 'main-window'" no-gutters align-v="center" class="logo-container">
-          <b-col cols="auto" class="logo-title"> Moosync </b-col>
+          <b-col cols="auto">
+            <Logo />
+          </b-col>
+          <b-col cols="auto" class="logo-title"> oosync </b-col>
         </b-row>
+        <span class="logo-title version" v-else>{{ version }}</span>
       </b-col>
       <b-col cols="auto" class="buttons-group">
         <b-row no-gutters>
@@ -111,6 +115,10 @@ export default class Sidebar extends Vue {
     this.showTitlebarIcons = await window.WindowUtils.showTitlebarIcons()
   }
 
+  private get version() {
+    return process.env.MOOSYNC_VERSION
+  }
+
   mounted() {
     window.addEventListener('resize', () => {
       if (this.resizedFinished) clearTimeout(this.resizedFinished)
@@ -165,15 +173,19 @@ export default class Sidebar extends Vue {
   margin-top: 4px
   margin-bottom: 4px
   margin-left: 10px
-  .logo-title
-    margin-left: 4px
-    font-family: Poppins
-    font-style: normal
-    font-weight: 600
-    font-size: 13px
-    line-height: 167.19%
-    letter-spacing: 0.105em
-    color: var(--textSecondary)
+
+.version
+  padding-left: 10px
+
+.logo-title
+  margin-left: 4px
+  font-family: Poppins
+  font-style: normal
+  font-weight: 600
+  font-size: 13px
+  line-height: 167.19%
+  letter-spacing: 0.105em
+  color: var(--textSecondary)
 
 .buttons-group
   z-index: 999

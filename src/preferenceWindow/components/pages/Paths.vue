@@ -17,6 +17,7 @@
             tooltip="Directories where all your local music is stored"
             :defaultValue="[]"
             prefKey="musicPaths"
+            @refresh="forceRescan"
           />
           <FilePicker
             title="Downloaded Artwork Path"

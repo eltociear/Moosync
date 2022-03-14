@@ -12,11 +12,7 @@
     <div
       class="play-button me-auto justify-content-center d-flex align-items-center h-100 w-100"
       :style="{ height, width }"
-    >
-      <div class="play-icon">
-        <Play2 />
-      </div>
-    </div>
+    ></div>
     <img
       v-if="!forceEmptyImg"
       ref="cover"
@@ -27,6 +23,9 @@
       @error="handleCoverError"
     />
     <SongDefault :style="{ height, width }" v-else class="coverimg me-auto d-flex align-items-center" />
+    <div class="play-button d-flex justify-content-center">
+      <Play2 class="align-self-center" />
+    </div>
   </b-col>
 </template>
 
@@ -76,15 +75,20 @@ export default class LowImageCol extends mixins(ImgLoader) {
   margin-right: 20px
   .coverimg
     border-radius: 10px
-  &:hover
-    .coverimg
-      opacity: 0.2
-    .play-button
-      opacity: 1
 
 .play-button
+  width: calc(80px - (12px * 2))
+  height: calc(80px - (12px * 2))
+  background: rgba(0, 0, 0, 0.6)
   position: absolute
+  top: 0
+  border-radius: 10px
+
+.play-button
   opacity: 0
+  transition: opacity 0.2s ease
+  &:hover
+    opacity: 1
 
 .coverimg
   object-fit: cover

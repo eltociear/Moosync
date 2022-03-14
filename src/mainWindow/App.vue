@@ -71,7 +71,7 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     this.registerFileOpenRequests()
     this.watchPlaylistUpdates()
     this.populatePlaylists()
-    this.registerDevTools()
+    this.registerKeyboardHotkeys()
     this.registerFileDragListener()
     this.handleInitialSetup()
     this.checkUpdate()
@@ -84,12 +84,18 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     })
   }
 
-  private registerDevTools() {
+  private registerKeyboardHotkeys() {
     document.addEventListener('keydown', (e) => {
-      if (e.code === 'F11') {
-        window.WindowUtils.toggleDevTools(true)
-      } else if (e.code === 'F5') {
-        location.reload()
+      if (process.env.NODE_ENV === 'development') {
+        if (e.code === 'F11') {
+          window.WindowUtils.toggleDevTools(true)
+        } else if (e.code === 'F5') {
+          location.reload()
+        }
+      }
+
+      if (e.code === 'F1') {
+        window.WindowUtils.openExternal('https://github.com/Moosync/Moosync#readme')
       }
     })
   }
@@ -255,9 +261,13 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     vxm.player.$watch(
       'currentSong',
       (newVal: Song | undefined | null) => {
+        console.debug('Got song change request for extension host')
         if (newVal?.type !== 'LOCAL' && !newVal?.playbackUrl) {
+          console.debug('Song is missing playback url')
           return
         }
+
+        console.log('Sending song to extension host')
 
         window.ExtensionUtils.sendEvent({
           type: 'onSongChanged',

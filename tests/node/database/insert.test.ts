@@ -70,7 +70,7 @@ test('Artist was inserted', async () => {
     })
 
     expect(artistResult.length).toBe(1)
-    expect(artistResult[0].artist_name).toBe(i.artists?.at(0))
+    expect(artistResult[0].artist_name?.toLowerCase()).toBe(i.artists?.at(0)?.toLowerCase())
     expect(artistResult[0].artist_song_count).toBe(1)
   }
 })

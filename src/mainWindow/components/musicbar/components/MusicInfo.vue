@@ -25,7 +25,7 @@
       </b-row>
       <b-row no-gutters align-h="center" class="h-100 flex-nowrap">
         <b-col cols="4">
-          <SongDetailsCompact :currentSong="currentSong" :forceCover="computedImg" />
+          <SongDetailsCompact :forceWhiteText="true" :currentSong="currentSong" :forceCover="computedImg" />
         </b-col>
         <b-col offset="1" cols="7" class="right-container h-100">
           <div class="h-100" v-if="queueOrder.length > 0">

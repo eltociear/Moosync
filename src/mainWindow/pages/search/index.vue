@@ -159,7 +159,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Youtube':
           return `${(item as YTMusicVideo).album} - ${(item as YTMusicVideo).artists
             ?.map((val) => val.name)
-            ?.join(', ')}}`
+            ?.join(', ')}`
       }
     }
     return ''
@@ -300,5 +300,6 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   height: calc(100% - 58px)
 
 .tab-outer-container
+  padding-top: 15px
   overflow-y: scroll
 </style>

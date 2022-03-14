@@ -82,9 +82,9 @@ class WebScraper {
 
   private async makeCacheDir() {
     try {
-      fsP.access(CachePath)
+      await fsP.access(CachePath)
     } catch (_) {
-      fsP.mkdir(CachePath, { recursive: true })
+      await fsP.mkdir(CachePath, { recursive: true })
     }
   }
 }

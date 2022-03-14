@@ -27,8 +27,6 @@ export function toSong(...item: YTMusicVideo[]): Song[] {
       date_added: Date.now(),
       type: 'YOUTUBE'
     })
-
-    console.log(songs)
   }
 
   return songs
