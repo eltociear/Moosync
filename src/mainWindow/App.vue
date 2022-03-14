@@ -79,6 +79,7 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
 
   private checkUpdate() {
     window.UpdateUtils.listenUpdate((available) => {
+      console.debug('Got update')
       vxm.themes.isUpdateAvailable = available
     })
 
