@@ -79,11 +79,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
   private stateChangeQueued = false
 
-  /**
-   * True is playerstate is set to be 'PLAYING' ignoring its previous value on new song load
-   */
-  private forcePlay = false
-
   private _bufferTrap: ReturnType<typeof setTimeout> | undefined
 
   get songRepeat() {
@@ -192,7 +187,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   }
 
   private async onSongEnded() {
-    this.forcePlay = true
+    vxm.player.playAfterLoad = true
     if (this.songRepeat && this.currentSong) {
       // Re load entire audio instead of setting current time to 0
       this.loadAudio(this.currentSong, false)
@@ -429,12 +424,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       console.debug('PlaybackUrl for song', song._id, 'is', song.playbackUrl)
 
       console.debug('Loaded song at', song.playbackUrl)
-      this.activePlayer.load(song.playbackUrl, this.volume, vxm.player.playAfterLoad || this.playerState != 'PLAYING')
-    }
-
-    if (this.forcePlay) {
-      this.forcePlay = false
-      vxm.player.playerState = 'PLAYING'
+      this.activePlayer.load(song.playbackUrl, this.volume, vxm.player.playAfterLoad || this.playerState !== 'PAUSED')
     }
 
     if (this.handleBroadcasterAudioLoad()) return
