@@ -71,7 +71,7 @@ async function getAndUpdateMBID(a: Artists): Promise<Artists | undefined> {
   if (a.artist_name) {
     const data = await queryMbid(a.artist_name)
     if (data.data && data.data.artists.length > 0 && data.data.artists[0].id) {
-      return { artist_id: a.artist_id, artist_mbid: data.data.artists[0].id }
+      return { artist_id: a.artist_id, artist_mbid: data.data.artists[0].id, artist_name: a.artist_name }
     }
   }
 }
