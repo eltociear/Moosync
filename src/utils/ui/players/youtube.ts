@@ -34,8 +34,7 @@ export class YoutubePlayer extends Player {
   }
 
   stop(): void {
-    this.playerInstance.stop()
-    this.playerInstance.load('')
+    return this.playerInstance.stop()
   }
 
   get currentTime(): number {
