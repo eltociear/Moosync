@@ -31,7 +31,7 @@
             </div>
           </div>
 
-          <div class="song-info-container">
+          <div class="song-info-container" :style="{ color: `${forceWhiteText ? '#fff' : 'var(--textPrimary)'}` }">
             <div class="d-flex">
               <div class="song-title text-truncate">
                 {{ title }}
@@ -103,6 +103,9 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   })
   private buttonGroup!: SongDetailButtons
 
+  @Prop({ default: false })
+  private forceWhiteText!: boolean
+
   get computedImg() {
     return (
       this.forceCover ?? this.getImgSrc(this.getValidImageHigh(this.currentSong) ?? this.defaultDetails?.defaultCover)
@@ -171,7 +174,6 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
 .song-info-container
   text-align: left
   margin-top: 15px
-  color: var(--textPrimary)
   .song-title
     font-weight: bold
     font-size: 24px
