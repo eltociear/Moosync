@@ -86,9 +86,6 @@ module.exports = {
         productName: 'Moosync',
         artifactName: '${productName}-${version}-${os}-${arch}.${ext}',
         icon: './build/icons/512x512.png',
-        win: {
-          publisherName: 'Moosync'
-        },
         mac: {
           icon: './build/icons/icon.icns'
         },

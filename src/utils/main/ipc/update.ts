@@ -18,10 +18,8 @@ export class UpdateChannel implements IpcChannelInterface {
   constructor() {
     autoUpdater.logger = logger
     autoUpdater.on('update-available', () => {
+      console.debug('Notifying main window, Update available')
       this.notifyMainWindow(true)
-    })
-    autoUpdater.on('update-not-available', () => {
-      this.notifyMainWindow(false)
     })
   }
 
