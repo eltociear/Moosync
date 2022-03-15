@@ -25,7 +25,12 @@
       </b-row>
       <b-row no-gutters align-h="center" class="h-100 flex-nowrap">
         <b-col cols="4">
-          <SongDetailsCompact :forceWhiteText="true" :currentSong="currentSong" :forceCover="computedImg" />
+          <SongDetailsCompact
+            :cardHoverText="lyrics"
+            :forceWhiteText="true"
+            :currentSong="currentSong"
+            :forceCover="computedImg"
+          />
         </b-col>
         <b-col offset="1" cols="7" class="right-container h-100">
           <div class="h-100" v-if="queueOrder.length > 0">
@@ -102,6 +107,7 @@ import CrossIcon from '@/icons/CrossIcon.vue'
 export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   private hasFrame = false
   private ignoreScroll = false
+  private lyrics = ''
 
   get queueProvider() {
     return vxm.sync.mode !== PeerMode.UNDEFINED ? vxm.sync : vxm.player
@@ -141,6 +147,21 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
 
   mounted() {
     this.scrollToActive()
+  }
+
+  @Watch('currentSong', { immediate: true })
+  async onSongChange() {
+    this.lyrics = ''
+    if (this.currentSong) {
+      if (this.currentSong.lyrics) {
+        this.lyrics = this.currentSong.lyrics
+      } else {
+        const resp = await window.SearchUtils.searchLyrics(this.currentSong.artists ?? [], this.currentSong.title)
+        this.currentSong.lyrics = resp
+        this.lyrics = resp ?? ''
+        window.DBUtils.updateLyrics(this.currentSong._id, resp)
+      }
+    }
   }
 
   @Watch('currentIndex')
