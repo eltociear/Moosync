@@ -78,10 +78,12 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
   }
 
   private checkUpdate() {
-    window.UpdateUtils.check()
     window.UpdateUtils.listenUpdate((available) => {
+      console.debug('Got update')
       vxm.themes.isUpdateAvailable = available
     })
+
+    window.UpdateUtils.check()
   }
 
   private registerKeyboardHotkeys() {

@@ -121,6 +121,11 @@ declare namespace SearchRequests {
   interface EntityOptions {
     options: EntityApiOptions
   }
+
+  interface LyricsScrape {
+    artists: string[]
+    title: string
+  }
 }
 
 declare namespace SongRequests {
@@ -135,6 +140,11 @@ declare namespace SongRequests {
 
   interface FileExists {
     path: string
+  }
+
+  interface Lyrics {
+    id: string
+    lyrics: string
   }
 }
 

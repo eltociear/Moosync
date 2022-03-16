@@ -13,6 +13,7 @@ import { getDisabledPaths, loadPreferences } from '@/utils/main/db/preferences'
 import { SongDB } from '@/utils/main/db'
 import { webScraper } from '../fetchers/lastfm'
 import { YTScraper } from '../fetchers/searchYT'
+import { AZLyricsFetcher } from '../fetchers/lyrics'
 
 export class SearchChannel implements IpcChannelInterface {
   name = IpcEvents.SEARCH
@@ -35,6 +36,9 @@ export class SearchChannel implements IpcChannelInterface {
         break
       case SearchEvents.SCRAPE_LASTFM:
         this.scrapeLastFM(event, request as IpcRequest<SearchRequests.LastFMSuggestions>)
+        break
+      case SearchEvents.SCRAPE_LYRICS:
+        this.scrapeLyrics(event, request as IpcRequest<SearchRequests.LyricsScrape>)
         break
     }
   }
@@ -89,6 +93,13 @@ export class SearchChannel implements IpcChannelInterface {
   private async scrapeLastFM(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.LastFMSuggestions>) {
     if (request.params && request.params.url) {
       const resp = await webScraper.scrapeURL(request.params.url)
+      event.reply(request.responseChannel, resp)
+    }
+  }
+
+  private async scrapeLyrics(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.LyricsScrape>) {
+    if (request.params && request.params.artists && request.params.title) {
+      const resp = await new AZLyricsFetcher().getLyrics(request.params.artists, request.params.title)
       event.reply(request.responseChannel, resp)
     }
   }

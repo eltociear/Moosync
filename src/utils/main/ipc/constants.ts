@@ -40,7 +40,8 @@ export enum SearchEvents {
   SEARCH_ALL = 'searchAll',
   SEARCH_YT = 'searchYT',
   YT_SUGGESTIONS = 'YTSuggestions',
-  SCRAPE_LASTFM = 'scrapeLastFM'
+  SCRAPE_LASTFM = 'scrapeLastFM',
+  SCRAPE_LYRICS = 'scrapeLyrics'
 }
 
 export enum PreferenceEvents {
@@ -118,6 +119,7 @@ export enum SongEvents {
   GET_ALL_SONGS = 'getAllSongs',
   STORE_SONG = 'storeSong',
   REMOVE_SONG = 'removeSong',
+  UPDATE_LYRICS = 'updateLyrics',
   SAVE_AUDIO_TO_FILE = 'saveAudioToFile',
   SAVE_IMAGE_TO_FILE = 'saveImageToFile',
   AUDIO_EXISTS = 'fileExists',

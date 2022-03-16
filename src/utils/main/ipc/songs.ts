@@ -36,6 +36,9 @@ export class SongsChannel implements IpcChannelInterface {
       case SongEvents.IMAGE_EXISTS:
         this.fileExists(event, request as IpcRequest<SongRequests.FileExists>, 'image')
         break
+      case SongEvents.UPDATE_LYRICS:
+        this.updateLyrics(event, request as IpcRequest<SongRequests.Lyrics>)
+        break
     }
   }
 
@@ -120,6 +123,13 @@ export class SongsChannel implements IpcChannelInterface {
         request.params.path
       )
       event.reply(request.responseChannel, fs.existsSync(filePath) ? filePath : undefined)
+    }
+    event.reply(request.responseChannel)
+  }
+
+  private updateLyrics(event: Electron.IpcMainEvent, request: IpcRequest<SongRequests.Lyrics>) {
+    if (request.params && request.params.lyrics && request.params.id) {
+      SongDB.updateSongLyrics(request.params.id, request.params.lyrics)
     }
     event.reply(request.responseChannel)
   }
