@@ -45,6 +45,8 @@ interface DBUtils {
    * @param playlistID id of playlist to be removed
    */
   removePlaylist: (playlistID: string) => Promise<void>
+
+  updateLyrics: (id: string, lyrics: string) => Promise<void>
 }
 
 type YTMusicVideo = import('node-youtube-music').MusicVideo
@@ -85,6 +87,8 @@ interface searchUtils {
    * Scrape a webpage and parse it to json
    */
   scrapeLastFM: (url: string) => Promise<unknown>
+
+  searchLyrics: (artists: string[], title: string) => Promise<string>
 }
 
 /**

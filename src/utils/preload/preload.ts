@@ -55,6 +55,12 @@ contextBridge.exposeInMainWorld('DBUtils', {
     ipcRendererHolder.send<SongRequests.Songs>(IpcEvents.SONG, {
       type: SongEvents.REMOVE_SONG,
       params: { songs: songs }
+    }),
+
+  updateLyrics: (id: string, lyrics: string) =>
+    ipcRendererHolder.send<SongRequests.Lyrics>(IpcEvents.SONG, {
+      type: SongEvents.UPDATE_LYRICS,
+      params: { id, lyrics }
     })
 })
 
@@ -171,6 +177,12 @@ contextBridge.exposeInMainWorld('SearchUtils', {
     ipcRendererHolder.send<SearchRequests.LastFMSuggestions>(IpcEvents.SEARCH, {
       type: SearchEvents.SCRAPE_LASTFM,
       params: { url }
+    }),
+
+  searchLyrics: (artists: string[], title: string) =>
+    ipcRendererHolder.send<SearchRequests.LyricsScrape>(IpcEvents.SEARCH, {
+      type: SearchEvents.SCRAPE_LYRICS,
+      params: { artists, title }
     })
 })
 

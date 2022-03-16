@@ -25,9 +25,15 @@
                   v-if="computedImg"
                   :src="computedImg"
                   :key="computedImg"
+                  @error="handleImageError"
                 />
                 <SongDefault class="albumart w-100" v-if="!computedImg" />
               </transition>
+
+              <div v-if="cardHoverText" class="hoverText">
+                <div class="black-overlay"></div>
+                <pre>{{ cardHoverText }}</pre>
+              </div>
             </div>
           </div>
 
@@ -93,6 +99,8 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   @Prop({ default: () => undefined })
   private forceCover!: string
 
+  private forceShowDefaultImage = false
+
   @Prop({
     default: () => {
       return {
@@ -106,10 +114,20 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   @Prop({ default: false })
   private forceWhiteText!: boolean
 
+  @Prop({ default: '' })
+  private cardHoverText!: string
+
+  private handleImageError() {
+    this.forceShowDefaultImage = true
+  }
+
   get computedImg() {
-    return (
-      this.forceCover ?? this.getImgSrc(this.getValidImageHigh(this.currentSong) ?? this.defaultDetails?.defaultCover)
-    )
+    if (!this.forceShowDefaultImage) {
+      return (
+        this.forceCover ?? this.getImgSrc(this.getValidImageHigh(this.currentSong) ?? this.defaultDetails?.defaultCover)
+      )
+    }
+    return undefined
   }
 
   @Watch('defaultDetails')
@@ -216,4 +234,28 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   transition: color 0.3s ease
   &:hover
     color: white
+
+.hoverText
+  position: absolute
+  color: white
+  width: 100%
+  height: 100%
+  top: 0
+  left: 0
+  border-radius: 28px
+  opacity: 0
+  overflow-y: overlay
+  transition: opacity 0.2s ease-in-out
+  text-align: left
+  padding: 30px 25px 30px 25px
+  background: rgba(0, 0, 0, 0.7)
+  pre
+    color: white
+    font-family: 'Nunito Sans'
+    font-size: 18px
+    font-weight: normal
+    white-space: pre-wrap
+  &:hover
+    opacity: 1
+    backdrop-filter: blur(5px)
 </style>

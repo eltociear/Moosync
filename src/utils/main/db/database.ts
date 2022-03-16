@@ -331,6 +331,16 @@ export class SongDBInstance extends DBUtils {
     )
   }
 
+  public updateSongLyrics(id: string, lyrics: string) {
+    this.db.update(
+      'allsongs',
+      {
+        lyrics
+      },
+      ['_id = ?', id]
+    )
+  }
+
   /* ============================= 
                 ALBUMS
      ============================= */
