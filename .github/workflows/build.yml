@@ -69,11 +69,22 @@ jobs:
 
       - name: yarn electron:build
         run: yarn electron:build
+        if: ${{ runner.os == 'Windows' }}
         env:
-          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CI: true
+
+      - name: yarn electron:build
+        run: yarn electron:build
+        if: ${{ runner.os != 'Windows' }}
+        env:
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CI: true
+
       - uses: actions/upload-artifact@v2
         if: ${{ runner.os == 'Windows' }}
         with:
