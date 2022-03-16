@@ -30,6 +30,7 @@
               </transition>
 
               <div v-if="cardHoverText" class="hoverText">
+                <div class="black-overlay"></div>
                 <pre>{{ cardHoverText }}</pre>
               </div>
             </div>
@@ -227,7 +228,6 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
 .hoverText
   position: absolute
   color: white
-  background: #000
   width: 100%
   height: 100%
   top: 0
@@ -238,12 +238,14 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   transition: opacity 0.2s ease-in-out
   text-align: left
   padding: 30px 25px 30px 25px
-  &:hover
-    opacity: 0.8
+  background: rgba(0, 0, 0, 0.7)
   pre
     color: white
     font-family: 'Nunito Sans'
     font-size: 18px
     font-weight: normal
     white-space: pre-wrap
+  &:hover
+    opacity: 1
+    backdrop-filter: blur(5px)
 </style>
