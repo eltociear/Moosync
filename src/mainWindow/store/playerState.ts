@@ -131,6 +131,10 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
       if (this.songQueue.order.length === 0) {
         this.currentSong = null
       }
+
+      if (index < this.songQueue.index) {
+        this.songQueue.index -= 1
+      }
     }
   }
 
