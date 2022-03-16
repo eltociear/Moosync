@@ -25,6 +25,7 @@
                   v-if="computedImg"
                   :src="computedImg"
                   :key="computedImg"
+                  @error="handleImageError"
                 />
                 <SongDefault class="albumart w-100" v-if="!computedImg" />
               </transition>
@@ -98,6 +99,8 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   @Prop({ default: () => undefined })
   private forceCover!: string
 
+  private forceShowDefaultImage = false
+
   @Prop({
     default: () => {
       return {
@@ -114,10 +117,17 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   @Prop({ default: '' })
   private cardHoverText!: string
 
+  private handleImageError() {
+    this.forceShowDefaultImage = true
+  }
+
   get computedImg() {
-    return (
-      this.forceCover ?? this.getImgSrc(this.getValidImageHigh(this.currentSong) ?? this.defaultDetails?.defaultCover)
-    )
+    if (!this.forceShowDefaultImage) {
+      return (
+        this.forceCover ?? this.getImgSrc(this.getValidImageHigh(this.currentSong) ?? this.defaultDetails?.defaultCover)
+      )
+    }
+    return undefined
   }
 
   @Watch('defaultDetails')
