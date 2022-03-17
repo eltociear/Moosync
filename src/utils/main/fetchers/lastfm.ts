@@ -27,14 +27,22 @@ class WebScraper {
   private async dumpCache() {
     this.makeCacheDir()
 
-    return fsP.writeFile(cacheFile, JSON.stringify(this.cache), { encoding: 'utf-8' })
+    try {
+      await fsP.writeFile(cacheFile, JSON.stringify(this.cache), { encoding: 'utf-8' })
+    } catch (e) {
+      console.error('Failed to write to LastFM cache at', cacheFile, e)
+    }
   }
 
   private async readCache() {
     this.makeCacheDir()
 
-    const data = await fsP.readFile(cacheFile, { encoding: 'utf-8' })
-    this.cache = JSON.parse(data)
+    try {
+      const data = await fsP.readFile(cacheFile, { encoding: 'utf-8' })
+      this.cache = JSON.parse(data)
+    } catch (e) {
+      console.warn('LastFM cache file does not exists (This may happen if the app is run for the first time).')
+    }
   }
 
   private async addToCache(url: string, data: string) {
