@@ -118,10 +118,11 @@ export class AZLyricsFetcher {
     const resp = await this.get(url, 'https://www.google.com/')
 
     const final = resp
-      ?.split(
-        '</div></div></div></div><div class="hwc"><div class="BNeawe tAd8D AP7Wnd"><div><div class="BNeawe tAd8D AP7Wnd">'
-      )[1]
-      ?.split('</div></div></div></div></div><div><span class="hwc"><div class="BNeawe uEec3 AP7Wnd">')[0]
+      ?.split('<div class="BNeawe tAd8D AP7Wnd"><div><div class="BNeawe tAd8D AP7Wnd">')
+      .slice(1)
+      .join('')
+      .split('<div class="BNeawe uEec3 AP7Wnd">')[0]
+      .replaceAll(/<(.*?)>/g, '')
 
     final && console.debug('Found lyrics on google', url)
 
