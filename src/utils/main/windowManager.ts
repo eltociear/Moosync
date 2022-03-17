@@ -297,6 +297,9 @@ export class WindowHandler {
 
       await page.click('button[ng-click="update(application)"]', { delay: 300 })
 
+      browser.disconnect()
+      window.close()
+
       return { clientID, clientSecret }
     } catch (e) {
       console.error(e)
