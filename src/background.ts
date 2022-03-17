@@ -25,12 +25,14 @@ import { setupDefaultThemes, setupSystemThemes } from './utils/main/themes/prefe
 import { logger } from './utils/main/logger/index'
 import { ToadScheduler } from 'toad-scheduler'
 import { setupUpdateCheckTask } from './utils/main/scheduler/index'
+import pie from 'puppeteer-in-electron'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 nativeTheme.themeSource = 'dark'
 
 overrideConsole()
+pie.initialize(app)
 
 process.on('uncaughtException', (err) => {
   console.error(err)
