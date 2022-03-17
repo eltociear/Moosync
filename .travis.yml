@@ -20,8 +20,8 @@ cache:
   yarn: true
   directories:
     - node_modules
-    - '$HOME/.cache/electron'
-    - '$HOME/.cache/electron-builder'
+    - "$HOME/.cache/electron"
+    - "$HOME/.cache/electron-builder"
 script:
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then

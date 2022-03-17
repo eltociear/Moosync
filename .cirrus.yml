@@ -26,7 +26,7 @@ win_linux_task:
 
     - windows_container:
         image: cirrusci/windowsservercore:visualstudio2019
-        os_version: '2019'
+        os_version: "2019"
       dep_script: choco install -y nodejs yarn python visualcpp-build-tools
       node_modules_cache:
         folder: node_modules
