@@ -27,7 +27,7 @@ export class ExtensionFinder extends AbstractExtensionFinder {
     return JSON.parse(raw)
   }
 
-  public async *findExtensions() {
+  public async *findExtensions(): AsyncGenerator<UnInitializedExtensionItem> {
     for (const searchPath of this.searchPaths) {
       try {
         // Should proceed if file exists
@@ -49,7 +49,8 @@ export class ExtensionFinder extends AbstractExtensionFinder {
                 desc: manifest.description,
                 author: manifest.author,
                 version: manifest.version,
-                entry: modulePath
+                entry: modulePath,
+                extensionPath: path.join(searchPath, folder.name)
               }
             }
           }

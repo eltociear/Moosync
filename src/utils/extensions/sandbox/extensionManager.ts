@@ -39,7 +39,7 @@ export class ExtensionManager extends AbstractExtensionManager {
     this.extensionRegistry.deregister(packageName)
   }
 
-  private async getVM(entryFilePath: string) {
+  private async getVM(entryFilePath: string, extensionPath: string) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const events = require('events')
     const vm = new NodeVM({
@@ -49,9 +49,9 @@ export class ExtensionManager extends AbstractExtensionManager {
       nesting: true,
       require: {
         external: true,
-        context: 'sandbox',
+        context: 'host',
         builtin: ['*'],
-        root: [path.dirname(entryFilePath)],
+        root: [path.dirname(entryFilePath), extensionPath],
         mock: {
           events
         }
@@ -79,11 +79,12 @@ export class ExtensionManager extends AbstractExtensionManager {
   }
 
   private async checkExtValidityAndGetInstance(
-    entryFilePath: string
+    entryFilePath: string,
+    extensionPath: string
   ): Promise<{ vm: NodeVM; factory: ExtensionFactory } | undefined> {
     try {
       const file = await this.readFileNoCache(entryFilePath)
-      const vm = await this.getVM(entryFilePath)
+      const vm = await this.getVM(entryFilePath, extensionPath)
       const extension = vm.run(file, entryFilePath)
 
       let instance
@@ -117,7 +118,7 @@ export class ExtensionManager extends AbstractExtensionManager {
   }
 
   async instantiateAndRegister(extension: UnInitializedExtensionItem) {
-    const vmObj = await this.checkExtValidityAndGetInstance(extension.entry)
+    const vmObj = await this.checkExtValidityAndGetInstance(extension.entry, extension.extensionPath)
     if (vmObj) {
       this.setGlobalObjectToVM(vmObj.vm, extension.packageName, extension.entry)
 
@@ -133,6 +134,7 @@ export class ExtensionManager extends AbstractExtensionManager {
         hasStarted: false,
         entry: extension.entry,
         vm: vmObj.vm,
+        extensionPath: extension.extensionPath,
         preferences,
         instance
       })

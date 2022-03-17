@@ -105,7 +105,8 @@ export class ExtensionHandler {
       version: item.version,
       hasStarted: item.hasStarted,
       entry: item.entry,
-      preferences: item.preferences
+      preferences: item.preferences,
+      extensionPath: item.extensionPath
     }
   }
 
