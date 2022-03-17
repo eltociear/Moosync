@@ -50,12 +50,12 @@ jobs:
         run: yarn install
       - name: setup env
         env:
-          YOUTUBECLIENTID: '${{ secrets.YOUTUBECLIENTID }}'
-          YOUTUBECLIENTSECRET: '${{ secrets.YOUTUBECLIENTSECRET }}'
-          LASTFMAPIKEY: '${{ secrets.LASTFMAPIKEY }}'
-          LASTFMSECRET: '${{ secrets.LASTFMSECRET }}'
-          SPOTIFYCLIENTID: '${{ secrets.SPOTIFYCLIENTID }}'
-          SPOTIFYCLIENTSECRET: '${{ secrets.SPOTIFYCLIENTSECRET }}'
+          YOUTUBECLIENTID: "${{ secrets.YOUTUBECLIENTID }}"
+          YOUTUBECLIENTSECRET: "${{ secrets.YOUTUBECLIENTSECRET }}"
+          LASTFMAPIKEY: "${{ secrets.LASTFMAPIKEY }}"
+          LASTFMSECRET: "${{ secrets.LASTFMSECRET }}"
+          SPOTIFYCLIENTID: "${{ secrets.SPOTIFYCLIENTID }}"
+          SPOTIFYCLIENTSECRET: "${{ secrets.SPOTIFYCLIENTSECRET }}"
         run: chmod +x setup_env.sh && . setup_env.sh
         shell: bash
 
@@ -63,7 +63,7 @@ jobs:
 
       # - run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn test:electron
       #   if: matrix.os == 'ubuntu-latest'
-  
+
       # - run: yarn test:electron
       #   if: matrix.os != 'ubuntu-latest'
 

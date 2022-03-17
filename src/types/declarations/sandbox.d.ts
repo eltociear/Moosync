@@ -63,6 +63,7 @@ interface ExtensionDetails {
   version: string
   hasStarted: boolean
   entry: string
+  extensionPath: string
   preferences: ExtensionPreferenceGroup[]
 }
 
@@ -79,6 +80,7 @@ interface UnInitializedExtensionItem {
   author: string
   version: string
   entry: string
+  extensionPath: string
 }
 
 interface getExtensionOptions {

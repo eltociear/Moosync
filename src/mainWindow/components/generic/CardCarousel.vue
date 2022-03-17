@@ -8,34 +8,32 @@
 -->
 
 <template>
-  <carousel
-    :perPage="1"
-    :perPageCustom="[
-      [1700, 6],
-      [1500, 5],
-      [1237, 4],
-      [1015, 3],
-      [790, 2]
-    ]"
-    paginationActiveColor="#ffffff"
-    paginationColor="#000000"
-  >
-    <slide v-for="item in songList" :key="item._id" @slide-click="playSong(item)">
-      <CardView
-        :id="item._id"
-        :title="item.title"
-        :subtitle="item.artists ? item.artists.join(', ') : ''"
-        :imgSrc="getValidImageHigh(item)"
-        @CardContextMenu="showContextMenu(arguments[0], item)"
-      >
-        <template #defaultCover> <SongDefault /></template>
-        <template #overlay>
-          <div class="play-icon">
-            <Play2 /></div
-        ></template>
-      </CardView>
-    </slide>
-  </carousel>
+  <div class="carousel-container w-100">
+    <RecycleScroller
+      class="scroller-horizontal w-100 h-100"
+      :items="songList"
+      :item-size="230"
+      key-field="_id"
+      :direction="'horizontal'"
+    >
+      <template v-slot="{ item }">
+        <div :key="item._id" @slide-click="playSong(item)" class="card-container">
+          <CardView
+            :title="item.title"
+            :subtitle="item.artists ? item.artists.join(', ') : ''"
+            :imgSrc="getValidImageHigh(item)"
+            @CardContextMenu="showContextMenu(arguments[0], item)"
+          >
+            <template #defaultCover> <SongDefault /></template>
+            <template #overlay>
+              <div class="play-icon">
+                <Play2 /></div
+            ></template>
+          </CardView>
+        </div>
+      </template>
+    </RecycleScroller>
+  </div>
 </template>
 
 <script lang="ts">
@@ -78,8 +76,24 @@ export default class CardCarousel extends mixins(ImgLoader, PlayerControls, Cont
 }
 </script>
 
-<style lang="sass" scoped>
+<style lang="sass">
 .play-icon > svg
   width: 40px
   height: 40px
+
+.card-container
+  width: 200px
+  min-width: 200px
+  margin-right: 30px
+
+.carousel-container
+  height: 300px
+</style>
+
+<style lang="sass">
+.scroller-horizontal::-webkit-scrollbar
+    min-height: 28px !important
+
+.scroller-horizontal::-webkit-scrollbar-thumb
+    min-width: 50px
 </style>

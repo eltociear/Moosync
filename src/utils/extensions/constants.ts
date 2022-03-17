@@ -28,7 +28,8 @@ export const mainRequestsKeys = [
   'get-installed-extensions',
   'find-new-extensions',
   'toggle-extension-status',
-  'remove-extension'
+  'remove-extension',
+  'stop-process'
 ] as const
 
 export type extensionEvents = typeof extensionEventsKeys[number]

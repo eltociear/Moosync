@@ -17,6 +17,7 @@ declare namespace NodeJS {
     ELECTRON_NODE_INTEGRATION: boolean
     MOOSYNC_VERSION: string
     DEBUG_LOGGING: boolean
+    APPIMAGE: string
     YoutubeClientID: string
     YoutubeClientSecret: string
     LastFmApiKey: string

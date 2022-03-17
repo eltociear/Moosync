@@ -18,6 +18,12 @@ export class UpdateChannel implements IpcChannelInterface {
   constructor() {
     autoUpdater.logger = logger
     autoUpdater.on('update-available', () => {
+      if (process.platform === 'linux') {
+        if (!process.env.APPIMAGE) {
+          console.info('Update found but not an AppImage. Please use your package manager to update or manually do it.')
+          return
+        }
+      }
       console.debug('Notifying main window, Update available')
       this.notifyMainWindow(true)
     })

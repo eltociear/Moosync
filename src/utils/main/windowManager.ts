@@ -15,6 +15,7 @@ import { BrowserWindowConstructorOptions } from 'electron/main'
 import path from 'path'
 import { access } from 'fs/promises'
 import { getActiveTheme } from './themes/preferences'
+import { extensionHost } from '../extensions/index'
 
 export class WindowHandler {
   private static mainWindow: number
@@ -171,6 +172,8 @@ export class WindowHandler {
         await this.trayHandler.createTray()
         window.hide()
       } else {
+        // Stop extension Host
+        await extensionHost.closeHost()
         app.exit()
       }
     }

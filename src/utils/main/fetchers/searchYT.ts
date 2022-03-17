@@ -8,19 +8,40 @@
  */
 
 import * as ytMusic from 'node-youtube-music'
+import { app } from 'electron'
+import path from 'path'
+import { CacheHandler } from './cacheFile'
 
-export class YTScraper {
+export class YTScraper extends CacheHandler {
+  constructor() {
+    super(path.join(app.getPath('cache'), app.getName(), 'youtube.cache'))
+  }
+
   public async searchTerm(term: string) {
+    const cached = this.getCache(term + '-search')
+    if (cached) {
+      return JSON.parse(cached)
+    }
+
     try {
-      return await ytMusic.searchMusics(term)
+      const resp = await ytMusic.searchMusics(term)
+      this.addToCache(term + '-search', JSON.stringify(resp))
+      return resp
     } catch (e) {
       console.error('Failed to fetch search results from Youtube', e)
     }
   }
 
   public async getSuggestions(videoID: string) {
+    const cached = this.getCache(videoID)
+    if (cached) {
+      return JSON.parse(cached)
+    }
+
     try {
-      return ytMusic.getSuggestions(videoID)
+      const resp = await ytMusic.getSuggestions(videoID)
+      this.addToCache(videoID, JSON.stringify(resp))
+      return resp
     } catch (e) {
       console.error('Failed to fetch suggestions from Youtube', e)
     }

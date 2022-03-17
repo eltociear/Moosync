@@ -105,7 +105,8 @@ export class ExtensionHandler {
       version: item.version,
       hasStarted: item.hasStarted,
       entry: item.entry,
-      preferences: item.preferences
+      preferences: item.preferences,
+      extensionPath: item.extensionPath
     }
   }
 
@@ -118,13 +119,17 @@ export class ExtensionHandler {
     return parsed
   }
 
-  public sendToExtensions(packageName: string | undefined, method: keyof MoosyncExtensionTemplate, args?: unknown) {
+  public async sendToExtensions(
+    packageName: string | undefined,
+    method: keyof MoosyncExtensionTemplate,
+    args?: unknown
+  ) {
     for (const ext of this.extensionManager.getExtensions({ started: true, packageName })) {
       try {
         console.debug('Trying to send event:', method, 'to', ext.packageName)
         if (ext.instance[method]) {
           console.debug('Extension can handle event, sending')
-          ;(ext.instance[method] as (args: unknown) => void)(args)
+          await (ext.instance[method] as (args: unknown) => Promise<void>)(args)
         }
       } catch (e) {
         console.error(e)
@@ -132,9 +137,10 @@ export class ExtensionHandler {
     }
   }
 
-  public stopAllExtensions() {
+  public async stopAllExtensions() {
+    console.debug('Stopping all extensions')
     for (const ext of this.getInstalledExtensions()) {
-      this.sendToExtensions(ext.packageName, 'onStopped')
+      await this.sendToExtensions(ext.packageName, 'onStopped')
     }
   }
 }

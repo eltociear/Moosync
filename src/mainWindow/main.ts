@@ -7,7 +7,6 @@
  *  See LICENSE in the project root for license information.
  */
 
-import '@/mainWindow/plugins/carousel'
 import '@/mainWindow/plugins/recycleScroller'
 import '@/mainWindow/plugins/toasted'
 import '@/mainWindow/plugins/vueBootstrap'
