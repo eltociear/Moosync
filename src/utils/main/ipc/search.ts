@@ -11,12 +11,15 @@ import { IpcEvents, SearchEvents } from './constants'
 import { getDisabledPaths, loadPreferences } from '@/utils/main/db/preferences'
 
 import { SongDB } from '@/utils/main/db'
-import { webScraper } from '../fetchers/lastfm'
 import { YTScraper } from '../fetchers/searchYT'
 import { AZLyricsFetcher } from '../fetchers/lyrics'
+import { LastFMScraper } from '../fetchers/lastfm'
 
 export class SearchChannel implements IpcChannelInterface {
   name = IpcEvents.SEARCH
+  private ytScraper = new YTScraper()
+  private lastFmScraper = new LastFMScraper()
+
   handle(event: Electron.IpcMainEvent, request: IpcRequest): void {
     switch (request.type) {
       case SearchEvents.SEARCH_SONGS_BY_OPTIONS:
@@ -56,7 +59,7 @@ export class SearchChannel implements IpcChannelInterface {
 
   private searchYT(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.Search>) {
     if (request.params && request.params.searchTerm) {
-      new YTScraper()
+      this.ytScraper
         .searchTerm(request.params.searchTerm)
         .then((data) => event.reply(request.responseChannel, data))
         .catch((e) => {
@@ -68,7 +71,7 @@ export class SearchChannel implements IpcChannelInterface {
 
   private getYTSuggestions(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.YTSuggestions>) {
     if (request.params && request.params.videoID) {
-      new YTScraper()
+      this.ytScraper
         .getSuggestions(request.params.videoID)
         .then((data) => event.reply(request.responseChannel, data))
         .catch((e) => {
@@ -92,7 +95,7 @@ export class SearchChannel implements IpcChannelInterface {
 
   private async scrapeLastFM(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.LastFMSuggestions>) {
     if (request.params && request.params.url) {
-      const resp = await webScraper.scrapeURL(request.params.url)
+      const resp = await this.lastFmScraper.scrapeURL(request.params.url)
       event.reply(request.responseChannel, resp)
     }
   }
