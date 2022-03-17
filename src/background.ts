@@ -158,13 +158,15 @@ function registerProtocols() {
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === 'win32') {
-    process.on('message', (data) => {
+    process.on('message', async (data) => {
       if (data === 'graceful-exit') {
+        await extensionHost.closeHost()
         app.quit()
       }
     })
   } else {
-    process.on('SIGTERM', () => {
+    process.on('SIGTERM', async () => {
+      await extensionHost.closeHost()
       app.quit()
     })
   }

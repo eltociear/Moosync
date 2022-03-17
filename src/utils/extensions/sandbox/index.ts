@@ -89,6 +89,7 @@ class ExtensionHostIPCHandler {
     process.on('SIGINT', () => this.extensionHandler.stopAllExtensions())
     process.on('SIGUSR1', () => this.extensionHandler.stopAllExtensions())
     process.on('SIGUSR2', () => this.extensionHandler.stopAllExtensions())
+    process.on('SIGHUP', () => this.extensionHandler.stopAllExtensions())
     process.on('uncaughtException', (e) => console.error('Asynchronous error caught.', e))
   }
 
@@ -113,6 +114,7 @@ class MainRequestHandler {
   }
 
   public parseRequest(message: mainRequestMessage) {
+    console.debug('Received message from main process')
     if (message.type === 'find-new-extensions') {
       this.handler
         .registerPlugins()
@@ -135,6 +137,13 @@ class MainRequestHandler {
 
     if (message.type === 'remove-extension') {
       this.handler.removeExt(message.data.packageName).then((val) => this.sendToMain(message.channel, val))
+      return
+    }
+
+    if (message.type === 'stop-process') {
+      this.handler.stopAllExtensions().then(() => {
+        this.sendToMain(message.channel)
+      })
       return
     }
   }

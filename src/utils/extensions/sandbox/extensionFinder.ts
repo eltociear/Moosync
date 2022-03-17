@@ -43,6 +43,7 @@ export class ExtensionFinder extends AbstractExtensionFinder {
             const manifest = await this.parseJson(manifestPath)
             if (manifest.moosyncExtension) {
               const modulePath = path.join(searchPath, folder.name, manifest.extensionEntry)
+              console.debug('Found extension at', path.join(searchPath, folder.name))
               yield {
                 name: manifest.displayName,
                 packageName: manifest.name,

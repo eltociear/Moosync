@@ -44,10 +44,17 @@ class MainHostIPCHandler {
 
   private reSpawnProcess() {
     try {
+      console.debug('Killing extension host (Attempt to respawn)')
       this.sandboxProcess.kill()
+
+      console.debug('Creating new extension host')
       this.sandboxProcess = this.createExtensionHost()
+
+      console.debug('Registering listeners to extension host')
       this.registerListeners()
       this.mainRequestGenerator.reAssignSandbox(this.sandboxProcess)
+
+      console.debug('Extension host respawned')
     } catch (e) {
       console.error(e)
     }
@@ -103,6 +110,12 @@ class MainHostIPCHandler {
     this.sandboxProcess.killed
     this.sandboxProcess.send(data)
   }
+
+  public async closeHost() {
+    await this.mainRequestGenerator.stopProcess()
+    console.debug('Killing extension host')
+    this.sandboxProcess.kill()
+  }
 }
 
 class MainRequestGenerator {
@@ -116,6 +129,10 @@ class MainRequestGenerator {
 
   public reAssignSandbox(sandbox: ChildProcess) {
     this.sandboxProcess = sandbox
+  }
+
+  public async stopProcess() {
+    return this.sendAsync<void>('stop-process')
   }
 
   public async findNewExtensions() {
