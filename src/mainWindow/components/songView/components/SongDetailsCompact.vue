@@ -255,7 +255,7 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   text-align: left
   padding: 30px 25px 30px 25px
   background: rgba(0, 0, 0, 0.7)
-  line-height: 1
+  line-height: 1.5
   pre
     color: white
     font-family: 'Nunito Sans'
