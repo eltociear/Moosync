@@ -10,6 +10,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 import { v1 } from 'uuid'
+import { Watch } from 'vue-slider-component/node_modules/vue-property-decorator'
 
 @Component
 export class ExtensionPreferenceMixin extends Vue {
@@ -25,9 +26,20 @@ export class ExtensionPreferenceMixin extends Vue {
   @Prop({ default: v1() })
   public packageName!: string
 
+  @Prop({ default: () => null })
+  private onValueFetch!: (val: unknown) => void
+
+  @Prop({ default: () => null })
+  private onValueChange!: (val: unknown) => void
+
   public value: unknown = ''
 
   public loading = false
+
+  @Watch('value')
+  private onValueChanged() {
+    this.onValueChange && this.onValueChange(this.value)
+  }
 
   mounted() {
     if (this.prefKey) {
@@ -41,6 +53,7 @@ export class ExtensionPreferenceMixin extends Vue {
           }
         })
         .then(() => (this.loading = false))
+        .then(() => this.onValueFetch && this.onValueFetch(this.value))
     }
   }
 

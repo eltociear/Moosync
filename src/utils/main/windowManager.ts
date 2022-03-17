@@ -16,6 +16,8 @@ import path from 'path'
 import { access } from 'fs/promises'
 import { getActiveTheme } from './themes/preferences'
 import { extensionHost } from '../extensions/index'
+import pie from 'puppeteer-in-electron'
+import puppeteer from 'puppeteer-core'
 
 export class WindowHandler {
   private static mainWindow: number
@@ -229,6 +231,82 @@ export class WindowHandler {
   public closeWindow(isMainWindow = true) {
     const window = WindowHandler.getWindow(isMainWindow)
     window && !window?.isDestroyed() && window.close()
+  }
+
+  public async automateSpotifyAppCreation() {
+    const browser = await pie.connect(app, puppeteer)
+
+    const window = new BrowserWindow()
+    const url = 'https://developer.spotify.com/dashboard/login'
+    await window.loadURL(url)
+
+    try {
+      const page = await pie.getPage(browser, window)
+
+      if (await page.$('button[data-ng-click="login()"]')) {
+        await page.click('button[data-ng-click="login()"]')
+
+        const loginPage = await (await browser.waitForTarget((target) => target.opener() === page.target())).page()
+        if (loginPage) {
+          await loginPage.waitForSelector('button[id="login-button"]')
+        }
+      }
+
+      await page.click('button[ng-click="flowStart()"]')
+      await page.waitForSelector('input[data-ng-model="name"]', { visible: true })
+
+      await page.focus('input[data-ng-model="name"]')
+      await page.type('input[data-ng-model="name"]', 'Moosync')
+      await page.focus('textarea[data-ng-model="description"]')
+      await page.type('textarea[data-ng-model="description"]', 'A simple music player')
+      ;(await page.$('span[class="control-indicator"]'))?.evaluate((b) => (b as HTMLElement).click())
+
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await page.click('button[type="submit"]')
+      await page.waitForNavigation()
+
+      await page.waitForSelector('button[ng-show="!showClientSecret"]')
+      await page.click('button[ng-show="!showClientSecret"]')
+
+      await page.waitForSelector('div[ng-show="showClientSecret"] > code', { visible: true })
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      const clientID = await (await page.$('.client-credential > code'))?.evaluate((el) => el.innerHTML)
+      const clientSecret = await (
+        await page.$('div[ng-show="showClientSecret"] > code')
+      )?.evaluate((el) => el.innerHTML)
+
+      await page.click('button[data-target="#settings-modal"]')
+      await page.waitForSelector('div[id="settings-modal"]', { visible: true })
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      await page.focus('input[id="newRedirectUri"]')
+      await page.type('input[id="newRedirectUri"]', 'https://moosync.app/spotify')
+      await page.click('button[id="addRedirectUri"]')
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      await page.focus('input[id="newRedirectUri"]')
+      await page.type('input[id="newRedirectUri"]', 'http://localhost')
+      await page.click('button[id="addRedirectUri"]')
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      await page.focus('input[id="newRedirectUri"]')
+      await page.type('input[id="newRedirectUri"]', 'http://localhost:8080')
+      await page.click('button[id="addRedirectUri"]')
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      await page.click('button[ng-click="update(application)"]', { delay: 300 })
+
+      browser.disconnect()
+      window.close()
+
+      return { clientID, clientSecret }
+    } catch (e) {
+      console.error(e)
+    }
+
+    browser.disconnect()
+    window.close()
   }
 }
 

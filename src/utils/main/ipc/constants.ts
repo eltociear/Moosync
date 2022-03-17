@@ -83,7 +83,9 @@ export enum WindowEvents {
   HAS_FRAME = 'hasFrame',
   SHOW_TITLEBAR_ICONS = 'showTitlebarIcons',
 
-  GOT_EXTRA_ARGS = 'gotExtraArgs'
+  GOT_EXTRA_ARGS = 'gotExtraArgs',
+
+  AUTOMATE_SPOTIFY = 'automateSpotify'
 }
 
 export enum AlbumEvents {

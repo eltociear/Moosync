@@ -1,5 +1,5 @@
 <!-- 
-  OAuthModal.vue is a part of Moosync.
+  FormModal.vue is a part of Moosync.
   
   Copyright 2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
@@ -34,7 +34,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { bus } from '@/mainWindow/main'
 
 @Component({})
-export default class OAuthModal extends Vue {
+export default class FormModal extends Vue {
   @Prop({ default: 'FormModal' })
   private id!: string
 
