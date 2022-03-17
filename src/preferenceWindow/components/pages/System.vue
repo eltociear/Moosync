@@ -183,11 +183,13 @@ export default class System extends Vue {
     this.closeModal()
     console.log(data)
 
-    window.PreferenceUtils.saveSelective('spotify.client_id', data.clientID, false)
-    window.PreferenceUtils.saveSelective('spotify.client_secret', data.clientSecret, false)
+    if (data) {
+      window.PreferenceUtils.saveSelective('spotify.client_id', data.clientID, false)
+      window.PreferenceUtils.saveSelective('spotify.client_secret', data.clientSecret, false)
 
-    this.spotifyIDKey += 1
-    this.spotifySecretKey += 1
+      this.spotifyIDKey += 1
+      this.spotifySecretKey += 1
+    }
   }
 }
 </script>
