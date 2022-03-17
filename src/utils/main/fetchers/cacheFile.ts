@@ -40,10 +40,14 @@ export class CacheHandler {
   }
 
   protected async addToCache(url: string, data: string) {
-    if (JSON.parse(data)) {
-      const expiry = Date.now() + 2 * 60 * 60 * 1000
-      this.cache[url] = { expiry, data }
-      await this.dumpCache()
+    try {
+      if (JSON.parse(data)) {
+        const expiry = Date.now() + 2 * 60 * 60 * 1000
+        this.cache[url] = { expiry, data }
+        await this.dumpCache()
+      }
+    } catch (e) {
+      console.warn('Recommendation data is invalid')
     }
   }
 
