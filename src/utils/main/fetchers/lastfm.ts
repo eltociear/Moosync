@@ -12,7 +12,8 @@ import { promises as fsP } from 'fs'
 import https from 'https'
 import path from 'path'
 
-const CachePath = path.join(app.getPath('cache'), 'lastfm_cache')
+const cachePath = path.join(app.getPath('cache'), app.getName())
+const cacheFile = path.join(cachePath, 'lastfm.cache')
 
 type Cache = { [key: string]: { expiry: number; data: string } }
 
@@ -26,13 +27,13 @@ class WebScraper {
   private async dumpCache() {
     this.makeCacheDir()
 
-    return fsP.writeFile(CachePath, JSON.stringify(this.cache), { encoding: 'utf-8' })
+    return fsP.writeFile(cacheFile, JSON.stringify(this.cache), { encoding: 'utf-8' })
   }
 
   private async readCache() {
     this.makeCacheDir()
 
-    const data = await fsP.readFile(CachePath, { encoding: 'utf-8' })
+    const data = await fsP.readFile(cacheFile, { encoding: 'utf-8' })
     this.cache = JSON.parse(data)
   }
 
@@ -82,9 +83,9 @@ class WebScraper {
 
   private async makeCacheDir() {
     try {
-      await fsP.access(CachePath)
+      await fsP.access(cachePath)
     } catch (_) {
-      await fsP.mkdir(CachePath, { recursive: true })
+      await fsP.mkdir(cachePath, { recursive: true })
     }
   }
 }
