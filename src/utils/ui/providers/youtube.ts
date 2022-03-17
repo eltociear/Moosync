@@ -359,7 +359,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     const resp: string[] = []
 
     let count = 0
-    for (const song of youtubeSongs.slice(0, 15)) {
+    for (const song of youtubeSongs.slice(0, 10)) {
       if (song.url) {
         const songs = await window.SearchUtils.getYTSuggestions(song.url)
 
