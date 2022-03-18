@@ -13,6 +13,8 @@ Moosync is an [Electron](https://www.electronjs.org/) based simple music player 
   - [Download latest release](#download-latest-release)
   - [Enabling Spotify integration](#enabling-spotify-integration)
     - [Creating an app on Spotify developer portal](#creating-an-app-on-spotify-developer-portal)
+  - [Extensions](#extensions)
+    - [Discord Integration](#discord-integration)
   - [Building from source](#building-from-source)
     - [Requirements](#requirements)
     - [Setting up the project](#setting-up-the-project)
@@ -67,6 +69,12 @@ Now you can head over to Moosync app and click on Settings. Under Settings > Sys
 Paste the string you copied earlier into these fields. Now you should be able to log in to your Spotify account.
 
 You can add your alternate accounts under **Users and Access** and use the same Client ID and Client Secret for multiple users.
+
+## Extensions
+Functionnality of Moosync can be extended through Third party extensions. Extensions usually are archives with an extension of **.msox**. To install an extension, simply head over to **Settings > Extensions > Install Extension**. Here are some known extensions.
+
+### Discord Integration
+- [Moosync Discord RPC](https://github.com/Ovenoboyo/moosync-discord-rpc/releases): Show your song details in discord through Discord RPC.
 
 ## Building from source
 
