@@ -17,7 +17,7 @@
       :direction="'horizontal'"
     >
       <template v-slot="{ item }">
-        <div :key="item._id" @slide-click="playSong(item)" class="card-container">
+        <div :key="item._id" @click="playSong(item)" class="card-container">
           <CardView
             :title="item.title"
             :subtitle="item.artists ? item.artists.join(', ') : ''"
