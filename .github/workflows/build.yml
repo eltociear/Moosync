@@ -56,6 +56,7 @@ jobs:
           LASTFMSECRET: "${{ secrets.LASTFMSECRET }}"
           SPOTIFYCLIENTID: "${{ secrets.SPOTIFYCLIENTID }}"
           SPOTIFYCLIENTSECRET: "${{ secrets.SPOTIFYCLIENTSECRET }}"
+          FANARTTVAPIKEY: "${{ secrets.FANARTTVAPIKEY }}"
         run: chmod +x setup_env.sh && . setup_env.sh
         shell: bash
 
