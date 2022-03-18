@@ -1,6 +1,9 @@
 name: Build/release
 
-on: push
+on:
+  push:
+    branches:
+      - "main"
 
 jobs:
   release:
@@ -39,13 +42,6 @@ jobs:
       - if: ${{ runner.os == 'Linux' }}
         run: sudo apt-get update -y && sudo apt-get install -y libarchive-tools
 
-      - name: Sets env vars for release
-        shell: bash
-        run: |
-          if [[ $GITHUB_REF == 'refs/heads/dev' ]]; then
-            echo "DEBUG_LOGGING=true" >> $GITHUB_ENV
-          fi
-
       - name: yarn install
         run: yarn install
       - name: setup env
@@ -56,6 +52,7 @@ jobs:
           LASTFMSECRET: "${{ secrets.LASTFMSECRET }}"
           SPOTIFYCLIENTID: "${{ secrets.SPOTIFYCLIENTID }}"
           SPOTIFYCLIENTSECRET: "${{ secrets.SPOTIFYCLIENTSECRET }}"
+          FANARTTVAPIKEY: "${{ secrets.FANARTTVAPIKEY }}"
         run: chmod +x setup_env.sh && . setup_env.sh
         shell: bash
 
