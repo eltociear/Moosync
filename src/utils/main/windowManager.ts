@@ -248,10 +248,21 @@ export class WindowHandler {
 
         const loginPage = await (await browser.waitForTarget((target) => target.opener() === page.target())).page()
         if (loginPage) {
-          await loginPage.waitForSelector('button[id="login-button"]')
+          await new Promise((resolve) => loginPage.on('close', resolve))
         }
+
+        await page.waitForNavigation()
+        await new Promise((resolve) => setTimeout(resolve, 500))
       }
 
+      const acceptTerms = await page.$('input[value="Accept the Terms"]')
+      if (acceptTerms) {
+        await (await page.$('span[class="control-indicator"]'))?.evaluate((b) => (b as HTMLElement).click())
+        await (await page.$('input[value="Accept the Terms"]'))?.evaluate((b) => (b as HTMLElement).click())
+        await page.waitForNavigation()
+      }
+
+      await page.waitForSelector('button[ng-click="flowStart()"]')
       await page.click('button[ng-click="flowStart()"]')
       await page.waitForSelector('input[data-ng-model="name"]', { visible: true })
 
@@ -259,14 +270,14 @@ export class WindowHandler {
       await page.type('input[data-ng-model="name"]', 'Moosync')
       await page.focus('textarea[data-ng-model="description"]')
       await page.type('textarea[data-ng-model="description"]', 'A simple music player')
-      ;(await page.$('span[class="control-indicator"]'))?.evaluate((b) => (b as HTMLElement).click())
+      await (await page.$('span[class="control-indicator"]'))?.evaluate((b) => (b as HTMLElement).click())
 
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      await page.click('button[type="submit"]')
+      await (await page.$('button[type="submit"]'))?.evaluate((b) => (b as HTMLElement).click())
       await page.waitForNavigation()
 
       await page.waitForSelector('button[ng-show="!showClientSecret"]')
-      await page.click('button[ng-show="!showClientSecret"]')
+      await (await page.$('button[ng-show="!showClientSecret"]'))?.evaluate((b) => (b as HTMLElement).click())
 
       await page.waitForSelector('div[ng-show="showClientSecret"] > code', { visible: true })
       await new Promise((resolve) => setTimeout(resolve, 500))
@@ -276,7 +287,7 @@ export class WindowHandler {
         await page.$('div[ng-show="showClientSecret"] > code')
       )?.evaluate((el) => el.innerHTML)
 
-      await page.click('button[data-target="#settings-modal"]')
+      await (await page.$('button[data-target="#settings-modal"]'))?.evaluate((b) => (b as HTMLElement).click())
       await page.waitForSelector('div[id="settings-modal"]', { visible: true })
       await new Promise((resolve) => setTimeout(resolve, 500))
 
@@ -295,7 +306,8 @@ export class WindowHandler {
       await page.click('button[id="addRedirectUri"]')
       await new Promise((resolve) => setTimeout(resolve, 500))
 
-      await page.click('button[ng-click="update(application)"]', { delay: 300 })
+      await new Promise((resolve) => setTimeout(resolve, 300))
+      await (await page.$('button[ng-click="update(application)"]'))?.evaluate((b) => (b as HTMLElement).click())
 
       browser.disconnect()
       window.close()
