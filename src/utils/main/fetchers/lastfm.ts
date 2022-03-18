@@ -7,48 +7,14 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { app } from 'electron'
-import { promises as fsP } from 'fs'
 import https from 'https'
 import path from 'path'
+import { CacheHandler } from './cacheFile'
+import { app } from 'electron'
 
-const CachePath = path.join(app.getPath('cache'), 'lastfm_cache')
-
-type Cache = { [key: string]: { expiry: number; data: string } }
-
-class WebScraper {
-  private cache: Cache = {}
-
+export class LastFMScraper extends CacheHandler {
   constructor() {
-    this.readCache()
-  }
-
-  private async dumpCache() {
-    this.makeCacheDir()
-
-    return fsP.writeFile(CachePath, JSON.stringify(this.cache), { encoding: 'utf-8' })
-  }
-
-  private async readCache() {
-    this.makeCacheDir()
-
-    const data = await fsP.readFile(CachePath, { encoding: 'utf-8' })
-    this.cache = JSON.parse(data)
-  }
-
-  private async addToCache(url: string, data: string) {
-    if (JSON.parse(data)) {
-      const expiry = Date.now() + 2 * 60 * 60 * 1000
-      this.cache[url] = { expiry, data }
-      await this.dumpCache()
-    }
-  }
-
-  private getCache(url: string): string | undefined {
-    const data = this.cache[url]
-    if (data && data.expiry > Date.now()) {
-      return data.data
-    }
+    super(path.join(app.getPath('cache'), app.getName(), 'lastfm.cache'))
   }
 
   public async scrapeURL(url: string): Promise<string> {
@@ -79,14 +45,4 @@ class WebScraper {
       }
     })
   }
-
-  private async makeCacheDir() {
-    try {
-      await fsP.access(CachePath)
-    } catch (_) {
-      await fsP.mkdir(CachePath, { recursive: true })
-    }
-  }
 }
-
-export const webScraper = new WebScraper()

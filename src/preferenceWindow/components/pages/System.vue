@@ -27,6 +27,9 @@
             prefKey="spotify.client_id"
             tooltip="Spotify client ID required to login to Spotify. Click to know more"
             @tooltipClick="openSpotifyHelp"
+            :key="spotifyIDKey"
+            :onValueFetch="onSpotifyValueFetch"
+            :onValueChange="onSpotifyValueFetch"
           />
           <EditText
             :isExtension="false"
@@ -34,7 +37,18 @@
             title="Spotify Client Secret"
             prefKey="spotify.client_secret"
             @tooltipClick="openSpotifyHelp"
+            :key="spotifySecretKey"
+            :onValueFetch="onSpotifyValueFetch"
+            :onValueChange="onSpotifyValueFetch"
           />
+
+          <b-row v-if="showSpotifyButton">
+            <b-col cols="auto">
+              <b-button class="create-button" @click="showSpotifyAutomateDisclaimer"
+                >Get Spotify details automatically</b-button
+              >
+            </b-col>
+          </b-row>
 
           <EditText
             v-if="!youtubeEnvExists"
@@ -66,6 +80,32 @@
         </div>
       </b-row>
     </b-container>
+    <b-modal no-close-on-backdrop centered size="md" id="spotify-automate-modal" hide-footer hide-header>
+      <b-container class="response-container">
+        <b-row no-gutters class="d-flex">
+          <b-col class="title" cols="auto">Get</b-col>
+          <b-col class="title ml-2" cols="auto" :style="{ color: '#1ED760' }">Spotify</b-col>
+          <b-col class="title ml-2" cols="auto">ClientID and Secret</b-col>
+        </b-row>
+        <b-row>
+          <b-col class="mt-4 waiting"
+            >A window will now open where you will be asked to login to your Spotify account. After logging in please do
+            not click anywhere as the whole process will be automated</b-col
+          >
+        </b-row>
+        <b-row>
+          <b-col class="d-flex justify-content-center">
+            <div
+              @click="openSpotifyAutomation"
+              class="start-button button-grow mt-4 d-flex justify-content-center align-items-center"
+            >
+              Open Window
+            </div>
+          </b-col>
+        </b-row>
+      </b-container>
+      <CrossIcon @click.native="closeModal" class="close-icon button-grow" />
+    </b-modal>
   </div>
 </template>
 
@@ -75,15 +115,21 @@ import Vue from 'vue'
 import CheckboxGroup from '../CheckboxGroup.vue'
 import EditText from '../EditText.vue'
 import PreferenceHeader from '../PreferenceHeader.vue'
+import CrossIcon from '@/icons/CrossIcon.vue'
 
 @Component({
   components: {
     CheckboxGroup,
     EditText,
-    PreferenceHeader
+    PreferenceHeader,
+    CrossIcon
   }
 })
 export default class System extends Vue {
+  private spotifyIDKey = 10
+  private spotifySecretKey = 100
+  private showSpotifyButton = false
+
   get checkboxValues() {
     return [this.startupCheckbox, this.minimizeToTrayCheckbox]
   }
@@ -115,6 +161,36 @@ export default class System extends Vue {
   private openSpotifyHelp() {
     window.WindowUtils.openExternal('https://github.com/Moosync/Moosync#enabling-spotify-integration')
   }
+
+  private closeModal() {
+    this.$bvModal.hide('spotify-automate-modal')
+  }
+
+  private onSpotifyValueFetch(value: string) {
+    if (!value) {
+      this.showSpotifyButton = true
+    } else {
+      this.showSpotifyButton = false
+    }
+  }
+
+  private showSpotifyAutomateDisclaimer() {
+    this.$bvModal.show('spotify-automate-modal')
+  }
+
+  private async openSpotifyAutomation() {
+    const data = await window.WindowUtils.automateSpotify()
+    this.closeModal()
+    console.log(data)
+
+    if (data) {
+      window.PreferenceUtils.saveSelective('spotify.client_id', data.clientID, false)
+      window.PreferenceUtils.saveSelective('spotify.client_secret', data.clientSecret, false)
+
+      this.spotifyIDKey += 1
+      this.spotifySecretKey += 1
+    }
+  }
 }
 </script>
 
@@ -124,4 +200,23 @@ export default class System extends Vue {
 
 .title
   text-align: left
+
+.create-button
+  font-size: 16px
+  font-weight: 400
+  color: var(--textInverse)
+  background-color: var(--accent)
+  border-radius: 6px
+  margin-bottom: 8px
+  margin-left: 15px
+  padding: 6px 20px 6px 20px
+  margin-top: 30px
+  border: 0
+
+.close-icon
+  position: absolute
+  top: 20px
+  right: 20px
+  width: 14px
+  height: 14px
 </style>

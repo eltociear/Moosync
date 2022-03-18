@@ -25,10 +25,13 @@ export function convertDuration(n: number) {
 }
 
 export function getVersion(verS: string) {
-  return verS
-    .split('')
-    .map((x) => x.charCodeAt(0))
-    .reduce((a, b) => a + b)
+  try {
+    return parseInt(verS.split('.').join(''))
+  } catch (e) {
+    console.warn('Failed to parse', verS, '. Please use x.y.z as extension versioning format', e)
+  }
+
+  return 0
 }
 
 export function sortSongList(songList: Song[], options: sortOptions) {

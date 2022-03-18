@@ -19,7 +19,7 @@ export class AZLyricsFetcher {
   }
   private async queryAZLyrics(artists: string[], title: string) {
     const baseURL = 'https://search.azlyrics.com/suggest.php?q='
-    const sanitizedTitle = this.sanitizeTitle(artists, title)
+    const sanitizedTitle = this.sanitizeTitle(title)
     const url = this.formulateUrl(baseURL, artists, sanitizedTitle)
     console.debug('Searching for lyrics at', url)
 
@@ -81,23 +81,28 @@ export class AZLyricsFetcher {
     })
   }
 
-  private formulateUrl(baseURL: string, artists: string[], title: string) {
-    return encodeURI(baseURL + artists.join(', ') + ' - ' + title.trim())
-  }
-
-  private sanitizeTitle(artists: string[], title: string) {
-    for (const a of artists) {
-      title = title.replaceAll(a, '')
+  private formulateUrl(baseURL: string, artists: string[], title: string, appendLyrics = false) {
+    // If title contains - then it probably already has artists included in it
+    if (appendLyrics) {
+      title = title.trim() + ' lyrics'
     }
 
+    if (title.split('-').length >= 2) {
+      return encodeURI(baseURL + title)
+    }
+
+    title = title.toLowerCase()
+    for (const a of artists) {
+      title.replaceAll(a.toLowerCase(), '')
+    }
+    return encodeURI(baseURL + artists.join(', ') + ' - ' + title)
+  }
+
+  private sanitizeTitle(title: string) {
     // TODO: Combine all regex in one line
     return title
-      .replaceAll('-', '')
       .replaceAll(/\((.*?)\)|\[(.*?)\]/gm, '')
-      .replaceAll(
-        /((\[|\()(?!.*?(remix|edit|remake)).*?(\]|\))|\/+|-+| x |,|"| ft.?|\|+|yhlqmdlg|x100pre|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF]|\u274C)/g,
-        ''
-      )
+      .replaceAll(/(\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF]|\u274C)/g, '')
       .replaceAll(/(?<=\/\/).+/g, '')
       .toLowerCase()
       .replaceAll('official', '')
@@ -106,19 +111,18 @@ export class AZLyricsFetcher {
   }
 
   private async queryGoogle(artists: string[], title: string) {
-    const url =
-      'https://www.google.com/search?q=' +
-      encodeURI(artists.join(', ') + ' ' + this.sanitizeTitle(artists, title).trim() + ' lyrics')
+    const url = this.formulateUrl('https://www.google.com/search?q=', artists, this.sanitizeTitle(title), true)
 
     console.debug('Searching for lyrics at', url)
 
     const resp = await this.get(url, 'https://www.google.com/')
 
     const final = resp
-      ?.split(
-        '</div></div></div></div><div class="hwc"><div class="BNeawe tAd8D AP7Wnd"><div><div class="BNeawe tAd8D AP7Wnd">'
-      )[1]
-      ?.split('</div></div></div></div></div><div><span class="hwc"><div class="BNeawe uEec3 AP7Wnd">')[0]
+      ?.split('<div class="BNeawe tAd8D AP7Wnd"><div><div class="BNeawe tAd8D AP7Wnd">')
+      .slice(1)
+      .join('')
+      .split('<div class="BNeawe uEec3 AP7Wnd">')[0]
+      .replaceAll(/<(.*?)>/g, '')
 
     final && console.debug('Found lyrics on google', url)
 

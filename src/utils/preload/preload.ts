@@ -314,7 +314,10 @@ contextBridge.exposeInMainWorld('WindowUtils', {
     }),
 
   dragFile: (path: string) =>
-    ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.DRAG_FILE, params: { path } })
+    ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.DRAG_FILE, params: { path } }),
+
+  automateSpotify: () =>
+    ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.AUTOMATE_SPOTIFY, params: undefined })
 })
 
 contextBridge.exposeInMainWorld('LoggerUtils', {

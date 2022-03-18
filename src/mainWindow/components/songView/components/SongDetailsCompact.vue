@@ -32,7 +32,7 @@
 
               <div v-if="cardHoverText" class="hoverText">
                 <div class="black-overlay"></div>
-                <pre>{{ cardHoverText }}</pre>
+                <div v-html="parsedCardHoverText"></div>
               </div>
             </div>
           </div>
@@ -116,6 +116,7 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
 
   @Prop({ default: '' })
   private cardHoverText!: string
+  private parsedCardHoverText = ''
 
   private handleImageError() {
     this.forceShowDefaultImage = true
@@ -128,6 +129,11 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
       )
     }
     return undefined
+  }
+
+  @Watch('cardHoverText', { immediate: true })
+  private onCardHoverTextChange() {
+    this.parsedCardHoverText = this.cardHoverText.replaceAll('\n', '</br>')
   }
 
   @Watch('defaultDetails')
@@ -249,6 +255,7 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   text-align: left
   padding: 30px 25px 30px 25px
   background: rgba(0, 0, 0, 0.7)
+  line-height: 1.5
   pre
     color: white
     font-family: 'Nunito Sans'

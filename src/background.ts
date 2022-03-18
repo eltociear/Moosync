@@ -25,12 +25,14 @@ import { setupDefaultThemes, setupSystemThemes } from './utils/main/themes/prefe
 import { logger } from './utils/main/logger/index'
 import { ToadScheduler } from 'toad-scheduler'
 import { setupUpdateCheckTask } from './utils/main/scheduler/index'
+import pie from 'puppeteer-in-electron'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 nativeTheme.themeSource = 'dark'
 
 overrideConsole()
+pie.initialize(app)
 
 process.on('uncaughtException', (err) => {
   console.error(err)
@@ -158,13 +160,15 @@ function registerProtocols() {
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === 'win32') {
-    process.on('message', (data) => {
+    process.on('message', async (data) => {
       if (data === 'graceful-exit') {
+        await extensionHost.closeHost()
         app.quit()
       }
     })
   } else {
-    process.on('SIGTERM', () => {
+    process.on('SIGTERM', async () => {
+      await extensionHost.closeHost()
       app.quit()
     })
   }

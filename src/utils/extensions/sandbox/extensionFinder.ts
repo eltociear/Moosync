@@ -27,7 +27,7 @@ export class ExtensionFinder extends AbstractExtensionFinder {
     return JSON.parse(raw)
   }
 
-  public async *findExtensions() {
+  public async *findExtensions(): AsyncGenerator<UnInitializedExtensionItem> {
     for (const searchPath of this.searchPaths) {
       try {
         // Should proceed if file exists
@@ -43,13 +43,15 @@ export class ExtensionFinder extends AbstractExtensionFinder {
             const manifest = await this.parseJson(manifestPath)
             if (manifest.moosyncExtension) {
               const modulePath = path.join(searchPath, folder.name, manifest.extensionEntry)
+              console.debug('Found extension at', path.join(searchPath, folder.name))
               yield {
                 name: manifest.displayName,
                 packageName: manifest.name,
                 desc: manifest.description,
                 author: manifest.author,
                 version: manifest.version,
-                entry: modulePath
+                entry: modulePath,
+                extensionPath: path.join(searchPath, folder.name)
               }
             }
           }
