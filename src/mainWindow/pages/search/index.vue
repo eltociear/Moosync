@@ -155,7 +155,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Genres':
           return `${(item as Genre).genre_song_count} Songs`
         case 'Playlists':
-          return `${(item as Playlist).playlist_songs} Songs`
+          return `${(item as Playlist).playlist_song_count} Songs`
         case 'Youtube':
           return `${(item as YTMusicVideo).album} - ${(item as YTMusicVideo).artists
             ?.map((val) => val.name)

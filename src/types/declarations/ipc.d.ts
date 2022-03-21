@@ -64,7 +64,7 @@ declare namespace PlaylistRequests {
     b64: string
   }
 
-  interface RemovePlaylist {
+  interface RemoveExportPlaylist {
     playlist_id: string
   }
 }

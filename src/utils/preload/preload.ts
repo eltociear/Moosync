@@ -40,8 +40,14 @@ contextBridge.exposeInMainWorld('DBUtils', {
     }),
 
   removePlaylist: (playlistID: string) =>
-    ipcRendererHolder.send<PlaylistRequests.RemovePlaylist>(IpcEvents.PLAYLIST, {
+    ipcRendererHolder.send<PlaylistRequests.RemoveExportPlaylist>(IpcEvents.PLAYLIST, {
       type: PlaylistEvents.REMOVE_PLAYLIST,
+      params: { playlist_id: playlistID }
+    }),
+
+  exportPlaylist: (playlistID: string) =>
+    ipcRendererHolder.send<PlaylistRequests.RemoveExportPlaylist>(IpcEvents.PLAYLIST, {
+      type: PlaylistEvents.EXPORT,
       params: { playlist_id: playlistID }
     }),
 

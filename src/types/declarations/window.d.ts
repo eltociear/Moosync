@@ -46,6 +46,8 @@ interface DBUtils {
    */
   removePlaylist: (playlistID: string) => Promise<void>
 
+  exportPlaylist: (playlistID: string) => Promise<void>
+
   updateLyrics: (id: string, lyrics: string) => Promise<void>
 }
 

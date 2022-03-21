@@ -14,6 +14,8 @@ import { SongDB } from '@/utils/main/db'
 import fs from 'fs'
 import path from 'path'
 import { v4 } from 'uuid'
+import { _windowHandler } from '../windowManager'
+import { writeFile } from 'fs/promises'
 
 export class PlaylistsChannel implements IpcChannelInterface {
   name = IpcEvents.PLAYLIST
@@ -29,7 +31,10 @@ export class PlaylistsChannel implements IpcChannelInterface {
         this.saveCoverToFile(event, request as IpcRequest<PlaylistRequests.SaveCover>)
         break
       case PlaylistEvents.REMOVE_PLAYLIST:
-        this.removePlaylist(event, request as IpcRequest<PlaylistRequests.RemovePlaylist>)
+        this.removePlaylist(event, request as IpcRequest<PlaylistRequests.RemoveExportPlaylist>)
+        break
+      case PlaylistEvents.EXPORT:
+        this.exportPlaylist(event, request as IpcRequest<PlaylistRequests.RemoveExportPlaylist>)
         break
     }
   }
@@ -74,10 +79,65 @@ export class PlaylistsChannel implements IpcChannelInterface {
     event.reply(request.responseChannel)
   }
 
-  private async removePlaylist(event: Electron.IpcMainEvent, request: IpcRequest<PlaylistRequests.RemovePlaylist>) {
+  private async removePlaylist(
+    event: Electron.IpcMainEvent,
+    request: IpcRequest<PlaylistRequests.RemoveExportPlaylist>
+  ) {
     if (request.params.playlist_id) {
       await SongDB.removePlaylist(request.params.playlist_id).then(() => event.reply(request.responseChannel))
     }
     event.reply(request.responseChannel)
+  }
+
+  private async exportPlaylist(
+    event: Electron.IpcMainEvent,
+    request: IpcRequest<PlaylistRequests.RemoveExportPlaylist>
+  ) {
+    if (request.params.playlist_id) {
+      const playlist = SongDB.getEntityByOptions<Playlist>({ playlist: { playlist_id: request.params.playlist_id } })[0]
+      if (playlist) {
+        const m3u8 = `#EXTM3U\n#PLAYLIST:${playlist.playlist_name}\n${this.parsePlaylistSongs(playlist)}`
+
+        const filePath = await _windowHandler.openSaveDialog(true, {
+          title: 'Save playlist as...',
+          properties: ['showOverwriteConfirmation', 'createDirectory'],
+          filters: [
+            {
+              name: 'm3u Playlist',
+              extensions: ['m3u']
+            }
+          ]
+        })
+        if (!filePath?.canceled && filePath?.filePath) {
+          let exportPath = filePath.filePath
+          if (!path.extname(exportPath).startsWith('.m3u')) {
+            exportPath += '.m3u'
+          }
+
+          console.debug('Exporting playlist to', exportPath)
+          writeFile(exportPath, m3u8, {
+            encoding: 'utf-8'
+          })
+        }
+      }
+    }
+    event.reply(request.responseChannel)
+  }
+
+  private parsePlaylistSongs(playlist: Playlist) {
+    let ret = ''
+    const playlistSongs = SongDB.getSongByOptions({ playlist: { playlist_id: playlist.playlist_id } })
+    for (const s of playlistSongs) {
+      ret += `#EXTINF:${Math.round(s.duration) ?? 0},${this.getSongTitleParsed(s)}\n${s.path}\n`
+    }
+    return ret
+  }
+
+  private getSongTitleParsed(song: Song) {
+    if (song.artists && song.artists.length > 0) {
+      return `${song.artists[0]} - ${song.title}`
+    }
+
+    return song.title
   }
 }

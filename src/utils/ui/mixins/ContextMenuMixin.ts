@@ -182,6 +182,13 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
         }
       })
     }
+
+    items.push({
+      label: 'Export Playlist',
+      handler: () => {
+        window.DBUtils.exportPlaylist(playlist.playlist_id)
+      }
+    })
     return items
   }
 

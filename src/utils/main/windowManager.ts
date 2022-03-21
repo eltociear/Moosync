@@ -242,6 +242,11 @@ export class WindowHandler {
     return window && dialog.showOpenDialog(window, options)
   }
 
+  public async openSaveDialog(isMainWindow = true, options: Electron.SaveDialogOptions) {
+    const window = WindowHandler.getWindow(isMainWindow)
+    return window && dialog.showSaveDialog(window, options)
+  }
+
   public closeWindow(isMainWindow = true) {
     const window = WindowHandler.getWindow(isMainWindow)
     window && !window?.isDestroyed() && window.close()
