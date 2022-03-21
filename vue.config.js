@@ -89,6 +89,9 @@ module.exports = {
         mac: {
           icon: './build/icons/icon.icns'
         },
+        win: {
+          verifyUpdateCodeSignature: false
+        },
         linux: {
           icon: './build/icons/',
           target: ['AppImage', 'deb', 'tar.gz', 'pacman']
