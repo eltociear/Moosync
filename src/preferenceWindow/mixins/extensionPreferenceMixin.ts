@@ -66,6 +66,6 @@ export class ExtensionPreferenceMixin extends Vue {
       } as extensionEventMessage)
     else this.prefKey && window.PreferenceUtils.notifyPreferenceChanged(this.prefKey, this.value)
 
-    this.onValueChange(this.value)
+    this.onValueChange && this.onValueChange(this.value)
   }
 }
