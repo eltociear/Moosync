@@ -21,24 +21,45 @@ import { WindowHandler } from '../windowManager'
 import { ipcMain } from 'electron'
 import { UpdateChannel } from './update'
 
-export const scannerChannel = new ScannerChannel()
-export const updateChannel = new UpdateChannel()
-export const extensionChannel = new ExtensionHostChannel()
+let scannerChannel: ScannerChannel | undefined
+let updateChannel: UpdateChannel | undefined
+let extensionChannel: ExtensionHostChannel | undefined
 
 export function registerIpcChannels() {
   const ipcChannels = [
     new SongsChannel(),
-    scannerChannel,
+    getScannerChannel(),
     new PlaylistsChannel(),
     new BrowserWindowChannel(),
     new PreferenceChannel(),
     new SearchChannel(),
     new StoreChannel(),
     new LoggerChannel(),
-    extensionChannel,
-    updateChannel
+    getExtensionHostChannel(),
+    getUpdateChannel()
   ]
   ipcChannels.forEach((channel) => ipcMain.on(channel.name, (event, request) => channel.handle(event, request)))
+}
+
+export function getExtensionHostChannel() {
+  if (!extensionChannel) {
+    extensionChannel = new ExtensionHostChannel()
+  }
+  return extensionChannel
+}
+
+export function getUpdateChannel() {
+  if (!updateChannel) {
+    updateChannel = new UpdateChannel()
+  }
+  return updateChannel
+}
+
+export function getScannerChannel() {
+  if (!scannerChannel) {
+    scannerChannel = new ScannerChannel()
+  }
+  return scannerChannel
 }
 
 export function notifyRenderer(notif: NotificationObject) {

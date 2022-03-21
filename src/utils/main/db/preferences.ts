@@ -11,7 +11,7 @@ import Store from 'electron-store'
 import { app } from 'electron'
 import { enableStartup } from '../autoLaunch'
 import path from 'path'
-import { scannerChannel } from '../ipc'
+import { getScannerChannel } from '../ipc'
 import { setMinimizeToTray } from '@/utils/main/windowManager'
 
 const defaultPreferences: Preferences = {
@@ -120,7 +120,7 @@ export async function onPreferenceChanged(key: string, value: any) {
   }
 
   if (key === 'musicPaths') {
-    scannerChannel.ScanSongs()
+    getScannerChannel().ScanSongs()
     return
   }
 }

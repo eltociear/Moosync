@@ -17,7 +17,7 @@ import { access } from 'fs/promises'
 import { getActiveTheme } from './themes/preferences'
 import pie from 'puppeteer-in-electron'
 import puppeteer from 'puppeteer-core'
-import { extensionChannel } from './ipc'
+import { getExtensionHostChannel } from './ipc'
 
 export class WindowHandler {
   private static mainWindow: number
@@ -189,7 +189,7 @@ export class WindowHandler {
         window.hide()
       } else {
         // Stop extension Host
-        await extensionChannel.closeExtensionHost()
+        await getExtensionHostChannel().closeExtensionHost()
         app.exit()
       }
     }

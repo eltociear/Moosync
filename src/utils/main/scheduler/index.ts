@@ -9,13 +9,12 @@
 
 import { AsyncTask, SimpleIntervalJob, ToadScheduler } from 'toad-scheduler'
 
-import { scannerChannel } from '@/utils/main/ipc'
-import { updateChannel } from '../ipc/index'
+import { getScannerChannel, getUpdateChannel } from '@/utils/main/ipc'
 
 export function setupScanTask(scheduler: ToadScheduler) {
   const task = new AsyncTask(
     'scan task',
-    () => scannerChannel.ScanSongs(),
+    () => getScannerChannel().ScanSongs(),
     (err: Error) => {
       console.error(err)
     }
@@ -29,7 +28,7 @@ export function setupScanTask(scheduler: ToadScheduler) {
 export function setupUpdateCheckTask(scheduler: ToadScheduler) {
   const task = new AsyncTask(
     'update task',
-    () => updateChannel.checkUpdates(),
+    () => getUpdateChannel().checkUpdates(),
     (err: Error) => {
       console.error(err)
     }
