@@ -34,6 +34,7 @@ class MainHostIPCHandler {
   public extensionEventGenerator: ExtensionEventGenerator
 
   private isAlive = false
+  private ignoreRespawn = false
 
   constructor() {
     this.sandboxProcess = this.createExtensionHost()
@@ -104,7 +105,7 @@ class MainHostIPCHandler {
   }
 
   private sendToExtensionHost(data: Serializable) {
-    if (!this.isAlive || !this.sandboxProcess.connected || this.sandboxProcess.killed) {
+    if ((!this.isAlive || !this.sandboxProcess.connected || this.sandboxProcess.killed) && !this.ignoreRespawn) {
       this.reSpawnProcess()
     }
     this.sandboxProcess.killed
@@ -114,6 +115,7 @@ class MainHostIPCHandler {
   public async closeHost() {
     await this.mainRequestGenerator.stopProcess()
     console.debug('Killing extension host')
+    this.ignoreRespawn = true
     this.sandboxProcess.kill()
   }
 }
