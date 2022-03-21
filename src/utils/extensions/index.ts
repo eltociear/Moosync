@@ -89,10 +89,7 @@ class MainHostIPCHandler {
   }
 
   public async installExtension(zipPaths: string[]): Promise<installMessage> {
-    const resp = await this.extensionResourceHandler.installExtension(
-      zipPaths,
-      this.extensionResourceHandler.uninstallExtension.bind(this.extensionResourceHandler)
-    )
+    const resp = await this.extensionResourceHandler.installExtension(zipPaths, this.uninstallExtension.bind(this))
     await this.mainRequestGenerator.findNewExtensions()
     return resp
   }
@@ -302,7 +299,6 @@ class ExtensionHandler {
             }
           }
           await uninstallMethod(manifest.name)
-          await this.uninstallExtension.bind(this)(manifest.name)
         }
         const installPath = path.join(defaultExtensionPath, manifest.name)
         await this.createDir(installPath)
