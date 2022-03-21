@@ -142,16 +142,18 @@ export class ScannerChannel implements IpcChannelInterface {
       songs.push(...SongDB.getByHash(h))
     }
 
-    if (!existing) {
-      console.debug('Storing scanned playlist', playlist)
-      const id = SongDB.createPlaylist(playlist.title, '', undefined, playlist.filePath)
-      SongDB.addToPlaylist(id, ...songs)
-    } else {
-      console.debug('Found existing playlist, updating')
-      if (existing.playlist_songs) {
-        for (const s of songs) {
-          if (existing.playlist_songs.findIndex((val) => val._id === s._id) === -1) {
-            SongDB.addToPlaylist(existing.playlist_id, s)
+    if (songs.length > 0) {
+      if (!existing) {
+        console.debug('Storing scanned playlist', playlist)
+        const id = SongDB.createPlaylist(playlist.title, '', undefined, playlist.filePath)
+        SongDB.addToPlaylist(id, ...songs)
+      } else {
+        console.debug('Found existing playlist, updating')
+        if (existing.playlist_songs) {
+          for (const s of songs) {
+            if (existing.playlist_songs.findIndex((val) => val._id === s._id) === -1) {
+              SongDB.addToPlaylist(existing.playlist_id, s)
+            }
           }
         }
       }
