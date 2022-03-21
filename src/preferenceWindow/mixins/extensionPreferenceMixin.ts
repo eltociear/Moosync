@@ -10,7 +10,6 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 import { v1 } from 'uuid'
-import { Watch } from 'vue-slider-component/node_modules/vue-property-decorator'
 
 @Component
 export class ExtensionPreferenceMixin extends Vue {
@@ -36,7 +35,6 @@ export class ExtensionPreferenceMixin extends Vue {
 
   public loading = false
 
-  @Watch('value')
   private onValueChanged() {
     this.onValueChange && this.onValueChange(this.value)
   }
@@ -67,5 +65,7 @@ export class ExtensionPreferenceMixin extends Vue {
         packageName: this.packageName
       } as extensionEventMessage)
     else this.prefKey && window.PreferenceUtils.notifyPreferenceChanged(this.prefKey, this.value)
+
+    this.onValueChange(this.value)
   }
 }

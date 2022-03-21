@@ -180,6 +180,7 @@ interface windowUtils {
   isWindowMaximized: (isMainWindow: boolean) => Promise<boolean>
   dragFile: (path: string) => void
   automateSpotify: () => Promise<{ clientID: string; clientSecret: string } | undefined>
+  restartApp: () => Promise<void>
 }
 
 /**

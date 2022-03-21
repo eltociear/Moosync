@@ -19,7 +19,7 @@ const defaultPreferences: Preferences = {
   musicPaths: [{ path: getDefaultMusicPaths(), enabled: true }],
   thumbnailPath: path.join(app.getPath('appData'), app.getName(), '.thumbnails'),
   artworkPath: path.join(app.getPath('appData'), app.getName(), '.thumbnails'),
-  systemSettings: [],
+  system: [],
   themes: {}
 }
 
@@ -96,7 +96,7 @@ export function removeSelectivePreference(key: string, isExtension = false) {
  * Sets initial interface settings
  */
 export function setInitialInterfaceSettings() {
-  onPreferenceChanged('system', loadPreferences()?.systemSettings)
+  onPreferenceChanged('system', loadPreferences()?.system)
 }
 
 /**

@@ -17,8 +17,16 @@
             tooltip="Settings which are related to your system"
             :isExtension="false"
             :defaultValue="checkboxValues"
+            :onValueChange="onSystemPrefChange"
+            :onValueFetch="onSystemPrefFetch"
             prefKey="system"
           />
+
+          <b-row v-if="showRestartButton">
+            <b-col cols="auto">
+              <b-button class="create-button" @click="restartApp">Restart Moosync</b-button>
+            </b-col>
+          </b-row>
 
           <EditText
             class="mt-5 mb-3"
@@ -129,9 +137,12 @@ export default class System extends Vue {
   private spotifyIDKey = 10
   private spotifySecretKey = 100
   private showSpotifyButton = false
+  private showRestartButton = false
 
-  get checkboxValues() {
-    return [this.startupCheckbox, this.minimizeToTrayCheckbox]
+  private defaultHardwareAcceleration = true
+
+  get checkboxValues(): SystemSettings[] {
+    return [this.startupCheckbox, this.minimizeToTrayCheckbox, this.hardwareAcceleration]
   }
 
   get youtubeEnvExists() {
@@ -142,7 +153,7 @@ export default class System extends Vue {
     return !!(process.env.LastFmApiKey && process.env.LastFmSecret)
   }
 
-  get startupCheckbox() {
+  get startupCheckbox(): SystemSettings {
     return {
       key: 'startOnStartup',
       title: 'Start app on system startup',
@@ -150,10 +161,18 @@ export default class System extends Vue {
     }
   }
 
-  get minimizeToTrayCheckbox() {
+  get minimizeToTrayCheckbox(): SystemSettings {
     return {
       key: 'minimizeToTray',
       title: 'Minimize to tray on close',
+      enabled: true
+    }
+  }
+
+  get hardwareAcceleration(): SystemSettings {
+    return {
+      key: 'hardwareAcceleration',
+      title: 'Use GPU hardware acceleration',
       enabled: true
     }
   }
@@ -164,6 +183,28 @@ export default class System extends Vue {
 
   private closeModal() {
     this.$bvModal.hide('spotify-automate-modal')
+  }
+
+  private onSystemPrefFetch(value: SystemSettings[]) {
+    if (Array.isArray(value)) {
+      const data = value.find((val) => val.key === 'hardwareAcceleration')
+      this.defaultHardwareAcceleration = data?.enabled ?? true
+    }
+  }
+
+  private onSystemPrefChange(value: SystemSettings[]) {
+    if (Array.isArray(value)) {
+      const data = value.find((val) => val.key === 'hardwareAcceleration')
+      if (data?.enabled !== this.defaultHardwareAcceleration) {
+        this.showRestartButton = true
+      } else {
+        this.showRestartButton = false
+      }
+    }
+  }
+
+  private async restartApp() {
+    await window.WindowUtils.restartApp()
   }
 
   private onSpotifyValueFetch(value: string) {

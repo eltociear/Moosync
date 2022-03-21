@@ -32,6 +32,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 nativeTheme.themeSource = 'dark'
 
 overrideConsole()
+_windowHandler.setHardwareAcceleration()
 pie.initialize(app)
 
 process.on('uncaughtException', (err) => {

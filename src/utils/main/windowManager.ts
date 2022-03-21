@@ -9,7 +9,7 @@
 
 import { BrowserWindow, Menu, Tray, app, dialog, protocol } from 'electron'
 import { SongEvents, WindowEvents } from './ipc/constants'
-import { getWindowSize, setWindowSize } from './db/preferences'
+import { getWindowSize, setWindowSize, loadPreferences } from './db/preferences'
 
 import { BrowserWindowConstructorOptions } from 'electron/main'
 import path from 'path'
@@ -87,6 +87,20 @@ export class WindowHandler {
 
   public async installExtensions() {
     // Do nothing here
+  }
+
+  public setHardwareAcceleration() {
+    const enabled = loadPreferences().system.find((val) => val.key === 'hardwareAcceleration')?.enabled
+    console.debug(loadPreferences().system)
+    if (enabled === false) {
+      console.debug('Disabling hardware acceleration')
+      app.disableHardwareAcceleration()
+    }
+  }
+
+  public restartApp() {
+    app.relaunch()
+    app.exit()
   }
 
   public registerProtocol(protocolName: string) {

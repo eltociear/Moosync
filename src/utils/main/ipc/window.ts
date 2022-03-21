@@ -66,6 +66,9 @@ export class BrowserWindowChannel implements IpcChannelInterface {
       case WindowEvents.AUTOMATE_SPOTIFY:
         this.automateSpotify(event, request)
         break
+      case WindowEvents.RESTART_APP:
+        this.restartApp(event, request)
+        break
     }
   }
 
@@ -174,5 +177,10 @@ export class BrowserWindowChannel implements IpcChannelInterface {
   private async automateSpotify(event: Electron.IpcMainEvent, request: IpcRequest) {
     const data = await _windowHandler.automateSpotifyAppCreation()
     event.reply(request.responseChannel, data)
+  }
+
+  private restartApp(event: Electron.IpcMainEvent, request: IpcRequest) {
+    _windowHandler.restartApp()
+    event.reply(request.responseChannel)
   }
 }

@@ -11,15 +11,17 @@ type togglePaths = { path: string; enabled: boolean }[]
 
 type songMenu = 'compact' | 'classic'
 
+interface SystemSettings {
+  key: string
+  title: string
+  enabled: boolean
+}
+
 interface Preferences {
   isFirstLaunch: boolean
   musicPaths: togglePaths
   thumbnailPath: string
   artworkPath: string
-  systemSettings: {
-    key: string
-    title: string
-    enabled: boolean
-  }[]
+  system: SystemSettings[]
   themes: { [key: string]: ThemeDetails }
 }
