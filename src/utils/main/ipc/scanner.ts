@@ -148,12 +148,11 @@ export class ScannerChannel implements IpcChannelInterface {
         const id = SongDB.createPlaylist(playlist.title, '', undefined, playlist.filePath)
         SongDB.addToPlaylist(id, ...songs)
       } else {
+        const playlistSongs = SongDB.getSongByOptions({ playlist: { playlist_id: existing.playlist_id } })
         console.debug('Found existing playlist, updating')
-        if (existing.playlist_songs) {
-          for (const s of songs) {
-            if (existing.playlist_songs.findIndex((val) => val._id === s._id) === -1) {
-              SongDB.addToPlaylist(existing.playlist_id, s)
-            }
+        for (const s of songs) {
+          if (playlistSongs.findIndex((val) => val._id === s._id) === -1) {
+            SongDB.addToPlaylist(existing.playlist_id, s)
           }
         }
       }
