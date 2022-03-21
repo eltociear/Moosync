@@ -56,7 +56,6 @@ export default class OAuthModal extends Vue {
   private showing = false
 
   private openBrowser() {
-    console.log(this.url)
     window.WindowUtils.openExternal(this.url)
   }
 

@@ -222,7 +222,6 @@ export default class System extends Vue {
   private async openSpotifyAutomation() {
     const data = await window.WindowUtils.automateSpotify()
     this.closeModal()
-    console.log(data)
 
     if (data) {
       window.PreferenceUtils.saveSelective('spotify.client_id', data.clientID, false)
