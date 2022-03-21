@@ -22,6 +22,7 @@ import { access, mkdir } from 'fs/promises'
 import scannerWorker from 'threads-plugin/dist/loader?name=0!/src/utils/main/workers/scanner.ts'
 // @ts-expect-error it don't want .ts
 import scraperWorker from 'threads-plugin/dist/loader?name=1!/src/utils/main/workers/scraper.ts'
+import { Observable } from 'observable-fns'
 
 const loggerPath = app.getPath('logs')
 
@@ -30,6 +31,9 @@ enum scanning {
   SCANNING,
   QUEUED
 }
+
+type ScannedSong = { song: Song; cover: undefined | TransferDescriptor<Buffer> }
+type ScannedPlaylist = { filePath: string; title: string; songHashes: string[] }
 
 export class ScannerChannel implements IpcChannelInterface {
   name = IpcEvents.SCANNER
@@ -131,18 +135,49 @@ export class ScannerChannel implements IpcChannelInterface {
     }
   }
 
-  private scanSongs(preferences: Preferences): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.scannerWorker.start(preferences.musicPaths).subscribe(
-        (result: { song: Song; cover: TransferDescriptor<Buffer> }) => this.checkDuplicate(result.song, result.cover),
-        (err: Error) => reject(err),
-        () => resolve()
+  private storePlaylist(playlist: ScannedPlaylist) {
+    const existing = SongDB.getPlaylistByPath(playlist.filePath)[0]
+    const songs: Song[] = []
+    for (const h of playlist.songHashes) {
+      songs.push(...SongDB.getByHash(h))
+    }
+
+    if (!existing) {
+      console.debug('Storing scanned playlist', playlist)
+      const id = SongDB.createPlaylist(playlist.title, '', undefined, playlist.filePath)
+      SongDB.addToPlaylist(id, ...songs)
+    } else {
+      console.debug('Found existing playlist, updating')
+      if (existing.playlist_songs) {
+        for (const s of songs) {
+          if (existing.playlist_songs.findIndex((val) => val._id === s._id) === -1) {
+            SongDB.addToPlaylist(existing.playlist_id, s)
+          }
+        }
+      }
+    }
+  }
+
+  private scanSongs(preferences: Preferences) {
+    return new Promise<void>((resolve, reject) => {
+      ;(this.scannerWorker.start(preferences.musicPaths) as Observable<ScannedSong | ScannedPlaylist>).subscribe(
+        (result: ScannedSong | ScannedPlaylist) => {
+          if ((result as ScannedSong).song) {
+            this.checkDuplicate((result as ScannedSong).song, (result as ScannedSong).cover)
+          }
+
+          if ((result as ScannedPlaylist).filePath && (result as ScannedPlaylist).songHashes) {
+            this.storePlaylist(result as ScannedPlaylist)
+          }
+        },
+        reject,
+        resolve
       )
     })
   }
 
   private fetchMBID(allArtists: Artists[]) {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       this.scraperWorker.fetchMBID(allArtists, loggerPath).subscribe(
         (result: Artists) => {
           if (result) {
@@ -153,7 +188,7 @@ export class ScannerChannel implements IpcChannelInterface {
         (err: Error) => {
           reject(err)
         },
-        () => resolve(undefined)
+        () => resolve()
       )
     })
   }
@@ -282,7 +317,14 @@ export class ScannerChannel implements IpcChannelInterface {
     }
 
     await this.destructiveScan(preferences.musicPaths)
-    await this.scanSongs(preferences)
+
+    try {
+      await this.scanSongs(preferences)
+    } catch (e) {
+      console.error(e)
+    }
+
+    console.debug('Scan complete')
 
     this.setIdle()
 
@@ -297,7 +339,7 @@ export class ScannerChannel implements IpcChannelInterface {
     // Run scraping task only if all subsequent scanning tasks are completed
     // And if no other scraping task is ongoing
     if (!this.isScanning && !this.scraperWorker) {
-      await this.scrapeArtists()
+      // await this.scrapeArtists()
     }
 
     if (event && request) event.reply(request.responseChannel)

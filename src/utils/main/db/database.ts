@@ -556,15 +556,24 @@ export class SongDBInstance extends DBUtils {
    * @param imgSrc cover image of playlist
    * @returns playlist id after creation
    */
-  public createPlaylist(name: string, desc: string, imgSrc?: string): string {
+  public createPlaylist(name: string, desc: string, imgSrc?: string, filePath?: string): string {
     const id = v4()
     this.db.insert('playlists', {
       playlist_id: id,
-      playlist_name: name,
+      playlist_name: name ? name : 'New Playlist',
       playlist_desc: desc,
-      playlist_coverPath: imgSrc
+      playlist_coverPath: imgSrc,
+      playlist_path: filePath
     })
     return id
+  }
+
+  public getPlaylistByPath(filePath: string) {
+    return this.getEntityByOptions({
+      playlist: {
+        playlist_path: filePath
+      }
+    }) as Playlist[]
   }
 
   /**

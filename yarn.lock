@@ -1416,10 +1416,10 @@
     lodash "^4.17.15"
     tmp-promise "^3.0.2"
 
-"@moosync/moosync-types@^1.2.4":
-  version "1.2.4"
-  resolved "https://registry.npmjs.org/@moosync/moosync-types/-/moosync-types-1.2.4.tgz"
-  integrity sha512-QSJ1Lv/s84WD4qJgUFCkXxVLkU7c3kEhw8PW68CQcATx54gHop/8LyJz7i2dd+ufpwtDs2FEmCJo/bcUOJNAbw==
+"@moosync/moosync-types@^1.2.5":
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/@moosync/moosync-types/-/moosync-types-1.2.5.tgz#72da36f512682e48ea6028bb9fd42c87539fbd47"
+  integrity sha512-smupbcKUfEUeysKWfHwQB/MMowckPPVP+NGJkvUi6zcdF9M8QNa5Sh+SQviVEu1WbdCrvmevI7dGZNbdzj/4ZA==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -5339,6 +5339,13 @@ fast-text-encoding@^1.0.0:
   version "1.0.3"
   resolved "https://registry.npmjs.org/fast-text-encoding/-/fast-text-encoding-1.0.3.tgz"
   integrity sha512-dtm4QZH9nZtcDt8qJiOH9fcQd1NAgi+K1O2DbE6GG1PPCK/BWfOH3idCTRQ4ImXRUOyopDEgDEnVEE7Y/2Wrig==
+
+fast-xml-parser@^4.0.7:
+  version "4.0.7"
+  resolved "https://registry.yarnpkg.com/fast-xml-parser/-/fast-xml-parser-4.0.7.tgz#570a0f3754f259a8e5e7a85e7c667401e15e4872"
+  integrity sha512-dMtibyus3kC7nbxj1CpVtysLzO13UOAZEFAb5vpQg3T4O6qvetmSePpXKFx5KPNCHKoGwjtgjfF5DOyn7s1ylQ==
+  dependencies:
+    strnum "^1.0.5"
 
 fastest-levenshtein@^1.0.12:
   version "1.0.12"
@@ -9853,6 +9860,11 @@ strip-json-comments@~2.0.1:
   version "2.0.1"
   resolved "https://registry.npmjs.org/strip-json-comments/-/strip-json-comments-2.0.1.tgz"
   integrity sha1-PFMZQukIwml8DsNEhYwobHygpgo=
+
+strnum@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/strnum/-/strnum-1.0.5.tgz#5c4e829fe15ad4ff0d20c3db5ac97b73c9b072db"
+  integrity sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==
 
 strtok3@^6.2.4:
   version "6.3.0"
