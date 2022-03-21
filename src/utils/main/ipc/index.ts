@@ -23,6 +23,7 @@ import { UpdateChannel } from './update'
 
 export const scannerChannel = new ScannerChannel()
 export const updateChannel = new UpdateChannel()
+export const extensionChannel = new ExtensionHostChannel()
 
 export function registerIpcChannels() {
   const ipcChannels = [
@@ -34,7 +35,7 @@ export function registerIpcChannels() {
     new SearchChannel(),
     new StoreChannel(),
     new LoggerChannel(),
-    new ExtensionHostChannel(),
+    extensionChannel,
     updateChannel
   ]
   ipcChannels.forEach((channel) => ipcMain.on(channel.name, (event, request) => channel.handle(event, request)))

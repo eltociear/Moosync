@@ -15,9 +15,9 @@ import { BrowserWindowConstructorOptions } from 'electron/main'
 import path from 'path'
 import { access } from 'fs/promises'
 import { getActiveTheme } from './themes/preferences'
-import { extensionHost } from '../extensions/index'
 import pie from 'puppeteer-in-electron'
 import puppeteer from 'puppeteer-core'
+import { extensionChannel } from './ipc'
 
 export class WindowHandler {
   private static mainWindow: number
@@ -189,7 +189,7 @@ export class WindowHandler {
         window.hide()
       } else {
         // Stop extension Host
-        await extensionHost.closeHost()
+        await extensionChannel.closeExtensionHost()
         app.exit()
       }
     }

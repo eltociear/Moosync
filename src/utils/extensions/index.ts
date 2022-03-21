@@ -25,7 +25,7 @@ import { v4 } from 'uuid'
 export const defaultExtensionPath = path.join(app.getPath('appData'), app.getName(), 'extensions')
 const defaultLogPath = path.join(app.getPath('logs'))
 
-class MainHostIPCHandler {
+export class MainHostIPCHandler {
   private sandboxProcess: ChildProcess
 
   private extensionRequestHandler = new ExtensionRequestHandler()
@@ -320,5 +320,3 @@ class ExtensionHandler {
     }
   }
 }
-
-export const extensionHost = new MainHostIPCHandler()

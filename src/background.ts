@@ -17,8 +17,7 @@ import path, { resolve } from 'path'
 
 import { oauthHandler } from '@/utils/main/oauth/handler'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
-import { extensionHost } from '@/utils/extensions'
-import { registerIpcChannels } from '@/utils/main/ipc'
+import { extensionChannel, registerIpcChannels } from '@/utils/main/ipc'
 import { setInitialInterfaceSettings, loadPreferences } from './utils/main/db/preferences'
 import { setupScanTask } from '@/utils/main/scheduler/index'
 import { setupDefaultThemes, setupSystemThemes } from './utils/main/themes/preferences'
@@ -142,7 +141,7 @@ async function onReady() {
   await _windowHandler.createWindow(true)
 
   // Notify extension host of main window creation
-  extensionHost.mainWindowCreated()
+  extensionChannel.onMainWindowCreated()
 
   _windowHandler.handleFileOpen()
 
@@ -163,13 +162,13 @@ if (isDevelopment) {
   if (process.platform === 'win32') {
     process.on('message', async (data) => {
       if (data === 'graceful-exit') {
-        await extensionHost.closeHost()
+        await extensionChannel.closeExtensionHost()
         app.quit()
       }
     })
   } else {
     process.on('SIGTERM', async () => {
-      await extensionHost.closeHost()
+      await extensionChannel.closeExtensionHost()
       app.quit()
     })
   }
