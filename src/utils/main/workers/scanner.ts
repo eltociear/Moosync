@@ -20,6 +20,8 @@ import { v4 } from 'uuid'
 import { XMLParser } from 'fast-xml-parser'
 import readline from 'readline'
 import { fileURLToPath } from 'url'
+import { getLogger, levels } from 'loglevel'
+import { prefixLogger } from '../logger/utils'
 
 const audioPatterns = new RegExp('.flac|.mp3|.ogg|.m4a|.webm|.wav|.wv|.aac', 'i')
 const playlistPatterns = new RegExp('.m3u|.m3u8|.wpl')
@@ -29,9 +31,13 @@ type ScannedPlaylist = { filePath: string; title: string; songHashes: string[] }
 
 let parser: XMLParser | undefined
 
+const logger = getLogger('ScanWorker')
+logger.setLevel(process.env.DEBUG_LOGGING ? levels.DEBUG : levels.INFO)
+
 expose({
-  start(paths: togglePaths) {
+  start(paths: togglePaths, loggerPath: string) {
     return new Observable((observer) => {
+      prefixLogger(loggerPath, logger)
       startScan(paths, observer)
     })
   }
@@ -57,7 +63,7 @@ function createXMLParser() {
 }
 
 async function parseWPL(filePath: string) {
-  console.debug('parsing wpl')
+  logger.debug('parsing wpl')
   const data = parser?.parse(await fsP.readFile(filePath), {})
   const songs: string[] = []
   let title = ''
@@ -102,11 +108,11 @@ async function processLineByLine(filePath: string, callback: (data: string, inde
 }
 
 async function parseM3U(filePath: string) {
-  console.debug('Parsing m3u')
+  logger.debug('Parsing m3u')
   const songs: string[] = []
   let title = ''
   await processLineByLine(filePath, async (data, index) => {
-    console.debug('Parsing line', index, data)
+    logger.debug('Parsing line', index, data)
     if (index === 0) {
       return data === '#EXTM3U'
     }
@@ -190,17 +196,17 @@ async function scanDir(directory: string, observer: SubscriptionObserver<Scanned
 
       const filePath = path.join(directory, file)
       if (audioPatterns.exec(path.extname(file).toLowerCase())) {
-        console.debug('Scanning song', filePath)
+        logger.debug('Scanning song', filePath)
         try {
           const result = await scanFile(filePath)
           observer.next({ song: result.song, cover: result.cover && Transfer(result.cover as Buffer) })
         } catch (e) {
-          console.error(e)
+          logger.error(e)
         }
       }
 
       if (playlistPatterns.exec(path.extname(file).toLowerCase())) {
-        console.debug('Scanning playlist', filePath)
+        logger.debug('Scanning playlist', filePath)
         const result = await scanPlaylist(filePath)
         const songHashes: string[] = []
         if (result?.songs) {
@@ -212,16 +218,16 @@ async function scanDir(directory: string, observer: SubscriptionObserver<Scanned
                 songHashes.push(result.song.hash)
               }
             } catch (e) {
-              console.error(e)
+              logger.error(e)
             }
           }
-          console.debug('Sending playlist data to main process')
+          logger.debug('Sending playlist data to main process')
           observer.next({ title: result.title, songHashes: songHashes, filePath })
         }
       }
     }
   } else {
-    console.error('invalid directory: ' + directory)
+    logger.error('invalid directory: ' + directory)
   }
 }
 
@@ -229,7 +235,7 @@ async function startScan(paths: togglePaths, observer: SubscriptionObserver<unkn
   for (const i in paths) {
     paths[i].enabled && (await scanDir(paths[i].path, observer))
   }
-  console.debug('Scan complete')
+  logger.debug('Scan complete')
   observer.complete()
 }
 

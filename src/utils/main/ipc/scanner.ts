@@ -161,7 +161,9 @@ export class ScannerChannel implements IpcChannelInterface {
 
   private scanSongs(preferences: Preferences) {
     return new Promise<void>((resolve, reject) => {
-      ;(this.scannerWorker.start(preferences.musicPaths) as Observable<ScannedSong | ScannedPlaylist>).subscribe(
+      ;(
+        this.scannerWorker.start(preferences.musicPaths, loggerPath) as Observable<ScannedSong | ScannedPlaylist>
+      ).subscribe(
         (result: ScannedSong | ScannedPlaylist) => {
           if ((result as ScannedSong).song) {
             this.checkDuplicate((result as ScannedSong).song, (result as ScannedSong).cover)
