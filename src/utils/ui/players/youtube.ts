@@ -27,6 +27,7 @@ export class YoutubePlayer extends Player {
 
   async play(): Promise<void> {
     this.playerInstance.play()
+    this.playerInstance.setVolume(this.volume)
   }
 
   pause(): void {
