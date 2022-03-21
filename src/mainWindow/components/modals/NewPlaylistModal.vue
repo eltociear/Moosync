@@ -136,20 +136,26 @@ export default class NewPlaylistModal extends mixins(ImgLoader) {
     return this.isExpandedImage(quad, len) ? 800 : 400
   }
 
+  private getCenter(width: number, height: number) {
+    const dx = Math.max((width - height) / 2, 0)
+    return dx
+  }
+
   private drawImage(quad: number, len: number, ctx: CanvasRenderingContext2D, img: HTMLImageElement) {
     let size = this.getImageSize(quad, len)
+    const dx = this.getCenter(img.naturalWidth, img.naturalHeight)
     switch (quad) {
       case 0:
-        ctx.drawImage(img, 0, 0, size, size)
+        ctx.drawImage(img, dx, 0, img.naturalHeight, img.naturalHeight, 0, 0, size, size)
         break
       case 1:
-        ctx.drawImage(img, 400, 0, size, size)
+        ctx.drawImage(img, dx, 0, img.naturalHeight, img.naturalHeight, 400, 0, size, size)
         break
       case 2:
-        ctx.drawImage(img, 0, 400, size, size)
+        ctx.drawImage(img, dx, 0, img.naturalHeight, img.naturalHeight, 0, 400, size, size)
         break
       case 3:
-        ctx.drawImage(img, 400, 400, size, size)
+        ctx.drawImage(img, dx, 0, img.naturalHeight, img.naturalHeight, 400, 400, size, size)
         break
     }
   }
