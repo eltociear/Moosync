@@ -342,7 +342,7 @@ export class ScannerChannel implements IpcChannelInterface {
     // Run scraping task only if all subsequent scanning tasks are completed
     // And if no other scraping task is ongoing
     if (!this.isScanning && !this.scraperWorker) {
-      // await this.scrapeArtists()
+      await this.scrapeArtists()
     }
 
     if (event && request) event.reply(request.responseChannel)
