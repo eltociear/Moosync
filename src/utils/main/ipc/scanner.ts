@@ -47,7 +47,7 @@ export class ScannerChannel implements IpcChannelInterface {
   handle(event: IpcMainEvent, request: IpcRequest) {
     switch (request.type) {
       case ScannerEvents.SCAN_MUSIC:
-        this.ScanSongs(event, request)
+        this.scanAll(event, request)
         break
     }
   }
@@ -254,7 +254,6 @@ export class ScannerChannel implements IpcChannelInterface {
     }
   }
 
-  // TODO: Add queueing for scraping artworks
   private async scrapeArtists() {
     console.debug('Scraping artists')
     try {
@@ -298,7 +297,7 @@ export class ScannerChannel implements IpcChannelInterface {
     this.scanStatus = scanning.QUEUED
   }
 
-  private async scanAll(event?: IpcMainEvent, request?: IpcRequest) {
+  public async scanAll(event?: IpcMainEvent, request?: IpcRequest) {
     if (this.isScanning) {
       this.setQueued()
       return
@@ -349,13 +348,5 @@ export class ScannerChannel implements IpcChannelInterface {
     }
 
     if (event && request) event.reply(request.responseChannel)
-  }
-
-  public async ScanSongs(event?: IpcMainEvent, request?: IpcRequest) {
-    await this.scanAll(event, request).catch((err) => {
-      console.error(err)
-      event?.reply(request?.responseChannel)
-    })
-    event?.reply(request?.responseChannel)
   }
 }

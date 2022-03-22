@@ -14,7 +14,7 @@ import { getScannerChannel, getUpdateChannel } from '@/utils/main/ipc'
 export function setupScanTask(scheduler: ToadScheduler) {
   const task = new AsyncTask(
     'scan task',
-    () => getScannerChannel().ScanSongs(),
+    () => getScannerChannel().scanAll(),
     (err: Error) => {
       console.error(err)
     }

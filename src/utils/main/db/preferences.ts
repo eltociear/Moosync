@@ -131,7 +131,7 @@ export async function onPreferenceChanged(key: string, value: any) {
   }
 
   if (key === 'musicPaths') {
-    getScannerChannel().ScanSongs()
+    getScannerChannel().scanAll()
     shouldWatchFileChanges()
     return
   }
@@ -163,7 +163,7 @@ export function setupScanWatcher(dirs: MusicPaths[]) {
         try {
           for await (const _ of watcher) {
             console.debug('Got changes in', d.path, 'triggering scan')
-            getScannerChannel().ScanSongs()
+            getScannerChannel().scanAll()
           }
         } catch (e) {
           if ((e as Error).name === 'AbortError') return
