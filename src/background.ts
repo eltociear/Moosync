@@ -18,7 +18,7 @@ import path, { resolve } from 'path'
 import { oauthHandler } from '@/utils/main/oauth/handler'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import { getExtensionHostChannel, registerIpcChannels } from '@/utils/main/ipc'
-import { setInitialInterfaceSettings, loadPreferences } from './utils/main/db/preferences'
+import { setInitialPreferences, loadPreferences, shouldWatchFileChanges } from './utils/main/db/preferences'
 import { setupScanTask } from '@/utils/main/scheduler/index'
 import { setupDefaultThemes, setupSystemThemes } from './utils/main/themes/preferences'
 import { logger } from './utils/main/logger/index'
@@ -130,7 +130,7 @@ async function onReady() {
   await setupSystemThemes()
 
   registerIpcChannels()
-  setInitialInterfaceSettings()
+  setInitialPreferences()
 
   await _windowHandler.installExtensions()
   _windowHandler.registerProtocol('media')
@@ -149,6 +149,7 @@ async function onReady() {
   const scheduler = new ToadScheduler()
   setupScanTask(scheduler)
   setupUpdateCheckTask(scheduler)
+  shouldWatchFileChanges()
 }
 
 function registerProtocols() {

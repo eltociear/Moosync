@@ -142,7 +142,7 @@ export default class System extends Vue {
   private defaultHardwareAcceleration = true
 
   get checkboxValues(): SystemSettings[] {
-    return [this.startupCheckbox, this.minimizeToTrayCheckbox, this.hardwareAcceleration]
+    return [this.startupCheckbox, this.minimizeToTrayCheckbox, this.hardwareAcceleration, this.watchFileChanges]
   }
 
   get youtubeEnvExists() {
@@ -174,6 +174,14 @@ export default class System extends Vue {
       key: 'hardwareAcceleration',
       title: 'Use GPU hardware acceleration',
       enabled: true
+    }
+  }
+
+  get watchFileChanges(): SystemSettings {
+    return {
+      key: 'watchFileChanges',
+      title: 'Watch music directories for changes',
+      enabled: false
     }
   }
 

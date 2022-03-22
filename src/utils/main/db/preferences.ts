@@ -13,6 +13,9 @@ import { enableStartup } from '../autoLaunch'
 import path from 'path'
 import { getScannerChannel } from '../ipc'
 import { setMinimizeToTray } from '@/utils/main/windowManager'
+import { watch } from 'fs/promises'
+
+type MusicPaths = { path: string; enabled: boolean }
 
 const defaultPreferences: Preferences = {
   isFirstLaunch: true,
@@ -22,6 +25,8 @@ const defaultPreferences: Preferences = {
   system: [],
   themes: {}
 }
+
+let ac: AbortController
 
 export const store = new Store({
   defaults: { prefs: defaultPreferences },
@@ -81,7 +86,7 @@ export function loadSelectivePreference<T>(key?: string, isExtension = false, de
   } catch (e) {
     console.error(e)
   }
-  return undefined
+  return defaultValue
 }
 
 /**
@@ -95,7 +100,7 @@ export function removeSelectivePreference(key: string, isExtension = false) {
 /**
  * Sets initial interface settings
  */
-export function setInitialInterfaceSettings() {
+export function setInitialPreferences() {
   onPreferenceChanged('system', loadPreferences()?.system)
 }
 
@@ -115,13 +120,52 @@ export async function onPreferenceChanged(key: string, value: any) {
       if (val.key === 'minimizeToTray') {
         val.enabled !== undefined && setMinimizeToTray(val.enabled)
       }
+
+      if (val.key === 'watchFileChanges') {
+        if (!val.enabled && ac) {
+          ac.abort()
+        }
+      }
     }
     return
   }
 
   if (key === 'musicPaths') {
     getScannerChannel().ScanSongs()
+    shouldWatchFileChanges()
     return
+  }
+}
+
+// TODO: Scan only changed file
+export function shouldWatchFileChanges() {
+  const value = loadSelectivePreference<MusicPaths[]>('musicPaths')
+  if (value) {
+    if (ac) ac.abort()
+
+    const watchChanges =
+      loadSelectivePreference<SystemSettings[]>('system')?.find((val) => val.key === 'watchFileChanges') ?? false
+    if (watchChanges) {
+      setupScanWatcher(value)
+    }
+  }
+}
+
+export function setupScanWatcher(dirs: MusicPaths[]) {
+  console.debug('Setting up scan watcher')
+  ac = new AbortController()
+  const { signal } = ac
+  for (const d of dirs) {
+    if (d.enabled) {
+      console.debug('Watching', d.path, 'for changes')
+      ;(async () => {
+        const watcher = watch(d.path, { signal })
+        for await (const _ of watcher) {
+          console.debug('Got changes in', d.path, 'triggering scan')
+          getScannerChannel().ScanSongs()
+        }
+      })()
+    }
   }
 }
 
