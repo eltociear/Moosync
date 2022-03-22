@@ -35,10 +35,10 @@ const logger = getLogger('ScanWorker')
 logger.setLevel(process.env.DEBUG_LOGGING ? levels.DEBUG : levels.INFO)
 
 expose({
-  start(paths: togglePaths, loggerPath: string) {
+  start(paths: togglePaths, existingFiles: string[], loggerPath: string) {
     return new Observable((observer) => {
       prefixLogger(loggerPath, logger)
-      startScan(paths, observer)
+      startScan(paths, existingFiles, observer)
     })
   }
 })
@@ -186,15 +186,25 @@ async function getInfo(data: mm.IAudioMetadata, stats: stats): Promise<Song> {
   }
 }
 
-async function scanDir(directory: string, observer: SubscriptionObserver<ScannedSong | ScannedPlaylist>) {
+async function scanDir(
+  directory: string,
+  existingFiles: string[],
+  observer: SubscriptionObserver<ScannedSong | ScannedPlaylist>
+) {
   if (fs.existsSync(directory)) {
     const files = fs.readdirSync(directory)
     for (const file of files) {
-      if (fs.statSync(path.join(directory, file)).isDirectory()) {
-        await scanDir(path.join(directory, file), observer)
+      const filePath = path.join(directory, file)
+
+      if (fs.statSync(filePath).isDirectory()) {
+        await scanDir(filePath, existingFiles, observer)
       }
 
-      const filePath = path.join(directory, file)
+      if (existingFiles.includes(filePath)) {
+        logger.debug('Skipping', filePath, 'file already in database')
+        continue
+      }
+
       if (audioPatterns.exec(path.extname(file).toLowerCase())) {
         logger.debug('Scanning song', filePath)
         try {
@@ -231,9 +241,9 @@ async function scanDir(directory: string, observer: SubscriptionObserver<Scanned
   }
 }
 
-async function startScan(paths: togglePaths, observer: SubscriptionObserver<unknown>) {
+async function startScan(paths: togglePaths, existingFiles: string[], observer: SubscriptionObserver<unknown>) {
   for (const i in paths) {
-    paths[i].enabled && (await scanDir(paths[i].path, observer))
+    paths[i].enabled && (await scanDir(paths[i].path, existingFiles, observer))
   }
   logger.debug('Scan complete')
   observer.complete()

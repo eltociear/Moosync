@@ -162,7 +162,9 @@ export class ScannerChannel implements IpcChannelInterface {
   private scanSongs(preferences: Preferences) {
     return new Promise<void>((resolve, reject) => {
       ;(
-        this.scannerWorker.start(preferences.musicPaths, loggerPath) as Observable<ScannedSong | ScannedPlaylist>
+        this.scannerWorker.start(preferences.musicPaths, SongDB.getAllPaths(), loggerPath) as Observable<
+          ScannedSong | ScannedPlaylist
+        >
       ).subscribe(
         (result: ScannedSong | ScannedPlaylist) => {
           if ((result as ScannedSong).song) {

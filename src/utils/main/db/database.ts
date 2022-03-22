@@ -341,6 +341,10 @@ export class SongDBInstance extends DBUtils {
     )
   }
 
+  public getAllPaths(): string[] {
+    return this.db.queryColumn('path', `SELECT path from allsongs`)
+  }
+
   /* ============================= 
                 ALBUMS
      ============================= */
