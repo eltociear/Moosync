@@ -64,7 +64,8 @@ export class ExtensionManager extends AbstractExtensionManager {
   private getGlobalObject(packageName: string, entryFilePath: string) {
     const child = log.getLogger(packageName)
     prefixLogger(this.logsPath, child)
-    child.setLevel(log.levels.DEBUG)
+    const logLevel = process.env.DEBUG_LOGGING ? log.levels.DEBUG : log.levels.INFO
+    child.setLevel(logLevel)
 
     return {
       __dirname: path.dirname(entryFilePath),

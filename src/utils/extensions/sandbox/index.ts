@@ -48,7 +48,8 @@ class ExtensionHostIPCHandler {
   private setupLogger() {
     const logger = log.getLogger('Extension Host')
     prefixLogger(this.logsPath, logger)
-    logger.setLevel(log.levels.DEBUG)
+    const logLevel = process.env.DEBUG_LOGGING ? log.levels.DEBUG : log.levels.INFO
+    logger.setLevel(logLevel)
 
     console.info = (...args: unknown[]) => {
       logger.info(...args)
