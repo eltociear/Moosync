@@ -160,9 +160,14 @@ export function setupScanWatcher(dirs: MusicPaths[]) {
       console.debug('Watching', d.path, 'for changes')
       ;(async () => {
         const watcher = watch(d.path, { signal })
-        for await (const _ of watcher) {
-          console.debug('Got changes in', d.path, 'triggering scan')
-          getScannerChannel().ScanSongs()
+        try {
+          for await (const _ of watcher) {
+            console.debug('Got changes in', d.path, 'triggering scan')
+            getScannerChannel().ScanSongs()
+          }
+        } catch (e) {
+          if ((e as Error).name === 'AbortError') return
+          console.error(e)
         }
       })()
     }
