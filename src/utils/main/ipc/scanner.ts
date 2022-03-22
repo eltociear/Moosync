@@ -334,6 +334,7 @@ export class ScannerChannel implements IpcChannelInterface {
     this.setIdle()
 
     Thread.terminate(this.scannerWorker)
+    this.scannerWorker = undefined
 
     notifyRenderer({ id: 'completed-scan', message: 'Scanning Completed', type: 'info' })
 
