@@ -83,6 +83,7 @@ export default class SetupModal extends Vue {
     bus.$on(EventBus.SHOW_SETUP_MODAL, () => {
       this.$bvModal.show(this.id)
     })
+    bus.$emit(EventBus.SHOW_SETUP_MODAL)
   }
 }
 </script>
