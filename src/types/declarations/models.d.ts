@@ -47,7 +47,7 @@ interface marshaledSong {
   url?: string
   playbackUrl?: string
   date_added: number
-  type: 'LOCAL' | 'YOUTUBE' | 'SPOTIFY'
+  type: PlayerType
 }
 
 interface stats {

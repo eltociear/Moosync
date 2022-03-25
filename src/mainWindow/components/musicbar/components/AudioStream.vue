@@ -106,19 +106,31 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     this.ignoreStateChange = false
   }
 
+  private parsePlayerType(type: PlayerType): 'LOCAL' | 'YOUTUBE' {
+    switch (type) {
+      case 'LOCAL':
+      case 'URL':
+        return 'LOCAL'
+      case 'SPOTIFY':
+      case 'YOUTUBE':
+        return 'YOUTUBE'
+    }
+  }
+
   /**
    * Method called when player type changes
    * This method is responsible of detaching old player
    * and setting new player as active
    */
-  private onPlayerTypeChanged(newType: PlayerType) {
-    if (this.activePlayerType !== newType) {
+  private onPlayerTypeChanged(newType: PlayerType): 'LOCAL' | 'YOUTUBE' {
+    const parsedType = this.parsePlayerType(newType)
+    if (this.activePlayerType !== parsedType) {
       console.debug('Changing player type to', newType)
       this.unloadAudio()
       this.activePlayer.removeAllListeners()
-      this.activePlayerType = newType
+      this.activePlayerType = parsedType
 
-      switch (newType) {
+      switch (parsedType) {
         case 'LOCAL':
           this.activePlayer = this.localPlayer
           break
@@ -130,6 +142,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.activePlayer.volume = vxm.player.volume
       this.registerPlayerListeners()
     }
+
+    return parsedType
   }
 
   /**
@@ -382,22 +396,16 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       }
     }
 
-    if (song.type === 'LOCAL') {
-      this.onPlayerTypeChanged('LOCAL')
-    } else {
-      this.onPlayerTypeChanged('YOUTUBE')
-    }
+    const playerType = this.onPlayerTypeChanged(song.type)
 
-    if (song.type === 'LOCAL') {
-      if (song.path) {
-        this.activePlayer.load(
-          'media://' + song.path,
-          this.volume,
-          vxm.player.playAfterLoad || this.playerState === 'PLAYING'
-        )
-        console.debug('Loaded song at', 'media://' + song.path)
-        vxm.player.loading = false
-      }
+    if (playerType === 'LOCAL') {
+      this.activePlayer.load(
+        song.path ? 'media://' + song.path : song.playbackUrl,
+        this.volume,
+        vxm.player.playAfterLoad || this.playerState === 'PLAYING'
+      )
+      console.debug('Loaded song at', 'media://' + song.path)
+      vxm.player.loading = false
     } else {
       if (!song.playbackUrl || !song.duration) {
         console.debug('PlaybackUrl or Duration empty for', song._id)

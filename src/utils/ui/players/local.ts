@@ -19,6 +19,7 @@ export class LocalPlayer extends Player {
   }
 
   load(src?: string, volume?: number, autoplay?: boolean): void {
+    console.log(src)
     src && (this.playerInstance.src = src)
     this.playerInstance.load()
     volume && (this.volume = volume)

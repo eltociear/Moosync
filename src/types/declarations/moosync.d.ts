@@ -11,6 +11,7 @@ type SongAPIOptions = import('@moosync/moosync-types').SongAPIOptions
 
 type ExtensionFactory = import('@moosync/moosync-types').ExtensionFactory
 type MoosyncExtensionTemplate = import('@moosync/moosync-types').MoosyncExtensionTemplate
+type PlayerType = import('@moosync/moosync-types').PlayerTypes
 
 declare namespace NodeJS {
   export interface ProcessEnv {
