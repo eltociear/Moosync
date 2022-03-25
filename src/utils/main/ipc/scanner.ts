@@ -83,7 +83,7 @@ export class ScannerChannel implements IpcChannelInterface {
           song.song_coverPath_low = res.low
         }
 
-        await SongDB.store(song)
+        SongDB.store(song)
       } else {
         const s = existing[0]
         const albumCoverExists = await this.checkAlbumCovers(s)

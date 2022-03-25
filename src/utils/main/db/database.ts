@@ -22,21 +22,30 @@ export class SongDBInstance extends DBUtils {
                 ALLSONGS
      ============================= */
 
-  public async store(newDoc: Song): Promise<void> {
-    const artistID = newDoc.artists ? this.storeArtists(...newDoc.artists) : []
-    const albumID = newDoc.album ? this.storeAlbum(newDoc.album) : ''
-    const genreID = this.storeGenre(newDoc.genre)
-    const marshaledSong = this.marshalSong(newDoc)
-    if (this.db.query(`SELECT _id from allsongs WHERE _id = ?`, marshaledSong._id).length === 0) {
-      this.db.insert('allsongs', marshaledSong)
-      this.storeArtistBridge(artistID, marshaledSong._id)
-      this.storeGenreBridge(genreID, marshaledSong._id)
-      this.storeAlbumBridge(albumID, marshaledSong._id)
+  private verifySong(song: Song) {
+    return !!(song._id && song.title && song.date_added && song.duration && song.type)
+  }
+
+  public store(newDoc: Song): boolean {
+    let ret = false
+    if (this.verifySong(newDoc)) {
+      const marshaledSong = this.marshalSong(newDoc)
+      if (this.db.query(`SELECT _id from allsongs WHERE _id = ?`, marshaledSong._id).length === 0) {
+        const artistID = newDoc.artists ? this.storeArtists(...newDoc.artists) : []
+        const albumID = newDoc.album ? this.storeAlbum(newDoc.album) : ''
+        const genreID = this.storeGenre(newDoc.genre)
+
+        this.db.insert('allsongs', marshaledSong)
+        this.storeArtistBridge(artistID, marshaledSong._id)
+        this.storeGenreBridge(genreID, marshaledSong._id)
+        this.storeAlbumBridge(albumID, marshaledSong._id)
+        ret = true
+      }
+
+      this.updateAllSongCounts()
     }
 
-    this.updateAllSongCounts()
-
-    return
+    return ret
   }
 
   private updateAllSongCounts() {

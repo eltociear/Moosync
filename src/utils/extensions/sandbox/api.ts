@@ -51,6 +51,10 @@ export class ExtensionRequestGenerator implements extensionAPI {
   public async setPreferences(key: string, value: unknown) {
     return sendAsync<void>('set-preferences', { packageName: this.packageName, key, value })
   }
+
+  public async addSongs(...song: Song[]) {
+    return sendAsync<boolean>('add-songs', song)
+  }
 }
 
 class PlayerControls implements playerControls {

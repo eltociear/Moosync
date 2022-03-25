@@ -61,21 +61,14 @@ export class SongsChannel implements IpcChannelInterface {
   }
 
   private storeSongs(event: Electron.IpcMainEvent, request: IpcRequest<SongRequests.Songs>) {
-    const promises: Promise<void>[] = []
     if (request.params.songs) {
       const songs = request.params.songs as Song[]
       for (const s of songs) {
-        promises.push(SongDB.store(s))
+        SongDB.store(s)
       }
     }
-    Promise.all(promises)
-      .then((data) => {
-        event.reply(request.responseChannel, data)
-      })
-      .catch((e) => {
-        console.error(e)
-        event.reply(request.responseChannel)
-      })
+
+    event.reply(request.responseChannel)
   }
 
   private isCacheFileExists(filename: string, cacheDir: string): string {

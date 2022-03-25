@@ -228,6 +228,13 @@ class ExtensionRequestHandler {
       resp.data = songs
     }
 
+    if (message.type === 'add-songs') {
+      resp.data = []
+      for (const s of message.data) {
+        resp.data.push(SongDB.store(s))
+      }
+    }
+
     if (message.type === 'get-preferences') {
       const { packageName, key, defaultValue }: { packageName: string; key?: string; defaultValue?: unknown } =
         message.data
