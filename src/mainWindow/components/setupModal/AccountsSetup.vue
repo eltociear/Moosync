@@ -35,6 +35,12 @@
         />
       </b-col>
     </b-row>
+    <b-row class="mt-4">
+      <b-col class="note">
+        * Logging in to above services is optional. <br />
+        * You may make use of the search feature to find and play songs from youtube without logging in
+      </b-col>
+    </b-row>
     <b-row no-gutters align-h="end" class="button-row mt-3">
       <b-col cols="auto" class="mr-3">
         <b-button @click="skip" class="close-button">Prev</b-button>
@@ -132,4 +138,7 @@ export default class AccountsSetup extends mixins(AccountsMixin) {
 
 .button-row
   margin-right: 15px
+
+.note
+  color: var(--accent)
 </style>

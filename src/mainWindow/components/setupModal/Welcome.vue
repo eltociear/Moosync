@@ -77,7 +77,7 @@ export default class Welcome extends Vue {
 .start-button
   width: 135px
   height: 36px
-  border: 1px solid #65CB88
+  border: 1px solid var(--accent)
   border-radius: 6px
   font-size: 16px
 
