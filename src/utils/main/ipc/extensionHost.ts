@@ -9,6 +9,7 @@
 
 import { MainHostIPCHandler } from '@/utils/extensions'
 import { ExtensionHostEvents, IpcEvents } from './constants'
+import { SongDB } from '../db/index'
 
 export class ExtensionHostChannel implements IpcChannelInterface {
   name = IpcEvents.EXTENSION_HOST
@@ -30,6 +31,9 @@ export class ExtensionHostChannel implements IpcChannelInterface {
         break
       case ExtensionHostEvents.REMOVE_EXT:
         this.removeExtension(event, request as IpcRequest<ExtensionHostRequests.RemoveExtension>)
+        break
+      case ExtensionHostEvents.GET_EXTENSION_ICON:
+        this.getExtensionIcon(event, request as IpcRequest<ExtensionHostRequests.RemoveExtension>)
         break
     }
   }
@@ -66,10 +70,20 @@ export class ExtensionHostChannel implements IpcChannelInterface {
     event.reply(request.responseChannel)
   }
 
-  private removeExtension(event: Electron.IpcMainEvent, request: IpcRequest<ExtensionHostRequests.RemoveExtension>) {
+  private async removeExtension(
+    event: Electron.IpcMainEvent,
+    request: IpcRequest<ExtensionHostRequests.RemoveExtension>
+  ) {
     if (request.params.packageName) {
-      this.extensionHost.uninstallExtension(request.params.packageName).then(() => event.reply(request.responseChannel))
-      return
+      await this.extensionHost
+        .uninstallExtension(request.params.packageName)
+        .then(() => event.reply(request.responseChannel))
+
+      // Remove all song added by this extension
+      const songs = SongDB.getSongByOptions({ song: { extension: request.params.packageName } })
+      for (const s of songs) {
+        await SongDB.removeSong(s._id)
+      }
     }
     event.reply(request.responseChannel)
   }
@@ -85,5 +99,16 @@ export class ExtensionHostChannel implements IpcChannelInterface {
 
   public onMainWindowCreated() {
     this.extensionHost.mainWindowCreated()
+  }
+
+  public async getExtensionIcon(
+    event: Electron.IpcMainEvent,
+    request: IpcRequest<ExtensionHostRequests.RemoveExtension>
+  ) {
+    if (request.params && request.params.packageName) {
+      const data = await this.extensionHost.mainRequestGenerator.getExtensionIcon(request.params.packageName)
+      event.reply(request.responseChannel, data)
+    }
+    event.reply(request.responseChannel)
   }
 }

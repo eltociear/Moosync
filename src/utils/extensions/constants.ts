@@ -15,7 +15,13 @@ export const extensionEventsKeys: (keyof MoosyncExtensionTemplate)[] = [
   'onPreferenceChanged',
   'onSeeked'
 ]
-export const extensionRequestsKeys = ['get-songs', 'add-songs', 'get-preferences', 'set-preferences'] as const
+export const extensionRequestsKeys = [
+  'get-songs',
+  'add-songs',
+  'remove-song',
+  'get-preferences',
+  'set-preferences'
+] as const
 export const extensionUIRequestsKeys = [
   'get-current-song',
   'get-volume',
@@ -29,7 +35,8 @@ export const mainRequestsKeys = [
   'find-new-extensions',
   'toggle-extension-status',
   'remove-extension',
-  'stop-process'
+  'stop-process',
+  'get-extension-icon'
 ] as const
 
 export type extensionEvents = typeof extensionEventsKeys[number]

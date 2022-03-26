@@ -146,7 +146,8 @@ export enum ExtensionHostEvents {
   INSTALL = 'install',
   EXTENSION_REQUESTS = 'extensionRequests',
   TOGGLE_EXT_STATUS = 'toggleExtStatus',
-  REMOVE_EXT = 'removeExt'
+  REMOVE_EXT = 'removeExt',
+  GET_EXTENSION_ICON = 'getExtensionIcon'
 }
 
 export enum ServiceProviderEvents {

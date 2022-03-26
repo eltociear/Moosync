@@ -1416,10 +1416,9 @@
     lodash "^4.17.15"
     tmp-promise "^3.0.2"
 
-"@moosync/moosync-types@^1.2.6":
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/@moosync/moosync-types/-/moosync-types-1.2.6.tgz#a62d43118c72a50e0d053d3584e7083982180d3a"
-  integrity sha512-/1TPEzb4o7BYFGKQ8Ydg/YXMDpCjmecXcr2Cgz9aF8qmaEHUXWL8NwS/1JwFr46GwhBpbhEtJGwaTY49/a2TKA==
+"@moosync/moosync-types@https://github.com/Moosync/extension-api-types":
+  version "1.3.0"
+  resolved "https://github.com/Moosync/extension-api-types#408e47998c7c8bf59b46740cd631b0fe8f1e0961"
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -10599,6 +10598,11 @@ vue-hot-reload-api@^2.3.0:
   version "2.3.4"
   resolved "https://registry.npmjs.org/vue-hot-reload-api/-/vue-hot-reload-api-2.3.4.tgz"
   integrity sha512-BXq3jwIagosjgNVae6tkHzzIk6a8MHFtzAdwhnV5VlvPTFxDCvIttgSiHWjdGoTJvXtmRu5HacExfdarRcFhog==
+
+vue-inline-svg@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/vue-inline-svg/-/vue-inline-svg-2.1.0.tgz#45f20a34d458636c5caea5da28eef6cad9a87fcb"
+  integrity sha512-80u/BGtjOzXp31yFahXsfvkBrHKHEHKyrkZ42MGoAbD6jHzWpMJLijsyRj66pps7IyKxZcnYkO3ijsJhr4zXsg==
 
 vue-loader@^17.0.0:
   version "17.0.0"

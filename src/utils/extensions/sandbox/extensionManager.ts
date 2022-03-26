@@ -135,6 +135,7 @@ export class ExtensionManager extends AbstractExtensionManager {
         entry: extension.entry,
         vm: vmObj.vm,
         extensionPath: extension.extensionPath,
+        extensionIcon: extension.extensionIcon,
         preferences,
         instance
       })

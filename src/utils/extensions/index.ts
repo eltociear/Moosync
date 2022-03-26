@@ -142,6 +142,10 @@ class MainRequestGenerator {
     return this.sendAsync<ExtensionDetails[]>('get-installed-extensions')
   }
 
+  public async getExtensionIcon(packageName: string) {
+    return this.sendAsync<string>('get-extension-icon', { packageName })
+  }
+
   public async toggleExtensionStatus(packageName: string, enabled: boolean) {
     return this.sendAsync<void>('toggle-extension-status', { packageName, enabled })
   }
@@ -222,8 +226,12 @@ class ExtensionRequestHandler {
   }
 
   public async parseRequest(message: extensionRequestMessage): Promise<extensionReplyMessage | undefined> {
+    console.debug('Received message from extension', message.extensionName, message.type)
     const resp: extensionReplyMessage = { ...message, data: undefined }
     if (message.type === 'get-songs') {
+      if (message.data && message.data.song && message.data.song?.extension) {
+        message.data['song']['extension'] = message.extensionName
+      }
       const songs = SongDB.getSongByOptions(message.data)
       resp.data = songs
     }
@@ -231,8 +239,17 @@ class ExtensionRequestHandler {
     if (message.type === 'add-songs') {
       resp.data = []
       for (const s of message.data) {
-        resp.data.push(SongDB.store(s))
+        resp.data.push(
+          SongDB.store({
+            ...s,
+            providerExtension: message.extensionName
+          })
+        )
       }
+    }
+
+    if (message.type === 'remove-song') {
+      await SongDB.removeSong(message.data)
     }
 
     if (message.type === 'get-preferences') {

@@ -114,7 +114,7 @@ class MainRequestHandler {
   }
 
   public parseRequest(message: mainRequestMessage) {
-    console.debug('Received message from main process')
+    console.debug('Received message from main process', message.type, message.data)
     if (message.type === 'find-new-extensions') {
       this.handler
         .registerPlugins()
@@ -125,6 +125,11 @@ class MainRequestHandler {
 
     if (message.type === 'get-installed-extensions') {
       this.sendToMain(message.channel, this.handler.getInstalledExtensions())
+      return
+    }
+
+    if (message.type === 'get-extension-icon') {
+      this.sendToMain(message.channel, this.handler.getExtensionIcon(message.data.packageName))
       return
     }
 

@@ -211,6 +211,7 @@ interface extensionUtils {
   uninstall: (packageName: string) => Promise<void>
   sendEvent: (data: extensionEventMessage) => Promise<void>
   getAllExtensions: () => Promise<ExtensionDetails[]>
+  getExtensionIcon: (packageName: string) => Promise<string>
   listenRequests: (callback: (request: extensionUIRequestMessage) => void) => void
   replyToRequest: (data: extensionReplyMessage) => void
   toggleExtStatus: (packageName: string, enabled: boolean) => Promise<void>

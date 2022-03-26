@@ -48,6 +48,7 @@ interface marshaledSong {
   playbackUrl?: string
   date_added: number
   type: PlayerType
+  provider_extension?: string
 }
 
 interface stats {
