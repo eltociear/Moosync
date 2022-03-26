@@ -226,7 +226,7 @@ class ExtensionRequestHandler {
   }
 
   public async parseRequest(message: extensionRequestMessage): Promise<extensionReplyMessage | undefined> {
-    console.debug('Received message from extension', message.extensionName, message.type)
+    message.type && console.debug('Received message from extension', message.extensionName, message.type)
     const resp: extensionReplyMessage = { ...message, data: undefined }
     if (message.type === 'get-songs') {
       if (message.data && message.data.song && message.data.song?.extension) {
