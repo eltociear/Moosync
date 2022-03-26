@@ -144,7 +144,8 @@ export function shouldWatchFileChanges() {
     if (ac) ac.abort()
 
     const watchChanges =
-      loadSelectivePreference<SystemSettings[]>('system')?.find((val) => val.key === 'watchFileChanges') ?? false
+      loadSelectivePreference<SystemSettings[]>('system', false, [])?.find((val) => val.key === 'watchFileChanges') ??
+      false
     if (watchChanges) {
       setupScanWatcher(value)
     }
