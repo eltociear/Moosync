@@ -30,19 +30,22 @@ export class SongDBInstance extends DBUtils {
     let ret = false
     if (this.verifySong(newDoc)) {
       const marshaledSong = this.marshalSong(newDoc)
-      if (this.db.query(`SELECT _id from allsongs WHERE _id = ?`, marshaledSong._id).length === 0) {
-        const artistID = newDoc.artists ? this.storeArtists(...newDoc.artists) : []
-        const albumID = newDoc.album ? this.storeAlbum(newDoc.album) : ''
-        const genreID = this.storeGenre(newDoc.genre)
-
-        this.db.insert('allsongs', marshaledSong)
-        this.storeArtistBridge(artistID, marshaledSong._id)
-        this.storeGenreBridge(genreID, marshaledSong._id)
-        this.storeAlbumBridge(albumID, marshaledSong._id)
-        ret = true
+      if (this.db.query(`SELECT _id from allsongs WHERE _id = ?`, marshaledSong._id).length !== 0) {
+        this.removeSong(newDoc._id)
       }
 
+      const artistID = newDoc.artists ? this.storeArtists(...newDoc.artists) : []
+      const albumID = newDoc.album ? this.storeAlbum(newDoc.album) : ''
+      const genreID = this.storeGenre(newDoc.genre)
+
+      this.db.insert('allsongs', marshaledSong)
+      this.storeArtistBridge(artistID, marshaledSong._id)
+      this.storeGenreBridge(genreID, marshaledSong._id)
+      this.storeAlbumBridge(albumID, marshaledSong._id)
+
       this.updateAllSongCounts()
+
+      ret = true
     }
 
     return ret
