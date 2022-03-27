@@ -44,8 +44,8 @@ export class ExtensionRequestGenerator implements extensionAPI {
     return sendAsync<PlayerState>(this.packageName, 'get-player-state')
   }
 
-  public async getPreferences(key?: string, defaultValue?: unknown) {
-    return sendAsync<SongQueue>(this.packageName, 'get-preferences', {
+  public async getPreferences<T>(key?: string, defaultValue?: unknown): Promise<T | undefined> {
+    return sendAsync<T>(this.packageName, 'get-preferences', {
       packageName: this.packageName,
       key,
       defaultValue
