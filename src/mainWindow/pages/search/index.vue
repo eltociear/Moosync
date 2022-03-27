@@ -16,7 +16,7 @@
           :items="ComputeTabContent(i.tab)"
           :item-size="80"
           :key-field="ComputeTabKeyField(i.tab)"
-          v-slot="{ item, index }"
+          v-slot="{ item }"
           v-if="ComputeTabContent(i.tab).length > 0"
           :direction="'vertical'"
         >
@@ -24,9 +24,10 @@
             :title="ComputeTabTitle(tab, item)"
             :subtitle="ComputeTabSubTitle(tab, item)"
             :coverImg="ComputeTabImage(tab, item)"
-            :divider="index != result.songs.length - 1"
+            :divider="true"
             :id="item"
             :showButtons="true"
+            :playable="isPlayable(item)"
             @imgClick="imgClickHandler(tab, $event)"
             @titleClick="titleClickHandler(tab, $event)"
             @onContextMenu="contextMenuHandler(tab, ...arguments)"
@@ -110,6 +111,11 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   private getLoadMore(tab: string) {
     if (tab === 'Artists' && !this.loadedMore.artists) return true
     return false
+  }
+
+  private isPlayable(item: Song | Album | Artists | Genre | Playlist | YTMusicVideo) {
+    if ((item as Artists).artist_id?.startsWith('spotify')) return false
+    return true
   }
 
   private async handleLoadMore(tab: string) {
