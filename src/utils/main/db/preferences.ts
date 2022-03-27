@@ -23,6 +23,7 @@ const defaultPreferences: Preferences = {
   thumbnailPath: path.join(app.getPath('appData'), app.getName(), '.thumbnails'),
   artworkPath: path.join(app.getPath('appData'), app.getName(), '.thumbnails'),
   system: [],
+  zoomFactor: '100%',
   themes: {}
 }
 

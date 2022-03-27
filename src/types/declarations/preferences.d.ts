@@ -24,4 +24,5 @@ interface Preferences {
   artworkPath: string
   system: SystemSettings[]
   themes: { [key: string]: ThemeDetails }
+  zoomFactor: string
 }

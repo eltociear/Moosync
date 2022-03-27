@@ -53,7 +53,7 @@ export class WindowHandler {
       backgroundColor: this.windowBackgroundColor,
       titleBarStyle: 'hidden',
       frame: WindowHandler.hasFrame,
-      show: true,
+      show: false,
       icon: path.join(__static, 'logo.png'),
       webPreferences: {
         contextIsolation: true,
@@ -95,6 +95,16 @@ export class WindowHandler {
     if (enabled === false) {
       console.debug('Disabling hardware acceleration')
       app.disableHardwareAcceleration()
+    }
+  }
+
+  public setZoom(window?: BrowserWindow) {
+    const zoom = parseInt(loadPreferences().zoomFactor.replace('%', '')) / 100
+    const value = Math.min(Math.max(0.1, zoom), 1.6)
+
+    const windows = window ? [window] : BrowserWindow.getAllWindows()
+    for (const win of windows) {
+      win.webContents.setZoomFactor(value)
     }
   }
 
@@ -153,6 +163,7 @@ export class WindowHandler {
     let win: BrowserWindow | undefined | null
     if (!WindowHandler.getWindow(isMainWindow) || WindowHandler.getWindow(isMainWindow)?.isDestroyed()) {
       win = new BrowserWindow(isMainWindow ? this.mainWindowProps : this.prefWindowProps)
+      this.attachWindowEvents(win, isMainWindow)
 
       await win.loadURL(this.getWindowURL(isMainWindow))
 
@@ -162,8 +173,6 @@ export class WindowHandler {
 
       if (isMainWindow) WindowHandler.mainWindow = win.id
       else WindowHandler.preferenceWindow = win.id
-
-      this.attachWindowEvents(win, isMainWindow)
     } else {
       console.info('Window already exists, focusing')
       win = WindowHandler.getWindow(isMainWindow)
@@ -202,12 +211,17 @@ export class WindowHandler {
   }
 
   private handleWindowShow(window: BrowserWindow) {
+    this.setZoom(window)
     window.focus()
   }
 
   private attachWindowEvents(window: BrowserWindow, isMainWindow: boolean) {
     window.on('close', (event) => {
       this.handleWindowClose(event, window, isMainWindow)
+    })
+
+    window.on('ready-to-show', () => {
+      window.show()
     })
 
     window.on('show', () => {

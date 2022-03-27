@@ -190,6 +190,7 @@ interface windowUtils {
   dragFile: (path: string) => void
   automateSpotify: () => Promise<{ clientID: string; clientSecret: string } | undefined>
   restartApp: () => Promise<void>
+  updateZoom: () => Promise<void>
 }
 
 /**
