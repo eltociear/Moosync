@@ -1,5 +1,5 @@
 <!-- 
-  AddIcon.vue is a part of Moosync.
+  AddThemeIcon.vue is a part of Moosync.
   
   Copyright 2021-2022 by Sahil Gupte <sahilsachingupte@gmail.com>. All rights reserved.
   Licensed under the GNU General Public License. 
