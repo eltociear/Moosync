@@ -29,9 +29,6 @@
         <b-link class="song-title text-truncate" @click="emitTitleClick">{{ title }}</b-link>
         <div class="song-subtitle text-truncate">{{ subtitle }}</div>
       </b-col>
-      <b-col cols="2" v-if="showButtons" class="buttons">
-        <div></div>
-      </b-col>
     </b-row>
     <b-row v-if="divider" class="divider-row d-flex no-gutters">
       <div class="divider" />
@@ -71,9 +68,6 @@ export default class SingleSearchResult extends mixins(PlayerControls, ImgLoader
 
   @Prop({ default: null })
   id!: string | null
-
-  @Prop({ default: false })
-  showButtons!: boolean
 
   private forceEmptyImg = false
 

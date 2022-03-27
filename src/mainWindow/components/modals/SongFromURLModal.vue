@@ -91,7 +91,6 @@ export default class SongFromUrlModal extends Vue {
   private refreshCallback?: () => void
 
   private handleImageError() {
-    console.log('showing default image')
     this.forceEmptyImg = true
   }
 

@@ -20,6 +20,7 @@ import { vxm } from '../../../mainWindow/store/index'
 import { parseISO8601Duration } from '@/utils/common'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
+import { Song } from '@moosync/moosync-types'
 
 const BASE_URL = 'https://youtube.googleapis.com/youtube/v3/'
 
@@ -407,5 +408,9 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
 
       yield await this.getSongDetailsFromID(false, ...resp)
     }
+  }
+
+  public async *getArtistSongs(artist_id: string): AsyncGenerator<Song[]> {
+    yield []
   }
 }

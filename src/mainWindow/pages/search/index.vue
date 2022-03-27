@@ -32,6 +32,7 @@
             @onContextMenu="contextMenuHandler(tab, ...arguments)"
           />
         </RecycleScroller>
+        <b-button v-if="getLoadMore(tab)" @click="handleLoadMore(tab)">Load more from spotify</b-button>
       </b-tab>
     </b-tabs>
   </div>
@@ -45,6 +46,7 @@ import RouterPushes from '@/utils/ui/mixins/RouterPushes'
 import { toSong } from '@/utils/models/youtube'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
+import { vxm } from '@/mainWindow/store'
 
 @Component({
   components: {
@@ -61,8 +63,11 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     { tab: 'Artists', count: 0, key: 'Artists-0' },
     { tab: 'Genres', count: 0, key: 'Genres-0' },
     { tab: 'Playlists', count: 0, key: 'Playlists-0' },
-    { tab: 'Youtube', count: 0, key: 'Youtube-0' }
+    { tab: 'Youtube', count: 0, key: 'Youtube-0' },
+    { tab: 'Spotify', count: 0, key: 'Spotify-0' }
   ]
+
+  private loadedMore = { artists: false }
 
   get tab() {
     return this.items[this.tabModel].tab
@@ -74,6 +79,11 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
 
     this.result.youtube = await window.SearchUtils.searchYT(this.term)
     this.refreshYoutube()
+
+    if (vxm.providers.loggedInSpotify) {
+      this.result.spotify = await vxm.providers.spotifyProvider.searchSongs(this.term)
+      this.refreshSpotify()
+    }
   }
 
   private refreshLocal() {
@@ -86,9 +96,35 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     this.items[5].key = 'Youtube' + this.items[5].count++
   }
 
+  private refreshSpotify() {
+    this.items[6].key = 'Spotify' + this.items[6].count++
+  }
+
+  private getLoadMore(tab: string) {
+    if (tab === 'Artists' && !this.loadedMore.artists) return true
+    return false
+  }
+
+  private async handleLoadMore(tab: string) {
+    if (tab === 'Artists') {
+      const resp = await vxm.providers.spotifyProvider.searchArtists(this.term)
+      for (const a of resp) {
+        if (!this.result.artists) {
+          this.result.artists = []
+        }
+
+        if (!this.result.artists.find((val) => val.artist_id === a.artist_id)) {
+          this.result.artists.push(a)
+        }
+        this.loadedMore.artists = true
+      }
+    }
+  }
+
   private ComputeTabKeyField(tab: string) {
     switch (tab) {
       case 'Songs':
+      case 'Spotify':
         return '_id'
       case 'Albums':
         return 'album_id'
@@ -118,6 +154,8 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
           return this.result.playlists ?? []
         case 'Youtube':
           return this.result.youtube ?? []
+        case 'Spotify':
+          return this.result.spotify ?? []
       }
     }
     return []
@@ -126,6 +164,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   private ComputeTabTitle(tab: string, item: Song | Album | Artists | Genre | Playlist) {
     if (item) {
       switch (tab) {
+        case 'Spotify':
         case 'Songs':
           return (item as Song).title
         case 'Albums':
@@ -146,12 +185,13 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   private ComputeTabSubTitle(tab: string, item: Song | Album | Artists | Genre | Playlist) {
     if (item) {
       switch (tab) {
+        case 'Spotify':
         case 'Songs':
           return (item as Song).artists?.join(', ')
         case 'Albums':
           return `${(item as Album).album_song_count} Songs`
         case 'Artists':
-          return `${(item as Artists).artist_song_count} Songs`
+          return (item as Artists).artist_song_count ? `${(item as Artists).artist_song_count} Songs` : ''
         case 'Genres':
           return `${(item as Genre).genre_song_count} Songs`
         case 'Playlists':
@@ -168,6 +208,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   private ComputeTabImage(tab: string, item: Song | Album | Artists | Genre | Playlist) {
     if (item) {
       switch (tab) {
+        case 'Spotify':
         case 'Songs':
           return this.getValidImageLow(item as Song) ?? this.getValidImageHigh(item as Song)
         case 'Albums':
@@ -188,6 +229,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   private titleClickHandler(tab: string, item: Album | Artists | Genre | Playlist) {
     switch (tab) {
       case 'Songs':
+      case 'Spotify':
         // TODO: Redirect to a seperate page with song details
         return
       case 'Albums':
@@ -208,6 +250,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   private imgClickHandler(tab: string, item: Song | Album | Artists | Genre | Playlist | YTMusicVideo) {
     switch (tab) {
       case 'Songs':
+      case 'Spotify':
         this.playTop([item as Song])
         return
       case 'Albums':
@@ -233,6 +276,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         this.getContextMenu(event, { type: 'YOUTUBE', args: { ytItems: [item as YTMusicVideo] } })
         break
       case 'Songs':
+      case 'Spotify':
         this.getContextMenu(event, { type: 'SONGS', args: { songs: [item as Song] } })
         break
     }

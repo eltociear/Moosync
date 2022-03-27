@@ -43,9 +43,13 @@
             class="provider-icon"
           />
 
-          <inline-svg class="provider-icon" v-if="iconType === 'URL' && iconURL.endsWith('svg')" :src="iconURL" />
+          <inline-svg
+            class="provider-icon"
+            v-if="iconURL && iconType === 'URL' && iconURL.endsWith('svg')"
+            :src="iconURL"
+          />
           <img
-            v-if="iconType === 'URL' && !iconURL.endsWith('svg')"
+            v-if="iconURL && iconType === 'URL' && !iconURL.endsWith('svg')"
             :src="iconURL"
             alt="provider icon"
             class="provider-icon"
@@ -113,6 +117,7 @@ export default class MusicInfo extends mixins(ImgLoader, PlayerControls, Context
   }
 
   private async getIconType() {
+    this.iconURL = ''
     if (this.song.providerExtension) {
       const icon = await window.ExtensionUtils.getExtensionIcon(this.song.providerExtension)
       if (icon) {
@@ -120,6 +125,8 @@ export default class MusicInfo extends mixins(ImgLoader, PlayerControls, Context
         return 'URL'
       }
     }
+
+    console.log(this.iconURL)
 
     return this.song.type
   }

@@ -269,8 +269,6 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
           return
         }
 
-        console.log('Sending song to extension host')
-
         window.ExtensionUtils.sendEvent({
           type: 'onSongChanged',
           data: newVal
