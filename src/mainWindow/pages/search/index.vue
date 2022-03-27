@@ -80,7 +80,6 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
 
     if (vxm.providers.loggedInSpotify) {
       this.result.spotify = await vxm.providers.spotifyProvider.searchSongs(this.term)
-      console.log(this.result.spotify)
       this.refreshSpotify()
     }
   }
@@ -234,7 +233,6 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         this.gotoAlbum(item as Album)
         return
       case 'Artists':
-        console.log(item)
         this.gotoArtist(item as Artists)
         return
       case 'Genres':
