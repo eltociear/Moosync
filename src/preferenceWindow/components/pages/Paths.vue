@@ -12,6 +12,17 @@
     <b-container fluid>
       <b-row no-gutters class="w-100">
         <div class="path-selector w-100">
+          <b-container fluid v-if="totalValue != 0">
+            <b-row no-gutters>
+              <b-col>
+                <b-progress class="progress-container mb-4" :max="totalValue">
+                  <b-progress-bar class="progress-bar" :value="currentValue" animated />
+                </b-progress>
+              </b-col>
+              <b-col cols="auto" class="ml-3"> {{ (currentValue / totalValue) * 100 }}% </b-col>
+            </b-row>
+          </b-container>
+
           <DirectoryGroup
             title="Song Directories"
             tooltip="Directories where all your local music is stored"
@@ -50,8 +61,24 @@ import DirectoryGroup from '../DirectoryGroup.vue'
   }
 })
 export default class Paths extends Vue {
+  private currentValue = 0
+  private totalValue = 0
+
   private forceRescan() {
     window.FileUtils.scan()
+  }
+
+  private setProgress(progress: Progress) {
+    this.currentValue = progress.current
+    this.totalValue = progress.total
+  }
+
+  async created() {
+    this.setProgress(await window.FileUtils.getScanProgress())
+
+    window.FileUtils.listenScanProgress(async (progress) => {
+      this.setProgress(progress)
+    })
   }
 }
 </script>
@@ -62,4 +89,12 @@ export default class Paths extends Vue {
 
 .title
   text-align: left
+
+.progress-bar
+  background-color: var(--accent)
+
+.progress-container
+  font-size: 16px
+  height: 1.3rem !important
+  background-color: var(--tertiary)
 </style>

@@ -101,7 +101,10 @@ export enum GenreEvents {
 }
 
 export enum ScannerEvents {
-  SCAN_MUSIC = 'scanMusic'
+  SCAN_MUSIC = 'scanMusic',
+  GET_PROGRESS = 'getProgress',
+
+  PROGRESS_CHANNEL = 'progressChannel'
 }
 
 export enum PlaylistEvents {

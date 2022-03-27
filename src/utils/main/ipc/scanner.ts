@@ -23,6 +23,7 @@ import scannerWorker from 'threads-plugin/dist/loader?name=0!/src/utils/main/wor
 // @ts-expect-error it don't want .ts
 import scraperWorker from 'threads-plugin/dist/loader?name=1!/src/utils/main/workers/scraper.ts'
 import { Observable } from 'observable-fns'
+import { WindowHandler } from '../windowManager'
 
 const loggerPath = app.getPath('logs')
 
@@ -44,12 +45,26 @@ export class ScannerChannel implements IpcChannelInterface {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private scraperWorker: any
 
+  private totalScanFiles = 0
+  private currentScanFile = 0
+
   handle(event: IpcMainEvent, request: IpcRequest) {
     switch (request.type) {
       case ScannerEvents.SCAN_MUSIC:
         this.scanAll(event, request)
         break
+      case ScannerEvents.GET_PROGRESS:
+        this.getScanProgress(event, request)
+        break
     }
+  }
+
+  private async getScanProgress(event: IpcMainEvent, request: IpcRequest) {
+    event.reply(request.responseChannel, {
+      status: this.scanStatus,
+      total: this.totalScanFiles,
+      current: this.currentScanFile
+    })
   }
 
   private async checkAlbumCovers(song: Song | undefined) {
@@ -159,14 +174,29 @@ export class ScannerChannel implements IpcChannelInterface {
     }
   }
 
+  private updateProgress() {
+    WindowHandler.getWindow(false)?.webContents.send(ScannerEvents.PROGRESS_CHANNEL, {
+      current: this.currentScanFile,
+      total: this.totalScanFiles,
+      status: this.scanStatus
+    } as Progress)
+  }
+
   private scanSongs(preferences: Preferences) {
     return new Promise<void>((resolve, reject) => {
       ;(
         this.scannerWorker.start(preferences.musicPaths, SongDB.getAllPaths(), loggerPath) as Observable<
-          ScannedSong | ScannedPlaylist
+          ScannedSong | ScannedPlaylist | Progress
         >
       ).subscribe(
-        (result: ScannedSong | ScannedPlaylist) => {
+        (result) => {
+          if ((result as Progress).total) {
+            this.totalScanFiles = (result as Progress).total
+            this.currentScanFile = (result as Progress).current
+
+            this.updateProgress()
+          }
+
           if ((result as ScannedSong).song) {
             this.checkDuplicate((result as ScannedSong).song, (result as ScannedSong).cover)
           }
@@ -212,6 +242,7 @@ export class ScannerChannel implements IpcChannelInterface {
   }
 
   private async fetchArtworks(allArtists: Artists[]) {
+    console.trace('here')
     return new Promise((resolve) => {
       this.scraperWorker.fetchArtworks(allArtists, loggerPath).subscribe(
         (result: { artist: Artists; cover: TransferDescriptor<Buffer> }) =>
@@ -291,6 +322,10 @@ export class ScannerChannel implements IpcChannelInterface {
 
   private setIdle() {
     this.scanStatus = scanning.UNDEFINED
+    this.currentScanFile = 0
+    this.totalScanFiles = 0
+
+    this.updateProgress()
   }
 
   private setQueued() {
