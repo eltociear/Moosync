@@ -33,7 +33,9 @@ export default class PlayerControls extends Vue {
     this.$router.push({
       name: 'artists-id',
       params: {
-        id: artist.artist_id
+        id: artist.artist_id,
+        name: artist.artist_name ?? '',
+        cover: artist.artist_coverPath ?? ''
       }
     })
   }

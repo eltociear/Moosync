@@ -20,7 +20,7 @@ import { vxm } from '@/mainWindow/store'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
 import { GenericSearch } from './generics/genericSearch'
-import { Song } from '@moosync/moosync-types'
+import { Artists, Song } from '@moosync/moosync-types'
 
 /**
  * Spotify API base URL
@@ -35,7 +35,10 @@ enum ApiResources {
   SONG_DETAILS = 'tracks/{song_id}',
   TOP = 'me/top/{type}',
   RECOMMENDATIONS = 'recommendations',
-  SEARCH = 'search'
+  SEARCH = 'search',
+  ARTIST_TOP = 'artists/{artist_id}/top-tracks',
+  ARTIST_ALBUMS = 'artists/{artist_id}/albums',
+  ALBUM_SONGS = 'albums/{album_id}/tracks'
 }
 
 /**
@@ -138,6 +141,14 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     if (resource === ApiResources.TOP) {
       url = resource.replace('{type}', (search as SpotifyResponses.TopRequest).params.type)
       search.params = undefined
+    }
+
+    if (resource === ApiResources.ARTIST_TOP || resource === ApiResources.ARTIST_ALBUMS) {
+      url = resource.replace('{artist_id}', (search as SpotifyResponses.ArtistsTopTracks).params.id)
+    }
+
+    if (resource === ApiResources.ALBUM_SONGS) {
+      url = resource.replace('{album_id}', (search as SpotifyResponses.AlbumTracksRequest).params.id)
     }
 
     const resp = await this.api(url, {
@@ -421,7 +432,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     }
   }
 
-  public async search(term: string): Promise<Song[]> {
+  public async searchSongs(term: string): Promise<Song[]> {
     const songList: Song[] = []
     const resp = await this.populateRequest(ApiResources.SEARCH, {
       params: {
@@ -431,11 +442,100 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       }
     })
 
-    console.log(resp)
-
-    for (const s of resp.tracks.items) {
-      songList.push(this.parseSong(s))
+    if (resp.tracks) {
+      for (const s of resp.tracks.items) {
+        songList.push(this.parseSong(s))
+      }
     }
     return songList
+  }
+
+  private parseArtist(artist: SpotifyResponses.RecommendationDetails.SpotifyArtist): Artists {
+    return {
+      artist_id: `spotify-artist-${artist.id}`,
+      artist_name: artist.name,
+      artist_coverPath: artist.images?.at(0)?.url
+    }
+  }
+
+  public async searchArtists(term: string): Promise<Artists[]> {
+    const artists: Artists[] = []
+    const resp = await this.populateRequest(ApiResources.SEARCH, {
+      params: {
+        query: term,
+        type: 'artist',
+        limit: 20
+      }
+    })
+
+    if (resp.artists) {
+      for (const a of resp.artists.items) {
+        artists.push(this.parseArtist(a))
+      }
+    }
+
+    return artists
+  }
+
+  private async getArtistAlbums(artist_id: string) {
+    const albums: SpotifyResponses.RecommendationDetails.Album[] = []
+    const resp = await this.populateRequest(ApiResources.ARTIST_ALBUMS, {
+      params: {
+        id: artist_id,
+        market: 'ES',
+        limit: 20,
+        offset: 0
+      }
+    })
+
+    return resp.items
+  }
+
+  private async *getAlbumSongs(album: SpotifyResponses.RecommendationDetails.Album) {
+    let nextOffset = 0
+    let isNext = false
+    const limit = 50
+
+    do {
+      const resp = await this.populateRequest(ApiResources.ALBUM_SONGS, {
+        params: {
+          id: album.id,
+          market: 'ES',
+          limit: limit,
+          offset: nextOffset
+        }
+      })
+
+      isNext = !!resp.next
+      if (isNext) {
+        nextOffset += limit
+      }
+
+      for (const s of resp.items) {
+        yield this.parseSong({
+          ...s,
+          album
+        })
+      }
+    } while (isNext)
+  }
+
+  public async *getArtistSongs(artist_id: string): AsyncGenerator<Song[]> {
+    artist_id = artist_id.replace('spotify-artist-', '')
+    const resp = await this.populateRequest(ApiResources.ARTIST_TOP, {
+      params: {
+        id: artist_id,
+        market: 'ES'
+      }
+    })
+
+    for (const s of resp.tracks) {
+      yield [this.parseSong(s)]
+    }
+
+    const albums = await this.getArtistAlbums(artist_id)
+    for (const a of albums) {
+      for await (const s of this.getAlbumSongs(a)) yield [s]
+    }
   }
 }

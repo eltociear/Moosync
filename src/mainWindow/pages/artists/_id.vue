@@ -43,6 +43,8 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
   private songList: Song[] = []
   private artist: Artists | null = null
 
+  private lateSongCount = 0
+
   get buttonGroups(): SongDetailButtons {
     return {
       enableContainer: true,
@@ -53,17 +55,17 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
   get defaultDetails(): SongDetailDefaults {
     return {
       defaultTitle: this.artist?.artist_name,
-      defaultSubSubtitle: `${this.artist?.artist_song_count} Songs`,
+      defaultSubSubtitle: `${this.artist?.artist_song_count ?? this.lateSongCount} Songs`,
       defaultCover: this.artist?.artist_coverPath
     }
   }
 
   created() {
-    this.fetchAlbum()
+    this.fetchArtists()
     this.fetchSongList()
   }
 
-  private async fetchAlbum() {
+  private async fetchArtists() {
     this.artist = (
       await window.SearchUtils.searchEntityByOptions({
         artist: {
@@ -71,15 +73,41 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
         }
       })
     )[0]
+
+    if (!this.artist?.artist_name) {
+      this.artist = {
+        artist_id: this.$route.params.id,
+        artist_name: this.$route.params.name,
+        artist_coverPath: this.$route.params.cover
+      }
+    }
+  }
+
+  private async fetchSpotifySonglist() {
+    if (vxm.providers.loggedInSpotify) {
+      for await (const songs of vxm.providers.spotifyProvider.getArtistSongs(this.$route.params.id)) {
+        for (const s of songs) {
+          if (!this.songList.find((val) => val._id === s._id)) {
+            this.songList.push(s)
+            this.lateSongCount++
+          }
+        }
+      }
+    }
   }
 
   private async fetchSongList() {
-    this.songList = await window.SearchUtils.searchSongsByOptions({
-      artist: {
-        artist_id: this.$route.params.id
-      },
-      sortBy: vxm.themes.sortBy
-    })
+    if (this.$route.params.id.startsWith('spotify')) {
+      await this.fetchSpotifySonglist()
+      this.lateSongCount = this.songList.length
+    } else {
+      this.songList = await window.SearchUtils.searchSongsByOptions({
+        artist: {
+          artist_id: this.$route.params.id
+        },
+        sortBy: vxm.themes.sortBy
+      })
+    }
   }
 
   private sort(options: sortOptions) {

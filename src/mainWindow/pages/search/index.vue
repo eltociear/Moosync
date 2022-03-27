@@ -32,6 +32,7 @@
             @onContextMenu="contextMenuHandler(tab, ...arguments)"
           />
         </RecycleScroller>
+        <b-button v-if="getLoadMore(tab)" @click="handleLoadMore(tab)">Load more from spotify</b-button>
       </b-tab>
     </b-tabs>
   </div>
@@ -77,8 +78,8 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     this.result.youtube = await window.SearchUtils.searchYT(this.term)
     this.refreshYoutube()
 
-    if (vxm.providers.spotifyProvider.loggedIn) {
-      this.result.spotify = await vxm.providers.spotifyProvider.search(this.term)
+    if (vxm.providers.loggedInSpotify) {
+      this.result.spotify = await vxm.providers.spotifyProvider.searchSongs(this.term)
       console.log(this.result.spotify)
       this.refreshSpotify()
     }
@@ -96,6 +97,26 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
 
   private refreshSpotify() {
     this.items[6].key = 'Spotify' + this.items[6].count++
+  }
+
+  private getLoadMore(tab: string) {
+    if (tab === 'Artists') return true
+    return false
+  }
+
+  private async handleLoadMore(tab: string) {
+    if (tab === 'Artists') {
+      const resp = await vxm.providers.spotifyProvider.searchArtists(this.term)
+      for (const a of resp) {
+        if (!this.result.artists) {
+          this.result.artists = []
+        }
+
+        if (!this.result.artists.find((val) => val.artist_id === a.artist_id)) {
+          this.result.artists.push(a)
+        }
+      }
+    }
   }
 
   private ComputeTabKeyField(tab: string) {
@@ -168,7 +189,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Albums':
           return `${(item as Album).album_song_count} Songs`
         case 'Artists':
-          return `${(item as Artists).artist_song_count} Songs`
+          return (item as Artists).artist_song_count ? `${(item as Artists).artist_song_count} Songs` : ''
         case 'Genres':
           return `${(item as Genre).genre_song_count} Songs`
         case 'Playlists':
@@ -213,6 +234,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         this.gotoAlbum(item as Album)
         return
       case 'Artists':
+        console.log(item)
         this.gotoArtist(item as Artists)
         return
       case 'Genres':

@@ -10,7 +10,7 @@
 interface SearchResult {
   songs?: Song[]
   albums?: Album[]
-  artists?: artists[]
+  artists?: Artists[]
   genres?: Genre[]
   playlists?: Playlist[]
   youtube?: YTMusicVideo[]

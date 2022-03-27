@@ -8,5 +8,6 @@
  */
 
 export abstract class GenericSearch {
-  public abstract search(term: string): Promise<Song[]>
+  public abstract searchSongs(term: string): Promise<Song[]>
+  public abstract searchArtists(term: string): Promise<Artists[]>
 }
