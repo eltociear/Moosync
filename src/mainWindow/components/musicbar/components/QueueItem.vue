@@ -29,17 +29,25 @@
         <div class="d-flex">
           <div class="text-left song-title text-truncate">{{ song.title }}</div>
           <YoutubeIcon
-            v-if="song.type === 'YOUTUBE'"
+            v-if="iconType === 'YOUTUBE'"
             :color="'#E62017'"
             :filled="true"
             :dropShadow="true"
             class="provider-icon"
           />
           <SpotifyIcon
-            v-if="song.type === 'SPOTIFY'"
+            v-if="iconType === 'SPOTIFY'"
             :color="'#1ED760'"
             :filled="true"
             :dropShadow="true"
+            class="provider-icon"
+          />
+
+          <inline-svg class="provider-icon" v-if="iconType === 'URL' && iconURL.endsWith('svg')" :src="iconURL" />
+          <img
+            v-if="iconType === 'URL' && !iconURL.endsWith('svg')"
+            :src="iconURL"
+            alt="provider icon"
             class="provider-icon"
           />
         </div>
@@ -97,11 +105,27 @@ export default class MusicInfo extends mixins(ImgLoader, PlayerControls, Context
 
   private image: string | null = null
 
+  private iconType = ''
+  private iconURL = ''
+
   get queueProvider() {
     return this.isSyncing ? vxm.sync : vxm.player
   }
 
+  private async getIconType() {
+    if (this.song.providerExtension) {
+      const icon = await window.ExtensionUtils.getExtensionIcon(this.song.providerExtension)
+      if (icon) {
+        this.iconURL = 'media://' + icon
+        return 'URL'
+      }
+    }
+
+    return this.song.type
+  }
+
   async created() {
+    this.iconType = (await this.getIconType()) ?? ''
     if (this.isSyncing) {
       const tmp = await window.FileUtils.isImageExists(this.songID)
       if (tmp) this.image = 'media://' + tmp

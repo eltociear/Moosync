@@ -10,9 +10,6 @@
 type AudioType = 'STREAMING' | 'LOCAL'
 
 type PlayerState = 'PLAYING' | 'PAUSED' | 'STOPPED'
-
-type PlayerType = 'LOCAL' | 'YOUTUBE'
-
 interface SongQueue {
   data: { [id: string]: Song }
   order: { id: string; songID: string }[]

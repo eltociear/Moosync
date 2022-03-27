@@ -68,7 +68,8 @@ export class DBUtils {
       type: dbSong.type,
       url: dbSong.url,
       date_added: dbSong.date_added,
-      playbackUrl: dbSong.playbackUrl
+      playbackUrl: dbSong.playbackUrl,
+      providerExtension: dbSong.provider_extension
     }
   }
 
@@ -98,7 +99,8 @@ export class DBUtils {
       type: song.type,
       url: song.url?.trim(),
       playbackUrl: song.playbackUrl?.trim(),
-      date_added: Date.now()
+      date_added: Date.now(),
+      provider_extension: song.providerExtension
     }
   }
 

@@ -21,7 +21,7 @@ export async function insertSong(SongDB: SongDBInstance, options: options): Prom
 
   for (let i = 0; i < (options.size ?? 1); i++) {
     const song = generateSong(options)
-    await SongDB.store(song)
+    SongDB.store(song)
     generate.push(song)
   }
 

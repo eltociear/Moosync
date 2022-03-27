@@ -18,12 +18,14 @@ type extensionRequestMessage = {
   type: import('@/utils/extensions/constants').extensionRequests
   channel: string
   data: any
+  extensionName: string
 }
 
 type extensionUIRequestMessage = {
   type: import('@/utils/extensions/constants').extensionUIRequests
   channel: string
   data: any
+  extensionName: string
 }
 
 type extensionReplyMessage = extensionRequestMessage
@@ -64,6 +66,7 @@ interface ExtensionDetails {
   hasStarted: boolean
   entry: string
   extensionPath: string
+  extensionIcon: string | undefined
   preferences: ExtensionPreferenceGroup[]
 }
 
@@ -81,6 +84,7 @@ interface UnInitializedExtensionItem {
   version: string
   entry: string
   extensionPath: string
+  extensionIcon: string | undefined
 }
 
 interface getExtensionOptions {

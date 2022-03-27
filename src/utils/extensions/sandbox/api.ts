@@ -13,69 +13,87 @@ import { extensionAPI } from '@moosync/moosync-types'
 
 export class ExtensionRequestGenerator implements extensionAPI {
   private packageName: string
+  player: PlayerControls
+
+  constructor(packageName: string) {
+    this.packageName = packageName
+    this.player = new PlayerControls(this.packageName)
+  }
+
+  public async getSongs(options: OriginalSongAPIOptions) {
+    return sendAsync<Song[]>(this.packageName, 'get-songs', options)
+  }
+
+  public async getCurrentSong() {
+    return sendAsync<Song>(this.packageName, 'get-current-song')
+  }
+
+  public async getVolume() {
+    return sendAsync<number>(this.packageName, 'get-volume')
+  }
+
+  public async getTime() {
+    return sendAsync<number>(this.packageName, 'get-time')
+  }
+
+  public async getQueue() {
+    return sendAsync<SongQueue>(this.packageName, 'get-queue')
+  }
+
+  public async getPlayerState() {
+    return sendAsync<PlayerState>(this.packageName, 'get-player-state')
+  }
+
+  public async getPreferences(key?: string, defaultValue?: unknown) {
+    return sendAsync<SongQueue>(this.packageName, 'get-preferences', {
+      packageName: this.packageName,
+      key,
+      defaultValue
+    })
+  }
+
+  public async setPreferences(key: string, value: unknown) {
+    return sendAsync<void>(this.packageName, 'set-preferences', { packageName: this.packageName, key, value })
+  }
+
+  public async addSongs(...song: Song[]) {
+    return sendAsync<boolean[]>(this.packageName, 'add-songs', song)
+  }
+
+  public async removeSong(song_id: string) {
+    return sendAsync<void>(this.packageName, 'remove-song', song_id)
+  }
+}
+
+class PlayerControls implements playerControls {
+  private packageName: string
 
   constructor(packageName: string) {
     this.packageName = packageName
   }
 
-  player: PlayerControls = new PlayerControls()
-
-  public async getSongs(options: SongAPIOptions) {
-    return sendAsync<Song[]>('get-songs', options)
-  }
-
-  public async getCurrentSong() {
-    return sendAsync<Song>('get-current-song')
-  }
-
-  public async getVolume() {
-    return sendAsync<number>('get-volume')
-  }
-
-  public async getTime() {
-    return sendAsync<number>('get-time')
-  }
-
-  public async getQueue() {
-    return sendAsync<SongQueue>('get-queue')
-  }
-
-  public async getPlayerState() {
-    return sendAsync<PlayerState>('get-player-state')
-  }
-
-  public async getPreferences(key?: string, defaultValue?: unknown) {
-    return sendAsync<SongQueue>('get-preferences', { packageName: this.packageName, key, defaultValue })
-  }
-
-  public async setPreferences(key: string, value: unknown) {
-    return sendAsync<void>('set-preferences', { packageName: this.packageName, key, value })
-  }
-}
-
-class PlayerControls implements playerControls {
   play(): Promise<void> {
-    return sendAsync<void>('play')
+    return sendAsync<void>(this.packageName, 'play')
   }
 
   pause(): Promise<void> {
-    return sendAsync<void>('pause')
+    return sendAsync<void>(this.packageName, 'pause')
   }
 
   stop(): Promise<void> {
-    return sendAsync<void>('stop')
+    return sendAsync<void>(this.packageName, 'stop')
   }
 
   nextSong(): Promise<void> {
-    return sendAsync<void>('next')
+    return sendAsync<void>(this.packageName, 'next')
   }
 
   prevSong(): Promise<void> {
-    return sendAsync<void>('prev')
+    return sendAsync<void>(this.packageName, 'prev')
   }
 }
 
-function sendAsync<T>(type: extensionRequests, data?: unknown): Promise<T | undefined> {
+function sendAsync<T>(packageName: string, type: extensionRequests, data?: unknown): Promise<T | undefined> {
   const channel = v4()
   return new Promise((resolve) => {
     if (process.send) {
@@ -89,7 +107,7 @@ function sendAsync<T>(type: extensionRequests, data?: unknown): Promise<T | unde
           }
         })
       )
-      process.send({ type, channel, data } as extensionRequestMessage)
+      process.send({ type, channel, data, extensionName: packageName } as extensionRequestMessage)
       return
     }
     resolve(undefined)

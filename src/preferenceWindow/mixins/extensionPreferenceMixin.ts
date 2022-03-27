@@ -60,7 +60,7 @@ export class ExtensionPreferenceMixin extends Vue {
 
     if (this.isExtension)
       window.ExtensionUtils.sendEvent({
-        data: { key: this.prefKey, value: this.value },
+        data: { key: this.prefKey?.replace(`${this.packageName}.`, ''), value: this.value },
         type: 'onPreferenceChanged',
         packageName: this.packageName
       } as extensionEventMessage)

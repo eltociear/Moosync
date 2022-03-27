@@ -391,6 +391,12 @@ contextBridge.exposeInMainWorld('ExtensionUtils', {
       params: undefined
     }),
 
+  getExtensionIcon: (packageName: string) =>
+    ipcRendererHolder.send<ExtensionHostRequests.RemoveExtension>(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.GET_EXTENSION_ICON,
+      params: { packageName }
+    }),
+
   listenRequests: (callback: (request: extensionUIRequestMessage) => void) =>
     ipcRendererHolder.on(ExtensionHostEvents.EXTENSION_REQUESTS, callback),
   replyToRequest: (data: extensionReplyMessage) => ipcRenderer.send(ExtensionHostEvents.EXTENSION_REQUESTS, data),

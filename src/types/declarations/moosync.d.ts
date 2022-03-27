@@ -7,10 +7,15 @@ type Playlist = import('@moosync/moosync-types').Playlist
 type playerControls = import('@moosync/moosync-types').playerControls
 
 type EntityApiOptions = import('@moosync/moosync-types').EntityApiOptions
-type SongAPIOptions = import('@moosync/moosync-types').SongAPIOptions
+type OriginalSongAPIOptions = import('@moosync/moosync-types').SongAPIOptions
+type SearchableSong = Omit<import('@moosync/moosync-types').SearchableSong, 'extension'> & { extension?: string }
+type SongAPIOptions = Omit<OriginalSongAPIOptions, 'song'> & {
+  song?: SearchableSong
+}
 
 type ExtensionFactory = import('@moosync/moosync-types').ExtensionFactory
 type MoosyncExtensionTemplate = import('@moosync/moosync-types').MoosyncExtensionTemplate
+type PlayerType = import('@moosync/moosync-types').PlayerTypes
 
 declare namespace NodeJS {
   export interface ProcessEnv {

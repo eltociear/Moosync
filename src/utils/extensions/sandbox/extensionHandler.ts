@@ -87,6 +87,13 @@ export class ExtensionHandler {
     this.extensionManager.deregister(packageName)
   }
 
+  public getExtensionIcon(packageName: string) {
+    const ext = this.extensionManager.getExtensions({ packageName })
+    for (const e of ext) {
+      return e.extensionIcon
+    }
+  }
+
   public sendEvent(event: extensionEventMessage) {
     const method: keyof MoosyncExtensionTemplate = event.type
     if (this.initialized) {
@@ -106,7 +113,8 @@ export class ExtensionHandler {
       hasStarted: item.hasStarted,
       entry: item.entry,
       preferences: item.preferences,
-      extensionPath: item.extensionPath
+      extensionPath: item.extensionPath,
+      extensionIcon: item.extensionIcon
     }
   }
 

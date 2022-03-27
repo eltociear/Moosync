@@ -22,21 +22,39 @@ export class SongDBInstance extends DBUtils {
                 ALLSONGS
      ============================= */
 
-  public async store(newDoc: Song): Promise<void> {
-    const artistID = newDoc.artists ? this.storeArtists(...newDoc.artists) : []
-    const albumID = newDoc.album ? this.storeAlbum(newDoc.album) : ''
-    const genreID = this.storeGenre(newDoc.genre)
-    const marshaledSong = this.marshalSong(newDoc)
-    if (this.db.query(`SELECT _id from allsongs WHERE _id = ?`, marshaledSong._id).length === 0) {
+  private verifySong(song: Song) {
+    return !!(song._id && song.title && song.date_added && song.duration && song.type)
+  }
+
+  public store(newDoc: Song, extensionName?: string): boolean {
+    if (this.verifySong(newDoc)) {
+      const marshaledSong = this.marshalSong(newDoc)
+      const existing = this.getSongByOptions({ song: { _id: newDoc._id } })[0]
+      if (existing) {
+        if (extensionName && existing.providerExtension !== extensionName) {
+          // Song doesn't belong to extension, don't do anything
+          return false
+        } else {
+          // TODO: Write better song updates
+          this.removeSong(newDoc._id)
+        }
+      }
+
+      const artistID = newDoc.artists ? this.storeArtists(...newDoc.artists) : []
+      const albumID = newDoc.album ? this.storeAlbum(newDoc.album) : ''
+      const genreID = this.storeGenre(newDoc.genre)
+
       this.db.insert('allsongs', marshaledSong)
       this.storeArtistBridge(artistID, marshaledSong._id)
       this.storeGenreBridge(genreID, marshaledSong._id)
       this.storeAlbumBridge(albumID, marshaledSong._id)
+
+      this.updateAllSongCounts()
+
+      return true
     }
 
-    this.updateAllSongCounts()
-
-    return
+    return false
   }
 
   private updateAllSongCounts() {
@@ -163,6 +181,11 @@ export class SongDBInstance extends DBUtils {
     return { songs: songs, albums: albums, artists: artists, genres: genre }
   }
 
+  private getInnerKey(property: string) {
+    if (property === 'extension') return 'provider_extension'
+    return property
+  }
+
   private populateWhereQuery(options?: SongAPIOptions) {
     if (options) {
       let where = 'WHERE '
@@ -181,7 +204,7 @@ export class SongDBInstance extends DBUtils {
           const data = options[key as keyof SongAPIOptions]
           if (data) {
             for (const [innerKey, innerValue] of Object.entries(data)) {
-              where += `${addANDorOR()} ${tableName}.${innerKey} LIKE ?`
+              where += `${addANDorOR()} ${tableName}.${this.getInnerKey(innerKey)} LIKE ?`
               args.push(`${innerValue}`)
             }
           }

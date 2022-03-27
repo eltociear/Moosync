@@ -39,13 +39,34 @@ export class ExtensionManager extends AbstractExtensionManager {
     this.extensionRegistry.deregister(packageName)
   }
 
+  private getProcessEnv() {
+    const env = JSON.parse(JSON.stringify(process.env)) as Partial<NodeJS.ProcessEnv>
+    delete env.FanartTVApiKey
+    delete env.LastFmApiKey
+    delete env.LastFmSecret
+    delete env.SpotifyClientID
+    delete env.SpotifyClientSecret
+    delete env.YoutubeClientID
+    delete env.YoutubeClientSecret
+
+    delete env['YOUTUBECLIENTID']
+    delete env['YOUTUBECLIENTSECRET']
+    delete env['LASTFMAPIKEY']
+    delete env['LASTFMSECRET']
+    delete env['FANARTTVAPIKEY']
+    delete env['GH_TOKEN']
+
+    env['MOOSYNC_VERSION'] = process.env.MOOSYNC_VERSION
+    return env
+  }
+
   private async getVM(entryFilePath: string, extensionPath: string) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const events = require('events')
     const vm = new NodeVM({
       console: 'inherit',
       sandbox: {},
-      env: process.env,
+      env: this.getProcessEnv(),
       nesting: true,
       require: {
         external: true,
@@ -136,6 +157,7 @@ export class ExtensionManager extends AbstractExtensionManager {
         entry: extension.entry,
         vm: vmObj.vm,
         extensionPath: extension.extensionPath,
+        extensionIcon: extension.extensionIcon,
         preferences,
         instance
       })
