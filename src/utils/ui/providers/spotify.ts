@@ -19,6 +19,8 @@ import qs from 'qs'
 import { vxm } from '@/mainWindow/store'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
+import { GenericSearch } from './generics/genericSearch'
+import { Song } from '@moosync/moosync-types'
 
 /**
  * Spotify API base URL
@@ -32,13 +34,14 @@ enum ApiResources {
   PLAYLIST_ITEMS = 'playlists/{playlist_id}/tracks',
   SONG_DETAILS = 'tracks/{song_id}',
   TOP = 'me/top/{type}',
-  RECOMMENDATIONS = 'recommendations'
+  RECOMMENDATIONS = 'recommendations',
+  SEARCH = 'search'
 }
 
 /**
  * API Handler for Spotify.
  */
-export class SpotifyProvider extends GenericAuth implements GenericProvider, GenericRecommendation {
+export class SpotifyProvider extends GenericAuth implements GenericProvider, GenericRecommendation, GenericSearch {
   private auth!: AuthFlow
   private _config!: ReturnType<SpotifyProvider['getConfig']>
 
@@ -416,5 +419,23 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       })
       yield this.parseRecommendations(recommendationsResp)
     }
+  }
+
+  public async search(term: string): Promise<Song[]> {
+    const songList: Song[] = []
+    const resp = await this.populateRequest(ApiResources.SEARCH, {
+      params: {
+        query: term,
+        type: 'track',
+        limit: 20
+      }
+    })
+
+    console.log(resp)
+
+    for (const s of resp.tracks.items) {
+      songList.push(this.parseSong(s))
+    }
+    return songList
   }
 }

@@ -16,7 +16,8 @@ declare namespace SpotifyResponses {
     PLAYLIST_ITEMS = 'playlists/{playlist_id}/tracks',
     SONG_DETAILS = 'tracks/{song_id}',
     TOP = 'me/top/{type}',
-    RECOMMENDATIONS = 'recommendations'
+    RECOMMENDATIONS = 'recommendations',
+    SEARCH = 'search'
   }
 
   type RecommendationRequest = {
@@ -66,6 +67,14 @@ declare namespace SpotifyResponses {
     }
   }
 
+  type SearchRequest = {
+    params: {
+      query: string
+      type: 'track' | 'artist'
+      limit: number
+    }
+  }
+
   type SearchObject<T extends ApiResources> = T extends ApiResources.USER_DETAILS
     ? ChannelRequest
     : T extends ApiResources.PLAYLISTS
@@ -80,6 +89,8 @@ declare namespace SpotifyResponses {
     ? TopRequest
     : T extends ApiResources.RECOMMENDATIONS
     ? RecommendationRequest
+    : T extends ApiResources.SEARCH
+    ? SearchRequest
     : undefined
 
   interface Image {
@@ -352,6 +363,13 @@ declare namespace SpotifyResponses {
     }[]
   }
 
+  interface SearchResponse {
+    tracks: {
+      href: string
+      items: Track[]
+    }
+  }
+
   type ResponseType<T extends ApiResources> = T extends ApiResources.USER_DETAILS
     ? UserDetails.UserDetails
     : T extends ApiResources.PLAYLISTS
@@ -366,5 +384,7 @@ declare namespace SpotifyResponses {
     ? RecommendationDetails.Recommendations
     : T extends ApiResources.TOP
     ? TopDetails
+    : T extends ApiResources.SEARCH
+    ? SearchResponse
     : undefined
 }

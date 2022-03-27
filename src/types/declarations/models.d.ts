@@ -14,6 +14,7 @@ interface SearchResult {
   genres?: Genre[]
   playlists?: Playlist[]
   youtube?: YTMusicVideo[]
+  spotify?: Song[]
 }
 
 interface marshaledSong {
