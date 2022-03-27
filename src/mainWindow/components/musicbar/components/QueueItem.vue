@@ -126,8 +126,6 @@ export default class MusicInfo extends mixins(ImgLoader, PlayerControls, Context
       }
     }
 
-    console.log(this.iconURL)
-
     return this.song.type
   }
 
