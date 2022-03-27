@@ -67,6 +67,8 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     { tab: 'Spotify', count: 0, key: 'Spotify-0' }
   ]
 
+  private loadedMore = { artists: false }
+
   get tab() {
     return this.items[this.tabModel].tab
   }
@@ -99,7 +101,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   }
 
   private getLoadMore(tab: string) {
-    if (tab === 'Artists') return true
+    if (tab === 'Artists' && !this.loadedMore.artists) return true
     return false
   }
 
@@ -114,6 +116,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         if (!this.result.artists.find((val) => val.artist_id === a.artist_id)) {
           this.result.artists.push(a)
         }
+        this.loadedMore.artists = true
       }
     }
   }
