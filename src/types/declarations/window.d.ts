@@ -103,6 +103,13 @@ interface fileUtils {
    */
   scan: () => Promise<void>
 
+  getScanProgress: () => Promise<Progress>
+
+  /**
+   * Available only in Preference window
+   */
+  listenScanProgress: (callback: (progress: Progress) => void) => void
+
   /**
    * Save audio blob to file
    */

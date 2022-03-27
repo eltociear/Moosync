@@ -114,6 +114,12 @@ contextBridge.exposeInMainWorld('FileUtils', {
   scan: () =>
     ipcRendererHolder.send<undefined>(IpcEvents.SCANNER, { type: ScannerEvents.SCAN_MUSIC, params: undefined }),
 
+  getScanProgress: () =>
+    ipcRendererHolder.send<void>(IpcEvents.SCANNER, { type: ScannerEvents.GET_PROGRESS, params: undefined }),
+
+  listenScanProgress: (callback: (progress: Progress) => void) =>
+    ipcRendererHolder.on(ScannerEvents.PROGRESS_CHANNEL, callback),
+
   saveAudioToFile: (path: string, blob: Buffer) =>
     ipcRendererHolder.send<SongRequests.SaveBuffer>(IpcEvents.SONG, {
       type: SongEvents.SAVE_AUDIO_TO_FILE,

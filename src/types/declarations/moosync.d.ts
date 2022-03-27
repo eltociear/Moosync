@@ -17,6 +17,8 @@ type ExtensionFactory = import('@moosync/moosync-types').ExtensionFactory
 type MoosyncExtensionTemplate = import('@moosync/moosync-types').MoosyncExtensionTemplate
 type PlayerType = import('@moosync/moosync-types').PlayerTypes
 
+type Progress = { total: number; current: number }
+
 declare namespace NodeJS {
   export interface ProcessEnv {
     ELECTRON_NODE_INTEGRATION: boolean

@@ -14,7 +14,8 @@ import {
   FormCheckboxPlugin,
   ModalPlugin,
   FormInputPlugin,
-  ButtonPlugin
+  ButtonPlugin,
+  ProgressPlugin
 } from 'bootstrap-vue'
 
 import Vue from 'vue'
@@ -26,3 +27,4 @@ Vue.use(FormCheckboxPlugin)
 Vue.use(ModalPlugin)
 Vue.use(FormInputPlugin)
 Vue.use(ButtonPlugin)
+Vue.use(ProgressPlugin)

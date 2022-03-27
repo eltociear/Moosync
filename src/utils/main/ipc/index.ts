@@ -62,6 +62,6 @@ export function getScannerChannel() {
   return scannerChannel
 }
 
-export function notifyRenderer(notif: NotificationObject) {
-  WindowHandler.getWindow(true)?.webContents.send(IpcEvents.NOTIFIER, notif)
+export function notifyRenderer(notif: NotificationObject, mainWindow = true) {
+  WindowHandler.getWindow(mainWindow)?.webContents.send(IpcEvents.NOTIFIER, notif)
 }

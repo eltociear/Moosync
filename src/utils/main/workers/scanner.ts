@@ -28,7 +28,6 @@ const playlistPatterns = new RegExp('.m3u|.m3u8|.wpl')
 
 type ScannedSong = { song: Song; cover: Buffer | undefined | TransferDescriptor<Buffer> }
 type ScannedPlaylist = { filePath: string; title: string; songHashes: string[] }
-
 let parser: XMLParser | undefined
 
 const logger = getLogger('ScanWorker')
@@ -152,7 +151,7 @@ async function getInfo(data: mm.IAudioMetadata, stats: stats): Promise<Song> {
   const artists: string[] = []
   if (data.common.artists) {
     for (const a of data.common.artists) {
-      artists.push(...a.split(/[,&]+/))
+      artists.push(...a.split(/[,&;]+/))
     }
   }
 
@@ -186,67 +185,70 @@ async function getInfo(data: mm.IAudioMetadata, stats: stats): Promise<Song> {
   }
 }
 
-async function scanDir(
-  directory: string,
-  existingFiles: string[],
-  observer: SubscriptionObserver<ScannedSong | ScannedPlaylist>
-) {
-  if (fs.existsSync(directory)) {
-    const files = fs.readdirSync(directory)
-    for (const file of files) {
-      const filePath = path.join(directory, file)
-
-      if (fs.statSync(filePath).isDirectory()) {
-        await scanDir(filePath, existingFiles, observer)
-      }
-
-      if (existingFiles.includes(filePath)) {
-        logger.debug('Skipping', filePath, 'file already in database')
-        continue
-      }
-
-      if (audioPatterns.exec(path.extname(file).toLowerCase())) {
-        logger.debug('Scanning song', filePath)
-        try {
-          const result = await scanFile(filePath)
-          observer.next({ song: result.song, cover: result.cover && Transfer(result.cover as Buffer) })
-        } catch (e) {
-          logger.error(e)
-        }
-      }
-
-      if (playlistPatterns.exec(path.extname(file).toLowerCase())) {
-        logger.debug('Scanning playlist', filePath)
-        const result = await scanPlaylist(filePath)
-        const songHashes: string[] = []
-        if (result?.songs) {
-          for (const songPath of result.songs) {
-            try {
-              const result = await scanFile(songPath)
-              if (result.song.hash) {
-                observer.next({ song: result.song, cover: result.cover && Transfer(result.cover as Buffer) })
-                songHashes.push(result.song.hash)
-              }
-            } catch (e) {
-              logger.error(e)
-            }
-          }
-          logger.debug('Sending playlist data to main process')
-          observer.next({ title: result.title, songHashes: songHashes, filePath })
-        }
+async function scan(allFiles: string[], observer: SubscriptionObserver<ScannedSong | ScannedPlaylist | Progress>) {
+  for (const [i, filePath] of allFiles.entries()) {
+    if (audioPatterns.exec(path.extname(filePath).toLowerCase())) {
+      logger.debug('Scanning song', filePath)
+      try {
+        const result = await scanFile(filePath)
+        observer.next({ song: result.song, cover: result.cover && Transfer(result.cover as Buffer) })
+      } catch (e) {
+        logger.error(e)
       }
     }
-  } else {
-    logger.error('invalid directory: ' + directory)
+
+    if (playlistPatterns.exec(path.extname(filePath).toLowerCase())) {
+      logger.debug('Scanning playlist', filePath)
+      const result = await scanPlaylist(filePath)
+      const songHashes: string[] = []
+      if (result?.songs) {
+        for (const songPath of result.songs) {
+          try {
+            const result = await scanFile(songPath)
+            if (result.song.hash) {
+              observer.next({ song: result.song, cover: result.cover && Transfer(result.cover as Buffer) })
+              songHashes.push(result.song.hash)
+            }
+          } catch (e) {
+            logger.error(e)
+          }
+        }
+        logger.debug('Sending playlist data to main process')
+        observer.next({ title: result.title, songHashes: songHashes, filePath })
+      }
+    }
+
+    observer.next({ total: allFiles.length, current: i + 1 } as Progress)
   }
 }
 
 async function startScan(paths: togglePaths, existingFiles: string[], observer: SubscriptionObserver<unknown>) {
-  for (const i in paths) {
-    paths[i].enabled && (await scanDir(paths[i].path, existingFiles, observer))
+  const allFiles: string[] = []
+  for (const p of paths) {
+    p.enabled && allFiles.push(...(await getAllFiles(p.path)))
   }
+
+  const newFiles = allFiles.filter((x) => !existingFiles.includes(x))
+  observer.next({ total: newFiles.length, current: 0 } as Progress)
+  await scan(newFiles, observer)
   logger.debug('Scan complete')
   observer.complete()
+}
+
+async function getAllFiles(p: string) {
+  const allFiles: string[] = []
+  if (fs.existsSync(p)) {
+    const files = await fs.promises.readdir(p)
+    for (const file of files) {
+      const filePath = path.resolve(path.join(p, file))
+      if ((await fs.promises.stat(filePath)).isDirectory()) {
+        allFiles.push(...(await getAllFiles(filePath)))
+      } else {
+        allFiles.push(filePath)
+      }
+    }
+  }
+  return allFiles
 }
 
 async function generateChecksum(file: string): Promise<string> {
