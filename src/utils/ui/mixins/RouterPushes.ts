@@ -30,6 +30,7 @@ export default class PlayerControls extends Vue {
   }
 
   public gotoArtist(artist: Artists) {
+    console.log(artist)
     this.$router.push({
       name: 'artists-id',
       params: {

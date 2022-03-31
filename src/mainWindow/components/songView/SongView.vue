@@ -25,6 +25,8 @@
         @onRowSelected="updateCoverDetails"
         @onRowSelectionClear="clearSelection"
         @onRowPlayNowClicked="playTop([arguments[0]])"
+        @onArtistClicked="gotoArtist"
+        @onAlbumClicked="gotoAlbum"
         @playAll="playAll"
         @addToQueue="addToQueue"
         @addToLibrary="addToLibrary"
@@ -44,6 +46,7 @@ import { vxm } from '@/mainWindow/store'
 import SongViewClassic from '@/mainWindow/components/songView/components/SongViewClassic.vue'
 import SongViewCompact from '@/mainWindow/components/songView/components/SongViewCompact.vue'
 import { sortSongList } from '@/utils/common'
+import RouterPushes from '@/utils/ui/mixins/RouterPushes'
 
 @Component({
   components: {
@@ -51,7 +54,7 @@ import { sortSongList } from '@/utils/common'
     SongViewCompact
   }
 })
-export default class AllSongs extends mixins(PlayerControls, ModelHelper, RemoteSong, ImgLoader) {
+export default class AllSongs extends mixins(PlayerControls, ModelHelper, RemoteSong, ImgLoader, RouterPushes) {
   @Prop({ default: () => [] })
   private songList!: Song[]
 

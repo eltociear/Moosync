@@ -28,6 +28,7 @@
               @onRowSelected="onRowSelected"
               @onRowContext="onRowContext"
               @onPlayNowClicked="onPlayNowClicked"
+              @onArtistClicked="onArtistClicked"
             />
           </template>
         </RecycleScroller>
@@ -63,6 +64,10 @@ export default class SongListCompact extends mixins(ImgLoader, SongListMixin) {
 
   private onPlayNowClicked(item: Song) {
     this.$emit('onRowPlayNowClicked', item)
+  }
+
+  private onArtistClicked(item: Artists) {
+    this.$emit('onArtistClicked', item)
   }
 }
 </script>

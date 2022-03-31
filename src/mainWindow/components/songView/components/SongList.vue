@@ -52,7 +52,24 @@
                 @click="onRowSelected(index)"
                 @contextmenu="onRowContext(arguments[0], item)"
               >
-                {{ field.key === 'index' ? index + 1 : getFieldData(field.key, item) }}
+                <div
+                  :class="field.key === 'album_name' ? 'col-content' : ''"
+                  v-if="typeof getFieldData(field.key, item) === 'string'"
+                  @click="onTextClick(field.key, item)"
+                >
+                  {{ getFieldData(field.key, item, index) }}
+                </div>
+                <div class="d-flex" v-if="typeof getFieldData(field.key, item) === 'object'">
+                  <div
+                    v-for="(artist, index) in getFieldData(field.key, item, index)"
+                    :key="index"
+                    @click="onTextClick(field.key, artist)"
+                    :class="field.key === 'artist_name' ? 'col-content' : ''"
+                    class="ml-1"
+                  >
+                    {{ artist }}{{ index !== item.artists.length - 1 ? ',' : '' }}
+                  </div>
+                </div>
               </div>
             </div>
           </template>
@@ -80,14 +97,16 @@ export default class SongList extends mixins(SongListMixin) {
   @Ref('headers')
   private headers!: HTMLDivElement
 
-  private getFieldData(field: TableFields, song: Song) {
+  private getFieldData(field: TableFields, song: Song, index: number) {
     switch (field) {
+      case 'index':
+        return (index + 1).toString()
       case 'title':
         return song.title
       case 'album_name':
         return song.album?.album_name
       case 'artist_name':
-        return song.artists?.join(', ')
+        return song.artists
     }
   }
 
@@ -222,6 +241,16 @@ export default class SongList extends mixins(SongListMixin) {
     this.$emit('onRowDoubleClicked', item)
   }
 
+  private async onTextClick(key: TableFields, item: Song | string) {
+    console.log(key, item)
+    if (key === 'artist_name' && typeof item === 'string') {
+      const data = await window.SearchUtils.searchEntityByOptions({ artist: { artist_name: item } })
+      this.$emit('onArtistClicked', data[0])
+    } else if (key === 'album_name' && typeof item !== 'string') {
+      this.$emit('onAlbumClicked', item.album)
+    }
+  }
+
   private sortContent(): void {
     // TODO: Sort content without b-table sort since we have table resizers
   }
@@ -232,3 +261,11 @@ export default class SongList extends mixins(SongListMixin) {
   }
 }
 </script>
+
+<style lang="sass">
+.col-content
+  text-decoration: none
+  cursor: pointer
+  &:hover
+    text-decoration: underline
+</style>
