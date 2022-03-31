@@ -12,41 +12,56 @@ import { Component, Vue } from 'vue-property-decorator'
 @Component
 export default class PlayerControls extends Vue {
   public gotoAlbum(album: Album) {
-    this.$router.push({
-      name: 'albums-id',
-      params: {
-        id: album.album_id as string
-      }
-    })
+    try {
+      this.$router.push({
+        name: 'albums-id',
+        params: {
+          id: album.album_id as string
+        }
+      })
+    } catch (e) {
+      console.debug(e)
+    }
   }
 
   public gotoGenre(genre: Genre) {
-    this.$router.push({
-      name: 'genre-id',
-      params: {
-        id: genre.genre_id
-      }
-    })
+    try {
+      this.$router.push({
+        name: 'genre-id',
+        params: {
+          id: genre.genre_id
+        }
+      })
+    } catch (e) {
+      console.debug(e)
+    }
   }
 
   public gotoArtist(artist: Artists) {
-    console.log(artist)
-    this.$router.push({
-      name: 'artists-id',
-      params: {
-        id: artist.artist_id,
-        name: artist.artist_name ?? '',
-        cover: artist.artist_coverPath ?? ''
-      }
-    })
+    try {
+      this.$router.push({
+        name: 'artists-id',
+        params: {
+          id: artist.artist_id,
+          name: artist.artist_name ?? '',
+          cover: artist.artist_coverPath ?? ''
+        }
+      })
+    } catch (e) {
+      console.debug(e)
+    }
   }
 
   public gotoPlaylist(playlist: Playlist) {
-    this.$router.push({
-      name: 'playlists-id',
-      params: {
-        id: playlist.playlist_id
-      }
-    })
+    try {
+      this.$router.push({
+        name: 'playlists-id',
+        params: {
+          id: playlist.playlist_id
+        }
+      })
+    } catch (e) {
+      console.debug(e)
+    }
   }
 }
