@@ -87,7 +87,9 @@ export enum WindowEvents {
 
   AUTOMATE_SPOTIFY = 'automateSpotify',
 
-  RESTART_APP = 'restartApp'
+  RESTART_APP = 'restartApp',
+
+  UPDATE_ZOOM = 'updateZoom'
 }
 
 export enum AlbumEvents {

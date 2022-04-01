@@ -69,6 +69,9 @@ export class BrowserWindowChannel implements IpcChannelInterface {
       case WindowEvents.RESTART_APP:
         this.restartApp(event, request)
         break
+      case WindowEvents.UPDATE_ZOOM:
+        this.updateZoom(event, request)
+        break
     }
   }
 
@@ -181,6 +184,11 @@ export class BrowserWindowChannel implements IpcChannelInterface {
 
   private restartApp(event: Electron.IpcMainEvent, request: IpcRequest) {
     _windowHandler.restartApp()
+    event.reply(request.responseChannel)
+  }
+
+  private updateZoom(event: Electron.IpcMainEvent, request: IpcRequest) {
+    _windowHandler.setZoom()
     event.reply(request.responseChannel)
   }
 }

@@ -410,7 +410,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     }
   }
 
-  public async *getArtistSongs(artist_id: string): AsyncGenerator<Song[]> {
+  public async *getArtistSongs(): AsyncGenerator<Song[]> {
     yield []
   }
 }

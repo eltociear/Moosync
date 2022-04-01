@@ -45,7 +45,16 @@
           </b-col>
         </b-row>
         <b-row no-gutters>
-          <b-col class="subtitle text-truncate"> {{ item.artists.join(', ') }} </b-col>
+          <b-col
+            cols="auto"
+            v-for="(artist, index) in item.artists"
+            :key="index"
+            class="subtitle text-truncate"
+            :class="index !== 0 ? 'ml-1' : ''"
+            @click="onSubtitleClicked(artist)"
+          >
+            {{ artist }}{{ index !== item.artists.length - 1 ? ',' : '' }}</b-col
+          >
         </b-row>
       </b-col>
       <b-col cols="auto" align-self="center" offset="1" class="ml-auto timestamp">
@@ -137,6 +146,15 @@ export default class SongListCompact extends mixins(ImgLoader) {
     this.$emit('onPlayNowClicked', item)
   }
 
+  private async onSubtitleClicked(artist_name: string) {
+    const artist = await window.SearchUtils.searchEntityByOptions({
+      artist: {
+        artist_name: artist_name
+      }
+    })
+    this.$emit('onArtistClicked', artist[0])
+  }
+
   async created() {
     this.iconType = (await this.getIconType()) ?? ''
   }
@@ -166,6 +184,10 @@ export default class SongListCompact extends mixins(ImgLoader) {
 .subtitle
   color: var(--textPrimary)
   font-size: 14px
+  text-decoration: none
+  cursor: pointer
+  &:hover
+    text-decoration: underline
 
 .timestamp
   font-size: 14px

@@ -21,7 +21,7 @@
           @error="handleCoverError"
         />
         <SongDefault v-else class="coverimg me-auto d-flex align-items-center" />
-        <div class="play-button d-flex justify-content-center">
+        <div class="play-button d-flex justify-content-center" v-if="playable">
           <Play2 class="align-self-center" />
         </div>
       </b-col>
@@ -69,6 +69,9 @@ export default class SingleSearchResult extends mixins(PlayerControls, ImgLoader
   @Prop({ default: null })
   id!: string | null
 
+  @Prop({ default: true })
+  private playable!: boolean
+
   private forceEmptyImg = false
 
   private handleCoverError() {
@@ -80,7 +83,7 @@ export default class SingleSearchResult extends mixins(PlayerControls, ImgLoader
   }
 
   private emitImgClick() {
-    this.$emit('imgClick', this.id)
+    if (this.playable) this.$emit('imgClick', this.id)
   }
 
   private emitTitleClick() {

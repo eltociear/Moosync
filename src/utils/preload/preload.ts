@@ -332,7 +332,10 @@ contextBridge.exposeInMainWorld('WindowUtils', {
     ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.AUTOMATE_SPOTIFY, params: undefined }),
 
   restartApp: () =>
-    ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.RESTART_APP, params: undefined })
+    ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.RESTART_APP, params: undefined }),
+
+  updateZoom: () =>
+    ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.UPDATE_ZOOM, params: undefined })
 })
 
 contextBridge.exposeInMainWorld('LoggerUtils', {

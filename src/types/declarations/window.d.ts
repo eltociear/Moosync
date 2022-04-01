@@ -31,7 +31,7 @@ interface DBUtils {
    * @param desc description of playlist
    * @param imgSrc cover image path of playlist
    */
-  createPlaylist: (name: string, desc: string, imgSrc: string) => Promise<string>
+  createPlaylist: (name: string, desc: string, imgSrc?: string) => Promise<string>
 
   /**
    * Add song to playlist
@@ -190,6 +190,7 @@ interface windowUtils {
   dragFile: (path: string) => void
   automateSpotify: () => Promise<{ clientID: string; clientSecret: string } | undefined>
   restartApp: () => Promise<void>
+  updateZoom: () => Promise<void>
 }
 
 /**

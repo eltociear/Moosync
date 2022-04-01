@@ -16,23 +16,31 @@
           :items="ComputeTabContent(i.tab)"
           :item-size="80"
           :key-field="ComputeTabKeyField(i.tab)"
-          v-slot="{ item, index }"
-          v-if="result"
+          v-slot="{ item }"
+          v-if="ComputeTabContent(i.tab).length > 0"
           :direction="'vertical'"
         >
           <SingleSearchResult
             :title="ComputeTabTitle(tab, item)"
             :subtitle="ComputeTabSubTitle(tab, item)"
             :coverImg="ComputeTabImage(tab, item)"
-            :divider="index != result.songs.length - 1"
+            :divider="true"
             :id="item"
             :showButtons="true"
+            :playable="isPlayable(item)"
             @imgClick="imgClickHandler(tab, $event)"
             @titleClick="titleClickHandler(tab, $event)"
             @onContextMenu="contextMenuHandler(tab, ...arguments)"
           />
         </RecycleScroller>
-        <b-button v-if="getLoadMore(tab)" @click="handleLoadMore(tab)">Load more from spotify</b-button>
+        <b-container v-else class="mt-5 mb-3">
+          <b-row align-v="center">
+            <b-col class="nothing-found"> Nothing found... </b-col>
+          </b-row>
+        </b-container>
+        <b-button class="load-more" v-if="getLoadMore(tab)" @click="handleLoadMore(tab)"
+          >Load more from Spotify</b-button
+        >
       </b-tab>
     </b-tabs>
   </div>
@@ -67,7 +75,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     { tab: 'Spotify', count: 0, key: 'Spotify-0' }
   ]
 
-  private loadedMore = { artists: false }
+  private loadedMore: { [key: string]: boolean } = { artists: false }
 
   get tab() {
     return this.items[this.tabModel].tab
@@ -103,6 +111,11 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   private getLoadMore(tab: string) {
     if (tab === 'Artists' && !this.loadedMore.artists) return true
     return false
+  }
+
+  private isPlayable(item: Song | Album | Artists | Genre | Playlist | YTMusicVideo) {
+    if ((item as Artists).artist_id?.startsWith('spotify')) return false
+    return true
   }
 
   private async handleLoadMore(tab: string) {
@@ -334,6 +347,10 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   @Watch('$route.query.search_term') onTermChanged(newValue: string) {
     this.term = newValue
     this.fetchData()
+
+    for (const k of Object.keys(this.loadedMore)) {
+      this.loadedMore[k] = false
+    }
   }
 }
 </script>
@@ -346,4 +363,12 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
 .tab-outer-container
   padding-top: 15px
   overflow-y: scroll
+
+.nothing-found
+  font-size: 22px
+  font-weight: 700
+
+.load-more
+  background-color: var(--accent)
+  color: var(--textInverse)
 </style>

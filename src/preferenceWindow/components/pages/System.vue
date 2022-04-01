@@ -31,6 +31,17 @@
           <EditText
             class="mt-5 mb-3"
             :isExtension="false"
+            title="Zoom Factor (Beta)"
+            prefKey="zoomFactor"
+            tooltip="Zoom of windows in percentage. This may break the UI."
+            :onValueChange="onZoomUpdate"
+            defaultValue="100"
+            type="number"
+          />
+
+          <EditText
+            class="mt-5 mb-3"
+            :isExtension="false"
             title="Spotify Client ID"
             prefKey="spotify.client_id"
             tooltip="Spotify client ID required to login to Spotify. Click to know more"
@@ -238,6 +249,10 @@ export default class System extends Vue {
       this.spotifyIDKey += 1
       this.spotifySecretKey += 1
     }
+  }
+
+  private async onZoomUpdate() {
+    await window.WindowUtils.updateZoom()
   }
 }
 </script>

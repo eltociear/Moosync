@@ -478,7 +478,6 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   private async getArtistAlbums(artist_id: string) {
-    const albums: SpotifyResponses.RecommendationDetails.Album[] = []
     const resp = await this.populateRequest(ApiResources.ARTIST_ALBUMS, {
       params: {
         id: artist_id,
