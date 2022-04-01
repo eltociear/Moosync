@@ -11,6 +11,7 @@
   <div>
     <div ref="audioHolder">
       <div id="yt-player" class="yt-player"></div>
+      <audio id="dummy-yt-player" />
       <audio ref="audio" preload="auto" />
     </div>
   </div>
@@ -315,6 +316,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
   }
 
+  private metadataInterval: ReturnType<typeof setInterval> | undefined
+
   /**
    * Set media info which is recognised by different applications and OS specific API
    */
@@ -352,12 +355,39 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
         artwork
       }
 
-      navigator.mediaSession.metadata = new MediaMetadata(metadata)
+      const dummyAudio: HTMLAudioElement = document.getElementById('dummy-yt-player') as HTMLAudioElement
+
+      if (this.parsePlayerType(this.activePlayerType) === 'YOUTUBE') {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const audio = require('../../../../assets/5-seconds-of-silence.mp3')
+        dummyAudio.load()
+        dummyAudio.src = audio
+        dummyAudio.volume = 0
+        dummyAudio.loop = true
+        await dummyAudio.play()
+        dummyAudio.volume = 0
+      } else {
+        dummyAudio.pause()
+      }
+
+      if (this.metadataInterval) {
+        clearInterval(this.metadataInterval)
+      }
+
+      const setMetadata = () => {
+        navigator.mediaSession.metadata = new MediaMetadata(metadata)
+        navigator.mediaSession.setActionHandler('nexttrack', () => this.nextSong())
+        navigator.mediaSession.setActionHandler('seekbackward', () => this.nextSong())
+        navigator.mediaSession.setActionHandler('previoustrack', () => this.prevSong())
+        navigator.mediaSession.setActionHandler('seekforward', () => this.prevSong())
+        navigator.mediaSession.setActionHandler('seekto', (data) => data.seekTime && (this.forceSeek = data.seekTime))
+      }
+      setMetadata()
       console.debug('Set navigator mediaSession info', metadata)
 
-      navigator.mediaSession.setActionHandler('nexttrack', () => this.nextSong())
-      navigator.mediaSession.setActionHandler('previoustrack', () => this.prevSong())
-      navigator.mediaSession.setActionHandler('seekto', (data) => data.seekTime && (this.forceSeek = data.seekTime))
+      this.metadataInterval = setInterval(() => {
+        setMetadata()
+      }, 10000)
 
       console.debug('Set navigator mediaSession action handlers')
     }
