@@ -321,7 +321,7 @@ export class SongDBInstance extends DBUtils {
         }
       }
     }
-    return this.db.query(`${query} ${args.length > 0 ? where : ''} ORDER BY ${orderBy} ASC`, ...args) as T[]
+    return (this.db.query(`${query} ${args.length > 0 ? where : ''} ORDER BY ${orderBy} ASC`, ...args) as T[]) ?? []
   }
 
   /**

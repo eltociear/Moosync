@@ -84,7 +84,7 @@ export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
   }
 
   private async getPlaylists(invalidateCache = false) {
-    let localPlaylists = await window.SearchUtils.searchEntityByOptions({
+    let localPlaylists = await window.SearchUtils.searchEntityByOptions<Playlist>({
       playlist: true
     })
     this.allPlaylists = [...localPlaylists]

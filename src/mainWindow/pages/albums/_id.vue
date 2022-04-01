@@ -68,7 +68,7 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
 
   private async fetchAlbum() {
     this.album = (
-      await window.SearchUtils.searchEntityByOptions({
+      await window.SearchUtils.searchEntityByOptions<Album>({
         album: {
           album_id: this.$route.params.id
         }

@@ -65,7 +65,7 @@ interface searchUtils {
   /**
    * Search entities like album, artists, playlists, genre by options
    */
-  searchEntityByOptions: (options: EntityApiOptions) => Promise<T[]>
+  searchEntityByOptions: <T>(options: EntityApiOptions) => Promise<T[]>
 
   /**
    * Search all by a term

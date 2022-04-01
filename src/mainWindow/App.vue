@@ -112,7 +112,7 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
   }
 
   private async populatePlaylists() {
-    let RawPlaylists = await window.SearchUtils.searchEntityByOptions({
+    let RawPlaylists = await window.SearchUtils.searchEntityByOptions<Playlist>({
       playlist: true
     })
     let playlists: playlistInfo = {}

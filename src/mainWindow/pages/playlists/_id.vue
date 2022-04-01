@@ -111,7 +111,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
       this.playlist = await this.fetchPlaylistSpotify(invalidateCache)
     } else {
       this.playlist = (
-        await window.SearchUtils.searchEntityByOptions({
+        await window.SearchUtils.searchEntityByOptions<Playlist>({
           playlist: {
             playlist_id: this.$route.params.id
           }
