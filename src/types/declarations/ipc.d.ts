@@ -109,6 +109,8 @@ declare namespace SearchRequests {
   interface SearchYT {
     title: string
     artists?: string[]
+    matchTitle?: boolean
+    scrapeYTMusic?: boolean
   }
 
   interface YTSuggestions {

@@ -60,7 +60,12 @@ export class SearchChannel implements IpcChannelInterface {
   private searchYT(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.SearchYT>) {
     if (request.params && request.params.title) {
       this.ytScraper
-        .searchTerm(request.params.title, request.params.artists)
+        .searchTerm(
+          request.params.title,
+          request.params.artists,
+          request.params.matchTitle,
+          request.params.scrapeYTMusic
+        )
         .then((data) => event.reply(request.responseChannel, data))
         .catch((e) => {
           console.error(e)

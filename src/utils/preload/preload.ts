@@ -173,10 +173,10 @@ contextBridge.exposeInMainWorld('SearchUtils', {
       params: { searchTerm: term }
     }),
 
-  searchYT: (title: string, artists?: string[]) =>
+  searchYT: (title: string, artists?: string[], matchTitle = true, scrapeYTMusic = true) =>
     ipcRendererHolder.send<SearchRequests.SearchYT>(IpcEvents.SEARCH, {
       type: SearchEvents.SEARCH_YT,
-      params: { title, artists }
+      params: { title, artists, matchTitle, scrapeYTMusic }
     }),
 
   getYTSuggestions: (videoID: string) =>

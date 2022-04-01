@@ -21,6 +21,7 @@ import { parseISO8601Duration } from '@/utils/common'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
 import { Song } from '@moosync/moosync-types'
+import { toSong } from '../../models/youtube'
 
 const BASE_URL = 'https://youtube.googleapis.com/youtube/v3/'
 
@@ -344,6 +345,12 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
         const details = await this.getSongDetailsFromID(invalidateCache, videoID)
         if (details && details.length > 0) {
           return details[0]
+        }
+
+        // Apparently searching Video ID in youtube returns the proper video as first result
+        const scraped = await window.SearchUtils.searchYT(videoID, undefined, false, false)
+        if (scraped && scraped.length > 0) {
+          return toSong(scraped[0])[0]
         }
       }
       return

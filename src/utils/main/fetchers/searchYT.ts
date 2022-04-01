@@ -22,19 +22,18 @@ export class YTScraper extends CacheHandler {
     super(path.join(app.getPath('cache'), app.getName(), 'youtube.cache'))
   }
 
-  public async searchTerm(title: string, artists?: string[]) {
-    // const cached = this.getCache(term + '-search')
-    // if (cached) {
-    //   return JSON.parse(cached)
-    // }
-
-    console.log('searching')
-
+  public async searchTerm(title: string, artists?: string[], matchTitle = true, scrapeYTMusic = true) {
     const term = `${artists ? artists.join(', ') + ' - ' : ''}${title}`
+
+    const cached = this.getCache(term + '-search')
+    if (cached) {
+      return JSON.parse(cached)
+    }
+
     try {
-      const ytMusicSearches = await this.scrapeYTMusic(title, artists)
+      const ytMusicSearches = scrapeYTMusic ? await this.scrapeYTMusic(title, artists, matchTitle) : []
       if (ytMusicSearches.length === 0) {
-        ytMusicSearches.push(...(await this.scrapeYoutube(title, artists)))
+        ytMusicSearches.push(...(await this.scrapeYoutube(title, artists, matchTitle)))
       }
 
       this.addToCache(term + '-search', JSON.stringify(ytMusicSearches))
@@ -44,18 +43,17 @@ export class YTScraper extends CacheHandler {
     }
   }
 
-  private async scrapeYTMusic(title: string, artists?: string[]) {
+  private async scrapeYTMusic(title: string, artists?: string[], matchTitle = true) {
     const term = `${artists ? artists.join(', ') + ' - ' : ''}${title}`
 
     const resp = await ytMusic.searchMusics(term)
-    const ytMusicSearches = this.sortByMatches(title, resp)
+    const ytMusicSearches = matchTitle ? this.sortByMatches(title, resp) : resp
 
     return ytMusicSearches
   }
 
-  private async scrapeYoutube(title: string, artists?: string[]) {
+  private async scrapeYoutube(title: string, artists?: string[], matchTitle = true) {
     const term = `${artists ? artists.join(', ') + ' - ' : ''}${title}`
-    console.log(term)
 
     const resp = await ytsr(term, { limit: 5 })
     const songs: ytMusic.MusicVideo[] = []
@@ -70,9 +68,8 @@ export class YTScraper extends CacheHandler {
         })
       }
     }
-    console.log(songs)
 
-    return this.sortByMatches(title, songs)
+    return matchTitle ? this.sortByMatches(title, songs) : songs
   }
 
   public async getSuggestions(videoID: string) {
