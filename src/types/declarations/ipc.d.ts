@@ -106,6 +106,11 @@ declare namespace SearchRequests {
     searchTerm: string
   }
 
+  interface SearchYT {
+    title: string
+    artists?: string[]
+  }
+
   interface YTSuggestions {
     videoID: string
   }

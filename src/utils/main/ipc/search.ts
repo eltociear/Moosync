@@ -29,7 +29,7 @@ export class SearchChannel implements IpcChannelInterface {
         this.searchAll(event, request as IpcRequest<SearchRequests.Search>)
         break
       case SearchEvents.SEARCH_YT:
-        this.searchYT(event, request as IpcRequest<SearchRequests.Search>)
+        this.searchYT(event, request as IpcRequest<SearchRequests.SearchYT>)
         break
       case SearchEvents.YT_SUGGESTIONS:
         this.getYTSuggestions(event, request as IpcRequest<SearchRequests.YTSuggestions>)
@@ -57,10 +57,10 @@ export class SearchChannel implements IpcChannelInterface {
     event.reply(request.responseChannel)
   }
 
-  private searchYT(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.Search>) {
-    if (request.params && request.params.searchTerm) {
+  private searchYT(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.SearchYT>) {
+    if (request.params && request.params.title) {
       this.ytScraper
-        .searchTerm(request.params.searchTerm)
+        .searchTerm(request.params.title, request.params.artists)
         .then((data) => event.reply(request.responseChannel, data))
         .catch((e) => {
           console.error(e)
