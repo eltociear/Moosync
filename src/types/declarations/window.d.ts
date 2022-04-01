@@ -78,7 +78,13 @@ interface searchUtils {
    * Search youtube music by a term.
    * @param term term to search youtube music by
    */
-  searchYT: (title: string, artists?: string[], matchTitle = true, scrapeYTMusic = true) => Promise<YTMusicVideo[]>
+  searchYT: (
+    title: string,
+    artists?: string[],
+    matchTitle = true,
+    scrapeYTMusic = true,
+    scrapeYoutube = false
+  ) => Promise<YTMusicVideo[]>
 
   /**
    * Get suggestions similar to provided video id

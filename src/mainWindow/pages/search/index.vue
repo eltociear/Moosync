@@ -85,7 +85,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     this.result = await window.SearchUtils.searchAll(this.term)
     this.refreshLocal()
 
-    this.result.youtube = await window.SearchUtils.searchYT(this.term)
+    this.result.youtube = await window.SearchUtils.searchYT(this.term, undefined, false, true, true)
     this.refreshYoutube()
 
     if (vxm.providers.loggedInSpotify) {

@@ -22,7 +22,13 @@ export class YTScraper extends CacheHandler {
     super(path.join(app.getPath('cache'), app.getName(), 'youtube.cache'))
   }
 
-  public async searchTerm(title: string, artists?: string[], matchTitle = true, scrapeYTMusic = true) {
+  public async searchTerm(
+    title: string,
+    artists?: string[],
+    matchTitle = true,
+    scrapeYTMusic = true,
+    scrapeYoutube = false
+  ) {
     const term = `${artists ? artists.join(', ') + ' - ' : ''}${title}`
 
     const cached = this.getCache(term + '-search')
@@ -32,7 +38,8 @@ export class YTScraper extends CacheHandler {
 
     try {
       const ytMusicSearches = scrapeYTMusic ? await this.scrapeYTMusic(title, artists, matchTitle) : []
-      if (ytMusicSearches.length === 0) {
+
+      if (scrapeYoutube) {
         ytMusicSearches.push(...(await this.scrapeYoutube(title, artists, matchTitle)))
       }
 
@@ -55,7 +62,7 @@ export class YTScraper extends CacheHandler {
   private async scrapeYoutube(title: string, artists?: string[], matchTitle = true) {
     const term = `${artists ? artists.join(', ') + ' - ' : ''}${title}`
 
-    const resp = await ytsr(term, { limit: 5 })
+    const resp = await ytsr(term)
     const songs: ytMusic.MusicVideo[] = []
     for (const vid of resp.items) {
       if (vid.type === 'video') {

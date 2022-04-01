@@ -64,7 +64,8 @@ export class SearchChannel implements IpcChannelInterface {
           request.params.title,
           request.params.artists,
           request.params.matchTitle,
-          request.params.scrapeYTMusic
+          request.params.scrapeYTMusic,
+          request.params.scrapeYoutube
         )
         .then((data) => event.reply(request.responseChannel, data))
         .catch((e) => {
