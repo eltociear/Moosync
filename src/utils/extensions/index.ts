@@ -257,6 +257,15 @@ class ExtensionRequestHandler {
       }
     }
 
+    if (message.type === 'add-playlist') {
+      const playlist = message.data as Playlist
+      resp.data = SongDB.createPlaylist(playlist.playlist_name, '', playlist.playlist_coverPath, playlist.playlist_path)
+    }
+
+    if (message.type === 'add-song-to-playlist') {
+      SongDB.addToPlaylist(message.data.playlistID, ...message.data.songs)
+    }
+
     if (message.type === 'remove-song') {
       await SongDB.removeSong(message.data)
     }

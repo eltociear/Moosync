@@ -18,6 +18,8 @@ export const extensionEventsKeys: (keyof MoosyncExtensionTemplate)[] = [
 export const extensionRequestsKeys = [
   'get-songs',
   'add-songs',
+  'add-playlist',
+  'add-song-to-playlist',
   'remove-song',
   'get-preferences',
   'set-preferences'

@@ -57,12 +57,20 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
     return sendAsync<void>(this.packageName, 'set-preferences', { packageName: this.packageName, key, value })
   }
 
-  public async addSongs(...song: Song[]) {
-    return sendAsync<boolean[]>(this.packageName, 'add-songs', song)
+  public async addSongs(...songs: Song[]) {
+    return sendAsync<boolean[]>(this.packageName, 'add-songs', songs)
   }
 
   public async removeSong(song_id: string) {
     return sendAsync<void>(this.packageName, 'remove-song', song_id)
+  }
+
+  public async addPlaylist(playlist: Omit<Playlist, 'playlist_id'>) {
+    return sendAsync<string>(this.packageName, 'add-playlist', playlist)
+  }
+
+  public async addSongsToPlaylist(playlistID: string, ...songs: Song[]) {
+    return sendAsync<void>(this.packageName, 'add-song-to-playlist', { playlistID, songs })
   }
 
   public on<T extends ExtraExtensionEventTypes>(
