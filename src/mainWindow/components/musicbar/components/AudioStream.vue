@@ -314,6 +314,18 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       console.debug('getting spotify url')
       return vxm.providers.spotifyProvider.getPlaybackUrlAndDuration(song)
     }
+
+    return new Promise<{ url: string; duration: number }>((resolve, reject) => {
+      if (song.playbackUrl) {
+        const audio = new Audio()
+        audio.onloadedmetadata = () => {
+          if (song.playbackUrl) resolve({ url: song.playbackUrl, duration: audio.duration })
+        }
+        audio.onerror = reject
+
+        audio.src = song.playbackUrl
+      }
+    })
   }
 
   private metadataInterval: ReturnType<typeof setInterval> | undefined
@@ -428,6 +440,30 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
     const playerType = this.onPlayerTypeChanged(song.type)
 
+    if (!song.playbackUrl || !song.duration) {
+      console.debug('PlaybackUrl or Duration empty for', song._id)
+
+      const res = await this.getPlaybackUrlAndDuration(song)
+      console.debug('Got playback url and duration', res)
+
+      if (res) {
+        this.duplicateSongChangeRequest = song
+        // song is a reference to vxm.player.currentSong or vxm.sync.currentSong.
+        // Mutating those properties should also mutate song
+        if (!this.isSyncing) {
+          if (vxm.player.currentSong) {
+            vxm.player.currentSong.duration = res.duration
+            Vue.set(vxm.player.currentSong, 'playbackUrl', res.url)
+          }
+        } else {
+          if (vxm.sync.currentSong) {
+            vxm.sync.currentSong.duration = res.duration
+            Vue.set(vxm.sync.currentSong, 'playbackUrl', res.url)
+          }
+        }
+      }
+    }
+
     if (playerType === 'LOCAL') {
       this.activePlayer.load(
         song.path ? 'media://' + song.path : song.playbackUrl,
@@ -437,28 +473,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       console.debug('Loaded song at', 'media://' + song.path)
       vxm.player.loading = false
     } else {
-      if (!song.playbackUrl || !song.duration) {
-        console.debug('PlaybackUrl or Duration empty for', song._id)
-
-        const res = await this.getPlaybackUrlAndDuration(song)
-        console.debug('Got playback url and duration', res)
-        if (res) {
-          this.duplicateSongChangeRequest = song
-          // song is a reference to vxm.player.currentSong or vxm.sync.currentSong.
-          // Mutating those properties should also mutate song
-          if (!this.isSyncing) {
-            if (vxm.player.currentSong) {
-              vxm.player.currentSong.duration = res.duration
-              Vue.set(vxm.player.currentSong, 'playbackUrl', res.url)
-            }
-          } else {
-            if (vxm.sync.currentSong) {
-              vxm.sync.currentSong.duration = res.duration
-              Vue.set(vxm.sync.currentSong, 'playbackUrl', res.url)
-            }
-          }
-        }
-      }
       console.debug('PlaybackUrl for song', song._id, 'is', song.playbackUrl)
 
       console.debug('Loaded song at', song.playbackUrl)
