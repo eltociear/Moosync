@@ -161,7 +161,7 @@ export class SystemThemeHandler {
       for (const directory of dirs) {
         try {
           const config = path.join(directory, 'kdeglobals')
-          access(path.join(directory, 'kdeglobals'))
+          access(config)
           return this.parseKDETheme(config)
         } catch (_) {
           console.warn(path.join(directory, 'kdeglobals'), 'does not exist')
