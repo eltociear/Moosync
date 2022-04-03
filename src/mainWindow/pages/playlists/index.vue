@@ -12,7 +12,7 @@
     <b-container fluid class="album-container" @contextmenu="contextHandler">
       <b-row no-gutters class="page-title">
         <b-col cols="auto">Playlists</b-col>
-        <b-col class="ml-4 button-grow" @click="newPlaylist" cols="auto"><PlusIcon class="add-icon mb-2" /></b-col>
+        <b-col class="button-grow" @click="newPlaylist" cols="auto"><PlusIcon class="add-icon mb-2" /></b-col>
       </b-row>
       <b-row class="d-flex">
         <b-col col xl="2" md="3" v-for="playlist in allPlaylists" :key="playlist.playlist_id" class="card-col">
@@ -146,6 +146,7 @@ export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
   margin-top: 20px
 
 .add-icon
-  width: 30px
-  height: 30px
+  width: 20px
+  height: 20px
+  margin-left: 15px
 </style>
