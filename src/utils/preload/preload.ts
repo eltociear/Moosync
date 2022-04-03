@@ -414,6 +414,12 @@ contextBridge.exposeInMainWorld('ExtensionUtils', {
     ipcRendererHolder.send<ExtensionHostRequests.ToggleExtensionStatus>(IpcEvents.EXTENSION_HOST, {
       type: ExtensionHostEvents.TOGGLE_EXT_STATUS,
       params: { packageName, enabled }
+    }),
+
+  sendExtraEvent: <T extends ExtraExtensionEventTypes>(event: ExtraExtensionEvents<T>) =>
+    ipcRendererHolder.send<ExtensionHostRequests.ExtraEvent>(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.SEND_EXTRA_EVENT,
+      params: { event }
     })
 })
 

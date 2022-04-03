@@ -151,4 +151,16 @@ export class ExtensionHandler {
       await this.sendToExtensions(ext.packageName, 'onStopped')
     }
   }
+
+  public async sendExtraEventToExtensions<T extends ExtraExtensionEventTypes>(event: ExtraExtensionEvents<T>) {
+    const allData: { [key: string]: ExtraExtensionEventReturnType<T> | undefined } = {}
+    for (const ext of this.extensionManager.getExtensions({ started: true, packageName: event.packageName })) {
+      allData[ext.packageName] = await ext.global.api._emit({
+        type: event.type,
+        data: event.data
+      })
+    }
+
+    return allData
+  }
 }

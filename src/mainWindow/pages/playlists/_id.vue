@@ -51,7 +51,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
 
   private tableBusy = false
 
-  private playlist: Playlist | null = null
+  private playlist: ExtendedPlaylist | null = null
 
   get buttonGroups(): SongDetailButtons {
     return {
@@ -81,12 +81,12 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
   }
 
   private async refresh(invalidateCache = false) {
-    this.fetchPlaylist(invalidateCache)
+    this.fetchPlaylist()
 
     this.songList = []
     if (!this.isYoutube && !this.isSpotify) await this.fetchLocalSongList()
 
-    await this.fetchAsyncGen(invalidateCache)
+    await this.fetchSongListAsync(invalidateCache)
   }
 
   created() {
@@ -104,19 +104,14 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     })
   }
 
-  private async fetchPlaylist(invalidateCache = false) {
-    if (this.isYoutube) {
-      this.playlist = await this.fetchPlaylistYoutube(invalidateCache)
-    } else if (this.isSpotify) {
-      this.playlist = await this.fetchPlaylistSpotify(invalidateCache)
-    } else {
-      this.playlist = (
-        await window.SearchUtils.searchEntityByOptions<Playlist>({
-          playlist: {
-            playlist_id: this.$route.params.id
-          }
-        })
-      )[0]
+  private async fetchPlaylist() {
+    this.playlist = {
+      playlist_id: this.$route.params.playlist_id,
+      playlist_name: this.$route.params.playlist_name,
+      playlist_coverPath: this.$route.params.playlist_coverPath,
+      playlist_song_count: parseInt(this.$route.params.playlist_song_count) ?? 0,
+      playlist_path: this.$route.params.playlist_path,
+      extension: this.$route.params.extension
     }
   }
 
@@ -147,7 +142,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     })
   }
 
-  private async fetchAsyncGen(invalidateCache = false) {
+  private async fetchSongListAsync(invalidateCache = false) {
     let generator
     if (this.isYoutube)
       generator = vxm.providers.youtubeProvider.getPlaylistContent(
@@ -160,10 +155,22 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
         invalidateCache
       )
 
-    if (generator)
+    if (generator) {
       for await (const items of generator) {
         this.songList.push(...items)
       }
+      return
+    }
+
+    if (this.playlist?.extension) {
+      const data = await window.ExtensionUtils.sendExtraEvent({
+        type: 'get-playlist-songs',
+        data: [],
+        packageName: this.playlist.extension
+      })
+
+      this.songList.push(...(data[this.playlist.extension]?.songs ?? []))
+    }
   }
 
   private sort(options: sortOptions) {

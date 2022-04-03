@@ -9,11 +9,12 @@
 
 import { extensionRequests } from '../constants'
 import { v4 } from 'uuid'
-import { extensionAPI } from '@moosync/moosync-types'
 
-export class ExtensionRequestGenerator implements extensionAPI {
+export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
   private packageName: string
   player: PlayerControls
+
+  private eventCallbackMap: Partial<Record<ExtraExtensionEventTypes, (...args: unknown[]) => unknown>> = {}
 
   constructor(packageName: string) {
     this.packageName = packageName
@@ -62,6 +63,22 @@ export class ExtensionRequestGenerator implements extensionAPI {
 
   public async removeSong(song_id: string) {
     return sendAsync<void>(this.packageName, 'remove-song', song_id)
+  }
+
+  public on<T extends ExtraExtensionEventTypes>(
+    eventName: T,
+    callback: (...args: ExtraExtensionEventData<T>) => Promise<ExtraExtensionEventReturnType<T>>
+  ) {
+    console.debug('Registering listener for', eventName, 'in package', this.packageName)
+    this.eventCallbackMap[eventName] = callback
+  }
+
+  public async _emit<T extends ExtraExtensionEventTypes>(event: ExtraExtensionEvents<T>) {
+    console.debug('emitting', event.type, 'in package', this.packageName)
+    const callback = this.eventCallbackMap[event.type]
+    if (callback) {
+      return (await callback(...event.data)) as ExtraExtensionEventReturnType<T>
+    }
   }
 }
 

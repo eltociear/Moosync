@@ -27,6 +27,8 @@
             <template slot="icon">
               <SpotifyIcon v-if="playlist.playlist_id.startsWith('spotify-')" color="#07C330" :filled="true" />
               <YoutubeIcon v-if="playlist.playlist_id.startsWith('youtube-')" color="#E62017" :filled="true" />
+              <inline-svg v-if="playlist.icon && playlist.icon.endsWith('svg')" :src="playlist.icon" />
+              <img v-if="playlist.icon && !playlist.icon.endsWith('svg')" :src="playlist.icon" alt="provider logo" />
             </template>
 
             <template #defaultCover>
@@ -65,11 +67,11 @@ import PlusIcon from '@/icons/PlusIcon.vue'
     PlusIcon
   }
 })
-export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
+export default class Playlists extends mixins(RouterPushes, ContextMenuMixin) {
   @Prop({ default: () => () => undefined })
   private enableRefresh!: () => void
 
-  private allPlaylists: Playlist[] = []
+  private allPlaylists: ExtendedPlaylist[] = []
 
   private playlistInAction: Playlist | undefined
 
@@ -83,14 +85,45 @@ export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
     }
   }
 
+  private async fetchPlaylistsFromExtension() {
+    const playlists = []
+    const data = await window.ExtensionUtils.sendExtraEvent({
+      type: 'get-playlists',
+      data: []
+    })
+
+    for (const [key, value] of Object.entries(data)) {
+      const icon = await window.ExtensionUtils.getExtensionIcon(key)
+      for (const p of value.playlists) {
+        playlists.push({
+          ...p,
+          icon: icon && 'media://' + icon,
+          extension: key
+        })
+      }
+    }
+
+    return playlists
+  }
+
   private async getPlaylists(invalidateCache = false) {
     let localPlaylists = await window.SearchUtils.searchEntityByOptions<Playlist>({
       playlist: true
     })
     this.allPlaylists = [...localPlaylists]
 
-    vxm.providers.youtubeProvider.getUserPlaylists(invalidateCache).then((data) => this.allPlaylists.push(...data))
-    vxm.providers.spotifyProvider.getUserPlaylists(invalidateCache).then((data) => this.allPlaylists.push(...data))
+    const promises: Promise<unknown>[] = []
+    promises.push(
+      vxm.providers.youtubeProvider.getUserPlaylists(invalidateCache).then((data) => this.allPlaylists.push(...data))
+    )
+    promises.push(
+      vxm.providers.spotifyProvider.getUserPlaylists(invalidateCache).then((data) => this.allPlaylists.push(...data))
+    )
+
+    promises.push(this.fetchPlaylistsFromExtension().then((data) => this.allPlaylists.push(...data)))
+
+    await Promise.all(promises)
+    this.allPlaylists.sort((a, b) => a.playlist_name.localeCompare(b.playlist_name))
   }
 
   private contextHandler(event: MouseEvent) {

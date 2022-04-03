@@ -35,6 +35,9 @@ export class ExtensionHostChannel implements IpcChannelInterface {
       case ExtensionHostEvents.GET_EXTENSION_ICON:
         this.getExtensionIcon(event, request as IpcRequest<ExtensionHostRequests.RemoveExtension>)
         break
+      case ExtensionHostEvents.SEND_EXTRA_EVENT:
+        this.sendExtraEvent(event, request as IpcRequest<ExtensionHostRequests.ExtraEvent>)
+        break
     }
   }
 
@@ -107,6 +110,14 @@ export class ExtensionHostChannel implements IpcChannelInterface {
   ) {
     if (request.params && request.params.packageName) {
       const data = await this.extensionHost.mainRequestGenerator.getExtensionIcon(request.params.packageName)
+      event.reply(request.responseChannel, data)
+    }
+    event.reply(request.responseChannel)
+  }
+
+  private async sendExtraEvent(event: Electron.IpcMainEvent, request: IpcRequest<ExtensionHostRequests.ExtraEvent>) {
+    if (request.params.event) {
+      const data = await this.extensionHost.sendExtraEventToExtensions(request.params.event)
       event.reply(request.responseChannel, data)
     }
     event.reply(request.responseChannel)

@@ -229,6 +229,9 @@ interface extensionUtils {
   listenRequests: (callback: (request: extensionUIRequestMessage) => void) => void
   replyToRequest: (data: extensionReplyMessage) => void
   toggleExtStatus: (packageName: string, enabled: boolean) => Promise<void>
+  sendExtraEvent: <T extends ExtraExtensionEventTypes>(
+    event: ExtraExtensionEvents<T>
+  ) => Promise<ExtraExtensionEventCombinedReturnType<T>>
 }
 
 /**

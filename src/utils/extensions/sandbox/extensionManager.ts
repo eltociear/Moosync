@@ -132,16 +132,18 @@ export class ExtensionManager extends AbstractExtensionManager {
     }
   }
 
-  private async setGlobalObjectToVM(vm: NodeVM, packageName: string, entryFilePath: string) {
+  private setGlobalObjectToVM(vm: NodeVM, packageName: string, entryFilePath: string) {
     const globalObj = this.getGlobalObject(packageName, entryFilePath)
     vm.freeze(globalObj.api, 'api')
     vm.freeze(globalObj.logger, 'logger')
+
+    return globalObj
   }
 
   async instantiateAndRegister(extension: UnInitializedExtensionItem) {
     const vmObj = await this.checkExtValidityAndGetInstance(extension.entry, extension.extensionPath)
     if (vmObj) {
-      this.setGlobalObjectToVM(vmObj.vm, extension.packageName, extension.entry)
+      const global = this.setGlobalObjectToVM(vmObj.vm, extension.packageName, extension.entry)
 
       const preferences = vmObj.factory.registerPreferences ? await vmObj.factory.registerPreferences() : []
       const instance = await vmObj.factory.create()
@@ -158,6 +160,7 @@ export class ExtensionManager extends AbstractExtensionManager {
         extensionPath: extension.extensionPath,
         extensionIcon: extension.extensionIcon,
         preferences,
+        global,
         instance
       })
     }

@@ -101,6 +101,11 @@ export class MainHostIPCHandler {
     console.debug('Removed extension', packageName)
   }
 
+  public async sendExtraEventToExtensions<T extends ExtraExtensionEventTypes>(event: ExtraExtensionEvents<T>) {
+    const data = await this.mainRequestGenerator.sendExtraEvent(event)
+    return data
+  }
+
   private sendToExtensionHost(data: Serializable) {
     if ((!this.isAlive || !this.sandboxProcess.connected || this.sandboxProcess.killed) && !this.ignoreRespawn) {
       this.reSpawnProcess()
@@ -152,6 +157,10 @@ class MainRequestGenerator {
 
   public async removeExtension(packageName: string) {
     return this.sendAsync<void>('remove-extension', { packageName })
+  }
+
+  public async sendExtraEvent<T extends ExtraExtensionEventTypes>(event: ExtraExtensionEvents<T>) {
+    return this.sendAsync<ExtraExtensionEventCombinedReturnType<T>>('extra-extension-events', event)
   }
 
   private sendAsync<T>(type: mainRequests, data?: unknown): Promise<T> {

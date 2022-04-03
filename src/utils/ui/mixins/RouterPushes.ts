@@ -52,12 +52,18 @@ export default class PlayerControls extends Vue {
     }
   }
 
-  public gotoPlaylist(playlist: Playlist) {
+  public gotoPlaylist(playlist: ExtendedPlaylist) {
     try {
       this.$router.push({
         name: 'playlists-id',
         params: {
-          id: playlist.playlist_id
+          id: playlist.playlist_id,
+          playlist_id: playlist.playlist_id,
+          playlist_name: playlist.playlist_name,
+          playlist_coverPath: playlist.playlist_coverPath ?? '',
+          playlist_song_count: (playlist.playlist_song_count ?? 0).toString(),
+          playlist_path: playlist.playlist_path ?? '',
+          extension: playlist.extension ?? ''
         }
       })
     } catch (e) {

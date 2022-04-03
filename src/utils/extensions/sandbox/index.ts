@@ -151,6 +151,12 @@ class MainRequestHandler {
       })
       return
     }
+
+    if (message.type === 'extra-extension-events') {
+      this.handler.sendExtraEventToExtensions(message.data).then((val) => {
+        this.sendToMain(message.channel, val)
+      })
+    }
   }
 
   private sendToMain(channel: string, data?: unknown) {

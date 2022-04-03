@@ -40,6 +40,10 @@ declare namespace ExtensionHostRequests {
   interface RemoveExtension {
     packageName: string
   }
+
+  interface ExtraEvent {
+    event: ExtraExtensionEvents
+  }
 }
 
 declare namespace LoggerRequests {
