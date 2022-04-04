@@ -172,11 +172,6 @@ process.on('SIGTERM', async () => {
   app.quit()
 })
 
-process.on('SIGKILL', async () => {
-  await _windowHandler.stopAll()
-  app.quit()
-})
-
 process.on('SIGINT', async () => {
   await _windowHandler.stopAll()
   app.quit()
