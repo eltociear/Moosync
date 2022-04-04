@@ -116,10 +116,24 @@ export class MainHostIPCHandler {
   }
 
   public async closeHost() {
-    await this.mainRequestGenerator.stopProcess()
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => reject('Failed to stop extension host gracefully'), 5000)
+        this.mainRequestGenerator
+          .stopProcess()
+          .then(() => {
+            clearTimeout(timeout)
+            resolve()
+          })
+          .catch((e) => reject(e))
+      })
+    } catch (e) {
+      console.error(e)
+    }
+
     console.debug('Killing extension host')
     this.ignoreRespawn = true
-    this.sandboxProcess.kill()
+    this.sandboxProcess.kill('SIGKILL')
   }
 }
 

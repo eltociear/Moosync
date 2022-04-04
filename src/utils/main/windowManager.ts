@@ -205,7 +205,7 @@ export class WindowHandler {
     }
   }
 
-  private async stopAll() {
+  public async stopAll() {
     // Stop extension Host
     await getExtensionHostChannel().closeExtensionHost()
     SongDB.close()
