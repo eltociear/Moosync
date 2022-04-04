@@ -60,23 +60,21 @@ export class ExtensionHandler {
 
   public async startAll() {
     if (this.initialized) {
-      for (const ext of this.extensionManager.getExtensions({ started: false })) {
-        await this.toggleExtStatus(ext.packageName, true)
-      }
+      await this.toggleExtStatus(undefined, true)
     } else {
       this.preInitializedCalls.push({ func: this.startAll })
     }
   }
 
-  public async toggleExtStatus(packageName: string, enabled: boolean) {
+  public async toggleExtStatus(packageName: string | undefined, enabled: boolean) {
     const ext = this.extensionManager.getExtensions({ packageName })
     for (const e of ext) {
       if (enabled) {
-        e.instance.onStarted && (await e.instance.onStarted())
+        this.sendToExtensions(e.packageName, 'onStarted')
       } else {
-        e.instance.onStopped && (await e.instance.onStopped())
+        this.sendToExtensions(e.packageName, 'onStopped')
       }
-      this.extensionManager.setStarted(packageName, enabled)
+      this.extensionManager.setStarted(e.packageName, enabled)
     }
   }
 
@@ -137,7 +135,7 @@ export class ExtensionHandler {
         console.debug('Trying to send event:', method, 'to', ext.packageName)
         if (ext.instance[method]) {
           console.debug('Extension can handle event, sending')
-          await (ext.instance[method] as (args: unknown) => Promise<void>)(args)
+          ;(ext.instance[method] as (args: unknown) => Promise<void>)(args)
         }
       } catch (e) {
         console.error(e)
@@ -147,9 +145,7 @@ export class ExtensionHandler {
 
   public async stopAllExtensions() {
     console.debug('Stopping all extensions')
-    for (const ext of this.getInstalledExtensions()) {
-      await this.sendToExtensions(ext.packageName, 'onStopped')
-    }
+    this.toggleExtStatus(undefined, false)
   }
 
   public async sendExtraEventToExtensions<T extends ExtraExtensionEventTypes>(event: ExtraExtensionEvents<T>) {
