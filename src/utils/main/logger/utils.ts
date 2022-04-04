@@ -7,7 +7,7 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { WriteStream, createWriteStream } from 'fs'
+import { WriteStream, createWriteStream, readdir, unlink } from 'fs'
 
 import log from 'loglevel'
 import path from 'path'
@@ -15,6 +15,26 @@ import stripAnsi from 'strip-ansi'
 
 let fileName: string
 let fileStream: WriteStream
+
+export function cleanLogs(basePath: string) {
+  const lowestDate = new Date(Date.now())
+  lowestDate.setDate(lowestDate.getDate() - 7)
+  readdir(basePath, (err, files) => {
+    if (!err) {
+      for (const file of files) {
+        if (file.startsWith('moosync-') && file.endsWith('.log')) {
+          const day = file.substring(8, 10)
+          const month = file.substring(11, 13)
+          const year = file.substring(14, 18)
+          const fileDate = new Date(`${month}-${day}-${year}`)
+          if (fileDate.getTime() - lowestDate.getTime() < 0) {
+            unlink(path.join(basePath, file), console.error)
+          }
+        }
+      }
+    }
+  })
+}
 
 function getLevel(method: string) {
   return method.toUpperCase()
