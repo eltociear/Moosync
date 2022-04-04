@@ -6,6 +6,7 @@ import { app, nativeTheme } from 'electron'
 
 enum DesktopEnvironments {
   PLASMA = 'plasma',
+  PLASMA_WAYLAND = 'plasmawayland',
   KDE = 'KDE',
   CINNAMON = 'cinnamon',
   GNOME = 'Gnome',
@@ -92,9 +93,12 @@ export class SystemThemeHandler {
   public async getLinuxStyle(): Promise<ThemeDetails | undefined> {
     const de = this.getDesktopEnvironment()
 
+    console.log(de)
+
     switch (de) {
       case DesktopEnvironments.KDE:
       case DesktopEnvironments.PLASMA:
+      case DesktopEnvironments.PLASMA_WAYLAND:
         return this.getKDETheme()
 
       case DesktopEnvironments.GNOME:
@@ -238,7 +242,7 @@ export class SystemThemeHandler {
 
     for (const dir of themePaths) {
       try {
-        const themeDir = path.join(dir, theme.trim())
+        const themeDir = path.join(dir, theme.trim().replaceAll(/['"]+/g, ''))
         access(themeDir)
         return this.parseGTKTheme(themeDir)
       } catch (e) {
