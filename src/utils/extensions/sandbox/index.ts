@@ -84,13 +84,18 @@ class ExtensionHostIPCHandler {
       this.parseMessage(message as mainRequestMessage)
     })
 
-    process.on('exit', () => this.extensionHandler.stopAllExtensions())
-    process.on('SIGQUIT', () => this.extensionHandler.stopAllExtensions())
-    process.on('SIGINT', () => this.extensionHandler.stopAllExtensions())
-    process.on('SIGUSR1', () => this.extensionHandler.stopAllExtensions())
-    process.on('SIGUSR2', () => this.extensionHandler.stopAllExtensions())
-    process.on('SIGHUP', () => this.extensionHandler.stopAllExtensions())
-    process.on('uncaughtException', (e) => console.error('Asynchronous error caught.', e))
+    process.on('exit', () => this.mainRequestHandler.killSelf())
+    process.on('SIGQUIT', () => this.mainRequestHandler.killSelf())
+    process.on('SIGINT', () => this.mainRequestHandler.killSelf())
+    process.on('SIGUSR1', () => this.mainRequestHandler.killSelf())
+    process.on('SIGUSR2', () => this.mainRequestHandler.killSelf())
+    process.on('SIGHUP', () => this.mainRequestHandler.killSelf())
+    process.on('uncaughtException', (e) => {
+      console.error('Asynchronous error caught.', e)
+      if (e.message === 'Channel closed') {
+        process.exit()
+      }
+    })
   }
 
   private parseMessage(message: extensionHostMessage) {
@@ -146,9 +151,7 @@ class MainRequestHandler {
     }
 
     if (message.type === 'stop-process') {
-      this.handler.stopAllExtensions().then(() => {
-        this.sendToMain(message.channel)
-      })
+      this.killSelf(message.channel)
       return
     }
 
@@ -163,6 +166,13 @@ class MainRequestHandler {
     if (process.send) {
       process.send({ channel, data } as mainReplyMessage)
     }
+  }
+
+  public killSelf(channel?: string) {
+    this.handler.stopAllExtensions().then(() => {
+      if (channel) this.sendToMain(channel)
+      process.exit()
+    })
   }
 }
 

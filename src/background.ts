@@ -177,6 +177,11 @@ process.on('SIGKILL', async () => {
   app.quit()
 })
 
+process.on('SIGINT', async () => {
+  await _windowHandler.stopAll()
+  app.quit()
+})
+
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
     // Set the path of electron.exe and your app.
