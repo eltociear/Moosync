@@ -242,7 +242,6 @@ export default class SongList extends mixins(SongListMixin) {
   }
 
   private async onTextClick(key: TableFields, item: Song | string) {
-    console.log(key, item)
     if (key === 'artist_name' && typeof item === 'string') {
       const data = await window.SearchUtils.searchEntityByOptions({ artist: { artist_name: item } })
       this.$emit('onArtistClicked', data[0])

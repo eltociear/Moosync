@@ -92,8 +92,6 @@ export class SystemThemeHandler {
   public async getLinuxStyle(): Promise<ThemeDetails | undefined> {
     const de = this.getDesktopEnvironment()
 
-    console.log(de)
-
     switch (de) {
       case DesktopEnvironments.KDE:
       case DesktopEnvironments.PLASMA:
