@@ -9,6 +9,7 @@
 
 import { WindowHandler } from '../windowManager'
 import { v1 } from 'uuid'
+import { getExtensionHostChannel } from '@/utils/main/ipc'
 
 type callbackRegistryItem = { path: string } & (
   | {
@@ -21,40 +22,55 @@ type callbackRegistryItem = { path: string } & (
     }
 )
 export class OAuthHandler {
-  private callbackRegistry: callbackRegistryItem[] = []
+  private callbackRegistry: {
+    [key: string]: callbackRegistryItem[]
+  } = {}
 
   // TODO: Handle extension events
   public handleEvents(data: string) {
-    console.debug('Got OAuth callback', data)
-    const url = new URL(data)
-    const registered = this.callbackRegistry.find(
-      (value) =>
-        value.path === url.hostname.toLowerCase() || value.path === url.pathname.replaceAll('/', '').toLowerCase()
-    )
-    if (registered && !registered.isExtension) {
-      WindowHandler.getWindow()?.webContents.send(registered.channelID, data)
+    const host = new URL(data).host.toLowerCase()
+    const registered = this.callbackRegistry[host]
+    console.debug('Got OAuth Callback', host, registered)
+    if (registered) {
+      for (const r of registered) {
+        if (!r.isExtension) WindowHandler.getWindow()?.webContents.send(r.channelID, data)
+        else getExtensionHostChannel().sendExtraEvent({ type: 'on-oauth', data: [data], packageName: r.packageName })
+      }
     }
     WindowHandler.getWindow()?.focus()
   }
 
-  public registerHandler(path: string) {
-    const index = this.callbackRegistry.findIndex((value) => value.path.toLowerCase() === path.toLowerCase())
-    if (index !== -1) {
-      this.callbackRegistry.splice(index, 1)
+  public registerHandler(path: string, isExtension = false, packageName?: string) {
+    path = path.toLowerCase()
+
+    if (!this.callbackRegistry[path]) {
+      this.callbackRegistry[path] = []
     }
 
-    const channelID = v1()
-    this.callbackRegistry.push({
-      isExtension: false,
-      channelID,
-      path
-    })
-    return channelID
+    if (!isExtension) {
+      const channelID = v1()
+      this.callbackRegistry[path].push({
+        isExtension: false,
+        channelID,
+        path
+      })
+      return channelID
+    } else {
+      if (packageName) {
+        this.callbackRegistry[path].push({
+          isExtension: true,
+          packageName: packageName,
+          path
+        })
+      }
+    }
   }
 
+  // TODO: Deregister only required callback
   public deregisterHandler(path: string) {
-    const handler = this.callbackRegistry.findIndex((val) => val.path === path)
-    if (handler !== -1) this.callbackRegistry.splice(handler, 1)
+    path = path.toLowerCase()
+
+    this.callbackRegistry[path] = []
   }
 }
 

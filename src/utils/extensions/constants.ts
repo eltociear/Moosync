@@ -22,7 +22,8 @@ export const extensionRequestsKeys = [
   'add-song-to-playlist',
   'remove-song',
   'get-preferences',
-  'set-preferences'
+  'set-preferences',
+  'register-oauth'
 ] as const
 export const extensionUIRequestsKeys = [
   'get-current-song',

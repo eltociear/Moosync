@@ -21,6 +21,7 @@ import { getVersion } from '@/utils/common'
 import path from 'path'
 import { playerControlRequests } from './constants'
 import { v4 } from 'uuid'
+import { oauthHandler } from '@/utils/main/oauth/handler'
 
 export const defaultExtensionPath = path.join(app.getPath('appData'), app.getName(), 'extensions')
 const defaultLogPath = path.join(app.getPath('logs'))
@@ -279,6 +280,10 @@ class ExtensionRequestHandler {
     if (message.type === 'set-preferences') {
       const { packageName, key, value }: { packageName: string; key: string; value: unknown } = message.data
       resp.data = saveSelectivePreference(this.getPreferenceKey(packageName, key), value, true)
+    }
+
+    if (message.type === 'register-oauth') {
+      oauthHandler.registerHandler(message.data, true, message.extensionName)
     }
 
     if (
