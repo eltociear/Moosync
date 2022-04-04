@@ -167,7 +167,7 @@ export class WindowHandler {
       win = new BrowserWindow(isMainWindow ? this.mainWindowProps : this.prefWindowProps)
       this.attachWindowEvents(win, isMainWindow)
 
-      await win.loadURL(this.getWindowURL(isMainWindow))
+      win.loadURL(this.getWindowURL(isMainWindow))
 
       win.removeMenu()
 
