@@ -30,7 +30,6 @@
                 class="playlist-title"
                 maxlength="20"
                 placeholder="Playlist Name..."
-                onkeypress="this.style.width = this.value.length + 'ch'"
               />
             </div>
             <p class="songs-count">{{ songCount }} {{ songCount == 1 ? 'Song' : 'Songs' }}</p>
