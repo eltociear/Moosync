@@ -279,7 +279,7 @@ class ExtensionRequestHandler {
 
     if (message.type === 'set-preferences') {
       const { packageName, key, value }: { packageName: string; key: string; value: unknown } = message.data
-      resp.data = saveSelectivePreference(this.getPreferenceKey(packageName, key), value, true)
+      resp.data = saveSelectivePreference(this.getPreferenceKey(packageName, key), value, true, true)
     }
 
     if (message.type === 'register-oauth') {

@@ -40,6 +40,11 @@ export class ExtensionPreferenceMixin extends Vue {
   }
 
   mounted() {
+    this.fetch()
+    this.registerPreferenceListener()
+  }
+
+  private fetch() {
     if (this.prefKey) {
       this.loading = true
       window.PreferenceUtils.loadSelective(this.prefKey, this.isExtension)
@@ -53,6 +58,16 @@ export class ExtensionPreferenceMixin extends Vue {
         .then(() => (this.loading = false))
         .then(() => this.onValueFetch && this.onValueFetch(this.value))
     }
+  }
+
+  private registerPreferenceListener() {
+    window.PreferenceUtils.listenPreferenceChange((...[key]) => {
+      if (typeof key === 'string') {
+        if (this.prefKey === key) {
+          this.fetch()
+        }
+      }
+    })
   }
 
   public onInputChange() {

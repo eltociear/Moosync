@@ -87,7 +87,9 @@ contextBridge.exposeInMainWorld('PreferenceUtils', {
     ipcRendererHolder.send<PreferenceRequests.PreferenceChange>(IpcEvents.PREFERENCES, {
       type: PreferenceEvents.PREFERENCE_REFRESH,
       params: { key, value }
-    })
+    }),
+  listenPreferenceChange: (callback: (...args: unknown[]) => void) =>
+    ipcRendererHolder.on(PreferenceEvents.PREFERENCE_REFRESH, callback)
 })
 
 contextBridge.exposeInMainWorld('Store', {

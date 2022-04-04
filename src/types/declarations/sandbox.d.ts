@@ -67,7 +67,7 @@ interface ExtensionDetails {
   entry: string
   extensionPath: string
   extensionIcon: string | undefined
-  preferences: ExtensionPreferenceGroup[]
+  preferences: import('@moosync/moosync-types').ExtensionPreferenceGroup[]
 }
 
 type ExtraExtensionEventCombinedReturnType<T extends ExtraExtensionEventTypes> = {
