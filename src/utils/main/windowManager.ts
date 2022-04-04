@@ -18,6 +18,7 @@ import { getActiveTheme } from './themes/preferences'
 import pie from 'puppeteer-in-electron'
 import puppeteer from 'puppeteer-core'
 import { getExtensionHostChannel } from './ipc'
+import { SongDB } from './db/index'
 
 export class WindowHandler {
   private static mainWindow: number
@@ -108,7 +109,8 @@ export class WindowHandler {
     }
   }
 
-  public restartApp() {
+  public async restartApp() {
+    await this.stopAll()
     app.relaunch()
     app.exit()
   }
@@ -197,11 +199,16 @@ export class WindowHandler {
         await this.trayHandler.createTray()
         window.hide()
       } else {
-        // Stop extension Host
-        await getExtensionHostChannel().closeExtensionHost()
+        this.stopAll()
         app.exit()
       }
     }
+  }
+
+  private async stopAll() {
+    // Stop extension Host
+    await getExtensionHostChannel().closeExtensionHost()
+    SongDB.close()
   }
 
   public createScrapeWindow() {
