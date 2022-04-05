@@ -65,6 +65,7 @@ function interceptHttp() {
 
     if (details.url.startsWith('https://i.ytimg.com')) {
       headers = {
+        ...headers,
         'Access-Control-Allow-Origin': '*'
       }
     }
