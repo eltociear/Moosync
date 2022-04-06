@@ -54,7 +54,6 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
       if (AUTH_BASE_URL) {
         const resp = await new Promise<boolean>((resolve) => {
           window.WindowUtils.listenOAuth(this.oAuthChannel as string, async (data) => {
-            console.log(data)
             const url = new URL(data)
             const session = decodeURIComponent(url.searchParams.get('token') ?? '')
             if (session) {

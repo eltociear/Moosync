@@ -8,7 +8,6 @@ export class InvidiousPlayer extends LocalPlayer {
   load(src?: string, volume?: number, autoplay?: boolean): void {
     this.customLoadEventEmitter.emit('loading')
     this.fetchPlaybackURL(src).then((data) => {
-      console.log(data)
       this.customLoadEventEmitter.emit('loaded')
       super.load(data, volume, autoplay)
     })
