@@ -351,7 +351,6 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
 
 <style lang="sass">
 .tab-inner-container
-  overflow-y: scroll
   height: calc(100% - 58px)
 
 .tab-outer-container
@@ -361,6 +360,9 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
 .nothing-found
   font-size: 22px
   font-weight: 700
+
+.tab-pane
+  height: 100%
 
 .load-more
   background-color: var(--accent)
