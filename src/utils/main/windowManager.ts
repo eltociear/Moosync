@@ -182,7 +182,7 @@ export class WindowHandler {
       else console.warn('Cant find existing window')
     }
 
-    win?.webContents.send(WindowEvents.GOT_EXTRA_ARGS, args)
+    win?.webContents.on('did-finish-load', () => win?.webContents.send(WindowEvents.GOT_EXTRA_ARGS, args))
   }
 
   private async handleWindowClose(event: Event, window: BrowserWindow, isMainWindow: boolean) {
