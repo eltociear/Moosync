@@ -1,4 +1,9 @@
 type Song = import('@moosync/moosync-types').Song
+
+interface InvidiousSong extends Song {
+  invidiousPlaybackUrl?: string
+}
+
 type Album = import('@moosync/moosync-types').Album
 type Artists = import('@moosync/moosync-types').Artists
 type Genre = import('@moosync/moosync-types').Genre

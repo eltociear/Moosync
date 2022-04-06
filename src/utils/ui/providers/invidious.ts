@@ -133,9 +133,10 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
     return this.parsePlaylists(resp)
   }
 
-  private parsePlaylistItems(items: InvidiousResponses.UserPlaylists.PlaylistResponse['videos']): Song[] {
-    const songs: Song[] = []
+  private parsePlaylistItems(items: InvidiousResponses.UserPlaylists.PlaylistResponse['videos']): InvidiousSong[] {
+    const songs: InvidiousSong[] = []
     for (const s of items) {
+      const stream = (s as InvidiousResponses.VideoDetails.VideoResponse).formatStreams?.slice(-1).pop()
       songs.push({
         _id: s.videoId,
         title: s.title,
@@ -145,6 +146,8 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
         song_coverPath_high: s.videoThumbnails.find((val) => val.quality.includes('maxres'))?.url,
         song_coverPath_low: s.videoThumbnails.find((val) => val.quality.includes('medium'))?.url,
         url: s.videoId,
+        playbackUrl: '',
+        invidiousPlaybackUrl: stream?.url ?? '',
         type: 'YOUTUBE'
       })
     }
@@ -173,8 +176,8 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
     yield this.parsePlaylistItems(resp.videos ?? [])
   }
 
-  public async getPlaybackUrlAndDuration(song: Song) {
-    if (song.url) return { url: song.url, duration: song.duration }
+  public async getPlaybackUrlAndDuration(song: InvidiousSong) {
+    if (song.url) return { url: song.invidiousPlaybackUrl ?? song.url, duration: song.duration }
   }
 
   public async getPlaylistDetails(url: string, invalidateCache = false) {

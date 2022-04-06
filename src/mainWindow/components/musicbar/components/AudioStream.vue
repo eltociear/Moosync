@@ -29,6 +29,7 @@ import { vxm } from '@/mainWindow/store'
 import ErrorHandler from '@/utils/ui/mixins/errorHandler'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import Vue from 'vue'
+import { InvidiousPlayer } from '../../../../utils/ui/players/invidious'
 
 @Component({})
 export default class AudioStream extends mixins(SyncMixin, PlayerControls, ErrorHandler) {
@@ -52,7 +53,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   /**
    * Instance of youtube embed player
    */
-  private ytPlayer!: YoutubePlayer
+  private ytPlayer!: YoutubePlayer | InvidiousPlayer
 
   /**
    * Instance of Local html audio tag player
@@ -186,7 +187,17 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    * Initial setup for all players
    */
   private setupPlayers() {
-    this.ytPlayer = new YoutubePlayer(new YTPlayer('#yt-player'))
+    vxm.providers.$watch(
+      'useInvidious',
+      (val) => {
+        if (val) {
+          this.ytPlayer = new InvidiousPlayer(this.audioElement)
+        } else {
+          this.ytPlayer = new YoutubePlayer(new YTPlayer('#yt-player'))
+        }
+      },
+      { deep: false, immediate: true }
+    )
     this.localPlayer = new LocalPlayer(this.audioElement)
     this.activePlayer = this.localPlayer
     this.activePlayerType = 'LOCAL'
