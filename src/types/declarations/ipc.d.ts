@@ -138,6 +138,13 @@ declare namespace SearchRequests {
     artists: string[]
     title: string
   }
+
+  interface InvidiousRequest {
+    resource: InvidiousResponses.ApiResources
+    search: InvidiousResponses.SearchObject
+    authorization: string | undefined
+    invalidateCache: boolean
+  }
 }
 
 declare namespace SongRequests {

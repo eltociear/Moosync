@@ -39,13 +39,13 @@ import { Component } from 'vue-property-decorator'
 import ConfirmationModal from '@/commonComponents/ConfirmationModal.vue'
 import { mixins } from 'vue-class-component'
 import AccountsMixin from '@/utils/ui/mixins/AccountsMixin'
-
-type Providers = 'Youtube' | 'Spotify' | 'LastFM'
+import InvidiousIcon from '@/icons/InvidiousIcon.vue'
 
 @Component({
   components: {
     IconButton,
     YoutubeIcon,
+    InvidiousIcon,
     SpotifyIcon,
     LastFMIcon,
     Person,
@@ -55,7 +55,7 @@ type Providers = 'Youtube' | 'Spotify' | 'LastFM'
 export default class TopBar extends mixins(AccountsMixin) {
   protected activeSignout: Providers | null = null
 
-  mounted() {
+  async mounted() {
     this.signoutMethod = this.showSignoutModal
   }
 
@@ -72,7 +72,7 @@ export default class TopBar extends mixins(AccountsMixin) {
     }
   }
 
-  protected showSignoutModal(signout: 'Youtube' | 'Spotify' | 'LastFM') {
+  protected showSignoutModal(signout: Providers) {
     this.activeSignout = signout
     this.$bvModal.show('signoutModal')
   }

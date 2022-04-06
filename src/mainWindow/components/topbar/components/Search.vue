@@ -93,7 +93,7 @@ export default class Sidebar extends mixins(PlayerControls, ImgLoader) {
       .push({
         name: 'search',
         query: {
-          search_term: `%${this.inputText}%`
+          search_term: `${this.inputText}`
         }
       })
       .catch((e) => console.error(e))

@@ -51,8 +51,6 @@ interface DBUtils {
   updateLyrics: (id: string, lyrics: string) => Promise<void>
 }
 
-type YTMusicVideo = import('node-youtube-music').MusicVideo
-
 /**
  * Utils related to search operations
  */
@@ -84,12 +82,12 @@ interface searchUtils {
     matchTitle = true,
     scrapeYTMusic = true,
     scrapeYoutube = false
-  ) => Promise<YTMusicVideo[]>
+  ) => Promise<Song[]>
 
   /**
    * Get suggestions similar to provided video id
    */
-  getYTSuggestions: (videoID: string) => Promise<YTMusicVideo[]>
+  getYTSuggestions: (videoID: string) => Promise<Song[]>
 
   /**
    * Scrape a webpage and parse it to json
@@ -97,6 +95,13 @@ interface searchUtils {
   scrapeLastFM: (url: string) => Promise<unknown>
 
   searchLyrics: (artists: string[], title: string) => Promise<string>
+
+  requestInvidious: <K extends InvidiousResponses.ApiResources>(
+    resource: K,
+    search: InvidiousResponses.SearchObject<K>,
+    authorization: string | undefined,
+    invalidateCache = false
+  ) => Promise<InvidiousResponses.ResponseType<K>>
 }
 
 /**
@@ -159,7 +164,7 @@ interface preferenceUtils {
   saveSelective: (key: string, value: unknown, isExtension?: boolean) => Promise<void>
   loadSelective: <T>(key: string, isExtension?: boolean, defaultValue?: T) => Promise<T>
   notifyPreferenceChanged: (key: string, value: unknown) => Promise<void>
-  listenPreferenceChange: (callback: (...args: unknown[]) => void) => void
+  listenPreferenceChange: (callback: (key: string, value: unknown) => void) => void
 }
 
 /**

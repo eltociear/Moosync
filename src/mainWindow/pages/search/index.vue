@@ -51,7 +51,6 @@ import { Component, Watch } from 'vue-property-decorator'
 import SingleSearchResult from '@/mainWindow/components/generic/SingleSearchResult.vue'
 import { mixins } from 'vue-class-component'
 import RouterPushes from '@/utils/ui/mixins/RouterPushes'
-import { toSong } from '@/utils/models/youtube'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 import { vxm } from '@/mainWindow/store'
@@ -82,7 +81,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   }
 
   private async fetchData() {
-    this.result = await window.SearchUtils.searchAll(this.term)
+    this.result = await window.SearchUtils.searchAll(`%${this.term}%`)
     this.refreshLocal()
 
     this.result.youtube = await window.SearchUtils.searchYT(this.term, undefined, false, true, true)
@@ -113,7 +112,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     return false
   }
 
-  private isPlayable(item: Song | Album | Artists | Genre | Playlist | YTMusicVideo) {
+  private isPlayable(item: Song | Album | Artists | Genre | Playlist) {
     if ((item as Artists).artist_id?.startsWith('spotify')) return false
     return true
   }
@@ -137,6 +136,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   private ComputeTabKeyField(tab: string) {
     switch (tab) {
       case 'Songs':
+      case 'Youtube':
       case 'Spotify':
         return '_id'
       case 'Albums':
@@ -147,8 +147,6 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         return 'genre_id'
       case 'Playlists':
         return 'playlist_id'
-      case 'Youtube':
-        return 'youtubeId'
     }
   }
 
@@ -178,6 +176,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     if (item) {
       switch (tab) {
         case 'Spotify':
+        case 'Youtube':
         case 'Songs':
           return (item as Song).title
         case 'Albums':
@@ -188,8 +187,6 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
           return (item as Genre).genre_name
         case 'Playlists':
           return (item as Playlist).playlist_name
-        case 'Youtube':
-          return (item as YTMusicVideo).title
       }
     }
     return ''
@@ -199,6 +196,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     if (item) {
       switch (tab) {
         case 'Spotify':
+        case 'Youtube':
         case 'Songs':
           return (item as Song).artists?.join(', ')
         case 'Albums':
@@ -209,10 +207,6 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
           return `${(item as Genre).genre_song_count} Songs`
         case 'Playlists':
           return `${(item as Playlist).playlist_song_count} Songs`
-        case 'Youtube':
-          return `${(item as YTMusicVideo).album} - ${(item as YTMusicVideo).artists
-            ?.map((val) => val.name)
-            ?.join(', ')}`
       }
     }
     return ''
@@ -222,6 +216,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     if (item) {
       switch (tab) {
         case 'Spotify':
+        case 'Youtube':
         case 'Songs':
           return this.getValidImageLow(item as Song) ?? this.getValidImageHigh(item as Song)
         case 'Albums':
@@ -232,8 +227,6 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
           return ''
         case 'Playlists':
           return (item as Playlist).playlist_coverPath
-        case 'Youtube':
-          return (item as YTMusicVideo).thumbnailUrl
       }
     }
     return ''
@@ -243,6 +236,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     switch (tab) {
       case 'Songs':
       case 'Spotify':
+      case 'Youtube':
         // TODO: Redirect to a seperate page with song details
         return
       case 'Albums':
@@ -260,10 +254,11 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     }
   }
 
-  private imgClickHandler(tab: string, item: Song | Album | Artists | Genre | Playlist | YTMusicVideo) {
+  private imgClickHandler(tab: string, item: Song | Album | Artists | Genre | Playlist) {
     switch (tab) {
       case 'Songs':
       case 'Spotify':
+      case 'Youtube':
         this.playTop([item as Song])
         return
       case 'Albums':
@@ -278,19 +273,18 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
       case 'Playlists':
         this.playPlaylist(item as Playlist)
         return
-      case 'Youtube':
-        this.playTop(toSong(item as YTMusicVideo))
     }
   }
 
-  private contextMenuHandler(tab: string, event: Event, item: Song | YTMusicVideo) {
+  private contextMenuHandler(tab: string, event: Event, item: Song) {
     switch (tab) {
       case 'Youtube':
-        this.getContextMenu(event, { type: 'YOUTUBE', args: { ytItems: [item as YTMusicVideo] } })
-        break
       case 'Songs':
       case 'Spotify':
-        this.getContextMenu(event, { type: 'SONGS', args: { songs: [item as Song] } })
+        this.getContextMenu(event, {
+          type: 'SONGS',
+          args: { songs: [item as Song], isRemote: tab === 'Youtube' || tab === 'Spotify' }
+        })
         break
     }
   }

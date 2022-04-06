@@ -41,7 +41,8 @@ export enum SearchEvents {
   SEARCH_YT = 'searchYT',
   YT_SUGGESTIONS = 'YTSuggestions',
   SCRAPE_LASTFM = 'scrapeLastFM',
-  SCRAPE_LYRICS = 'scrapeLyrics'
+  SCRAPE_LYRICS = 'scrapeLyrics',
+  REQUEST_INVIDIOUS = 'requestInvidious'
 }
 
 export enum PreferenceEvents {

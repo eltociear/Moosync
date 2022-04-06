@@ -16,7 +16,7 @@
             title="System Settings"
             tooltip="Settings which are related to your system"
             :isExtension="false"
-            :defaultValue="checkboxValues"
+            :defaultValue="systemCheckboxValues"
             :onValueChange="onSystemPrefChange"
             :onValueFetch="onSystemPrefFetch"
             prefKey="system"
@@ -150,10 +150,24 @@ export default class System extends Vue {
   private showSpotifyButton = false
   private showRestartButton = false
 
-  private defaultHardwareAcceleration = true
+  private defaultSystemSettings: SystemSettings[] = []
 
-  get checkboxValues(): SystemSettings[] {
-    return [this.startupCheckbox, this.minimizeToTrayCheckbox, this.hardwareAcceleration, this.watchFileChanges]
+  get systemCheckboxValues(): SystemSettings[] {
+    return [
+      this.startupCheckbox,
+      this.minimizeToTrayCheckbox,
+      this.hardwareAcceleration,
+      this.watchFileChanges,
+      this.useInvidiousCheckbox
+    ]
+  }
+
+  get useInvidiousCheckbox() {
+    return {
+      key: 'use_invidious',
+      title: 'Use Invidious instead of Youtube',
+      enabled: false
+    }
   }
 
   get youtubeEnvExists() {
@@ -205,19 +219,20 @@ export default class System extends Vue {
   }
 
   private onSystemPrefFetch(value: SystemSettings[]) {
-    if (Array.isArray(value)) {
-      const data = value.find((val) => val.key === 'hardwareAcceleration')
-      this.defaultHardwareAcceleration = data?.enabled ?? true
-    }
+    this.defaultSystemSettings = JSON.parse(JSON.stringify(value))
   }
 
   private onSystemPrefChange(value: SystemSettings[]) {
     if (Array.isArray(value)) {
-      const data = value.find((val) => val.key === 'hardwareAcceleration')
-      if (data?.enabled !== this.defaultHardwareAcceleration) {
-        this.showRestartButton = true
-      } else {
-        this.showRestartButton = false
+      for (let i = 0; i < value.length; i++) {
+        if (value[i].key === 'hardwareAcceleration' || value[i].key === 'use_invidious') {
+          if (this.defaultSystemSettings[i]?.enabled !== value[i].enabled) {
+            this.showRestartButton = true
+            break
+          } else {
+            this.showRestartButton = false
+          }
+        }
       }
     }
   }

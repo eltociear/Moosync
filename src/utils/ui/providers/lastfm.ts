@@ -170,7 +170,7 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
         bus.$emit(
           EventBus.SHOW_OAUTH_MODAL,
           'LastFM',
-          'AUTH_BASE_URL + `auth/?api_key=${this._config?.key}&cb=https://moosync.app/lastfm`',
+          AUTH_BASE_URL + `auth/?api_key=${this._config?.key}&cb=https://moosync.app/lastfm`,
           '#BA0000'
         )
 

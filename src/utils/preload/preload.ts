@@ -197,6 +197,17 @@ contextBridge.exposeInMainWorld('SearchUtils', {
     ipcRendererHolder.send<SearchRequests.LyricsScrape>(IpcEvents.SEARCH, {
       type: SearchEvents.SCRAPE_LYRICS,
       params: { artists, title }
+    }),
+
+  requestInvidious: <K extends InvidiousResponses.ApiResources>(
+    resource: K,
+    search: InvidiousResponses.SearchObject<K>,
+    authorization: string,
+    invalidateCache: boolean
+  ) =>
+    ipcRendererHolder.send<SearchRequests.InvidiousRequest>(IpcEvents.SEARCH, {
+      type: SearchEvents.REQUEST_INVIDIOUS,
+      params: { resource, search, authorization, invalidateCache }
     })
 })
 

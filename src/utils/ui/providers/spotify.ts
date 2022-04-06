@@ -298,7 +298,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   public async getPlaybackUrlAndDuration(song: Song) {
     const ytItem = await this.spotifyToYoutube(song)
     if (ytItem) {
-      return { url: ytItem.youtubeId, duration: ytItem.duration?.totalSeconds ?? 0 }
+      return { url: ytItem.url, duration: ytItem.duration ?? 0 }
     }
   }
 
@@ -341,7 +341,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
           const song = this.parseSong(resp)
           const yt = await this.spotifyToYoutube(song)
           if (yt) {
-            song.playbackUrl = yt?.youtubeId
+            song.playbackUrl = yt.url
             return song
           } else {
             console.error("Couldn't find song on youtube")

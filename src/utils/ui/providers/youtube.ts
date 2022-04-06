@@ -21,7 +21,6 @@ import { parseISO8601Duration } from '@/utils/common'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
 import { Song } from '@moosync/moosync-types'
-import { toSong } from '../../models/youtube'
 
 const BASE_URL = 'https://youtube.googleapis.com/youtube/v3/'
 
@@ -350,7 +349,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
         // Apparently searching Video ID in youtube returns the proper video as first result
         const scraped = await window.SearchUtils.searchYT(videoID, undefined, false, false)
         if (scraped && scraped.length > 0) {
-          return toSong(scraped[0])[0]
+          return scraped[0]
         }
       }
       return
@@ -370,30 +369,8 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     for (const song of youtubeSongs.slice(0, 10)) {
       if (song.url) {
         const songs = await window.SearchUtils.getYTSuggestions(song.url)
-
-        for (const song of songs) {
-          if (song.duration && song.youtubeId) {
-            count++
-            yield [
-              {
-                _id: song.youtubeId,
-                url: song.youtubeId,
-                title: song.title ?? '',
-                artists: song.artists?.map((val) => val.name) ?? [],
-                duration: song.duration.totalSeconds,
-                album: {
-                  album_name: song.album,
-                  album_coverPath_high: song.thumbnailUrl,
-                  album_coverPath_low: song.thumbnailUrl
-                },
-                type: 'YOUTUBE',
-                date_added: Date.now(),
-                song_coverPath_high: song.thumbnailUrl,
-                song_coverPath_low: song.thumbnailUrl
-              }
-            ]
-          }
-        }
+        count += songs.length
+        yield songs
       }
     }
 

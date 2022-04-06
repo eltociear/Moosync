@@ -111,6 +111,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     switch (type) {
       case 'LOCAL':
       case 'URL':
+      default:
         return 'LOCAL'
       case 'SPOTIFY':
       case 'YOUTUBE':
@@ -129,7 +130,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       console.debug('Changing player type to', newType)
       this.unloadAudio()
       this.activePlayer.removeAllListeners()
-      this.activePlayerType = parsedType
 
       switch (parsedType) {
         case 'LOCAL':
@@ -142,6 +142,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
       this.activePlayer.volume = vxm.player.volume
       this.registerPlayerListeners()
+      this.activePlayerType = parsedType
     }
 
     return parsedType
@@ -311,11 +312,10 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
 
     if (song.type === 'SPOTIFY') {
-      console.debug('getting spotify url')
       return vxm.providers.spotifyProvider.getPlaybackUrlAndDuration(song)
     }
 
-    return new Promise<{ url: string; duration: number }>((resolve, reject) => {
+    return new Promise<{ url: string; duration: number } | void>((resolve, reject) => {
       if (song.playbackUrl) {
         const audio = new Audio()
         audio.onloadedmetadata = () => {
@@ -324,6 +324,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
         audio.onerror = reject
 
         audio.src = song.playbackUrl
+      } else {
+        resolve()
       }
     })
   }
