@@ -16,14 +16,7 @@ import { AZLyricsFetcher } from '../fetchers/lyrics'
 import { LastFMScraper } from '../fetchers/lastfm'
 import { InvidiousRequester } from '../fetchers/invidious'
 import { loadSelectivePreference } from '../db/preferences'
-
-enum ApiResources {
-  PLAYLISTS = 'auth/playlists',
-  PLAYLIST_ITEMS = 'playlists/{playlist_id}',
-  VIDEO_DETAILS = 'videos/{video_id}',
-  TRENDING = 'trending',
-  SEARCH = 'search'
-}
+import { InvidiousApiResources } from '@/utils/commonConstants'
 
 export class SearchChannel implements IpcChannelInterface {
   name = IpcEvents.SEARCH
@@ -73,31 +66,36 @@ export class SearchChannel implements IpcChannelInterface {
 
   private async searchYT(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.SearchYT>) {
     if (request.params && request.params.title) {
-      const useInvidious =
-        loadSelectivePreference<SystemSettings[]>('system')?.find((val) => val.key === 'use_invidious')?.enabled ??
-        false
+      try {
+        const useInvidious =
+          loadSelectivePreference<SystemSettings[]>('system')?.find((val) => val.key === 'use_invidious')?.enabled ??
+          false
 
-      let data
-      if (!useInvidious) {
-        data = await this.ytScraper.searchTerm(
-          request.params.title,
-          request.params.artists,
-          request.params.matchTitle,
-          request.params.scrapeYTMusic,
-          request.params.scrapeYoutube
-        )
-      } else {
-        const searchTerm = `${request.params.artists ? request.params.artists.join(', ') + ' - ' : ''}${
-          request.params.title
-        }`
-        const resp = await this.invidiousRequester.makeInvidiousRequest(ApiResources.SEARCH, {
-          params: { q: searchTerm, type: 'video', sort_by: 'relevance' }
-        })
+        let data
+        if (!useInvidious) {
+          data = await this.ytScraper.searchTerm(
+            request.params.title,
+            request.params.artists,
+            request.params.matchTitle,
+            request.params.scrapeYTMusic,
+            request.params.scrapeYoutube
+          )
+        } else {
+          const searchTerm = `${request.params.artists ? request.params.artists.join(', ') + ' - ' : ''}${
+            request.params.title
+          }`
+          const resp = await this.invidiousRequester.makeInvidiousRequest(InvidiousApiResources.SEARCH, {
+            params: { q: searchTerm, type: 'video', sort_by: 'relevance' }
+          })
 
-        if (resp) data = this.invidiousRequester.parseSongs(resp)
+          if (resp) data = this.invidiousRequester.parseSongs(resp)
+        }
+        event.reply(request.responseChannel, data)
+      } catch (e) {
+        console.error(e)
       }
-      event.reply(request.responseChannel, data)
     }
+    event.reply(request.responseChannel)
   }
 
   private getYTSuggestions(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.YTSuggestions>) {

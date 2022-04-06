@@ -9,15 +9,16 @@
 
 declare namespace InvidiousResponses {
   // These are only the resources used
-  enum ApiResources {
+  enum InvidiousApiResources {
     PLAYLISTS = 'auth/playlists',
     PLAYLIST_ITEMS = 'playlists/{playlist_id}',
     VIDEO_DETAILS = 'videos/{video_id}',
     TRENDING = 'trending',
-    SEARCH = 'search'
+    SEARCH = 'search',
+    STATS = 'stats'
   }
 
-  type PlaylistRequest = {
+  type NoParamsRequest = {
     params: undefined
   }
 
@@ -220,27 +221,45 @@ declare namespace InvidiousResponses {
     }
   }
 
-  type SearchObject<T extends ApiResources> = T extends ApiResources.PLAYLISTS
-    ? PlaylistRequest
-    : T extends ApiResources.PLAYLIST_ITEMS
+  type InvidiousDetails = {
+    openRegistrations: boolean
+    software: {
+      branch: string
+      name: string
+      version: string
+    }
+    usage: {
+      users: {
+        total: number
+      }
+    }
+  }
+
+  type SearchObject<T extends InvidiousApiResources> = T extends InvidiousApiResources.PLAYLISTS
+    ? NoParamsRequest
+    : T extends InvidiousApiResources.PLAYLIST_ITEMS
     ? PlaylistItemRequest
-    : T extends ApiResources.VIDEO_DETAILS
+    : T extends InvidiousApiResources.VIDEO_DETAILS
     ? VideoDetailsRequest
-    : T extends ApiResources.TRENDING
+    : T extends InvidiousApiResources.TRENDING
     ? TrendingRequest
-    : T extends ApiResources.SEARCH
+    : T extends InvidiousApiResources.SEARCH
     ? SearchRequest
+    : T extends InvidiousApiResources.STATS
+    ? NoParamsRequest
     : undefined
 
-  type ResponseType<T extends ApiResources> = T extends ApiResources.PLAYLISTS
+  type ResponseType<T extends InvidiousApiResources> = T extends InvidiousApiResources.PLAYLISTS
     ? UserPlaylists.PlaylistResponse[]
-    : T extends ApiResources.PLAYLIST_ITEMS
+    : T extends InvidiousApiResources.PLAYLIST_ITEMS
     ? UserPlaylists.PlaylistResponse
-    : T extends ApiResources.VIDEO_DETAILS
+    : T extends InvidiousApiResources.VIDEO_DETAILS
     ? VideoDetails.VideoResponse
-    : T extends ApiResources.TRENDING
+    : T extends InvidiousApiResources.TRENDING
     ? VideoDetails.Trending
-    : T extends ApiResources.SEARCH
+    : T extends InvidiousApiResources.SEARCH
     ? VideoDetails.Trending
+    : T extends InvidiousApiResources.STATS
+    ? InvidiousDetails
     : undefined
 }

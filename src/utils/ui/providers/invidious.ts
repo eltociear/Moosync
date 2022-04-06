@@ -7,48 +7,32 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { GenericProvider, cache } from '@/utils/ui/providers/generics/genericProvider'
+import { GenericProvider } from '@/utils/ui/providers/generics/genericProvider'
 
 import { GenericAuth } from './generics/genericAuth'
 import { GenericRecommendation } from './generics/genericRecommendations'
-import axios from 'axios'
-import qs from 'qs'
 import { Song } from '@moosync/moosync-types'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
+import { InvidiousApiResources } from '@/utils/commonConstants'
 
-const BASE_URL = 'https://invidio.xamh.de/api/v1/'
-const AUTH_BASE_URL = 'https://invidio.xamh.de/'
 const KeytarService = 'MoosyncInvidiousToken'
-
-enum ApiResources {
-  PLAYLISTS = 'auth/playlists',
-  PLAYLIST_ITEMS = 'playlists/{playlist_id}',
-  VIDEO_DETAILS = 'videos/{video_id}',
-  TRENDING = 'trending',
-  SEARCH = 'search'
-}
 
 export class InvidiousProvider extends GenericAuth implements GenericProvider, GenericRecommendation {
   private _token: string | undefined
   private oAuthChannel: string | undefined
 
   public async updateConfig(): Promise<boolean> {
+    const AUTH_BASE_URL = await window.PreferenceUtils.loadSelective('invidious_instance')
     this._token = (await this.fetchStoredToken()) ?? undefined
-    return true
+    return !!AUTH_BASE_URL
   }
 
   private async fetchStoredToken() {
     return window.Store.getSecure(KeytarService)
   }
 
-  private api = axios.create({
-    adapter: cache.adapter,
-    baseURL: BASE_URL,
-    paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' })
-  })
-
-  private async populateRequest<K extends ApiResources>(
+  private async populateRequest<K extends InvidiousResponses.InvidiousApiResources>(
     resource: K,
     search: InvidiousResponses.SearchObject<K>,
     invalidateCache = false
@@ -66,41 +50,45 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
         this.oAuthChannel = await window.WindowUtils.registerOAuthCallback('invidiousCallback')
       }
 
-      const resp = await new Promise<boolean>((resolve) => {
-        window.WindowUtils.listenOAuth(this.oAuthChannel as string, async (data) => {
-          console.log(data)
-          const url = new URL(data)
-          const session = decodeURIComponent(url.searchParams.get('token') ?? '')
-          if (session) {
-            try {
-              this._token = session
-              if (this._token) {
-                window.Store.setSecure(KeytarService, this._token).then(() => {
-                  resolve(true)
-                })
-                return
+      const AUTH_BASE_URL = await window.PreferenceUtils.loadSelective('invidious_instance')
+      if (AUTH_BASE_URL) {
+        const resp = await new Promise<boolean>((resolve) => {
+          window.WindowUtils.listenOAuth(this.oAuthChannel as string, async (data) => {
+            console.log(data)
+            const url = new URL(data)
+            const session = decodeURIComponent(url.searchParams.get('token') ?? '')
+            if (session) {
+              try {
+                this._token = session
+                if (this._token) {
+                  window.Store.setSecure(KeytarService, this._token).then(() => {
+                    resolve(true)
+                  })
+                  return
+                }
+              } catch (e) {
+                console.error(e)
+                resolve(false)
               }
-            } catch (e) {
-              console.error(e)
-              resolve(false)
             }
-          }
+          })
+
+          bus.$emit(
+            EventBus.SHOW_OAUTH_MODAL,
+            'Invidious',
+            AUTH_BASE_URL + 'authorize_token?scopes=:*&callback_url=https://moosync.app/invidious&expire=360000',
+            '#E62017'
+          )
+
+          window.WindowUtils.openExternal(
+            AUTH_BASE_URL + 'authorize_token?scopes=:*&callback_url=https://moosync.app/invidious'
+          )
         })
 
-        bus.$emit(
-          EventBus.SHOW_OAUTH_MODAL,
-          'Invidious',
-          AUTH_BASE_URL + 'authorize_token?scopes=:*&callback_url=https://moosync.app/invidious&expire=360000',
-          '#E62017'
-        )
-
-        window.WindowUtils.openExternal(
-          AUTH_BASE_URL + 'authorize_token?scopes=:*&callback_url=https://moosync.app/invidious'
-        )
-      })
-
-      bus.$emit(EventBus.HIDE_OAUTH_MODAL)
-      return resp
+        bus.$emit(EventBus.HIDE_OAUTH_MODAL)
+        return resp
+      }
+      return false
     }
     return true
   }
@@ -129,8 +117,8 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
   }
 
   public async getUserPlaylists(invalidateCache = false) {
-    const resp = await this.populateRequest(ApiResources.PLAYLISTS, { params: undefined }, invalidateCache)
-    return this.parsePlaylists(resp)
+    const resp = await this.populateRequest(InvidiousApiResources.PLAYLISTS, { params: undefined }, invalidateCache)
+    return this.parsePlaylists(resp ?? [])
   }
 
   private parsePlaylistItems(items: InvidiousResponses.UserPlaylists.PlaylistResponse['videos']): InvidiousSong[] {
@@ -172,8 +160,12 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
 
   public async *getPlaylistContent(str: string, invalidateCache = false): AsyncGenerator<Song[]> {
     const playlist_id = this.getIDFromURL(str) ?? str
-    const resp = await this.populateRequest(ApiResources.PLAYLIST_ITEMS, { params: { playlist_id } }, invalidateCache)
-    yield this.parsePlaylistItems(resp.videos ?? [])
+    const resp = await this.populateRequest(
+      InvidiousApiResources.PLAYLIST_ITEMS,
+      { params: { playlist_id } },
+      invalidateCache
+    )
+    yield this.parsePlaylistItems(resp?.videos ?? [])
   }
 
   public async getPlaybackUrlAndDuration(song: InvidiousSong) {
@@ -183,10 +175,16 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
   public async getPlaylistDetails(url: string, invalidateCache = false) {
     const playlist_id = this.getIDFromURL(url)
     if (playlist_id) {
-      const resp = await this.populateRequest(ApiResources.PLAYLIST_ITEMS, { params: { playlist_id } }, invalidateCache)
-      const playlists = this.parsePlaylists([resp])
-      if (playlists.length > 0) {
-        return playlists[0]
+      const resp = await this.populateRequest(
+        InvidiousApiResources.PLAYLIST_ITEMS,
+        { params: { playlist_id } },
+        invalidateCache
+      )
+      if (resp) {
+        const playlists = this.parsePlaylists([resp])
+        if (playlists.length > 0) {
+          return playlists[0]
+        }
       }
     }
   }
@@ -201,20 +199,20 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
 
     if (videoID) {
       const resp = await this.populateRequest(
-        ApiResources.VIDEO_DETAILS,
+        InvidiousApiResources.VIDEO_DETAILS,
         { params: { video_id: videoID } },
         invalidateCache
       )
 
-      return this.parseSong(resp)
+      if (resp) return this.parseSong(resp)
     }
 
     return
   }
 
   public async *getRecommendations(): AsyncGenerator<Song[]> {
-    const resp = await this.populateRequest(ApiResources.TRENDING, { params: { type: 'music' } }, false)
-    yield this.parsePlaylistItems([resp])
+    const resp = await this.populateRequest(InvidiousApiResources.TRENDING, { params: { type: 'music' } }, false)
+    if (resp) yield this.parsePlaylistItems([resp])
   }
 
   public async *getArtistSongs(): AsyncGenerator<Song[]> {

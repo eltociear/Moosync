@@ -199,7 +199,7 @@ contextBridge.exposeInMainWorld('SearchUtils', {
       params: { artists, title }
     }),
 
-  requestInvidious: <K extends InvidiousResponses.ApiResources>(
+  requestInvidious: <K extends InvidiousResponses.InvidiousApiResources>(
     resource: K,
     search: InvidiousResponses.SearchObject<K>,
     authorization: string,

@@ -2,44 +2,51 @@ import https from 'https'
 import { CacheHandler } from './cacheFile'
 import path from 'path'
 import { app } from 'electron'
+import { loadSelectivePreference } from '../db/preferences'
 
 export class InvidiousRequester extends CacheHandler {
   constructor() {
     super(path.join(app.getPath('cache'), app.getName(), 'invidious.cache'))
   }
 
-  public async makeInvidiousRequest<K extends InvidiousResponses.ApiResources>(
+  public async makeInvidiousRequest<K extends InvidiousResponses.InvidiousApiResources>(
     resource: K,
     search: InvidiousResponses.SearchObject<K>,
     authorization?: string | undefined,
     invalidateCache = false
   ) {
-    const BASE_URL = 'https://invidio.xamh.de/api/v1/'
+    let BASE_URL = loadSelectivePreference<string>('invidious_instance')
 
-    let parsedResource: string = resource
-    if (search.params) {
-      const matches = resource.matchAll(new RegExp(/\{(.*?)\}/g))
-      if (matches) {
-        for (const match of matches) {
-          parsedResource = parsedResource.replaceAll(match[0], (search.params as { [key: string]: string })[match[1]])
+    if (BASE_URL) {
+      if (!BASE_URL.startsWith('http')) {
+        BASE_URL = 'https://' + BASE_URL
+      }
+
+      let parsedResource: string = resource
+      if (search.params) {
+        const matches = resource.matchAll(new RegExp(/\{(.*?)\}/g))
+        if (matches) {
+          for (const match of matches) {
+            parsedResource = parsedResource.replaceAll(match[0], (search.params as { [key: string]: string })[match[1]])
+          }
         }
       }
-    }
 
-    const url = BASE_URL + parsedResource
-    const parsed = new URL(url)
-    if (search.params) {
-      for (const [key, value] of Object.entries(search.params)) {
-        if (typeof value === 'string') parsed.searchParams.set(key, value)
+      const url = BASE_URL + '/api/v1/' + parsedResource
+      const parsed = new URL(url)
+      if (search.params) {
+        for (const [key, value] of Object.entries(search.params)) {
+          if (typeof value === 'string') parsed.searchParams.set(key, value)
+        }
       }
-    }
-    console.log(parsed.toString())
-    const resp = await this.get(parsed, authorization, invalidateCache)
 
-    try {
-      return JSON.parse(resp)
-    } catch (e) {
-      return resp
+      const resp = await this.get(parsed, authorization, invalidateCache)
+
+      try {
+        return JSON.parse(resp)
+      } catch (e) {
+        return resp
+      }
     }
   }
 

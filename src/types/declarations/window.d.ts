@@ -96,12 +96,12 @@ interface searchUtils {
 
   searchLyrics: (artists: string[], title: string) => Promise<string>
 
-  requestInvidious: <K extends InvidiousResponses.ApiResources>(
+  requestInvidious: <K extends InvidiousResponses.InvidiousApiResources>(
     resource: K,
     search: InvidiousResponses.SearchObject<K>,
     authorization: string | undefined,
     invalidateCache = false
-  ) => Promise<InvidiousResponses.ResponseType<K>>
+  ) => Promise<InvidiousResponses.ResponseType<K> | undefined>
 }
 
 /**
