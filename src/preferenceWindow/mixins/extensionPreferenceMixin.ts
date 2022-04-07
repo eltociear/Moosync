@@ -31,6 +31,9 @@ export class ExtensionPreferenceMixin extends Vue {
   @Prop({ default: () => null })
   private onValueChange!: (val: unknown) => void
 
+  @Prop({ default: 'text' })
+  private type!: string
+
   public value: unknown = ''
 
   public loading = false
@@ -47,8 +50,15 @@ export class ExtensionPreferenceMixin extends Vue {
   private fetch() {
     if (this.prefKey) {
       this.loading = true
-      window.PreferenceUtils.loadSelective(this.prefKey, this.isExtension)
+      ;(this.type === 'password'
+        ? window.Store.getSecure(this.prefKey)
+        : window.PreferenceUtils.loadSelective(this.prefKey, this.isExtension)
+      )
         .then((val) => {
+          if (this.type === 'password') {
+            val = val && JSON.parse(val as string)
+          }
+
           if (typeof val === 'object' && typeof this.defaultValue === 'object') {
             this.value = Object.assign(this.defaultValue, val)
           } else {
@@ -71,7 +81,11 @@ export class ExtensionPreferenceMixin extends Vue {
   }
 
   public onInputChange() {
-    this.prefKey && window.PreferenceUtils.saveSelective(this.prefKey, this.value, this.isExtension)
+    if (this.type === 'password') {
+      this.prefKey && window.Store.setSecure(this.prefKey, JSON.stringify(this.value))
+    } else {
+      this.prefKey && window.PreferenceUtils.saveSelective(this.prefKey, this.value, this.isExtension)
+    }
 
     if (this.isExtension)
       window.ExtensionUtils.sendEvent({

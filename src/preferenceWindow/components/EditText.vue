@@ -47,9 +47,6 @@ export default class EditText extends Mixins(ExtensionPreferenceMixin) {
   @Prop()
   private tooltip!: string
 
-  @Prop({ default: 'text' })
-  private type!: string
-
   @Prop({ default: 500 })
   private debounce!: number
 

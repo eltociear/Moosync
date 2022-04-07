@@ -22,7 +22,9 @@ export const extensionRequestsKeys = [
   'add-song-to-playlist',
   'remove-song',
   'get-preferences',
+  'get-secure-preferences',
   'set-preferences',
+  'set-secure-preferences',
   'register-oauth'
 ] as const
 export const extensionUIRequestsKeys = [

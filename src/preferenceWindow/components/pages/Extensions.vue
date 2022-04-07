@@ -53,6 +53,7 @@
                 :defaultValue="pref.default ? pref.default : pref.items"
                 :isExtension="true"
                 :packageName="ext.packageName"
+                :type="pref.inputType || 'text'"
                 :is="pref.type"
               />
             </b-row>

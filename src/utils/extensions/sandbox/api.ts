@@ -57,8 +57,20 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
     })
   }
 
-  public async setPreferences(key: string, value: unknown) {
+  public async getSecure<T>(key?: string, defaultValue?: unknown): Promise<T | undefined> {
+    return sendAsync<T>(this.packageName, 'get-secure-preferences', {
+      packageName: this.packageName,
+      key,
+      defaultValue
+    })
+  }
+
+  public async setPreferences(key: string, value: unknown): Promise<void> {
     return sendAsync<void>(this.packageName, 'set-preferences', { packageName: this.packageName, key, value })
+  }
+
+  public async setSecure(key: string, value: unknown): Promise<void> {
+    return sendAsync<void>(this.packageName, 'set-secure-preferences', { packageName: this.packageName, key, value })
   }
 
   public async addSongs(...songs: Song[]) {

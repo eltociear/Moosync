@@ -22,6 +22,7 @@ import path from 'path'
 import { playerControlRequests } from './constants'
 import { v4 } from 'uuid'
 import { oauthHandler } from '@/utils/main/oauth/handler'
+import { getStoreChannel } from '../main/ipc'
 
 export const defaultExtensionPath = path.join(app.getPath('appData'), app.getName(), 'extensions')
 const defaultLogPath = path.join(app.getPath('logs'))
@@ -291,9 +292,25 @@ class ExtensionRequestHandler {
       resp.data = await loadSelectivePreference(this.getPreferenceKey(packageName, key), true, defaultValue)
     }
 
+    if (message.type === 'get-secure-preferences') {
+      const { packageName, key, defaultValue }: { packageName: string; key?: string; defaultValue?: unknown } =
+        message.data
+      const secure = await getStoreChannel().getSecure(this.getPreferenceKey(packageName, key))
+      if (secure) {
+        resp.data = JSON.parse(secure)
+      } else {
+        resp.data = defaultValue
+      }
+    }
+
     if (message.type === 'set-preferences') {
       const { packageName, key, value }: { packageName: string; key: string; value: unknown } = message.data
       resp.data = saveSelectivePreference(this.getPreferenceKey(packageName, key), value, true, true)
+    }
+
+    if (message.type === 'set-secure-preferences') {
+      const { packageName, key, value }: { packageName: string; key: string; value: unknown } = message.data
+      resp.data = await getStoreChannel().setSecure(this.getPreferenceKey(packageName, key), JSON.stringify(value))
     }
 
     if (message.type === 'register-oauth') {
