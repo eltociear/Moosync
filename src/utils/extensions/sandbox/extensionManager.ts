@@ -148,6 +148,8 @@ export class ExtensionManager extends AbstractExtensionManager {
       const preferences = vmObj.factory.registerPreferences ? await vmObj.factory.registerPreferences() : []
       const instance = await vmObj.factory.create()
 
+      console.debug('Instantiated', extension.name)
+
       this.register({
         name: extension.name,
         desc: extension.desc,
