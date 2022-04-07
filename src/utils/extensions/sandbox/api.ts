@@ -70,7 +70,7 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
   }
 
   public async addPlaylist(playlist: Omit<Playlist, 'playlist_id'>) {
-    return sendAsync<string>(this.packageName, 'add-playlist', playlist)
+    return (await sendAsync<string>(this.packageName, 'add-playlist', playlist)) ?? ''
   }
 
   public async addSongsToPlaylist(playlistID: string, ...songs: Song[]) {
