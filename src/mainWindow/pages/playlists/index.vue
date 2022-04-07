@@ -25,8 +25,16 @@
             @CardContextMenu="getPlaylistMenu(arguments[0], playlist)"
           >
             <template slot="icon">
-              <SpotifyIcon v-if="playlist.playlist_id.startsWith('spotify-')" color="#07C330" :filled="true" />
-              <YoutubeIcon v-if="playlist.playlist_id.startsWith('youtube-')" color="#E62017" :filled="true" />
+              <SpotifyIcon
+                v-if="playlist.playlist_id && playlist.playlist_id.startsWith('spotify-')"
+                color="#07C330"
+                :filled="true"
+              />
+              <YoutubeIcon
+                v-if="playlist.playlist_id && playlist.playlist_id.startsWith('youtube-')"
+                color="#E62017"
+                :filled="true"
+              />
               <inline-svg v-if="playlist.icon && playlist.icon.endsWith('svg')" :src="playlist.icon" />
               <img v-if="playlist.icon && !playlist.icon.endsWith('svg')" :src="playlist.icon" alt="provider logo" />
             </template>
@@ -76,17 +84,17 @@ export default class Playlists extends mixins(RouterPushes, ContextMenuMixin) {
   private playlistInAction: Playlist | undefined
 
   private getIconBgColor(playlist: Playlist) {
-    if (playlist.playlist_id.startsWith('youtube-')) {
+    if (playlist.playlist_id?.startsWith('youtube-')) {
       return '#E62017'
     }
 
-    if (playlist.playlist_id.startsWith('spotify-')) {
+    if (playlist.playlist_id?.startsWith('spotify-')) {
       return '#07C330'
     }
   }
 
   private async fetchPlaylistsFromExtension() {
-    const playlists = []
+    const playlists: ExtendedPlaylist[] = []
     const data = await window.ExtensionUtils.sendExtraEvent({
       type: 'get-playlists',
       data: []
@@ -97,7 +105,7 @@ export default class Playlists extends mixins(RouterPushes, ContextMenuMixin) {
       for (const p of value.playlists) {
         playlists.push({
           ...p,
-          icon: icon && 'media://' + icon,
+          icon: (p.icon && 'media://' + p.icon) ?? (icon && 'media://' + icon),
           extension: key
         })
       }

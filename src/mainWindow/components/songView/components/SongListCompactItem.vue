@@ -106,6 +106,12 @@ export default class SongListCompact extends mixins(ImgLoader) {
 
   private async getIconType() {
     this.iconURL = ''
+
+    if (this.item.icon) {
+      this.iconURL = 'media://' + this.item.icon
+      return 'URL'
+    }
+
     if (this.item.providerExtension) {
       const icon = await window.ExtensionUtils.getExtensionIcon(this.item.providerExtension)
       if (icon) {

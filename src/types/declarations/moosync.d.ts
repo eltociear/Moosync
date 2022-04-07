@@ -10,7 +10,6 @@ type Genre = import('@moosync/moosync-types').Genre
 type Playlist = import('@moosync/moosync-types').Playlist
 interface ExtendedPlaylist extends Playlist {
   extension?: string
-  icon?: string
 }
 
 type playerControls = import('@moosync/moosync-types').playerControls
