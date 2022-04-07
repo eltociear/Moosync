@@ -63,7 +63,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
   get defaultDetails(): SongDetailDefaults {
     return {
       defaultTitle: this.playlist?.playlist_name ?? '',
-      defaultSubSubtitle: `${this.playlist?.playlist_song_count ?? 0} Songs`,
+      defaultSubSubtitle: `${(this.playlist?.playlist_song_count || this.songList.length) ?? 0} Songs`,
       defaultCover: this.playlist?.playlist_coverPath ?? ''
     }
   }
@@ -165,7 +165,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     if (this.playlist?.extension) {
       const data = await window.ExtensionUtils.sendExtraEvent({
         type: 'get-playlist-songs',
-        data: [],
+        data: [this.playlist.playlist_id],
         packageName: this.playlist.extension
       })
 
