@@ -112,8 +112,7 @@ export class MainHostIPCHandler {
     if ((!this.isAlive || !this.sandboxProcess.connected || this.sandboxProcess.killed) && !this.ignoreRespawn) {
       this.reSpawnProcess()
     }
-    this.sandboxProcess.killed
-    this.sandboxProcess.send(data)
+    !this.sandboxProcess.killed && this.sandboxProcess.send(data)
   }
 
   public async closeHost() {
