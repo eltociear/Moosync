@@ -12,8 +12,10 @@ interface AZSuggestions {
 }
 
 export class AZLyricsFetcher extends CacheHandler {
+  private blocked = false
+
   constructor() {
-    super(path.join(app.getPath('cache'), app.getName(), 'azlyrics.cache'))
+    super(path.join(app.getPath('cache'), app.getName(), 'azlyrics.cache'), false)
   }
 
   public async getLyrics(artists: string[], title: string) {
@@ -25,30 +27,33 @@ export class AZLyricsFetcher extends CacheHandler {
     return lyrics
   }
   private async queryAZLyrics(artists: string[], title: string) {
-    const baseURL = 'https://search.azlyrics.com/suggest.php?q='
-    const sanitizedTitle = this.sanitizeTitle(title)
-    const url = this.formulateUrl(baseURL, artists, sanitizedTitle)
-    console.debug('Searching for lyrics at', url)
+    if (!this.blocked) {
+      const baseURL = 'https://search.azlyrics.com/suggest.php?q='
+      const sanitizedTitle = this.sanitizeTitle(title)
+      const url = this.formulateUrl(baseURL, artists, sanitizedTitle)
+      console.debug('Searching for lyrics at', url)
 
-    let resp: AZSuggestions = {}
-    try {
-      resp = JSON.parse(await this.get(url)) as AZSuggestions
-    } catch (e) {
-      console.warn('AZ Lyrics probably blocked this IP')
-    }
+      let resp: AZSuggestions = {}
+      try {
+        resp = (await this.get(url, undefined, true)) as AZSuggestions
+      } catch (e) {
+        console.warn('AZ Lyrics probably blocked this IP. Not using AZ lyrics for this session')
+        this.blocked = true
+      }
 
-    if (resp.songs && resp.songs.length > 0) {
-      const url = resp.songs[0].url
-      console.debug('Got lyrics url', url, resp.songs[0].autocomplete)
+      if (resp.songs && resp.songs.length > 0) {
+        const url = resp.songs[0].url
+        console.debug('Got lyrics url', url, resp.songs[0].autocomplete)
 
-      const lyricsResp = await this.get(url)
+        const lyricsResp = await this.get(url)
 
-      // const parsed = parse(lyricsResp)
-      const lyrics = lyricsResp.split('<div class="ringtone">')[1].split('<div class="noprint"')[0]
-      return lyrics
-        .substring(lyrics.indexOf('-->') + 3)
-        .split('</div>')[0]
-        .replaceAll('<br>', '\n')
+        // const parsed = parse(lyricsResp)
+        const lyrics = lyricsResp.split('<div class="ringtone">')[1].split('<div class="noprint"')[0]
+        return lyrics
+          .substring(lyrics.indexOf('-->') + 3)
+          .split('</div>')[0]
+          .replaceAll('<br>', '\n')
+      }
     }
   }
 
@@ -67,10 +72,10 @@ export class AZLyricsFetcher extends CacheHandler {
     return agents[Math.floor(Math.random() * agents.length)]
   }
 
-  private async get(url: string, referrer?: string): Promise<string> {
+  private async get(url: string, referrer?: string, tryJson = false): Promise<string> {
     const cached = this.getCache(url)
     if (cached) {
-      return cached
+      return tryJson ? JSON.parse(cached) : cached
     }
 
     return new Promise((resolve, reject) => {
@@ -86,8 +91,17 @@ export class AZLyricsFetcher extends CacheHandler {
           data += chunk
         })
         res.on('end', () => {
-          resolve(data)
-          this.addToCache(parsed.toString(), data)
+          try {
+            if (tryJson) {
+              resolve(JSON.parse(data))
+              this.addToCache(parsed.toString(), data)
+              return
+            }
+            resolve(data)
+          } catch (e) {
+            console.warn('Failed to parse result from', parsed, 'to JSON')
+            reject(e)
+          }
         })
       })
 
