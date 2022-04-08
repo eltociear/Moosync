@@ -1,14 +1,21 @@
+import { app } from 'electron'
 import https from 'https'
+import path from 'path'
+import { CacheHandler } from './cacheFile'
 
 interface AZSuggestions {
-  term: string
-  songs: {
+  term?: string
+  songs?: {
     url: string
     autocomplete: string
   }[]
 }
 
-export class AZLyricsFetcher {
+export class AZLyricsFetcher extends CacheHandler {
+  constructor() {
+    super(path.join(app.getPath('cache'), app.getName(), 'azlyrics.cache'))
+  }
+
   public async getLyrics(artists: string[], title: string) {
     let lyrics = await this.queryAZLyrics(artists, title)
     if (!lyrics) {
@@ -23,7 +30,12 @@ export class AZLyricsFetcher {
     const url = this.formulateUrl(baseURL, artists, sanitizedTitle)
     console.debug('Searching for lyrics at', url)
 
-    const resp = JSON.parse(await this.get(url)) as AZSuggestions
+    let resp: AZSuggestions = {}
+    try {
+      resp = JSON.parse(await this.get(url)) as AZSuggestions
+    } catch (e) {
+      console.warn('AZ Lyrics probably blocked this IP')
+    }
 
     if (resp.songs && resp.songs.length > 0) {
       const url = resp.songs[0].url
@@ -55,7 +67,12 @@ export class AZLyricsFetcher {
     return agents[Math.floor(Math.random() * agents.length)]
   }
 
-  private get(url: string, referrer?: string): Promise<string> {
+  private async get(url: string, referrer?: string): Promise<string> {
+    const cached = this.getCache(url)
+    if (cached) {
+      return cached
+    }
+
     return new Promise((resolve, reject) => {
       const parsed = new URL(url)
       const options: https.RequestOptions = {
@@ -70,6 +87,7 @@ export class AZLyricsFetcher {
         })
         res.on('end', () => {
           resolve(data)
+          this.addToCache(parsed.toString(), data)
         })
       })
 
