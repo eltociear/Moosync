@@ -140,6 +140,7 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   @Watch('currentSong')
   onSongchange() {
     this.subtitle = this.getConcatedSubtitle()
+    this.forceShowDefaultImage = false
   }
 
   get subSubTitle() {

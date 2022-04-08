@@ -10,10 +10,10 @@ const manifest = require('./package.json')
 
 const archElectronConfig = {}
 
-if (fs.existsSync('/usr/lib/electron17') && fs.existsSync('/usr/lib/electron17/version')) {
-  archElectronConfig.electronDist = '/usr/lib/electron17'
+if (fs.existsSync('/usr/lib/electron18') && fs.existsSync('/usr/lib/electron18/version')) {
+  archElectronConfig.electronDist = '/usr/lib/electron18'
   archElectronConfig.electronVersion = fs
-    .readFileSync('/usr/lib/electron17/version', { encoding: 'utf-8' })
+    .readFileSync('/usr/lib/electron18/version', { encoding: 'utf-8' })
     .replace('v', '')
 }
 

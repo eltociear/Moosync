@@ -87,7 +87,9 @@ contextBridge.exposeInMainWorld('PreferenceUtils', {
     ipcRendererHolder.send<PreferenceRequests.PreferenceChange>(IpcEvents.PREFERENCES, {
       type: PreferenceEvents.PREFERENCE_REFRESH,
       params: { key, value }
-    })
+    }),
+  listenPreferenceChange: (callback: (...args: unknown[]) => void) =>
+    ipcRendererHolder.on(PreferenceEvents.PREFERENCE_REFRESH, callback)
 })
 
 contextBridge.exposeInMainWorld('Store', {
@@ -173,10 +175,10 @@ contextBridge.exposeInMainWorld('SearchUtils', {
       params: { searchTerm: term }
     }),
 
-  searchYT: (term: string) =>
-    ipcRendererHolder.send<SearchRequests.Search>(IpcEvents.SEARCH, {
+  searchYT: (title: string, artists?: string[], matchTitle = true, scrapeYTMusic = true, scrapeYoutube = false) =>
+    ipcRendererHolder.send<SearchRequests.SearchYT>(IpcEvents.SEARCH, {
       type: SearchEvents.SEARCH_YT,
-      params: { searchTerm: term }
+      params: { title, artists, matchTitle, scrapeYTMusic, scrapeYoutube }
     }),
 
   getYTSuggestions: (videoID: string) =>
@@ -195,6 +197,17 @@ contextBridge.exposeInMainWorld('SearchUtils', {
     ipcRendererHolder.send<SearchRequests.LyricsScrape>(IpcEvents.SEARCH, {
       type: SearchEvents.SCRAPE_LYRICS,
       params: { artists, title }
+    }),
+
+  requestInvidious: <K extends InvidiousResponses.InvidiousApiResources>(
+    resource: K,
+    search: InvidiousResponses.SearchObject<K>,
+    authorization: string,
+    invalidateCache: boolean
+  ) =>
+    ipcRendererHolder.send<SearchRequests.InvidiousRequest>(IpcEvents.SEARCH, {
+      type: SearchEvents.REQUEST_INVIDIOUS,
+      params: { resource, search, authorization, invalidateCache }
     })
 })
 
@@ -414,6 +427,12 @@ contextBridge.exposeInMainWorld('ExtensionUtils', {
     ipcRendererHolder.send<ExtensionHostRequests.ToggleExtensionStatus>(IpcEvents.EXTENSION_HOST, {
       type: ExtensionHostEvents.TOGGLE_EXT_STATUS,
       params: { packageName, enabled }
+    }),
+
+  sendExtraEvent: <T extends ExtraExtensionEventTypes>(event: ExtraExtensionEvents<T>) =>
+    ipcRendererHolder.send<ExtensionHostRequests.ExtraEvent>(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.SEND_EXTRA_EVENT,
+      params: { event }
     })
 })
 

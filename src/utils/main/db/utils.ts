@@ -27,8 +27,6 @@ export class DBUtils {
       }
     })
     this.registerRegexp()
-
-    if (app) app.addListener('before-quit', this.close)
   }
 
   public close() {

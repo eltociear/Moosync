@@ -321,7 +321,7 @@ export class SongDBInstance extends DBUtils {
         }
       }
     }
-    return this.db.query(`${query} ${args.length > 0 ? where : ''} ORDER BY ${orderBy} ASC`, ...args) as T[]
+    return (this.db.query(`${query} ${args.length > 0 ? where : ''} ORDER BY ${orderBy} ASC`, ...args) as T[]) ?? []
   }
 
   /**
@@ -583,8 +583,8 @@ export class SongDBInstance extends DBUtils {
    * @param imgSrc cover image of playlist
    * @returns playlist id after creation
    */
-  public createPlaylist(name: string, desc: string, imgSrc?: string, filePath?: string): string {
-    const id = v4()
+  public createPlaylist(name: string, desc: string, imgSrc?: string, filePath?: string, extension?: string): string {
+    const id = `${extension ? extension + '-' : ''}${v4()}`
     this.db.insert('playlists', {
       playlist_id: id,
       playlist_name: name ? name : 'New Playlist',
@@ -624,7 +624,7 @@ export class SongDBInstance extends DBUtils {
    * @param playlist_id id of playlist where songs are to be added
    * @param songs songs which are to be added to playlist
    */
-  public async addToPlaylist(playlist_id: string, ...songs: Song[]) {
+  public addToPlaylist(playlist_id: string, ...songs: Song[]) {
     // TODO: Regenerate cover instead of using existing from song
     const coverExists = this.isPlaylistCoverExists(playlist_id)
     this.db.transaction((songs: Song[]) => {

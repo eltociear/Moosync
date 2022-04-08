@@ -9,11 +9,16 @@
 
 import { extensionRequests } from '../constants'
 import { v4 } from 'uuid'
-import { extensionAPI } from '@moosync/moosync-types'
 
-export class ExtensionRequestGenerator implements extensionAPI {
+export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
   private packageName: string
   player: PlayerControls
+
+  private eventCallbackMap: Partial<{
+    [key in ExtraExtensionEventTypes]: (
+      ...data: ExtraExtensionEventData<key>
+    ) => Promise<ExtraExtensionEventReturnType<key>>
+  }> = {}
 
   constructor(packageName: string) {
     this.packageName = packageName
@@ -52,16 +57,58 @@ export class ExtensionRequestGenerator implements extensionAPI {
     })
   }
 
-  public async setPreferences(key: string, value: unknown) {
+  public async getSecure<T>(key?: string, defaultValue?: unknown): Promise<T | undefined> {
+    return sendAsync<T>(this.packageName, 'get-secure-preferences', {
+      packageName: this.packageName,
+      key,
+      defaultValue
+    })
+  }
+
+  public async setPreferences(key: string, value: unknown): Promise<void> {
     return sendAsync<void>(this.packageName, 'set-preferences', { packageName: this.packageName, key, value })
   }
 
-  public async addSongs(...song: Song[]) {
-    return sendAsync<boolean[]>(this.packageName, 'add-songs', song)
+  public async setSecure(key: string, value: unknown): Promise<void> {
+    return sendAsync<void>(this.packageName, 'set-secure-preferences', { packageName: this.packageName, key, value })
+  }
+
+  public async addSongs(...songs: Song[]) {
+    return sendAsync<boolean[]>(this.packageName, 'add-songs', songs)
   }
 
   public async removeSong(song_id: string) {
     return sendAsync<void>(this.packageName, 'remove-song', song_id)
+  }
+
+  public async addPlaylist(playlist: Omit<Playlist, 'playlist_id'>) {
+    return (await sendAsync<string>(this.packageName, 'add-playlist', playlist)) ?? ''
+  }
+
+  public async addSongsToPlaylist(playlistID: string, ...songs: Song[]) {
+    return sendAsync<void>(this.packageName, 'add-song-to-playlist', { playlistID, songs })
+  }
+
+  public async registerOAuth(path: string) {
+    return sendAsync<void>(this.packageName, 'register-oauth', path)
+  }
+
+  public on<T extends ExtraExtensionEventTypes>(
+    eventName: T,
+    callback: (...args: ExtraExtensionEventData<T>) => Promise<ExtraExtensionEventReturnType<T>>
+  ) {
+    console.debug('Registering listener for', eventName, 'in package', this.packageName)
+    this.eventCallbackMap[eventName] = callback as never
+  }
+
+  public async _emit<T extends ExtraExtensionEventTypes>(event: ExtraExtensionEvents<T>) {
+    console.debug('emitting', event.type, 'in package', this.packageName)
+    const callback = this.eventCallbackMap[event.type] as (
+      ...data: ExtraExtensionEventData<T>
+    ) => Promise<ExtraExtensionEventReturnType<T>>
+    if (callback) {
+      return (await callback(...event.data)) as ExtraExtensionEventReturnType<T>
+    }
   }
 }
 

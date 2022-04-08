@@ -29,6 +29,7 @@ import { vxm } from '@/mainWindow/store'
 import ErrorHandler from '@/utils/ui/mixins/errorHandler'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import Vue from 'vue'
+import { InvidiousPlayer } from '../../../../utils/ui/players/invidious'
 
 @Component({})
 export default class AudioStream extends mixins(SyncMixin, PlayerControls, ErrorHandler) {
@@ -52,7 +53,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   /**
    * Instance of youtube embed player
    */
-  private ytPlayer!: YoutubePlayer
+  private ytPlayer!: YoutubePlayer | InvidiousPlayer
 
   /**
    * Instance of Local html audio tag player
@@ -111,6 +112,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     switch (type) {
       case 'LOCAL':
       case 'URL':
+      default:
         return 'LOCAL'
       case 'SPOTIFY':
       case 'YOUTUBE':
@@ -129,7 +131,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       console.debug('Changing player type to', newType)
       this.unloadAudio()
       this.activePlayer.removeAllListeners()
-      this.activePlayerType = parsedType
 
       switch (parsedType) {
         case 'LOCAL':
@@ -142,6 +143,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
       this.activePlayer.volume = vxm.player.volume
       this.registerPlayerListeners()
+      this.activePlayerType = parsedType
     }
 
     return parsedType
@@ -185,7 +187,17 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    * Initial setup for all players
    */
   private setupPlayers() {
-    this.ytPlayer = new YoutubePlayer(new YTPlayer('#yt-player'))
+    vxm.providers.$watch(
+      'useInvidious',
+      (val) => {
+        if (val) {
+          this.ytPlayer = new InvidiousPlayer(this.audioElement)
+        } else {
+          this.ytPlayer = new YoutubePlayer(new YTPlayer('#yt-player'))
+        }
+      },
+      { deep: false, immediate: true }
+    )
     this.localPlayer = new LocalPlayer(this.audioElement)
     this.activePlayer = this.localPlayer
     this.activePlayerType = 'LOCAL'
@@ -311,9 +323,22 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
 
     if (song.type === 'SPOTIFY') {
-      console.debug('getting spotify url')
       return vxm.providers.spotifyProvider.getPlaybackUrlAndDuration(song)
     }
+
+    return new Promise<{ url: string; duration: number } | void>((resolve, reject) => {
+      if (song.playbackUrl) {
+        const audio = new Audio()
+        audio.onloadedmetadata = () => {
+          if (song.playbackUrl) resolve({ url: song.playbackUrl, duration: audio.duration })
+        }
+        audio.onerror = reject
+
+        audio.src = song.playbackUrl
+      } else {
+        resolve()
+      }
+    })
   }
 
   private metadataInterval: ReturnType<typeof setInterval> | undefined
@@ -428,6 +453,30 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
     const playerType = this.onPlayerTypeChanged(song.type)
 
+    if (!song.playbackUrl || !song.duration) {
+      console.debug('PlaybackUrl or Duration empty for', song._id)
+
+      const res = await this.getPlaybackUrlAndDuration(song)
+      console.debug('Got playback url and duration', res)
+
+      if (res) {
+        this.duplicateSongChangeRequest = song
+        // song is a reference to vxm.player.currentSong or vxm.sync.currentSong.
+        // Mutating those properties should also mutate song
+        if (!this.isSyncing) {
+          if (vxm.player.currentSong) {
+            vxm.player.currentSong.duration = res.duration
+            Vue.set(vxm.player.currentSong, 'playbackUrl', res.url)
+          }
+        } else {
+          if (vxm.sync.currentSong) {
+            vxm.sync.currentSong.duration = res.duration
+            Vue.set(vxm.sync.currentSong, 'playbackUrl', res.url)
+          }
+        }
+      }
+    }
+
     if (playerType === 'LOCAL') {
       this.activePlayer.load(
         song.path ? 'media://' + song.path : song.playbackUrl,
@@ -437,28 +486,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       console.debug('Loaded song at', 'media://' + song.path)
       vxm.player.loading = false
     } else {
-      if (!song.playbackUrl || !song.duration) {
-        console.debug('PlaybackUrl or Duration empty for', song._id)
-
-        const res = await this.getPlaybackUrlAndDuration(song)
-        console.debug('Got playback url and duration', res)
-        if (res) {
-          this.duplicateSongChangeRequest = song
-          // song is a reference to vxm.player.currentSong or vxm.sync.currentSong.
-          // Mutating those properties should also mutate song
-          if (!this.isSyncing) {
-            if (vxm.player.currentSong) {
-              vxm.player.currentSong.duration = res.duration
-              Vue.set(vxm.player.currentSong, 'playbackUrl', res.url)
-            }
-          } else {
-            if (vxm.sync.currentSong) {
-              vxm.sync.currentSong.duration = res.duration
-              Vue.set(vxm.sync.currentSong, 'playbackUrl', res.url)
-            }
-          }
-        }
-      }
       console.debug('PlaybackUrl for song', song._id, 'is', song.playbackUrl)
 
       console.debug('Loaded song at', song.playbackUrl)

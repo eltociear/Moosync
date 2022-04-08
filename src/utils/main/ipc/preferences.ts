@@ -166,4 +166,8 @@ export class PreferenceChannel implements IpcChannelInterface {
   private getSongView(event: Electron.IpcMainEvent, request: IpcRequest) {
     event.reply(request.responseChannel, getSongView())
   }
+
+  public notifyPreferenceWindow(key: string) {
+    WindowHandler.getWindow(false)?.webContents.send(PreferenceEvents.PREFERENCE_REFRESH, key)
+  }
 }

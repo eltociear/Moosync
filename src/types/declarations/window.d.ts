@@ -51,8 +51,6 @@ interface DBUtils {
   updateLyrics: (id: string, lyrics: string) => Promise<void>
 }
 
-type YTMusicVideo = import('node-youtube-music').MusicVideo
-
 /**
  * Utils related to search operations
  */
@@ -65,7 +63,7 @@ interface searchUtils {
   /**
    * Search entities like album, artists, playlists, genre by options
    */
-  searchEntityByOptions: (options: EntityApiOptions) => Promise<T[]>
+  searchEntityByOptions: <T>(options: EntityApiOptions) => Promise<T[]>
 
   /**
    * Search all by a term
@@ -78,12 +76,18 @@ interface searchUtils {
    * Search youtube music by a term.
    * @param term term to search youtube music by
    */
-  searchYT: (term: string) => Promise<YTMusicVideo[]>
+  searchYT: (
+    title: string,
+    artists?: string[],
+    matchTitle = true,
+    scrapeYTMusic = true,
+    scrapeYoutube = false
+  ) => Promise<Song[]>
 
   /**
    * Get suggestions similar to provided video id
    */
-  getYTSuggestions: (videoID: string) => Promise<YTMusicVideo[]>
+  getYTSuggestions: (videoID: string) => Promise<Song[]>
 
   /**
    * Scrape a webpage and parse it to json
@@ -91,6 +95,13 @@ interface searchUtils {
   scrapeLastFM: (url: string) => Promise<unknown>
 
   searchLyrics: (artists: string[], title: string) => Promise<string>
+
+  requestInvidious: <K extends InvidiousResponses.InvidiousApiResources>(
+    resource: K,
+    search: InvidiousResponses.SearchObject<K>,
+    authorization: string | undefined,
+    invalidateCache = false
+  ) => Promise<InvidiousResponses.ResponseType<K> | undefined>
 }
 
 /**
@@ -153,6 +164,7 @@ interface preferenceUtils {
   saveSelective: (key: string, value: unknown, isExtension?: boolean) => Promise<void>
   loadSelective: <T>(key: string, isExtension?: boolean, defaultValue?: T) => Promise<T>
   notifyPreferenceChanged: (key: string, value: unknown) => Promise<void>
+  listenPreferenceChange: (callback: (key: string, value: unknown) => void) => void
 }
 
 /**
@@ -223,6 +235,9 @@ interface extensionUtils {
   listenRequests: (callback: (request: extensionUIRequestMessage) => void) => void
   replyToRequest: (data: extensionReplyMessage) => void
   toggleExtStatus: (packageName: string, enabled: boolean) => Promise<void>
+  sendExtraEvent: <T extends ExtraExtensionEventTypes>(
+    event: ExtraExtensionEvents<T>
+  ) => Promise<ExtraExtensionEventCombinedReturnType<T>>
 }
 
 /**

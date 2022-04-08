@@ -196,7 +196,7 @@ export const migrations = [
   // 26-03-2022
   `
   -- Up
-  ALTER TABLE allsongs ADD provider_extension TEXT DEFAULT NULL;
+  ALTER TABLE allsongs ADD provider_extension TEXT;
 
   -- Down
   `

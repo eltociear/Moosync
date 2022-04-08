@@ -11,7 +11,7 @@ import Store from 'electron-store'
 import { app } from 'electron'
 import { enableStartup } from '../autoLaunch'
 import path from 'path'
-import { getScannerChannel } from '../ipc'
+import { getPreferenceChannel, getScannerChannel } from '../ipc'
 import { setMinimizeToTray } from '@/utils/main/windowManager'
 import { watch } from 'fs/promises'
 
@@ -68,8 +68,9 @@ export function getWindowSize(windowName: string, defaultValue: { width: number;
  * @param value
  * @param [isExtension] true if preference is of an extension. false otherwise
  */
-export function saveSelectivePreference(key: string, value: unknown, isExtension = false) {
+export function saveSelectivePreference(key: string, value: unknown, isExtension = false, notify = false) {
   store.set(`prefs.${isExtension ? 'extension.' : ''}${key}`, value)
+  if (notify) getPreferenceChannel().notifyPreferenceWindow(key)
 }
 
 /**
@@ -145,8 +146,8 @@ export function shouldWatchFileChanges() {
     if (ac) ac.abort()
 
     const watchChanges =
-      loadSelectivePreference<SystemSettings[]>('system', false, [])?.find((val) => val.key === 'watchFileChanges') ??
-      false
+      loadSelectivePreference<SystemSettings[]>('system', false, [])?.find((val) => val.key === 'watchFileChanges')
+        ?.enabled ?? false
     if (watchChanges) {
       setupScanWatcher(value)
     }

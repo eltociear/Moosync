@@ -43,6 +43,7 @@ import { v1 } from 'uuid'
 import { EventBus } from '@/utils/main/ipc/constants'
 import OAuthModal from './components/modals/OAuthModal.vue'
 import FormModal from './components/modals/FormModal.vue'
+import { Checkbox } from '@moosync/moosync-types'
 
 @Component({
   components: {
@@ -63,6 +64,7 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     this.listenThemeChanges()
     this.listenExtensionEvents()
     this.listenExtensionRequests()
+    this.useInvidious()
 
     this.themeStore = vxm.themes
   }
@@ -75,6 +77,13 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     this.registerFileDragListener()
     this.handleInitialSetup()
     this.checkUpdate()
+  }
+
+  private async useInvidious() {
+    const useInvidious = (await window.PreferenceUtils.loadSelective<Checkbox[]>('system'))?.find(
+      (val) => val.key === 'use_invidious'
+    )?.enabled
+    vxm.providers.useInvidious = useInvidious ?? false
   }
 
   private checkUpdate() {
@@ -112,7 +121,7 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
   }
 
   private async populatePlaylists() {
-    let RawPlaylists = await window.SearchUtils.searchEntityByOptions({
+    let RawPlaylists = await window.SearchUtils.searchEntityByOptions<Playlist>({
       playlist: true
     })
     let playlists: playlistInfo = {}

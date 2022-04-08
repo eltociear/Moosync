@@ -47,7 +47,7 @@ export class CacheHandler {
         await this.dumpCache()
       }
     } catch (e) {
-      console.warn('Recommendation data is invalid')
+      console.warn('Data cant be parsed to JSON. Not storing in cache')
     }
   }
 

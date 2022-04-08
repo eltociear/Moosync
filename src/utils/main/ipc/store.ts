@@ -31,16 +31,20 @@ export class StoreChannel implements IpcChannelInterface {
 
   private async setKeytar(event: Electron.IpcMainEvent, request: IpcRequest<StoreRequests.Set>) {
     if (request.params.token && request.params.service) {
-      try {
-        if (safeStorage.isEncryptionAvailable()) {
-          const encrypted = safeStorage.encryptString(request.params.token)
-          saveSelectivePreference(`secure.${request.params.service}`, encrypted.toString('base64'))
-        }
-      } catch (e) {
-        console.error(e)
-      }
+      await this.setSecure(request.params.service, request.params.token)
     }
     event.reply(request.responseChannel)
+  }
+
+  public async setSecure(service: string, token: string) {
+    try {
+      if (safeStorage.isEncryptionAvailable()) {
+        const encrypted = safeStorage.encryptString(token)
+        saveSelectivePreference(`secure.${service}`, encrypted.toString('base64'))
+      }
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   private async removeKeytar(event: Electron.IpcMainEvent, request: IpcRequest<StoreRequests.Get>) {
@@ -56,18 +60,23 @@ export class StoreChannel implements IpcChannelInterface {
 
   private async getKeytar(event: Electron.IpcMainEvent, request: IpcRequest<StoreRequests.Get>) {
     if (request.params.service) {
-      try {
-        if (safeStorage.isEncryptionAvailable()) {
-          const encrypted = loadSelectivePreference<string>(`secure.${request.params.service}`)
-          if (encrypted) {
-            const decrypted = safeStorage.decryptString(Buffer.from(encrypted, 'base64'))
-            event.reply(request.responseChannel, decrypted)
-          }
-        }
-      } catch (e) {
-        console.error(e)
-      }
+      const data = await this.getSecure(request.params.service)
+      event.reply(request.responseChannel, data)
     }
     event.reply(request.responseChannel)
+  }
+
+  public async getSecure(service: string) {
+    try {
+      if (safeStorage.isEncryptionAvailable()) {
+        const encrypted = loadSelectivePreference<string>(`secure.${service}`)
+        if (encrypted) {
+          const decrypted = safeStorage.decryptString(Buffer.from(encrypted, 'base64'))
+          return decrypted
+        }
+      }
+    } catch (e) {
+      console.error(e)
+    }
   }
 }

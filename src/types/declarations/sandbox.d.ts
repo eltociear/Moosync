@@ -67,13 +67,33 @@ interface ExtensionDetails {
   entry: string
   extensionPath: string
   extensionIcon: string | undefined
-  preferences: ExtensionPreferenceGroup[]
+  preferences: import('@moosync/moosync-types').ExtensionPreferenceGroup[]
+}
+
+type ExtraExtensionEventCombinedReturnType<T extends ExtraExtensionEventTypes> = {
+  [key: string]: ExtraExtensionEventReturnType<T>
+}
+
+interface ExtraExtensionEvents<T extends ExtraExtensionEventTypes> {
+  type: T
+  data: ExtraExtensionEventData<T>
+  packageName?: string
+}
+
+type ExtensionAPI = import('@moosync/moosync-types/extension').extensionAPI
+interface ExtendedExtensionAPI extends ExtensionAPI {
+  _emit: <T extends ExtraExtensionEventTypes>(
+    event: ExtraExtensionEvents<T>
+  ) => Promise<ExtraExtensionEventReturnType<T> | undefined>
 }
 
 interface ExtensionItem extends ExtensionDetails {
   instance: MoosyncExtensionTemplate
   preferences: ExtensionPreferenceGroup[]
   vm: import('vm2').NodeVM
+  global: {
+    api: ExtendedExtensionAPI
+  }
 }
 
 interface UnInitializedExtensionItem {

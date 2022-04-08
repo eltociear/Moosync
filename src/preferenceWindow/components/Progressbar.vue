@@ -10,20 +10,13 @@
 <template>
   <b-container v-if="prefKey" fluid class="path-container w-100">
     <PreferenceHeader v-if="title" :title="title" :tooltip="tooltip" @tooltipClick="emitTooltipClick" />
-    <b-row no-gutters class="background w-100 mt-2 d-flex">
-      <b-row no-gutters class="mt-3 item w-100">
-        <b-col cols="auto" align-self="center" class="ml-4 folder-icon"> </b-col>
+    <b-row no-gutters class="background w-100 d-flex">
+      <b-row no-gutters class="mt-2 item w-100">
         <b-col cols="auto" align-self="center" class="flex-grow-1 justify-content-start">
-          <b-input
-            :type="type"
-            v-model="value"
-            id="ext-input"
-            class="ext-input"
-            :debounce="debounce"
-            @update="onInputChange"
-          />
+          <b-progress class="progress-container mb-4" max="100">
+            <b-progress-bar class="progress-bar" :value="value" animated />
+          </b-progress>
         </b-col>
-        <b-col cols="auto" class="mr-4"></b-col>
       </b-row>
     </b-row>
   </b-container>
@@ -40,15 +33,12 @@ import { ExtensionPreferenceMixin } from '../mixins/extensionPreferenceMixin'
     PreferenceHeader
   }
 })
-export default class EditText extends Mixins(ExtensionPreferenceMixin) {
+export default class ProgressBar extends Mixins(ExtensionPreferenceMixin) {
   @Prop()
   private title!: string
 
   @Prop()
   private tooltip!: string
-
-  @Prop({ default: 500 })
-  private debounce!: number
 
   private emitTooltipClick() {
     this.$emit('tooltipClick')
@@ -62,38 +52,14 @@ export default class EditText extends Mixins(ExtensionPreferenceMixin) {
 
 .background
   align-content: flex-start
-  background-color: var(--tertiary)
-  height: 65px
+  background-color: transparent
   overflow: hidden
 
-.item
-  height: 35px
-  flex-wrap: nowrap
+.progress-bar
+  background-color: var(--accent)
 
-.item-text
-  font-size: 18px
-  color: var(--textSecondary)
-  min-width: 0
-  text-align: left
-
-.folder-icon
-  &:hover
-    cursor: pointer
-
-.ext-input
+.progress-container
   font-size: 16px
-  max-width: 100%
-  margin-bottom: 15px !important
-  color: var(--textPrimary)
-  background-color: transparent
-  border: 0
-  border-bottom: 1px solid transparent
-  border-radius: 0
-  padding: 0
-  &:hover
-    border-bottom: 1px solid var(--accent)
-  &:focus
-    border-bottom: 1px solid var(--accent)
-    outline: none
-    -webkit-box-shadow: none
+  height: 1.3rem !important
+  background-color: var(--tertiary)
 </style>

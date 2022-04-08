@@ -1,8 +1,10 @@
-import { prefixLogger } from './utils'
+import { cleanLogs, prefixLogger } from './utils'
 import { app } from 'electron'
 import log from 'loglevel'
 
 const logLevel = process.env.DEBUG_LOGGING ? log.levels.DEBUG : log.levels.INFO
+
+cleanLogs(app.getPath('logs'))
 
 const mainLogger = log.getLogger('Main')
 mainLogger.setLevel(logLevel)

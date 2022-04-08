@@ -24,6 +24,8 @@ import { UpdateChannel } from './update'
 let scannerChannel: ScannerChannel | undefined
 let updateChannel: UpdateChannel | undefined
 let extensionChannel: ExtensionHostChannel | undefined
+let preferenceChannel: PreferenceChannel | undefined
+let storeChannel: StoreChannel | undefined
 
 export function registerIpcChannels() {
   const ipcChannels = [
@@ -31,9 +33,9 @@ export function registerIpcChannels() {
     getScannerChannel(),
     new PlaylistsChannel(),
     new BrowserWindowChannel(),
-    new PreferenceChannel(),
+    getPreferenceChannel(),
     new SearchChannel(),
-    new StoreChannel(),
+    getStoreChannel(),
     new LoggerChannel(),
     getExtensionHostChannel(),
     getUpdateChannel()
@@ -60,6 +62,20 @@ export function getScannerChannel() {
     scannerChannel = new ScannerChannel()
   }
   return scannerChannel
+}
+
+export function getPreferenceChannel() {
+  if (!preferenceChannel) {
+    preferenceChannel = new PreferenceChannel()
+  }
+  return preferenceChannel
+}
+
+export function getStoreChannel() {
+  if (!storeChannel) {
+    storeChannel = new StoreChannel()
+  }
+  return storeChannel
 }
 
 export function notifyRenderer(notif: NotificationObject, mainWindow = true) {

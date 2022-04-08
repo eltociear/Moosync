@@ -40,6 +40,10 @@ declare namespace ExtensionHostRequests {
   interface RemoveExtension {
     packageName: string
   }
+
+  interface ExtraEvent {
+    event: ExtraExtensionEvents
+  }
 }
 
 declare namespace LoggerRequests {
@@ -106,6 +110,14 @@ declare namespace SearchRequests {
     searchTerm: string
   }
 
+  interface SearchYT {
+    title: string
+    artists?: string[]
+    matchTitle?: boolean
+    scrapeYTMusic?: boolean
+    scrapeYoutube?: boolean
+  }
+
   interface YTSuggestions {
     videoID: string
   }
@@ -125,6 +137,13 @@ declare namespace SearchRequests {
   interface LyricsScrape {
     artists: string[]
     title: string
+  }
+
+  interface InvidiousRequest {
+    resource: InvidiousResponses.ApiResources
+    search: InvidiousResponses.SearchObject
+    authorization: string | undefined
+    invalidateCache: boolean
   }
 }
 

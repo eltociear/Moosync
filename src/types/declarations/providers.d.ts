@@ -10,3 +10,5 @@
 interface Recommendations {
   songs: Song[]
 }
+
+type Providers = 'Youtube' | 'Spotify' | 'LastFM' | 'Invidious'

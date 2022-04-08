@@ -6,6 +6,7 @@ import { app, nativeTheme } from 'electron'
 
 enum DesktopEnvironments {
   PLASMA = 'plasma',
+  PLASMA_WAYLAND = 'plasmawayland',
   KDE = 'KDE',
   CINNAMON = 'cinnamon',
   GNOME = 'Gnome',
@@ -27,9 +28,8 @@ const defaultTheme = {
 }
 
 interface KdeGlobals {
-  General: {
-    Name: string
-    ColorSchemeHash: string
+  General?: {
+    ColorScheme: string
   }
   'Colors:View': {
     BackgroundNormal: string
@@ -95,6 +95,7 @@ export class SystemThemeHandler {
     switch (de) {
       case DesktopEnvironments.KDE:
       case DesktopEnvironments.PLASMA:
+      case DesktopEnvironments.PLASMA_WAYLAND:
         return this.getKDETheme()
 
       case DesktopEnvironments.GNOME:
@@ -158,10 +159,17 @@ export class SystemThemeHandler {
   private async getKDETheme() {
     const dirs = await this.getKDEConfigDirs()
     if (dirs) {
+      const kdeDefaultsIndex = dirs.findIndex((val) => val.includes('kdedefaults'))
+      if (kdeDefaultsIndex !== -1) {
+        const dir = dirs[kdeDefaultsIndex]
+        dirs.splice(kdeDefaultsIndex, 1)
+        dirs.unshift(dir)
+      }
+
       for (const directory of dirs) {
         try {
           const config = path.join(directory, 'kdeglobals')
-          access(path.join(directory, 'kdeglobals'))
+          await access(config)
           return this.parseKDETheme(config)
         } catch (_) {
           console.warn(path.join(directory, 'kdeglobals'), 'does not exist')
@@ -170,28 +178,57 @@ export class SystemThemeHandler {
     }
   }
 
-  private async parseKDETheme(file: string): Promise<ThemeDetails> {
-    const data = ini.parse(await readFile(file, 'utf-8')) as KdeGlobals
-    const view = data['Colors:View']
-    const window = data['Colors:Window']
-    const selection = data['Colors:Selection']
+  private async findColorSchemes(themeName: string) {
+    const dirs = ['/usr/share/color-schemes', path.join(app.getPath('home'), '.local', 'share', 'color-schemes')]
+    for (const dir of dirs) {
+      const themePath = path.join(dir, themeName + '.colors')
+      try {
+        await access(themePath)
+        return themePath
+      } catch (_) {
+        console.warn(themePath, 'does not exist')
+      }
+    }
+  }
 
-    const theme = {
-      primary: rgbToHex(view['BackgroundNormal']) ?? defaultTheme.primary,
-      secondary: rgbToHex(view['BackgroundAlternate']) ?? defaultTheme.secondary,
-      tertiary: rgbToHex(window['BackgroundNormal']) ?? defaultTheme.tertiary,
-      textPrimary: rgbToHex(view['ForegroundNormal']) ?? defaultTheme.textPrimary,
-      textSecondary: rgbToHex(view['ForegroundInactive']) ?? defaultTheme.textSecondary,
-      textInverse: rgbToHex(view['ForegroundNormal'], true) ?? defaultTheme.textInverse,
-      accent: rgbToHex(selection['BackgroundNormal']) ?? defaultTheme.accent,
-      divider: rgbToHex(view['DecorationFocus']) ?? defaultTheme.divider
+  private async parseKDETheme(file: string): Promise<ThemeDetails | undefined> {
+    const data = ini.parse(await readFile(file, 'utf-8')) as KdeGlobals
+
+    let colorsData: KdeGlobals | undefined
+    if (data['General'] && data['General']['ColorScheme']) {
+      const themeName = data['General']['ColorScheme']
+      const colorsFile = await this.findColorSchemes(themeName)
+      if (colorsFile) {
+        colorsData = ini.parse(await readFile(colorsFile, 'utf-8')) as KdeGlobals
+      }
     }
 
-    return {
-      id: 'system_default',
-      name: 'System Theme (Beta)',
-      author: 'Moosync',
-      theme
+    if (data['Colors:View'] || data['Colors:Window'] || data['Colors:Selection']) {
+      colorsData = data
+    }
+
+    if (colorsData) {
+      const view = colorsData['Colors:View']
+      const window = colorsData['Colors:Window']
+      const selection = colorsData['Colors:Selection']
+
+      const theme = {
+        primary: rgbToHex(view['BackgroundNormal']) ?? defaultTheme.primary,
+        secondary: rgbToHex(view['BackgroundAlternate']) ?? defaultTheme.secondary,
+        tertiary: rgbToHex(window['BackgroundNormal']) ?? defaultTheme.tertiary,
+        textPrimary: rgbToHex(view['ForegroundNormal']) ?? defaultTheme.textPrimary,
+        textSecondary: rgbToHex(view['ForegroundInactive']) ?? defaultTheme.textSecondary,
+        textInverse: rgbToHex(view['ForegroundNormal'], true) ?? defaultTheme.textInverse,
+        accent: rgbToHex(selection['BackgroundNormal']) ?? defaultTheme.accent,
+        divider: rgbToHex(view['DecorationFocus']) ?? defaultTheme.divider
+      }
+
+      return {
+        id: 'system_default',
+        name: 'System Theme (Plasma) (Beta)',
+        author: 'Moosync',
+        theme
+      }
     }
   }
 
@@ -227,7 +264,7 @@ export class SystemThemeHandler {
 
     return {
       id: 'system_default',
-      name: 'System Theme (Beta)',
+      name: 'System Theme (GTK) (Beta)',
       author: 'Moosync',
       theme: theme as ThemeItem
     }
@@ -238,7 +275,7 @@ export class SystemThemeHandler {
 
     for (const dir of themePaths) {
       try {
-        const themeDir = path.join(dir, theme.trim())
+        const themeDir = path.join(dir, theme.trim().replaceAll(/['"]+/g, ''))
         access(themeDir)
         return this.parseGTKTheme(themeDir)
       } catch (e) {

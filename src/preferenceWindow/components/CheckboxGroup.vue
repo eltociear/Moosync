@@ -27,7 +27,7 @@
 
 <script lang="ts">
 type CheckboxValue = {
-  key: number
+  key: string
   enabled: boolean
 }[]
 

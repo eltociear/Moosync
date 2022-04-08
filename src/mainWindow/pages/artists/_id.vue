@@ -67,7 +67,7 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
 
   private async fetchArtists() {
     this.artist = (
-      await window.SearchUtils.searchEntityByOptions({
+      await window.SearchUtils.searchEntityByOptions<Artists>({
         artist: {
           artist_id: this.$route.params.id
         }

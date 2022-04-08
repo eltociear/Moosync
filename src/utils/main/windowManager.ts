@@ -18,6 +18,7 @@ import { getActiveTheme } from './themes/preferences'
 import pie from 'puppeteer-in-electron'
 import puppeteer from 'puppeteer-core'
 import { getExtensionHostChannel } from './ipc'
+import { SongDB } from './db/index'
 
 export class WindowHandler {
   private static mainWindow: number
@@ -108,7 +109,8 @@ export class WindowHandler {
     }
   }
 
-  public restartApp() {
+  public async restartApp() {
+    await this.stopAll()
     app.relaunch()
     app.exit()
   }
@@ -165,7 +167,7 @@ export class WindowHandler {
       win = new BrowserWindow(isMainWindow ? this.mainWindowProps : this.prefWindowProps)
       this.attachWindowEvents(win, isMainWindow)
 
-      await win.loadURL(this.getWindowURL(isMainWindow))
+      win.loadURL(this.getWindowURL(isMainWindow))
 
       win.removeMenu()
 
@@ -180,7 +182,7 @@ export class WindowHandler {
       else console.warn('Cant find existing window')
     }
 
-    win?.webContents.send(WindowEvents.GOT_EXTRA_ARGS, args)
+    win?.webContents.on('did-finish-load', () => win?.webContents.send(WindowEvents.GOT_EXTRA_ARGS, args))
   }
 
   private async handleWindowClose(event: Event, window: BrowserWindow, isMainWindow: boolean) {
@@ -197,11 +199,16 @@ export class WindowHandler {
         await this.trayHandler.createTray()
         window.hide()
       } else {
-        // Stop extension Host
-        await getExtensionHostChannel().closeExtensionHost()
+        this.stopAll()
         app.exit()
       }
     }
+  }
+
+  public async stopAll() {
+    // Stop extension Host
+    await getExtensionHostChannel().closeExtensionHost()
+    SongDB.close()
   }
 
   public createScrapeWindow() {

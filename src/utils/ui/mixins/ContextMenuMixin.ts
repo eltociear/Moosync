@@ -14,7 +14,6 @@ import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import RemoteSong from '@/utils/ui/mixins/remoteSongMixin'
 import { bus } from '@/mainWindow/main'
 import { mixins } from 'vue-class-component'
-import { toSong } from '@/utils/models/youtube'
 import { vxm } from '@/mainWindow/store'
 
 @Component
@@ -146,32 +145,6 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     return items
   }
 
-  private getYoutubeContextMenu(...item: YTMusicVideo[]) {
-    const items = [
-      {
-        label: 'Play Now',
-        handler: () => {
-          this.playTop(toSong(...item))
-        }
-      },
-      {
-        label: 'Add To Queue',
-        handler: () => {
-          this.queueSong(toSong(...item))
-        }
-      },
-      {
-        label: 'Add To Library',
-        handler: () => this.addYTItemsToLibrary(...item)
-      },
-      {
-        label: 'Add To Playlist',
-        children: this.populatePlaylistMenu(toSong(...item))
-      }
-    ]
-    return items
-  }
-
   private getPlaylistContextMenu(playlist: Playlist, callback?: () => void) {
     const items = []
     if (!playlist.isRemote) {
@@ -288,9 +261,6 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
         break
       case 'GENERAL_SONGS':
         items = this.getGeneralSongsContextMenu(options.args.refreshCallback, options.args.sortOptions)
-        break
-      case 'YOUTUBE':
-        items = this.getYoutubeContextMenu(...options.args.ytItems)
         break
       case 'PLAYLIST':
         items = this.getPlaylistContextMenu(options.args.playlist, options.args.deleteCallback)

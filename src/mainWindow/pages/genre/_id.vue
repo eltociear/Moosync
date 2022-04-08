@@ -64,7 +64,7 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin) {
 
   private async fetchGenre() {
     this.genre = (
-      await window.SearchUtils.searchEntityByOptions({
+      await window.SearchUtils.searchEntityByOptions<Genre>({
         genre: {
           genre_id: this.$route.params.id
         }

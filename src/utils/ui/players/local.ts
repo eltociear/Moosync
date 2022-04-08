@@ -65,6 +65,7 @@ export class LocalPlayer extends Player {
 
   protected listenOnLoad(callback: () => void): void {
     this.playerInstance.onload = callback
+    this.playerInstance.onloadeddata = callback
   }
 
   protected listenOnError(callback: OnErrorEventHandler | ((err: ErrorEvent) => void)): void {
@@ -87,8 +88,8 @@ export class LocalPlayer extends Player {
     this.listeners['ended'] = stop
   }
 
-  protected listenOnBuffer(): void {
-    // Local player has no need of buffering event (i think)
+  protected listenOnBuffer(callback: () => void): void {
+    this.playerInstance.onloadstart = () => callback
   }
 
   removeAllListeners(): void {

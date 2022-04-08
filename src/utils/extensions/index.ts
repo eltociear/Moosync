@@ -21,6 +21,8 @@ import { getVersion } from '@/utils/common'
 import path from 'path'
 import { playerControlRequests } from './constants'
 import { v4 } from 'uuid'
+import { oauthHandler } from '@/utils/main/oauth/handler'
+import { getStoreChannel } from '../main/ipc'
 
 export const defaultExtensionPath = path.join(app.getPath('appData'), app.getName(), 'extensions')
 const defaultLogPath = path.join(app.getPath('logs'))
@@ -101,6 +103,11 @@ export class MainHostIPCHandler {
     console.debug('Removed extension', packageName)
   }
 
+  public async sendExtraEventToExtensions<T extends ExtraExtensionEventTypes>(event: ExtraExtensionEvents<T>) {
+    const data = await this.mainRequestGenerator.sendExtraEvent(event)
+    return data
+  }
+
   private sendToExtensionHost(data: Serializable) {
     if ((!this.isAlive || !this.sandboxProcess.connected || this.sandboxProcess.killed) && !this.ignoreRespawn) {
       this.reSpawnProcess()
@@ -110,10 +117,24 @@ export class MainHostIPCHandler {
   }
 
   public async closeHost() {
-    await this.mainRequestGenerator.stopProcess()
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => reject('Failed to stop extension host gracefully'), 5000)
+        this.mainRequestGenerator
+          .stopProcess()
+          .then(() => {
+            clearTimeout(timeout)
+            resolve()
+          })
+          .catch((e) => reject(e))
+      })
+    } catch (e) {
+      console.error(e)
+    }
+
     console.debug('Killing extension host')
     this.ignoreRespawn = true
-    this.sandboxProcess.kill()
+    this.sandboxProcess.kill('SIGKILL')
   }
 }
 
@@ -152,6 +173,10 @@ class MainRequestGenerator {
 
   public async removeExtension(packageName: string) {
     return this.sendAsync<void>('remove-extension', { packageName })
+  }
+
+  public async sendExtraEvent<T extends ExtraExtensionEventTypes>(event: ExtraExtensionEvents<T>) {
+    return this.sendAsync<ExtraExtensionEventCombinedReturnType<T>>('extra-extension-events', event)
   }
 
   private sendAsync<T>(type: mainRequests, data?: unknown): Promise<T> {
@@ -248,6 +273,15 @@ class ExtensionRequestHandler {
       }
     }
 
+    if (message.type === 'add-playlist') {
+      const playlist = message.data as Playlist
+      resp.data = SongDB.createPlaylist(playlist.playlist_name, '', playlist.playlist_coverPath, playlist.playlist_path)
+    }
+
+    if (message.type === 'add-song-to-playlist') {
+      SongDB.addToPlaylist(message.data.playlistID, ...message.data.songs)
+    }
+
     if (message.type === 'remove-song') {
       await SongDB.removeSong(message.data)
     }
@@ -258,9 +292,29 @@ class ExtensionRequestHandler {
       resp.data = await loadSelectivePreference(this.getPreferenceKey(packageName, key), true, defaultValue)
     }
 
+    if (message.type === 'get-secure-preferences') {
+      const { packageName, key, defaultValue }: { packageName: string; key?: string; defaultValue?: unknown } =
+        message.data
+      const secure = await getStoreChannel().getSecure(this.getPreferenceKey(packageName, key))
+      if (secure) {
+        resp.data = JSON.parse(secure)
+      } else {
+        resp.data = defaultValue
+      }
+    }
+
     if (message.type === 'set-preferences') {
       const { packageName, key, value }: { packageName: string; key: string; value: unknown } = message.data
-      resp.data = saveSelectivePreference(this.getPreferenceKey(packageName, key), value, true)
+      resp.data = saveSelectivePreference(this.getPreferenceKey(packageName, key), value, true, true)
+    }
+
+    if (message.type === 'set-secure-preferences') {
+      const { packageName, key, value }: { packageName: string; key: string; value: unknown } = message.data
+      resp.data = await getStoreChannel().setSecure(this.getPreferenceKey(packageName, key), JSON.stringify(value))
+    }
+
+    if (message.type === 'register-oauth') {
+      oauthHandler.registerHandler(message.data, true, message.extensionName)
     }
 
     if (

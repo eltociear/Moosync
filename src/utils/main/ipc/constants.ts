@@ -41,7 +41,8 @@ export enum SearchEvents {
   SEARCH_YT = 'searchYT',
   YT_SUGGESTIONS = 'YTSuggestions',
   SCRAPE_LASTFM = 'scrapeLastFM',
-  SCRAPE_LYRICS = 'scrapeLyrics'
+  SCRAPE_LYRICS = 'scrapeLyrics',
+  REQUEST_INVIDIOUS = 'requestInvidious'
 }
 
 export enum PreferenceEvents {
@@ -152,7 +153,8 @@ export enum ExtensionHostEvents {
   EXTENSION_REQUESTS = 'extensionRequests',
   TOGGLE_EXT_STATUS = 'toggleExtStatus',
   REMOVE_EXT = 'removeExt',
-  GET_EXTENSION_ICON = 'getExtensionIcon'
+  GET_EXTENSION_ICON = 'getExtensionIcon',
+  SEND_EXTRA_EVENT = 'sendExtraEvent'
 }
 
 export enum ServiceProviderEvents {

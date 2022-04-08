@@ -1,8 +1,16 @@
 type Song = import('@moosync/moosync-types').Song
+
+interface InvidiousSong extends Song {
+  invidiousPlaybackUrl?: string
+}
+
 type Album = import('@moosync/moosync-types').Album
 type Artists = import('@moosync/moosync-types').Artists
 type Genre = import('@moosync/moosync-types').Genre
 type Playlist = import('@moosync/moosync-types').Playlist
+interface ExtendedPlaylist extends Playlist {
+  extension?: string
+}
 
 type playerControls = import('@moosync/moosync-types').playerControls
 
@@ -18,6 +26,10 @@ type MoosyncExtensionTemplate = import('@moosync/moosync-types').MoosyncExtensio
 type PlayerType = import('@moosync/moosync-types').PlayerTypes
 
 type Progress = { total: number; current: number }
+
+type ExtraExtensionEventData<T> = import('@moosync/moosync-types').ExtraExtensionEventData<T>
+type ExtraExtensionEventReturnType<T> = import('@moosync/moosync-types').ExtraExtensionEventReturnType<T>
+type ExtraExtensionEventTypes = import('@moosync/moosync-types').ExtraExtensionEventTypes
 
 declare namespace NodeJS {
   export interface ProcessEnv {

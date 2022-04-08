@@ -66,7 +66,7 @@ export default class CardView extends mixins(ImageLoader, ErrorHandler) {
   @Prop({ default: '' })
   private imgSrc!: string
 
-  @Prop({ default: 'transparent' })
+  @Prop({ default: 'var(--secondary)' })
   private iconBgColor!: string
 
   private forceEmptyImg = false

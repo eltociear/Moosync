@@ -14,6 +14,7 @@ type YouTubePlayerQuality = 'small' | 'medium' | 'large' | 'hd720' | 'hd1080' | 
 
 export class YoutubePlayer extends Player {
   playerInstance: YTPlayer
+  private supposedVolume = 100
 
   constructor(playerInstance: YTPlayer) {
     super()
@@ -51,6 +52,7 @@ export class YoutubePlayer extends Player {
   }
 
   set volume(volume: number) {
+    this.supposedVolume = volume
     this.playerInstance.setVolume(volume)
   }
 
@@ -72,7 +74,10 @@ export class YoutubePlayer extends Player {
   }
 
   protected listenOnStateChange(callback: (state: PlayerState) => void): void {
-    this.playerInstance.addListener('playing', () => callback('PLAYING'))
+    this.playerInstance.addListener('playing', () => {
+      this.volume = this.supposedVolume
+      callback('PLAYING')
+    })
     this.playerInstance.addListener('paused', () => callback('PAUSED'))
     this.playerInstance.addListener('ended', () => callback('STOPPED'))
   }

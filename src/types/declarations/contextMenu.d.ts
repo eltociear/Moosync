@@ -15,6 +15,7 @@ type ContextMenuArgs =
         refreshCallback?: () => void
         songs: Song[]
         sortOptions?: sort
+        isRemote?: boolean
       }
     }
   | {
@@ -22,12 +23,6 @@ type ContextMenuArgs =
       args: {
         sortOptions?: sort
         refreshCallback: () => void
-      }
-    }
-  | {
-      type: 'YOUTUBE'
-      args: {
-        ytItems: YoutubeItem[]
       }
     }
   | {

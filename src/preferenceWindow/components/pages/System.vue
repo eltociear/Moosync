@@ -16,11 +16,26 @@
             title="System Settings"
             tooltip="Settings which are related to your system"
             :isExtension="false"
-            :defaultValue="checkboxValues"
+            :defaultValue="systemCheckboxValues"
             :onValueChange="onSystemPrefChange"
             :onValueFetch="onSystemPrefFetch"
             prefKey="system"
           />
+
+          <AutoFillEditText
+            v-if="showInvidiousField"
+            class="mt-4"
+            prefKey="invidious_instance"
+            :datalist="invidiousInstances"
+            title="Invidious Instance"
+            tooltip="Invidious instance to use instead of youtube"
+            :onValueChange="onInvidiousInstanceChange"
+            :onValueFetch="onInvidiousInstanceChange"
+          />
+
+          <b-col v-if="showInvidiousField"
+            ><div class="invidious-details">{{ invidiousDetails }}</div></b-col
+          >
 
           <b-row v-if="showRestartButton">
             <b-col cols="auto">
@@ -129,18 +144,30 @@
 </template>
 
 <script lang="ts">
+type InvidiousInstances = [
+  string,
+  {
+    api: boolean
+    uri: string
+    type: 'http' | 'https'
+  }
+][]
+
 import { Component } from 'vue-property-decorator'
 import Vue from 'vue'
 import CheckboxGroup from '../CheckboxGroup.vue'
 import EditText from '../EditText.vue'
 import PreferenceHeader from '../PreferenceHeader.vue'
 import CrossIcon from '@/icons/CrossIcon.vue'
+import AutoFillEditText from '../AutoFillEditText.vue'
+import { InvidiousApiResources } from '@/utils/commonConstants'
 
 @Component({
   components: {
     CheckboxGroup,
     EditText,
     PreferenceHeader,
+    AutoFillEditText,
     CrossIcon
   }
 })
@@ -149,11 +176,56 @@ export default class System extends Vue {
   private spotifySecretKey = 100
   private showSpotifyButton = false
   private showRestartButton = false
+  private showInvidiousField = false
 
-  private defaultHardwareAcceleration = true
+  private invidiousInstances: string[] = []
+  private invidiousDetails = ''
 
-  get checkboxValues(): SystemSettings[] {
-    return [this.startupCheckbox, this.minimizeToTrayCheckbox, this.hardwareAcceleration, this.watchFileChanges]
+  private async onInvidiousInstanceChange() {
+    try {
+      const resp = await window.SearchUtils.requestInvidious(
+        InvidiousApiResources.STATS,
+        { params: undefined },
+        undefined,
+        true
+      )
+      if (resp) {
+        this.invidiousDetails = `Software: ${resp.software.name}:${resp.software.branch}-${
+          resp.software.version
+        }\nUsers: ${resp.usage.users.total}\nSignup: ${resp.openRegistrations ? 'Open' : 'Closed'}`
+      }
+    } catch (e) {
+      this.invidiousDetails = 'This url does not support Invidious API'
+    }
+  }
+
+  private async fetchInvidiousInstances() {
+    const resp: InvidiousInstances = await (await fetch('https://api.invidious.io/instances.json')).json()
+    for (const instance of resp) {
+      if (typeof instance[1] === 'object' && instance[1].api && instance[1].type === 'https') {
+        this.invidiousInstances.push(instance[1].uri)
+      }
+    }
+  }
+
+  private defaultSystemSettings: SystemSettings[] = []
+
+  get systemCheckboxValues(): SystemSettings[] {
+    return [
+      this.startupCheckbox,
+      this.minimizeToTrayCheckbox,
+      this.hardwareAcceleration,
+      this.watchFileChanges,
+      this.useInvidiousCheckbox
+    ]
+  }
+
+  get useInvidiousCheckbox() {
+    return {
+      key: 'use_invidious',
+      title: 'Use Invidious instead of Youtube',
+      enabled: false
+    }
   }
 
   get youtubeEnvExists() {
@@ -205,19 +277,24 @@ export default class System extends Vue {
   }
 
   private onSystemPrefFetch(value: SystemSettings[]) {
-    if (Array.isArray(value)) {
-      const data = value.find((val) => val.key === 'hardwareAcceleration')
-      this.defaultHardwareAcceleration = data?.enabled ?? true
-    }
+    this.defaultSystemSettings = JSON.parse(JSON.stringify(value))
+    this.showInvidiousField = value.find((val) => val.key === 'use_invidious')?.enabled ?? false
   }
 
   private onSystemPrefChange(value: SystemSettings[]) {
     if (Array.isArray(value)) {
-      const data = value.find((val) => val.key === 'hardwareAcceleration')
-      if (data?.enabled !== this.defaultHardwareAcceleration) {
-        this.showRestartButton = true
-      } else {
-        this.showRestartButton = false
+      for (let i = 0; i < value.length; i++) {
+        if (value[i].key === 'hardwareAcceleration' || value[i].key === 'use_invidious') {
+          if (value[i].key === 'use_invidious') {
+            this.showInvidiousField = value[i].enabled
+          }
+          if (this.defaultSystemSettings[i]?.enabled !== value[i].enabled) {
+            this.showRestartButton = true
+            break
+          } else {
+            this.showRestartButton = false
+          }
+        }
       }
     }
   }
@@ -254,6 +331,10 @@ export default class System extends Vue {
   private async onZoomUpdate() {
     await window.WindowUtils.updateZoom()
   }
+
+  created() {
+    this.fetchInvidiousInstances()
+  }
 }
 </script>
 
@@ -282,4 +363,12 @@ export default class System extends Vue {
   right: 20px
   width: 14px
   height: 14px
+
+.invidious-details
+  color: var(--textSecondary)
+  white-space: pre-line
+  font-size: 16px
+  text-align: left
+  width: 100%
+  font-weight: 700
 </style>
