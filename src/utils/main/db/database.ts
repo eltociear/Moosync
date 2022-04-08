@@ -11,6 +11,7 @@ import { DBUtils } from './utils'
 import { promises as fsP } from 'fs'
 import { v4 } from 'uuid'
 import { sanitizeArtistName } from '../../common'
+import { SongSortOptions } from '@moosync/moosync-types'
 
 type KeysOfUnion<T> = T extends T ? keyof T : never
 // AvailableKeys will basically be keyof Foo | keyof Bar
@@ -220,11 +221,9 @@ export class SongDBInstance extends DBUtils {
     return { where: '', args: [] }
   }
 
-  private addOrderClause(sortBy?: sortOptions, noCase = false) {
+  private addOrderClause(sortBy?: SongSortOptions, noCase = false) {
     if (sortBy) {
-      return `ORDER BY ${sortBy.type === 'name' ? 'allsongs.title' : 'allsongs.date_added'} ${
-        noCase ? 'COLLATE NOCASE' : ''
-      } ${sortBy.asc ? 'ASC' : 'DESC'}`
+      return `ORDER BY allsongs.${sortBy.type} ${noCase ? 'COLLATE NOCASE' : ''} ${sortBy.asc ? 'ASC' : 'DESC'}`
     }
     return ''
   }

@@ -138,7 +138,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
       playlist: {
         playlist_id: this.$route.params.id
       },
-      sortBy: vxm.themes.sortBy
+      sortBy: vxm.themes.songSortBy
     })
   }
 
@@ -173,8 +173,8 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     }
   }
 
-  private sort(options: sortOptions) {
-    vxm.themes.sortBy = options
+  private sort(options: SongSortOptions) {
+    vxm.themes.songSortBy = options
   }
 
   private getSongMenu(event: Event, songs: Song[]) {
@@ -183,7 +183,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
       args: {
         songs: songs,
         isRemote: this.isRemote,
-        sortOptions: { callback: this.sort, current: vxm.themes.sortBy },
+        sortOptions: { callback: this.sort, current: vxm.themes.songSortBy },
         refreshCallback: () => (this.songList = arrayDiff<Song>(this.songList, songs))
       }
     })

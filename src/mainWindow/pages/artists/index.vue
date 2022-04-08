@@ -8,7 +8,7 @@
 -->
 
 <template>
-  <div class="h-100 w-100 parent">
+  <div class="h-100 w-100 parent" @contextmenu="contextHandler">
     <b-container fluid>
       <b-row no-gutters class="page-title">Artists</b-row>
       <b-row class="d-flex">
@@ -28,6 +28,8 @@ import CardView from '@/mainWindow/components/generic/CardView.vue'
 import { mixins } from 'vue-class-component'
 import RouterPushes from '@/utils/ui/mixins/RouterPushes'
 import ArtistDefault from '@/icons/ArtistDefaultIcon.vue'
+import { vxm } from '@/mainWindow/store'
+import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 
 @Component({
   components: {
@@ -35,16 +37,48 @@ import ArtistDefault from '@/icons/ArtistDefaultIcon.vue'
     ArtistDefault
   }
 })
-export default class Artists extends mixins(RouterPushes) {
+export default class ArtistsPage extends mixins(RouterPushes, ContextMenuMixin) {
   private artistList: Artists[] = []
   private async getArtists() {
     this.artistList = await window.SearchUtils.searchEntityByOptions({
       artist: true
     })
+    this.sort()
+  }
+
+  private sort() {
+    this.artistList.sort((a, b) => {
+      switch (vxm.themes.otherSortBy.type) {
+        default:
+        case 'name':
+          return (
+            (vxm.themes.otherSortBy.asc
+              ? a.artist_name?.localeCompare(b.artist_name ?? '')
+              : b.artist_name?.localeCompare(a.artist_name ?? '')) ?? 0
+          )
+      }
+    })
+  }
+
+  private setSort(options: NormalSortOptions) {
+    vxm.themes.otherSortBy = options
+  }
+
+  private contextHandler(event: MouseEvent) {
+    this.getContextMenu(event, {
+      type: 'GENERIC_SORT',
+      args: {
+        sortOptions: {
+          callback: this.setSort,
+          current: vxm.themes.otherSortBy
+        }
+      }
+    })
   }
 
   mounted() {
     this.getArtists()
+    vxm.themes.$watch('otherSortBy', this.sort)
   }
 }
 </script>
