@@ -11,6 +11,7 @@
     "test:electron": "jest tests/electron --runInBand --detectOpenHandles --forceExit",
     "electron:build": "vue-cli-service electron:build",
     "electron:serve": "cross-env DEBUG_LOGGING=true vue-cli-service electron:serve --quiet-deps",
+    "electron:serve-wayland": "cross-env DEBUG_LOGGING=true vue-cli-service electron:serve --quiet-deps --enable-features=UseOzonePlatform --ozone-platform=wayland",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
   },
