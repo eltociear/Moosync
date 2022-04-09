@@ -11,8 +11,9 @@
   <b-container fluid class="path-container w-100">
     <b-row no-gutters>
       <PreferenceHeader title="Extensions" tooltip="List of all installed extensions" />
-      <b-col cols="auto" align-self="center" class="new-directories ml-auto">
-        <div class="add-directories-button" @click="openFileBrowser">Install Extension</div>
+      <b-col cols="auto" align-self="center" class="new-directories ml-auto d-flex">
+        <div class="discover-button mr-3" @click="openDiscoverModal">Discover</div>
+        <div class="add-directories-button" @click="openFileBrowser">Install from file</div>
       </b-col>
     </b-row>
     <b-row no-gutters class="background w-100 mt-2 d-flex" v-if="Array.isArray(extensions)">
@@ -35,6 +36,11 @@
       :itemName="extensions[extensionInAction].name"
       @confirm="removeExtension"
     />
+    <DiscoverExtensionsModal
+      :updateExtensionsCallback="emitExtensionsUpdated"
+      :installedExtensions="extensions"
+      id="discoverExtensions"
+    />
   </b-container>
 </template>
 
@@ -42,9 +48,11 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import DeleteModal from '../../commonComponents/ConfirmationModal.vue'
 import PreferenceHeader from './PreferenceHeader.vue'
+import DiscoverExtensionsModal from './DiscoverExtensionModal.vue'
 @Component({
   components: {
     DeleteModal,
+    DiscoverExtensionsModal,
     PreferenceHeader
   }
 })
@@ -65,7 +73,7 @@ export default class ExtensionGroup extends Vue {
   private removeExtension() {
     if (this.extensions[this.extensionInAction]) {
       window.ExtensionUtils.uninstall(this.extensions[this.extensionInAction].packageName).then(() =>
-        this.$emit('extensionsChanged')
+        this.emitExtensionsUpdated()
       )
     }
   }
@@ -86,6 +94,14 @@ export default class ExtensionGroup extends Vue {
         }
       }
     )
+  }
+
+  private emitExtensionsUpdated() {
+    this.$emit('extensionsChanged')
+  }
+
+  private openDiscoverModal() {
+    this.$bvModal.show('discoverExtensions')
   }
 }
 </script>
@@ -110,13 +126,11 @@ export default class ExtensionGroup extends Vue {
 </style>
 
 <style lang="sass" scoped>
-// .container
-//   max-width: 720px
 .title
   font-size: 20px
 
 .new-directories
-  font-size: 16px
+  font-size: 18px
   color: var(--accent)
   &:hover
     cursor: pointer
@@ -156,4 +170,7 @@ export default class ExtensionGroup extends Vue {
   user-select: none
   &:hover
     cursor: pointer
+
+.discover-button
+  color: #81D9F5
 </style>

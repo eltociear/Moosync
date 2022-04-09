@@ -10,6 +10,13 @@
 import { MainHostIPCHandler } from '@/utils/extensions'
 import { ExtensionHostEvents, IpcEvents } from './constants'
 import { SongDB } from '../db/index'
+import { createWriteStream } from 'fs'
+import path from 'path'
+import { app } from 'electron'
+import https from 'https'
+import { v1 } from 'uuid'
+import { WindowHandler } from '../windowManager'
+import { IncomingMessage } from 'http'
 
 export class ExtensionHostChannel implements IpcChannelInterface {
   name = IpcEvents.EXTENSION_HOST
@@ -38,6 +45,9 @@ export class ExtensionHostChannel implements IpcChannelInterface {
       case ExtensionHostEvents.SEND_EXTRA_EVENT:
         this.handleMainWindowExtraEvent(event, request as IpcRequest<ExtensionHostRequests.ExtraEvent>)
         break
+      case ExtensionHostEvents.DOWNLOAD_EXTENSION:
+        this.downloadExtension(event, request as IpcRequest<ExtensionHostRequests.DownloadExtension>)
+        break
     }
   }
 
@@ -46,6 +56,7 @@ export class ExtensionHostChannel implements IpcChannelInterface {
       this.extensionHost
         .installExtension(request.params.path)
         .then((result) => event.reply(request.responseChannel, result))
+        .catch(console.error)
       return
     }
     event.reply(request.responseChannel, { success: false })
@@ -129,5 +140,69 @@ export class ExtensionHostChannel implements IpcChannelInterface {
       event.reply(request.responseChannel, data)
     }
     event.reply(request.responseChannel)
+  }
+
+  private followRedirectAndDownload(url: string, callback: (data: IncomingMessage) => void) {
+    https.get(url, (res) => {
+      if (res.statusCode === 302 && res.headers.location) {
+        this.followRedirectAndDownload(res.headers.location, callback)
+      } else {
+        callback(res)
+      }
+    })
+  }
+
+  private async downloadExtension(
+    event: Electron.IpcMainEvent,
+    request: IpcRequest<ExtensionHostRequests.DownloadExtension>
+  ) {
+    if (request.params.ext) {
+      const ext = request.params.ext
+      const parsedURL = ext.release.url
+        .replaceAll('{version}', ext.release.version)
+        .replaceAll('{platform}', process.platform)
+        .replaceAll('{arch}', process.arch)
+
+      const filePath = path.join(app.getPath('temp'), `${ext.packageName}-${v1()}.msox`)
+      const file = createWriteStream(filePath)
+
+      this.notifyPreferenceWindow({ packageName: ext.packageName, status: 'Downloading', progress: 10 })
+
+      try {
+        await new Promise<void>((resolve, reject) => {
+          this.followRedirectAndDownload(parsedURL, (res) => {
+            res.on('error', reject)
+            const stream = res.pipe(file)
+            stream.on('finish', resolve)
+            stream.on('error', reject)
+          })
+        })
+      } catch (e) {
+        console.error('Failed to download from', parsedURL, e)
+        this.notifyPreferenceWindow({ packageName: ext.packageName, status: 'Failed', error: e, progress: -1 })
+        event.reply(request.responseChannel, false)
+        return
+      }
+
+      console.log(filePath)
+
+      this.notifyPreferenceWindow({ packageName: ext.packageName, status: 'Installing', progress: 50 })
+
+      try {
+        await this.extensionHost.installExtension([filePath])
+      } catch (e) {
+        console.error('Failed to install extension', e)
+        this.notifyPreferenceWindow({ packageName: ext.packageName, error: e, status: 'Failed', progress: -1 })
+        return
+      }
+
+      this.notifyPreferenceWindow({ packageName: ext.packageName, status: 'Installed', progress: 100 })
+
+      event.reply(request.responseChannel, true)
+    }
+  }
+
+  public notifyPreferenceWindow(data: ExtInstallStatus) {
+    WindowHandler.getWindow(false)?.webContents.send(ExtensionHostEvents.EXT_INSTALL_STATUS, data)
   }
 }

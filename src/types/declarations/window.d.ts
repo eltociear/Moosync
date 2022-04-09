@@ -238,6 +238,8 @@ interface extensionUtils {
   sendExtraEvent: <T extends ExtraExtensionEventTypes>(
     event: ExtraExtensionEvents<T>
   ) => Promise<ExtraExtensionEventCombinedReturnType<T>>
+  downloadExtension: (ext: FetchedExtensionManifest) => Promise<boolean>
+  listenExtInstallStatus: (callback: (data: ExtInstallStatus) => void) => void
 }
 
 /**

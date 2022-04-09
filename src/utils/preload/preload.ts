@@ -433,7 +433,16 @@ contextBridge.exposeInMainWorld('ExtensionUtils', {
     ipcRendererHolder.send<ExtensionHostRequests.ExtraEvent>(IpcEvents.EXTENSION_HOST, {
       type: ExtensionHostEvents.SEND_EXTRA_EVENT,
       params: { event }
-    })
+    }),
+
+  downloadExtension: (ext: FetchedExtensionManifest) =>
+    ipcRendererHolder.send<ExtensionHostRequests.DownloadExtension>(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.DOWNLOAD_EXTENSION,
+      params: { ext }
+    }),
+
+  listenExtInstallStatus: (callback: (data: ExtInstallStatus) => void) =>
+    ipcRendererHolder.on(ExtensionHostEvents.EXT_INSTALL_STATUS, callback)
 })
 
 contextBridge.exposeInMainWorld('UpdateUtils', {
