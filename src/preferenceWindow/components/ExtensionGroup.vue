@@ -12,8 +12,15 @@
     <b-row no-gutters>
       <PreferenceHeader title="Extensions" tooltip="List of all installed extensions" />
       <b-col cols="auto" align-self="center" class="new-directories ml-auto d-flex">
-        <div class="discover-button mr-3" @click="openDiscoverModal">Discover</div>
-        <div class="add-directories-button" @click="openFileBrowser">Install from file</div>
+        <div class="d-flex" @click="openDiscoverModal">
+          <DiscoverIcon class="discover-icon mr-2" />
+          <div class="discover-button mr-4">Discover</div>
+        </div>
+
+        <div class="d-flex" @click="openFileBrowser">
+          <InstallIcon class="install-icon mr-2" />
+          <div class="add-directories-button">Install from file</div>
+        </div>
       </b-col>
     </b-row>
     <b-row no-gutters class="background w-100 mt-2 d-flex" v-if="Array.isArray(extensions)">
@@ -49,11 +56,15 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import DeleteModal from '../../commonComponents/ConfirmationModal.vue'
 import PreferenceHeader from './PreferenceHeader.vue'
 import DiscoverExtensionsModal from './DiscoverExtensionModal.vue'
+import InstallIcon from '@/icons/InstallIcon.vue'
+import DiscoverIcon from '@/icons/DiscoverIcon.vue'
 @Component({
   components: {
     DeleteModal,
     DiscoverExtensionsModal,
-    PreferenceHeader
+    PreferenceHeader,
+    DiscoverIcon,
+    InstallIcon
   }
 })
 export default class ExtensionGroup extends Vue {
@@ -171,6 +182,6 @@ export default class ExtensionGroup extends Vue {
   &:hover
     cursor: pointer
 
-.discover-button
-  color: #81D9F5
+.discover-icon, .install-icon
+  height: 24px
 </style>
