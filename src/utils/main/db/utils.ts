@@ -65,6 +65,7 @@ export class DBUtils {
       deviceno: '',
       type: dbSong.type,
       url: dbSong.url,
+      icon: dbSong.icon,
       date_added: dbSong.date_added,
       playbackUrl: dbSong.playbackUrl,
       providerExtension: dbSong.provider_extension
@@ -98,6 +99,7 @@ export class DBUtils {
       url: song.url?.trim(),
       playbackUrl: song.playbackUrl?.trim(),
       date_added: Date.now(),
+      icon: song.icon,
       provider_extension: song.providerExtension
     }
   }

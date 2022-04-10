@@ -199,5 +199,13 @@ export const migrations = [
   ALTER TABLE allsongs ADD provider_extension TEXT;
 
   -- Down
+  `,
+
+  // 10-04-2022
+  `
+  -- Up
+  ALTER TABLE allsongs ADD icon TEXT;
+
+  -- Down
   `
 ]
