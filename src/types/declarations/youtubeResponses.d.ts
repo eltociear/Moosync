@@ -19,13 +19,15 @@ declare namespace YoutubeResponses {
 
   type SearchRequest = {
     params: {
+      part: ['id', 'snippet'?]
       relatedToVideoId?: string
-      videoCategoryId: 10
-      type: 'video'
-      videoDuration: 'short'
+      videoCategoryId?: 10
+      type?: 'video'
+      videoDuration?: 'short'
       maxResults?: number
-      videoEmbeddable: true
-      order: 'date'
+      videoEmbeddable?: true
+      order?: 'date' | 'relevance'
+      q?: string
     }
   }
 
@@ -277,6 +279,7 @@ declare namespace YoutubeResponses {
       }
       kind: string
       etag: string
+      snippet: VideoDetails.Snippet
     }
     interface SearchDetails {
       items: Item[]

@@ -34,8 +34,9 @@
           />
         </RecycleScroller>
         <b-container v-else class="mt-5 mb-3">
-          <b-row align-v="center">
-            <b-col class="nothing-found"> Nothing found... </b-col>
+          <b-row align-v="center" align-h="center">
+            <b-col cols="auto" v-if="i.loading"><b-spinner class="spinner" label="Loading..."></b-spinner></b-col>
+            <b-col v-else class="nothing-found"> Nothing found... </b-col>
           </b-row>
         </b-container>
         <b-button class="load-more" v-if="getLoadMore(tab)" @click="handleLoadMore(tab)"
@@ -70,8 +71,8 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     { tab: 'Artists', count: 0, key: 'Artists-0' },
     { tab: 'Genres', count: 0, key: 'Genres-0' },
     { tab: 'Playlists', count: 0, key: 'Playlists-0' },
-    { tab: 'Youtube', count: 0, key: 'Youtube-0' },
-    { tab: 'Spotify', count: 0, key: 'Spotify-0' }
+    { tab: 'Youtube', count: 0, key: 'Youtube-0', loading: false },
+    { tab: 'Spotify', count: 0, key: 'Spotify-0', loading: false }
   ]
 
   private loadedMore: { [key: string]: boolean } = { artists: false }
@@ -81,15 +82,43 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   }
 
   private async fetchData() {
-    this.result = await window.SearchUtils.searchAll(`%${this.term}%`)
-    this.refreshLocal()
+    window.SearchUtils.searchAll(`%${this.term}%`).then((data) => {
+      this.result = {
+        ...this.result,
+        ...data
+      }
+      this.refreshLocal()
+    })
 
-    this.result.youtube = await window.SearchUtils.searchYT(this.term, undefined, false, false, true)
-    this.refreshYoutube()
+    const youtubeItem = this.items.find((val) => val.tab === 'Youtube')
+    if (youtubeItem) {
+      youtubeItem.loading = true
 
-    if (vxm.providers.loggedInSpotify) {
-      this.result.spotify = await vxm.providers.spotifyProvider.searchSongs(this.term)
-      this.refreshSpotify()
+      if (vxm.providers.loggedInYoutube) {
+        vxm.providers.youtubeProvider.searchSongs(this.term).then((data) => {
+          this.result.youtube = data
+          this.refreshYoutube()
+          youtubeItem.loading = false
+        })
+      } else {
+        window.SearchUtils.searchYT(this.term, undefined, false, false, true).then((data) => {
+          this.result.youtube = data
+          this.refreshYoutube()
+          youtubeItem.loading = false
+        })
+      }
+    }
+
+    const spotifyItem = this.items.find((val) => val.tab === 'Spotify')
+    if (spotifyItem) {
+      if (vxm.providers.loggedInSpotify) {
+        spotifyItem.loading = true
+        vxm.providers.spotifyProvider.searchSongs(this.term).then((data) => {
+          this.result.spotify = data
+          this.refreshSpotify()
+          spotifyItem.loading = false
+        })
+      }
     }
   }
 
@@ -367,4 +396,6 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
 .load-more
   background-color: var(--accent)
   color: var(--textInverse)
+
+.spinner
 </style>
