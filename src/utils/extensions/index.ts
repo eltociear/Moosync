@@ -107,10 +107,11 @@ export class MainHostIPCHandler {
   }
 
   private sendToExtensionHost(data: Serializable) {
-    if ((!this.isAlive || !this.sandboxProcess.connected || this.sandboxProcess.killed) && !this.ignoreRespawn) {
+    const isKilled = !this.isAlive || !this.sandboxProcess.connected || this.sandboxProcess.killed
+    if (isKilled && !this.ignoreRespawn) {
       this.reSpawnProcess()
     }
-    !this.sandboxProcess.killed && this.sandboxProcess.send(data)
+    !isKilled && this.sandboxProcess.send(data)
   }
 
   public async closeHost() {
