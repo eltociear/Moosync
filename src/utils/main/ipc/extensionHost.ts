@@ -24,9 +24,6 @@ export class ExtensionHostChannel implements IpcChannelInterface {
   private extensionHost = new MainHostIPCHandler()
   handle(event: Electron.IpcMainEvent, request: IpcRequest): void {
     switch (request.type) {
-      case ExtensionHostEvents.EVENT_TRIGGER:
-        this.sendData(event, request as IpcRequest<ExtensionHostRequests.EventTrigger>)
-        break
       case ExtensionHostEvents.INSTALL:
         this.installExt(event, request as IpcRequest<ExtensionHostRequests.Install>)
         break
@@ -99,11 +96,6 @@ export class ExtensionHostChannel implements IpcChannelInterface {
         await SongDB.removeSong(s._id)
       }
     }
-    event.reply(request.responseChannel)
-  }
-
-  private sendData(event: Electron.IpcMainEvent, request: IpcRequest<ExtensionHostRequests.EventTrigger>) {
-    if (request.params.data) this.extensionHost.extensionEventGenerator.send(request.params.data)
     event.reply(request.responseChannel)
   }
 

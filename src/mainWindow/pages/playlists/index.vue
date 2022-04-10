@@ -95,8 +95,8 @@ export default class Playlists extends mixins(RouterPushes, ContextMenuMixin) {
 
   private async fetchPlaylistsFromExtension() {
     const playlists: ExtendedPlaylist[] = []
-    const data = await window.ExtensionUtils.sendExtraEvent({
-      type: 'get-playlists',
+    const data = await window.ExtensionUtils.sendEvent({
+      type: 'requestedPlaylists',
       data: []
     })
 

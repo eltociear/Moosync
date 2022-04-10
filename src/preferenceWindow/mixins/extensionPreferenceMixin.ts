@@ -81,20 +81,22 @@ export class ExtensionPreferenceMixin extends Vue {
   }
 
   public onInputChange() {
-    if (this.type === 'password') {
-      this.prefKey && window.Store.setSecure(this.prefKey, JSON.stringify(this.value))
-    } else {
-      this.prefKey && window.PreferenceUtils.saveSelective(this.prefKey, this.value, this.isExtension)
+    if (this.prefKey) {
+      if (this.type === 'password') {
+        window.Store.setSecure(this.prefKey, JSON.stringify(this.value))
+      } else {
+        window.PreferenceUtils.saveSelective(this.prefKey, this.value, this.isExtension)
+      }
+
+      if (this.isExtension)
+        window.ExtensionUtils.sendEvent({
+          data: [{ key: this.prefKey.replace(`${this.packageName}.`, ''), value: this.value }],
+          type: 'preferenceChanged',
+          packageName: this.packageName
+        })
+      else window.PreferenceUtils.notifyPreferenceChanged(this.prefKey, this.value)
+
+      this.onValueChange && this.onValueChange(this.value)
     }
-
-    if (this.isExtension)
-      window.ExtensionUtils.sendEvent({
-        data: { key: this.prefKey?.replace(`${this.packageName}.`, ''), value: this.value },
-        type: 'onPreferenceChanged',
-        packageName: this.packageName
-      } as extensionEventMessage)
-    else this.prefKey && window.PreferenceUtils.notifyPreferenceChanged(this.prefKey, this.value)
-
-    this.onValueChange && this.onValueChange(this.value)
   }
 }

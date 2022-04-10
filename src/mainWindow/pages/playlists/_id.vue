@@ -163,8 +163,8 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     }
 
     if (this.playlist?.extension) {
-      const data = await window.ExtensionUtils.sendExtraEvent({
-        type: 'get-playlist-songs',
+      const data = await window.ExtensionUtils.sendEvent({
+        type: 'requestedPlaylistSongs',
         data: [this.playlist.playlist_id],
         packageName: this.playlist.extension
       })

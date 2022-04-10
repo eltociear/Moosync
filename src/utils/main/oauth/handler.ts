@@ -34,7 +34,8 @@ export class OAuthHandler {
     if (registered) {
       for (const r of registered) {
         if (!r.isExtension) WindowHandler.getWindow()?.webContents.send(r.channelID, data)
-        else getExtensionHostChannel().sendExtraEvent({ type: 'on-oauth', data: [data], packageName: r.packageName })
+        else
+          getExtensionHostChannel().sendExtraEvent({ type: 'oauthCallback', data: [data], packageName: r.packageName })
       }
     }
     WindowHandler.getWindow()?.focus()

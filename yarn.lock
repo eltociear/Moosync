@@ -1427,7 +1427,7 @@
 
 "@moosync/moosync-types@https://github.com/Moosync/extension-api-types":
   version "1.3.0"
-  resolved "https://github.com/Moosync/extension-api-types#9e8d40bb2168fd35e65b0c6357cddb500f8d092f"
+  resolved "https://github.com/Moosync/extension-api-types#df7860a6582119c33379889da2e24d641f5afe26"
 
 "@node-ipc/js-queue@2.0.3":
   version "2.0.3"

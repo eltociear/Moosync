@@ -12,7 +12,6 @@ import { mainRequestsKeys } from '@/utils/extensions/constants'
 import { ExtensionHandler } from '@/utils/extensions/sandbox/extensionHandler'
 import { prefixLogger } from '@/utils/main/logger/utils'
 import log from 'loglevel'
-import { extensionEventsKeys } from '@/utils/extensions/constants'
 import { mainRequests } from '../constants'
 
 class ExtensionHostIPCHandler {
@@ -71,8 +70,8 @@ class ExtensionHostIPCHandler {
     }
   }
 
-  private isExtensionEvent(key: string) {
-    return extensionEventsKeys.includes(key as keyof MoosyncExtensionTemplate)
+  private isExtensionEvent(key: keyof MoosyncExtensionTemplate) {
+    return key === 'onStarted' || key === 'onStopped'
   }
 
   private isMainReply(key: string) {
@@ -99,7 +98,7 @@ class ExtensionHostIPCHandler {
   }
 
   private parseMessage(message: extensionHostMessage) {
-    if (this.isExtensionEvent(message.type)) {
+    if (this.isExtensionEvent(message.type as keyof MoosyncExtensionTemplate)) {
       this.extensionHandler.sendEvent(message as extensionEventMessage)
       return
     }
@@ -119,7 +118,7 @@ class MainRequestHandler {
   }
 
   public parseRequest(message: mainRequestMessage) {
-    console.debug('Received message from main process', message.type, message.data)
+    console.debug('Received message from main process', message.type)
     if (message.type === 'find-new-extensions') {
       this.handler
         .registerPlugins()

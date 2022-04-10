@@ -8,7 +8,7 @@
  */
 
 import { ChildProcess, fork, Serializable } from 'child_process'
-import { app, ipcMain } from 'electron'
+import { app, ipcMain, shell } from 'electron'
 import { extensionUIRequestsKeys, mainRequests } from '@/utils/extensions/constants'
 import { loadSelectivePreference, saveSelectivePreference } from '../main/db/preferences'
 
@@ -33,7 +33,6 @@ export class MainHostIPCHandler {
   private extensionRequestHandler = new ExtensionRequestHandler()
   private extensionResourceHandler = new ExtensionHandler()
   public mainRequestGenerator: MainRequestGenerator
-  public extensionEventGenerator: ExtensionEventGenerator
 
   private isAlive = false
   private ignoreRespawn = false
@@ -41,7 +40,6 @@ export class MainHostIPCHandler {
   constructor() {
     this.sandboxProcess = this.createExtensionHost()
     this.mainRequestGenerator = new MainRequestGenerator(this.sandboxProcess, this.sendToExtensionHost.bind(this))
-    this.extensionEventGenerator = new ExtensionEventGenerator(this.sendToExtensionHost.bind(this))
     this.registerListeners()
   }
 
@@ -197,18 +195,6 @@ class MainRequestGenerator {
   }
 }
 
-class ExtensionEventGenerator {
-  private _sendSync: (data: Serializable) => void
-
-  constructor(sendSync: (data: Serializable) => void) {
-    this._sendSync = sendSync
-  }
-
-  public send(data: extensionEventMessage) {
-    this._sendSync(data)
-  }
-}
-
 class ExtensionRequestHandler {
   private mainWindowCallsQueue: { func: unknown; args: Serializable[] }[] = []
 
@@ -314,6 +300,10 @@ class ExtensionRequestHandler {
 
     if (message.type === 'register-oauth') {
       oauthHandler.registerHandler(message.data, true, message.extensionName)
+    }
+
+    if (message.type === 'open-external') {
+      await shell.openExternal(message.data)
     }
 
     if (
