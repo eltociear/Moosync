@@ -14,7 +14,6 @@ import { Transfer, TransferDescriptor } from 'threads'
 import { expose } from 'threads/worker'
 import fs, { promises as fsP } from 'fs'
 
-import crypto from 'crypto'
 import path from 'path'
 import { v4 } from 'uuid'
 import { XMLParser } from 'fast-xml-parser'
@@ -22,6 +21,8 @@ import readline from 'readline'
 import { fileURLToPath } from 'url'
 import { getLogger, levels } from 'loglevel'
 import { prefixLogger } from '../logger/utils'
+import { readFile } from 'fs/promises'
+import crypto from 'crypto'
 
 const audioPatterns = new RegExp('.flac|.mp3|.ogg|.m4a|.webm|.wav|.wv|.aac', 'i')
 const playlistPatterns = new RegExp('.m3u|.m3u8|.wpl')
@@ -44,15 +45,24 @@ expose({
 
 async function scanFile(filePath: string): Promise<ScannedSong> {
   const fsStats = await fsP.stat(filePath)
-  const hash = await generateChecksum(filePath)
+  const buffer = await getBuffer(filePath)
+  const hash = await generateChecksum(buffer)
 
-  return processFile({
-    path: filePath,
-    inode: fsStats.ino.toString(),
-    deviceno: fsStats.dev.toString(),
-    size: fsStats.size,
-    hash: hash
-  })
+  return processFile(
+    {
+      path: filePath,
+      inode: fsStats.ino.toString(),
+      deviceno: fsStats.dev.toString(),
+      size: fsStats.size,
+      hash: hash
+    },
+    buffer
+  )
+}
+
+async function getBuffer(filePath: string) {
+  const buffer = await readFile(filePath)
+  return buffer
 }
 
 function createXMLParser() {
@@ -140,9 +150,9 @@ async function scanPlaylist(filePath: string) {
   }
 }
 
-async function processFile(stat: stats): Promise<ScannedSong> {
-  const metadata = await mm.parseFile(stat.path)
-  const info = await getInfo(metadata, stat)
+async function processFile(stats: stats, buffer: Buffer): Promise<ScannedSong> {
+  const metadata = await mm.parseBuffer(buffer)
+  const info = await getInfo(metadata, stats)
   const cover = metadata.common.picture && metadata.common.picture[0].data
   return { song: info, cover }
 }
@@ -251,15 +261,8 @@ async function getAllFiles(p: string) {
   return allFiles
 }
 
-async function generateChecksum(file: string): Promise<string> {
-  return new Promise((resolve) => {
-    const hash = crypto.createHash('md5')
-    const fileStream = fs.createReadStream(file, { highWaterMark: 256 * 1024 })
-    fileStream.on('data', (data) => {
-      hash.update(data)
-    })
-    fileStream.on('end', function () {
-      resolve(hash.digest('hex'))
-    })
-  })
+async function generateChecksum(buffer: Buffer): Promise<string> {
+  const h = crypto.createHash('md5')
+  const hash = h.update(buffer).digest('hex')
+  return hash
 }

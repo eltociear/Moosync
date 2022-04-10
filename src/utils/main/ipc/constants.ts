@@ -147,14 +147,15 @@ export enum LoggerEvents {
 }
 
 export enum ExtensionHostEvents {
-  EVENT_TRIGGER = 'eventTrigger',
   GET_ALL_EXTENSIONS = 'getAllExtensions',
   INSTALL = 'install',
   EXTENSION_REQUESTS = 'extensionRequests',
   TOGGLE_EXT_STATUS = 'toggleExtStatus',
   REMOVE_EXT = 'removeExt',
   GET_EXTENSION_ICON = 'getExtensionIcon',
-  SEND_EXTRA_EVENT = 'sendExtraEvent'
+  SEND_EXTRA_EVENT = 'sendExtraEvent',
+  DOWNLOAD_EXTENSION = 'downloadExtension',
+  EXT_INSTALL_STATUS = 'extInstallStatus'
 }
 
 export enum ServiceProviderEvents {

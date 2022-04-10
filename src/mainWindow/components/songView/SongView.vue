@@ -63,9 +63,9 @@ export default class AllSongs extends mixins(PlayerControls, ModelHelper, Remote
   @Prop({ default: false })
   private tableBusy!: boolean
 
-  private sort(sortOptions: sortOptions) {
+  private sort(SongSortOptions: SongSortOptions) {
     if (!this.ignoreSort) {
-      sortSongList(this.songList, sortOptions)
+      sortSongList(this.songList, SongSortOptions)
       this.ignoreSort = true
     } else {
       this.ignoreSort = false
@@ -75,15 +75,15 @@ export default class AllSongs extends mixins(PlayerControls, ModelHelper, Remote
   onSortChange() {
     vxm.themes.$watch(
       'sortBy',
-      (sortOptions: sortOptions) => {
-        this.sort(sortOptions)
+      (SongSortOptions: SongSortOptions) => {
+        this.sort(SongSortOptions)
       },
       { deep: true, immediate: true }
     )
   }
 
   @Watch('songList') onSongListChange() {
-    this.sort(vxm.themes.sortBy)
+    this.sort(vxm.themes.songSortBy)
   }
 
   mounted() {

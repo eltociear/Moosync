@@ -49,6 +49,7 @@ interface marshaledSong {
   playbackUrl?: string
   date_added: number
   type: PlayerType
+  icon?: string
   provider_extension?: string
 }
 

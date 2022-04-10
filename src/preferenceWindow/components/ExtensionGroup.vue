@@ -11,8 +11,16 @@
   <b-container fluid class="path-container w-100">
     <b-row no-gutters>
       <PreferenceHeader title="Extensions" tooltip="List of all installed extensions" />
-      <b-col cols="auto" align-self="center" class="new-directories ml-auto">
-        <div class="add-directories-button" @click="openFileBrowser">Install Extension</div>
+      <b-col cols="auto" align-self="center" class="new-directories ml-auto d-flex">
+        <div class="d-flex" @click="openDiscoverModal">
+          <DiscoverIcon class="discover-icon mr-2" />
+          <div class="discover-button mr-4">Discover</div>
+        </div>
+
+        <div class="d-flex" @click="openFileBrowser">
+          <InstallIcon class="install-icon mr-2" />
+          <div class="add-directories-button">Install from file</div>
+        </div>
       </b-col>
     </b-row>
     <b-row no-gutters class="background w-100 mt-2 d-flex" v-if="Array.isArray(extensions)">
@@ -35,6 +43,11 @@
       :itemName="extensions[extensionInAction].name"
       @confirm="removeExtension"
     />
+    <DiscoverExtensionsModal
+      :updateExtensionsCallback="emitExtensionsUpdated"
+      :installedExtensions="extensions"
+      id="discoverExtensions"
+    />
   </b-container>
 </template>
 
@@ -42,10 +55,16 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import DeleteModal from '../../commonComponents/ConfirmationModal.vue'
 import PreferenceHeader from './PreferenceHeader.vue'
+import DiscoverExtensionsModal from './DiscoverExtensionModal.vue'
+import InstallIcon from '@/icons/InstallIcon.vue'
+import DiscoverIcon from '@/icons/DiscoverIcon.vue'
 @Component({
   components: {
     DeleteModal,
-    PreferenceHeader
+    DiscoverExtensionsModal,
+    PreferenceHeader,
+    DiscoverIcon,
+    InstallIcon
   }
 })
 export default class ExtensionGroup extends Vue {
@@ -65,7 +84,7 @@ export default class ExtensionGroup extends Vue {
   private removeExtension() {
     if (this.extensions[this.extensionInAction]) {
       window.ExtensionUtils.uninstall(this.extensions[this.extensionInAction].packageName).then(() =>
-        this.$emit('extensionsChanged')
+        this.emitExtensionsUpdated()
       )
     }
   }
@@ -86,6 +105,14 @@ export default class ExtensionGroup extends Vue {
         }
       }
     )
+  }
+
+  private emitExtensionsUpdated() {
+    this.$emit('extensionsChanged')
+  }
+
+  private openDiscoverModal() {
+    this.$bvModal.show('discoverExtensions')
   }
 }
 </script>
@@ -110,13 +137,11 @@ export default class ExtensionGroup extends Vue {
 </style>
 
 <style lang="sass" scoped>
-// .container
-//   max-width: 720px
 .title
   font-size: 20px
 
 .new-directories
-  font-size: 16px
+  font-size: 18px
   color: var(--accent)
   &:hover
     cursor: pointer
@@ -156,4 +181,7 @@ export default class ExtensionGroup extends Vue {
   user-select: none
   &:hover
     cursor: pointer
+
+.discover-icon, .install-icon
+  height: 24px
 </style>

@@ -56,7 +56,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
   get buttonGroups(): SongDetailButtons {
     return {
       enableContainer: true,
-      enableLibraryStore: this.isRemote
+      enableLibraryStore: !!this.isRemote
     }
   }
 
@@ -76,8 +76,12 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     return this.$route.params.id.startsWith('spotify-')
   }
 
+  private get isExtension() {
+    return this.$route.params.extension
+  }
+
   private get isRemote() {
-    return this.isYoutube || this.isSpotify
+    return this.isYoutube || this.isSpotify || this.isExtension
   }
 
   private async refresh(invalidateCache = false) {
@@ -138,7 +142,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
       playlist: {
         playlist_id: this.$route.params.id
       },
-      sortBy: vxm.themes.sortBy
+      sortBy: vxm.themes.songSortBy
     })
   }
 
@@ -163,8 +167,8 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     }
 
     if (this.playlist?.extension) {
-      const data = await window.ExtensionUtils.sendExtraEvent({
-        type: 'get-playlist-songs',
+      const data = await window.ExtensionUtils.sendEvent({
+        type: 'requestedPlaylistSongs',
         data: [this.playlist.playlist_id],
         packageName: this.playlist.extension
       })
@@ -173,8 +177,8 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     }
   }
 
-  private sort(options: sortOptions) {
-    vxm.themes.sortBy = options
+  private sort(options: SongSortOptions) {
+    vxm.themes.songSortBy = options
   }
 
   private getSongMenu(event: Event, songs: Song[]) {
@@ -182,8 +186,8 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
       type: 'PLAYLIST_CONTENT',
       args: {
         songs: songs,
-        isRemote: this.isRemote,
-        sortOptions: { callback: this.sort, current: vxm.themes.sortBy },
+        isRemote: !!this.isRemote,
+        sortOptions: { callback: this.sort, current: vxm.themes.songSortBy },
         refreshCallback: () => (this.songList = arrayDiff<Song>(this.songList, songs))
       }
     })

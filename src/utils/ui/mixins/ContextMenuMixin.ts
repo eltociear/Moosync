@@ -27,18 +27,54 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     await window.DBUtils.addToPlaylist(playlist_id, ...songs)
   }
 
-  private getSortByMenu(sortCallback: sortCallback, currentSort: sortOptions) {
+  private getSongSortByMenu(sort: Sort<SongSortOptions>) {
     const menu: MenuItem[] = [
       {
         label: 'Sort by',
         children: [
           {
-            label: `Name ${currentSort.type === 'name' ? (currentSort.asc ? '▲' : '▼') : ''}`,
-            handler: () => sortCallback({ type: 'name', asc: currentSort.type === 'name' && !currentSort.asc })
+            label: `Name ${sort.current.type === 'title' ? (sort.current.asc ? '▲' : '▼') : ''}`,
+            handler: () => sort.callback({ type: 'title', asc: sort.current.type === 'title' && !sort.current.asc })
           },
           {
-            label: `Date added ${currentSort.type === 'date' ? (currentSort.asc ? '▲' : '▼') : ''}`,
-            handler: () => sortCallback({ type: 'date', asc: currentSort.type === 'date' && !currentSort.asc })
+            label: `Date added ${sort.current.type === 'date_added' ? (sort.current.asc ? '▲' : '▼') : ''}`,
+            handler: () =>
+              sort.callback({ type: 'date_added', asc: sort.current.type === 'date_added' && !sort.current.asc })
+          }
+        ]
+      }
+    ]
+    return menu
+  }
+
+  private getPlaylistSortByMenu(sort: Sort<PlaylistSortOptions>) {
+    const menu: MenuItem[] = [
+      {
+        label: 'Sort by',
+        children: [
+          {
+            label: `Name ${sort.current.type === 'name' ? (sort.current.asc ? '▲' : '▼') : ''}`,
+            handler: () => sort.callback({ type: 'name', asc: sort.current.type === 'name' && !sort.current.asc })
+          },
+          {
+            label: `Provider ${sort.current.type === 'provider' ? (sort.current.asc ? '▲' : '▼') : ''}`,
+            handler: () =>
+              sort.callback({ type: 'provider', asc: sort.current.type === 'provider' && !sort.current.asc })
+          }
+        ]
+      }
+    ]
+    return menu
+  }
+
+  private getGenericSortByMenu(sort: Sort<NormalSortOptions>) {
+    const menu: MenuItem[] = [
+      {
+        label: 'Sort by',
+        children: [
+          {
+            label: `Name ${sort.current.type === 'name' ? (sort.current.asc ? '▲' : '▼') : ''}`,
+            handler: () => sort.callback({ type: 'name', asc: sort.current.type === 'name' && !sort.current.asc })
           }
         ]
       }
@@ -69,11 +105,11 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     return menu
   }
 
-  private getGeneralSongsContextMenu(refreshCallback: () => void, sort?: sort) {
+  private getGeneralSongsContextMenu(refreshCallback: () => void, sort?: Sort<SongSortOptions>) {
     const items: MenuItem[] = []
 
     if (sort) {
-      items.push(...this.getSortByMenu(sort.callback, sort.current))
+      items.push(...this.getSongSortByMenu(sort))
     }
 
     items.push({
@@ -88,7 +124,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     exclude: string | undefined,
     refreshCallback?: () => void,
     isRemote = false,
-    sort?: sort,
+    sort?: Sort<SongSortOptions>,
     ...item: Song[]
   ) {
     const items: MenuItem[] = [
@@ -111,7 +147,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     ]
 
     if (sort) {
-      items.push(...this.getSortByMenu(sort.callback, sort.current))
+      items.push(...this.getSongSortByMenu(sort))
     }
 
     if (!isRemote) {
@@ -167,7 +203,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
 
   private getPlaylistContentContextMenu(
     isRemote: boolean,
-    sort: sort | undefined,
+    sort: Sort<SongSortOptions> | undefined,
     refreshCallback: () => void,
     ...item: Song[]
   ) {
@@ -181,14 +217,15 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     return items
   }
 
-  private getGeneralPlaylistMenu(refreshCallback?: () => void) {
+  private getGeneralPlaylistMenu(sort: Sort<PlaylistSortOptions>, refreshCallback?: () => void) {
     const items = [
       {
         label: 'Add Playlist from URL',
         handler: () => {
           bus.$emit(EventBus.SHOW_PLAYLIST_FROM_URL_MODAL, refreshCallback)
         }
-      }
+      },
+      ...this.getPlaylistSortByMenu(sort)
     ]
     return items
   }
@@ -266,7 +303,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
         items = this.getPlaylistContextMenu(options.args.playlist, options.args.deleteCallback)
         break
       case 'GENERAL_PLAYLIST':
-        items = this.getGeneralPlaylistMenu(options.args.refreshCallback)
+        items = this.getGeneralPlaylistMenu(options.args.sort, options.args.refreshCallback)
         break
       case 'PLAYLIST_CONTENT':
         items = this.getPlaylistContentContextMenu(
@@ -283,6 +320,9 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
           options.args.song,
           options.args.songIndex
         )
+        break
+      case 'GENERIC_SORT':
+        items = this.getGenericSortByMenu(options.args.sortOptions)
         break
     }
     this.emitMenu(event, items)

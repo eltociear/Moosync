@@ -155,8 +155,11 @@ export class ExtensionHandler {
     const allData: { [key: string]: ExtraExtensionEventReturnType<T> | undefined } = {}
     const EventType: T = event.type
     for (const ext of this.extensionManager.getExtensions({ started: true, packageName: event.packageName })) {
-      if (event.type === 'get-playlist-songs') {
-        event.data[0] = event.data[0]?.replace(`${ext.packageName}:`, '')
+      if (event.type === 'requestedPlaylistSongs') {
+        event.data[0] = (event.data as ExtraExtensionEventData<'requestedPlaylistSongs'>)[0]?.replace(
+          `${ext.packageName}:`,
+          ''
+        )
       }
 
       const resp = await ext.global.api._emit<T>({
@@ -165,15 +168,15 @@ export class ExtensionHandler {
       })
 
       if (resp) {
-        if (EventType === 'get-playlists') {
-          ;(resp as ExtraExtensionEventReturnType<'get-playlists'>).playlists = (
-            resp as ExtraExtensionEventReturnType<'get-playlists'>
+        if (EventType === 'requestedPlaylists') {
+          ;(resp as ExtraExtensionEventReturnType<'requestedPlaylists'>).playlists = (
+            resp as ExtraExtensionEventReturnType<'requestedPlaylists'>
           ).playlists.map((val) => ({ ...val, playlist_id: `${ext.packageName}:${val.playlist_id}` }))
         }
 
-        if (EventType === 'get-playlist-songs') {
-          ;(resp as ExtraExtensionEventReturnType<'get-playlist-songs'>).songs = (
-            resp as ExtraExtensionEventReturnType<'get-playlist-songs'>
+        if (EventType === 'requestedPlaylistSongs') {
+          ;(resp as ExtraExtensionEventReturnType<'requestedPlaylistSongs'>).songs = (
+            resp as ExtraExtensionEventReturnType<'requestedPlaylistSongs'>
           ).songs.map((val) => ({ ...val, _id: `${ext.packageName}:${val._id}`, providerExtension: ext.packageName }))
         }
       }

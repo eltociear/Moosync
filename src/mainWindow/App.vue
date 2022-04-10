@@ -279,8 +279,8 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
         }
 
         window.ExtensionUtils.sendEvent({
-          type: 'onSongChanged',
-          data: newVal
+          type: 'songChanged',
+          data: [newVal]
         })
 
         vxm.providers.lastfmProvider.scrobble(newVal)
@@ -290,29 +290,29 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
 
     vxm.player.$watch('playerState', (newVal: PlayerState) =>
       window.ExtensionUtils.sendEvent({
-        type: 'onPlayerStateChanged',
-        data: newVal
+        type: 'playerStateChanged',
+        data: [newVal]
       })
     )
 
     vxm.player.$watch('volume', (newVal: number) =>
       window.ExtensionUtils.sendEvent({
-        type: 'onVolumeChanged',
-        data: newVal
+        type: 'volumeChanged',
+        data: [newVal]
       })
     )
 
     vxm.player.$watch('songQueue', (newVal: SongQueue) =>
       window.ExtensionUtils.sendEvent({
-        type: 'onSongQueueChanged',
-        data: newVal
+        type: 'songQueueChanged',
+        data: [newVal]
       })
     )
 
     bus.$on('forceSeek', (newVal: number) =>
       window.ExtensionUtils.sendEvent({
-        type: 'onSeeked',
-        data: newVal
+        type: 'seeked',
+        data: [newVal]
       })
     )
   }

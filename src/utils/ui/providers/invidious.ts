@@ -217,4 +217,17 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
   public async *getArtistSongs(): AsyncGenerator<Song[]> {
     yield []
   }
+
+  public async searchSongs(term: string): Promise<Song[]> {
+    const resp = await this.populateRequest(InvidiousApiResources.SEARCH, {
+      params: {
+        q: term,
+        type: 'video',
+        sort_by: 'relevance'
+      }
+    })
+
+    if (resp) return this.parsePlaylistItems([resp])
+    return []
+  }
 }

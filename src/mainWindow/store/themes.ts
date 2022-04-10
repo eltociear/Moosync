@@ -11,10 +11,13 @@ import { VuexModule } from './module'
 
 export class ThemeStore extends VuexModule.With({ namespaced: 'themes' }) {
   private _songView: songMenu = 'compact'
-  private _sortBy: sortOptions = { type: 'date', asc: true }
   private _refreshPage = false
   private _sidebarOpen = true
   private _updateAvailable = false
+
+  public songSortBy: SongSortOptions = { type: 'date_added', asc: true }
+  public playlistSortBy: PlaylistSortOptions = { type: 'name', asc: true }
+  public otherSortBy: NormalSortOptions = { type: 'name', asc: true }
 
   get isUpdateAvailable() {
     return this._updateAvailable
@@ -22,14 +25,6 @@ export class ThemeStore extends VuexModule.With({ namespaced: 'themes' }) {
 
   set isUpdateAvailable(update: boolean) {
     this._updateAvailable = update
-  }
-
-  get sortBy() {
-    return this._sortBy
-  }
-
-  set sortBy(options: sortOptions) {
-    this._sortBy = options
   }
 
   get songView() {

@@ -23,6 +23,7 @@ export class SearchChannel implements IpcChannelInterface {
   private ytScraper = new YTScraper()
   private lastFmScraper = new LastFMScraper()
   private invidiousRequester = new InvidiousRequester()
+  private azLyricsFetcher = new AZLyricsFetcher()
 
   handle(event: Electron.IpcMainEvent, request: IpcRequest): void {
     switch (request.type) {
@@ -70,6 +71,8 @@ export class SearchChannel implements IpcChannelInterface {
         const useInvidious =
           loadSelectivePreference<SystemSettings[]>('system')?.find((val) => val.key === 'use_invidious')?.enabled ??
           false
+
+        console.log(useInvidious)
 
         let data
         if (!useInvidious) {
@@ -131,7 +134,7 @@ export class SearchChannel implements IpcChannelInterface {
 
   private async scrapeLyrics(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.LyricsScrape>) {
     if (request.params && request.params.artists && request.params.title) {
-      const resp = await new AZLyricsFetcher().getLyrics(request.params.artists, request.params.title)
+      const resp = await this.azLyricsFetcher.getLyrics(request.params.artists, request.params.title)
       event.reply(request.responseChannel, resp)
     }
   }

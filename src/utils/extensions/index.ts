@@ -8,7 +8,7 @@
  */
 
 import { ChildProcess, fork, Serializable } from 'child_process'
-import { app, ipcMain } from 'electron'
+import { app, ipcMain, shell } from 'electron'
 import { extensionUIRequestsKeys, mainRequests } from '@/utils/extensions/constants'
 import { loadSelectivePreference, saveSelectivePreference } from '../main/db/preferences'
 
@@ -33,7 +33,6 @@ export class MainHostIPCHandler {
   private extensionRequestHandler = new ExtensionRequestHandler()
   private extensionResourceHandler = new ExtensionHandler()
   public mainRequestGenerator: MainRequestGenerator
-  public extensionEventGenerator: ExtensionEventGenerator
 
   private isAlive = false
   private ignoreRespawn = false
@@ -41,7 +40,6 @@ export class MainHostIPCHandler {
   constructor() {
     this.sandboxProcess = this.createExtensionHost()
     this.mainRequestGenerator = new MainRequestGenerator(this.sandboxProcess, this.sendToExtensionHost.bind(this))
-    this.extensionEventGenerator = new ExtensionEventGenerator(this.sendToExtensionHost.bind(this))
     this.registerListeners()
   }
 
@@ -109,11 +107,11 @@ export class MainHostIPCHandler {
   }
 
   private sendToExtensionHost(data: Serializable) {
-    if ((!this.isAlive || !this.sandboxProcess.connected || this.sandboxProcess.killed) && !this.ignoreRespawn) {
+    const isKilled = !this.isAlive || !this.sandboxProcess.connected || this.sandboxProcess.killed
+    if (isKilled && !this.ignoreRespawn) {
       this.reSpawnProcess()
     }
-    this.sandboxProcess.killed
-    this.sandboxProcess.send(data)
+    !isKilled && this.sandboxProcess.send(data)
   }
 
   public async closeHost() {
@@ -195,18 +193,6 @@ class MainRequestGenerator {
       )
       this._sendSync({ type, channel, data } as mainRequestMessage)
     })
-  }
-}
-
-class ExtensionEventGenerator {
-  private _sendSync: (data: Serializable) => void
-
-  constructor(sendSync: (data: Serializable) => void) {
-    this._sendSync = sendSync
-  }
-
-  public send(data: extensionEventMessage) {
-    this._sendSync(data)
   }
 }
 
@@ -315,6 +301,10 @@ class ExtensionRequestHandler {
 
     if (message.type === 'register-oauth') {
       oauthHandler.registerHandler(message.data, true, message.extensionName)
+    }
+
+    if (message.type === 'open-external') {
+      await shell.openExternal(message.data)
     }
 
     if (

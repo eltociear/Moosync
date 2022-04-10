@@ -105,13 +105,13 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
         artist: {
           artist_id: this.$route.params.id
         },
-        sortBy: vxm.themes.sortBy
+        sortBy: vxm.themes.songSortBy
       })
     }
   }
 
-  private sort(options: sortOptions) {
-    vxm.themes.sortBy = options
+  private sort(options: SongSortOptions) {
+    vxm.themes.songSortBy = options
   }
 
   private getSongMenu(event: Event, songs: Song[], exclude: string | undefined) {
@@ -120,7 +120,7 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
       args: {
         songs: songs,
         exclude: exclude,
-        sortOptions: { callback: this.sort, current: vxm.themes.sortBy },
+        sortOptions: { callback: this.sort, current: vxm.themes.songSortBy },
         refreshCallback: () => (this.songList = arrayDiff(this.songList, songs))
       }
     })

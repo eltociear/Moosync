@@ -44,6 +44,10 @@ declare namespace ExtensionHostRequests {
   interface ExtraEvent {
     event: ExtraExtensionEvents
   }
+
+  interface DownloadExtension {
+    ext: FetchedExtensionManifest
+  }
 }
 
 declare namespace LoggerRequests {

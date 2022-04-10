@@ -7,14 +7,6 @@
  *  See LICENSE in the project root for license information.
  */
 
-export const extensionEventsKeys: (keyof MoosyncExtensionTemplate)[] = [
-  'onSongChanged',
-  'onPlayerStateChanged',
-  'onSongQueueChanged',
-  'onVolumeChanged',
-  'onPreferenceChanged',
-  'onSeeked'
-]
 export const extensionRequestsKeys = [
   'get-songs',
   'add-songs',
@@ -25,7 +17,8 @@ export const extensionRequestsKeys = [
   'get-secure-preferences',
   'set-preferences',
   'set-secure-preferences',
-  'register-oauth'
+  'register-oauth',
+  'open-external'
 ] as const
 export const extensionUIRequestsKeys = [
   'get-current-song',
@@ -45,7 +38,6 @@ export const mainRequestsKeys = [
   'extra-extension-events'
 ] as const
 
-export type extensionEvents = typeof extensionEventsKeys[number]
 export type extensionUIRequests = typeof extensionUIRequestsKeys[number] | typeof playerControlRequests[number]
 export type extensionRequests = typeof extensionRequestsKeys[number] | extensionUIRequests
 export type mainRequests = typeof mainRequestsKeys[number]

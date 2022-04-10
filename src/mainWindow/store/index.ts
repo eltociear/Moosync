@@ -28,7 +28,9 @@ const paths = [
   'player.songQueue',
   'player.repeat',
   'themes.colors',
-  'themes._sortBy',
+  'themes.songSortBy',
+  'themes.playlistSortBy',
+  'themes.otherSortBy',
   'themes._sidebarOpen'
 ]
 

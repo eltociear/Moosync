@@ -8,6 +8,38 @@
  *  See LICENSE in the project root for license information.
  */
 
+type GithubRepoResponse = {
+  sha: string
+  url: string
+  tree: {
+    path: string
+    mode: string
+    type: 'blob' | 'tree'
+    sha: string
+    url: string
+  }[]
+}
+
+type FetchedExtensionManifest = {
+  name: string
+  packageName: string
+  logo: string
+  description: string
+  url: string
+  release: {
+    type: 'github-release' | 'url'
+    url: string
+    version: string
+  }
+}
+
+type ExtInstallStatus = {
+  packageName: string
+  status: string
+  error?: unknown
+  progress: number
+}
+
 type extensionEventMessage = {
   type: keyof MoosyncExtensionTemplate
   data: any

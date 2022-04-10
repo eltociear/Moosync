@@ -8,8 +8,8 @@
 -->
 
 <template>
-  <div class="h-100 w-100 parent">
-    <b-container fluid class="album-container" @contextmenu="contextHandler">
+  <div class="h-100 w-100 parent" @contextmenu="contextHandler">
+    <b-container fluid class="album-container">
       <b-row no-gutters class="page-title">
         <b-col cols="auto">Playlists</b-col>
         <b-col class="button-grow" @click="newPlaylist" cols="auto"><PlusIcon class="add-icon mb-2" /></b-col>
@@ -95,8 +95,8 @@ export default class Playlists extends mixins(RouterPushes, ContextMenuMixin) {
 
   private async fetchPlaylistsFromExtension() {
     const playlists: ExtendedPlaylist[] = []
-    const data = await window.ExtensionUtils.sendExtraEvent({
-      type: 'get-playlists',
+    const data = await window.ExtensionUtils.sendEvent({
+      type: 'requestedPlaylists',
       data: []
     })
 
@@ -122,22 +122,55 @@ export default class Playlists extends mixins(RouterPushes, ContextMenuMixin) {
 
     const promises: Promise<unknown>[] = []
     promises.push(
-      vxm.providers.youtubeProvider.getUserPlaylists(invalidateCache).then((data) => this.allPlaylists.push(...data))
+      vxm.providers.youtubeProvider
+        .getUserPlaylists(invalidateCache)
+        .then((data) => this.allPlaylists.push(...data))
+        .then(this.sort)
     )
     promises.push(
-      vxm.providers.spotifyProvider.getUserPlaylists(invalidateCache).then((data) => this.allPlaylists.push(...data))
+      vxm.providers.spotifyProvider
+        .getUserPlaylists(invalidateCache)
+        .then((data) => this.allPlaylists.push(...data))
+        .then(this.sort)
     )
 
-    promises.push(this.fetchPlaylistsFromExtension().then((data) => this.allPlaylists.push(...data)))
+    promises.push(
+      this.fetchPlaylistsFromExtension()
+        .then((data) => this.allPlaylists.push(...data))
+        .then(this.sort)
+    )
 
     await Promise.all(promises)
-    this.allPlaylists.sort((a, b) => a.playlist_name.localeCompare(b.playlist_name))
+  }
+
+  private setSort(options: PlaylistSortOptions) {
+    vxm.themes.playlistSortBy = options
+  }
+
+  private sort() {
+    this.allPlaylists.sort((a, b) => {
+      switch (vxm.themes.playlistSortBy.type) {
+        case 'name':
+          return vxm.themes.playlistSortBy.asc
+            ? a.playlist_name.localeCompare(b.playlist_name)
+            : b.playlist_name.localeCompare(a.playlist_name)
+        default:
+        case 'provider':
+          return vxm.themes.playlistSortBy.asc
+            ? a.playlist_id.localeCompare(b.playlist_id)
+            : b.playlist_id.localeCompare(a.playlist_id)
+      }
+    })
   }
 
   private contextHandler(event: MouseEvent) {
     this.getContextMenu(event, {
       type: 'GENERAL_PLAYLIST',
       args: {
+        sort: {
+          callback: this.setSort,
+          current: vxm.themes.playlistSortBy
+        },
         refreshCallback: this.refresh
       }
     })
@@ -156,6 +189,8 @@ export default class Playlists extends mixins(RouterPushes, ContextMenuMixin) {
     this.enableRefresh()
     this.getPlaylists()
     this.listenGlobalRefresh()
+
+    vxm.themes.$watch('playlistSortBy', this.sort)
   }
 
   private refresh(invalidateCache = false) {

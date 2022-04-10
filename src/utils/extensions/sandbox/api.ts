@@ -93,12 +93,22 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
     return sendAsync<void>(this.packageName, 'register-oauth', path)
   }
 
+  public async openExternalURL(url: string): Promise<void> {
+    return sendAsync<void>(this.packageName, 'open-external', url)
+  }
+
   public on<T extends ExtraExtensionEventTypes>(
     eventName: T,
     callback: (...args: ExtraExtensionEventData<T>) => Promise<ExtraExtensionEventReturnType<T>>
   ) {
     console.debug('Registering listener for', eventName, 'in package', this.packageName)
     this.eventCallbackMap[eventName] = callback as never
+    return callback
+  }
+
+  public off<T extends ExtraExtensionEventTypes>(eventName: T) {
+    console.debug('Removing listener for', eventName, 'in package', this.packageName)
+    delete this.eventCallbackMap[eventName]
   }
 
   public async _emit<T extends ExtraExtensionEventTypes>(event: ExtraExtensionEvents<T>) {

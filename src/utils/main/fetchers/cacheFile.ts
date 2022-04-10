@@ -7,10 +7,12 @@ export class CacheHandler {
   protected cache: Cache = {}
   private cacheFile: string
   private cacheDir: string
+  private tryJson = true
 
-  constructor(cacheFile: string) {
+  constructor(cacheFile: string, tryJson = true) {
     this.cacheFile = cacheFile
     this.cacheDir = path.dirname(cacheFile)
+    this.tryJson = tryJson
     this.readCache()
   }
 
@@ -41,7 +43,7 @@ export class CacheHandler {
 
   protected async addToCache(url: string, data: string) {
     try {
-      if (JSON.parse(data)) {
+      if (this.tryJson && JSON.parse(data)) {
         const expiry = Date.now() + 2 * 60 * 60 * 1000
         this.cache[url] = { expiry, data }
         await this.dumpCache()

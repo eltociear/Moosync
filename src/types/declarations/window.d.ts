@@ -229,15 +229,16 @@ interface notifierUtils {
 interface extensionUtils {
   install: (...path: string[]) => Promise<installMessage>
   uninstall: (packageName: string) => Promise<void>
-  sendEvent: (data: extensionEventMessage) => Promise<void>
+  sendEvent: <T extends ExtraExtensionEventTypes>(
+    event: ExtraExtensionEvents<T>
+  ) => Promise<ExtraExtensionEventCombinedReturnType<T>>
   getAllExtensions: () => Promise<ExtensionDetails[]>
   getExtensionIcon: (packageName: string) => Promise<string>
   listenRequests: (callback: (request: extensionUIRequestMessage) => void) => void
   replyToRequest: (data: extensionReplyMessage) => void
   toggleExtStatus: (packageName: string, enabled: boolean) => Promise<void>
-  sendExtraEvent: <T extends ExtraExtensionEventTypes>(
-    event: ExtraExtensionEvents<T>
-  ) => Promise<ExtraExtensionEventCombinedReturnType<T>>
+  downloadExtension: (ext: FetchedExtensionManifest) => Promise<boolean>
+  listenExtInstallStatus: (callback: (data: ExtInstallStatus) => void) => void
 }
 
 /**

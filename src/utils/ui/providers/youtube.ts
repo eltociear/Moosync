@@ -331,6 +331,28 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     }
   }
 
+  public async searchSongs(term: string): Promise<Song[]> {
+    const songList: Song[] = []
+    const resp = await this.populateRequest(ApiResources.SEARCH, {
+      params: {
+        part: ['id', 'snippet'],
+        q: term,
+        type: 'video',
+        maxResults: 30,
+        order: 'relevance',
+        videoEmbeddable: true
+      }
+    })
+
+    const finalIDs: string[] = []
+    if (resp.items) {
+      resp.items.forEach((val) => finalIDs.push(val.id.videoId))
+      songList.push(...(await this.getSongDetailsFromID(false, ...finalIDs)))
+    }
+
+    return songList
+  }
+
   public async getSongDetails(url: string, invalidateCache = false): Promise<Song | undefined> {
     if (
       url.match(
@@ -379,6 +401,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
         ;(
           await this.populateRequest(ApiResources.SEARCH, {
             params: {
+              part: ['id', 'snippet'],
               type: 'video',
               videoCategoryId: 10,
               videoDuration: 'short',
