@@ -56,7 +56,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
   get buttonGroups(): SongDetailButtons {
     return {
       enableContainer: true,
-      enableLibraryStore: this.isRemote
+      enableLibraryStore: !!this.isRemote
     }
   }
 
@@ -76,8 +76,12 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     return this.$route.params.id.startsWith('spotify-')
   }
 
+  private get isExtension() {
+    return this.$route.params.extension
+  }
+
   private get isRemote() {
-    return this.isYoutube || this.isSpotify
+    return this.isYoutube || this.isSpotify || this.isExtension
   }
 
   private async refresh(invalidateCache = false) {
@@ -182,7 +186,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
       type: 'PLAYLIST_CONTENT',
       args: {
         songs: songs,
-        isRemote: this.isRemote,
+        isRemote: !!this.isRemote,
         sortOptions: { callback: this.sort, current: vxm.themes.songSortBy },
         refreshCallback: () => (this.songList = arrayDiff<Song>(this.songList, songs))
       }
