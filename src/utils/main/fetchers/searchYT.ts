@@ -76,15 +76,16 @@ export class YTScraper extends CacheHandler {
       return this.parseSong(...JSON.parse(cached))
     }
 
+    const promises = []
+    const res: ytMusic.MusicVideo[] = []
     try {
-      const ytMusicSearches = scrapeYTMusic ? await this.scrapeYTMusic(title, artists, matchTitle) : []
+      scrapeYTMusic && promises.push(this.scrapeYTMusic(title, artists, matchTitle).then((data) => res.push(...data)))
+      scrapeYoutube && promises.push(this.scrapeYoutube(title, artists, matchTitle).then((data) => res.push(...data)))
 
-      if (scrapeYoutube) {
-        ytMusicSearches.push(...(await this.scrapeYoutube(title, artists, matchTitle)))
-      }
+      await Promise.all(promises)
 
-      this.addToCache(term + '-search', JSON.stringify(ytMusicSearches))
-      return this.parseSong(...ytMusicSearches)
+      this.addToCache(term + '-search', JSON.stringify(res))
+      return this.parseSong(...res)
     } catch (e) {
       console.error('Failed to fetch search results from Youtube', e)
     }
