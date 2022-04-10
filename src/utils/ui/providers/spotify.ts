@@ -218,7 +218,8 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   public async spotifyToYoutube(item: Song) {
-    const ytItem = await window.SearchUtils.searchYT(item.title, item.artists)
+    const ytItem = await window.SearchUtils.searchYT(item.title, item.artists, true, false, true)
+    console.debug('Found', ytItem[0]?.title, '-', ytItem[0]?.url, 'for spotify song', item.artists, item.title)
     if (ytItem.length > 0) return ytItem[0]
   }
 
