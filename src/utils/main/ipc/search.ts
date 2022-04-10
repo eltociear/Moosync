@@ -72,8 +72,6 @@ export class SearchChannel implements IpcChannelInterface {
           loadSelectivePreference<SystemSettings[]>('system')?.find((val) => val.key === 'use_invidious')?.enabled ??
           false
 
-        console.log(useInvidious)
-
         let data
         if (!useInvidious) {
           data = await this.ytScraper.searchTerm(
