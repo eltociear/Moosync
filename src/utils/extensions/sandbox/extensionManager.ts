@@ -64,7 +64,7 @@ export class ExtensionManager extends AbstractExtensionManager {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const events = require('events')
     const vm = new NodeVM({
-      console: 'inherit',
+      console: 'redirect',
       sandbox: {},
       env: this.getProcessEnv(),
       nesting: true,
@@ -85,7 +85,6 @@ export class ExtensionManager extends AbstractExtensionManager {
   private getGlobalObject(packageName: string, entryFilePath: string) {
     const child = log.getLogger(packageName)
     prefixLogger(this.logsPath, child)
-    child.setLevel(log.levels.DEBUG)
 
     return {
       __dirname: path.dirname(entryFilePath),
@@ -136,6 +135,13 @@ export class ExtensionManager extends AbstractExtensionManager {
     const globalObj = this.getGlobalObject(packageName, entryFilePath)
     vm.freeze(globalObj.api, 'api')
     vm.freeze(globalObj.logger, 'logger')
+
+    vm.on('console.log', globalObj.logger.log)
+    vm.on('console.info', globalObj.logger.info)
+    vm.on('console.trace', globalObj.logger.trace)
+    vm.on('console.debug', globalObj.logger.debug)
+    vm.on('console.warn', globalObj.logger.warn)
+    vm.on('console.error', globalObj.logger.error)
 
     return globalObj
   }

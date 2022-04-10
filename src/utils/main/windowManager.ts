@@ -92,7 +92,6 @@ export class WindowHandler {
 
   public setHardwareAcceleration() {
     const enabled = loadPreferences().system.find((val) => val.key === 'hardwareAcceleration')?.enabled
-    console.debug(loadPreferences().system)
     if (enabled === false) {
       console.debug('Disabling hardware acceleration')
       app.disableHardwareAcceleration()
