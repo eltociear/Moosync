@@ -68,8 +68,8 @@ export class LocalPlayer extends Player {
     this.playerInstance.onloadeddata = callback
   }
 
-  protected listenOnError(callback: OnErrorEventHandler | ((err: ErrorEvent) => void)): void {
-    this.playerInstance.onerror = callback as OnErrorEventHandler
+  protected listenOnError(callback: (err: Error) => void): void {
+    this.playerInstance.onerror = (event, source, line, col, err) => err && callback && callback(err)
   }
 
   private listeners: { [key: string]: () => void } = {}

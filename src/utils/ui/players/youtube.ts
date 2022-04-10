@@ -68,7 +68,7 @@ export class YoutubePlayer extends Player {
     this.playerInstance.addListener('cued', callback)
   }
 
-  protected listenOnError(callback: OnErrorEventHandlerNonNull | ((err: ErrorEvent) => void)): void {
+  protected listenOnError(callback: (err: Error) => void): void {
     this.playerInstance.addListener('error', callback)
     this.playerInstance.addListener('unplayable', callback)
   }

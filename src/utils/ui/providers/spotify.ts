@@ -224,7 +224,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
 
   private parseSong(track: SpotifyResponses.PlaylistItems.Track): Song {
     return {
-      _id: track.id,
+      _id: `spotify-${track.id}`,
       title: track.name,
       album: {
         album_name: track.album.name,

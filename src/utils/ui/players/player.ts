@@ -34,7 +34,7 @@ export abstract class Player {
     console.debug('Set onLoad callback')
   }
 
-  set onError(callback: (err: ErrorEvent) => void) {
+  set onError(callback: (err: Error) => void) {
     this.listenOnError(callback)
     console.debug('Set onError callback')
   }
@@ -52,7 +52,7 @@ export abstract class Player {
   protected abstract listenOnEnded(callback: () => void): void
   protected abstract listenOnTimeUpdate(callback: (time: number) => void): void
   protected abstract listenOnLoad(callback: () => void): void
-  protected abstract listenOnError(callback: OnErrorEventHandler | ((err: ErrorEvent) => void)): void
+  protected abstract listenOnError(callback: (err: Error) => void): void
   protected abstract listenOnStateChange(callback: (state: PlayerState) => void): void
   protected abstract listenOnBuffer(callback: () => void): void
   abstract removeAllListeners(): void
