@@ -170,6 +170,11 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
           }
         ]
       )
+    } else {
+      items.push({
+        label: 'Add Song to Library',
+        handler: () => this.addSongsToLibrary(...item)
+      })
     }
 
     items.push({
@@ -208,12 +213,6 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     ...item: Song[]
   ) {
     const items = this.getSongContextMenu(undefined, refreshCallback, isRemote, sort, ...item)
-    if (isRemote) {
-      items.push({
-        label: 'Add Song to Library',
-        handler: () => this.addSongsToLibrary(...item)
-      })
-    }
     return items
   }
 
@@ -291,7 +290,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
         items = this.getSongContextMenu(
           options.args.exclude,
           options.args.refreshCallback,
-          false,
+          options.args.isRemote,
           options.args.sortOptions,
           ...options.args.songs
         )
