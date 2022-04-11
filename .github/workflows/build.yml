@@ -65,6 +65,7 @@ jobs:
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
 
       - name: Set DEBUG_LOGGING
+        shell: bash
         run: |
           if [[ $BRANCH == 'dev' ]]; then
               echo "DEBUG_LOGGING=true" >> "$GITHUB_ENV"
