@@ -38,6 +38,7 @@ export class CacheHandler {
         this.cacheFile,
         'does not exists (This may happen if the app is run for the first time).'
       )
+      await this.dumpCache()
     }
   }
 
