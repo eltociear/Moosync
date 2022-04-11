@@ -61,10 +61,14 @@ jobs:
       # - run: yarn test:electron
       #   if: matrix.os != 'ubuntu-latest'
 
-      - name: Sets env vars for release
+      - name: Set env BRANCH
+        run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
+
+      - name: Set DEBUG_LOGGING
         run: |
-          echo "DEBUG_LOGGING=true" >> $GITHUB_ENV
-        if: ${GITHUB_REF##*/} == 'dev'
+          if [[ $BRANCH == 'dev' ]]; then
+              echo "DEBUG_LOGGING=true" >> "$GITHUB_ENV"
+          fi
 
       - name: yarn electron:build
         run: yarn electron:build
