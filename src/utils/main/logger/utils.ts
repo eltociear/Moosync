@@ -7,6 +7,7 @@
  *  See LICENSE in the project root for license information.
  */
 
+import { Console } from 'console'
 import { WriteStream, createWriteStream, readdir, unlink } from 'fs'
 
 import log from 'loglevel'
@@ -15,6 +16,9 @@ import stripAnsi from 'strip-ansi'
 
 let fileName: string
 let fileStream: WriteStream
+let fileConsole: Console | undefined
+
+const logLevel = process.env.DEBUG_LOGGING ? log.levels.TRACE : log.levels.INFO
 
 export function cleanLogs(basePath: string) {
   const lowestDate = new Date(Date.now())
@@ -58,20 +62,6 @@ function generatePrefix(level: string, loggerName: string | symbol) {
   }]: \u001b[0m${getColor(level)}`
 }
 
-function concatArgs(...messages: (string | object)[]) {
-  let ret = ''
-  for (const m of messages) {
-    if (m instanceof Error) {
-      ret += m.message
-      ret += m.stack
-    } else {
-      ret += (typeof m === 'object' ? JSON.stringify(m) : m) + ' '
-    }
-  }
-
-  return ret.trim() + '\n'
-}
-
 function createFile(basePath: string) {
   const isDevelopment = process.env.NODE_ENV !== 'production'
   const newFile = `moosync-${new Date().toLocaleDateString('en-GB').replaceAll('/', '-')}${
@@ -83,12 +73,8 @@ function createFile(basePath: string) {
 
     const newPath = path.join(basePath, newFile)
     fileStream = createWriteStream(newPath, { flags: 'a' })
+    fileConsole = new Console(fileStream, fileStream)
   }
-}
-
-async function streamToFile(basePath: string, message: string) {
-  createFile(basePath)
-  fileStream.write(message)
 }
 
 function getColor(level: string) {
@@ -103,16 +89,22 @@ function getColor(level: string) {
   return outputColors[level]
 }
 
+type logMethods = 'trace' | 'debug' | 'warn' | 'info' | 'error'
+
 export function prefixLogger(basePath: string, logger: log.Logger) {
-  const originalFactory = log.methodFactory
+  const stockConsole = new Console({
+    stdout: process.stdout,
+    stderr: process.stderr,
+    colorMode: false
+  })
+
   logger.methodFactory = (methodName, logLevel, loggerName) => {
-    const originalMethod = originalFactory(methodName, logLevel, loggerName)
+    createFile(basePath)
     return (...args) => {
       const prefix = generatePrefix(methodName, loggerName)
-      const final = concatArgs(prefix, ...args).trim() + '\u001b[0m'
-      originalMethod(final)
-      streamToFile(basePath, stripAnsi(final) + '\n')
+      stockConsole[methodName as logMethods](prefix, ...args)
+      fileConsole && fileConsole[methodName as logMethods](stripAnsi(prefix), ...args)
     }
   }
-  logger.setLevel(logger.getLevel())
+  logger.setLevel(logLevel)
 }

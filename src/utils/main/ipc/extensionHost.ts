@@ -176,8 +176,6 @@ export class ExtensionHostChannel implements IpcChannelInterface {
         return
       }
 
-      console.log(filePath)
-
       this.notifyPreferenceWindow({ packageName: ext.packageName, status: 'Installing', progress: 50 })
 
       try {

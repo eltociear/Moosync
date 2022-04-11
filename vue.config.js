@@ -10,10 +10,10 @@ const manifest = require('./package.json')
 
 const archElectronConfig = {}
 
-if (fs.existsSync('/usr/lib/electron18') && fs.existsSync('/usr/lib/electron18/version')) {
-  archElectronConfig.electronDist = '/usr/lib/electron18'
+if (fs.existsSync('/usr/lib/electron') && fs.existsSync('/usr/lib/electron/version')) {
+  archElectronConfig.electronDist = '/usr/lib/electron'
   archElectronConfig.electronVersion = fs
-    .readFileSync('/usr/lib/electron18/version', { encoding: 'utf-8' })
+    .readFileSync('/usr/lib/electron/version', { encoding: 'utf-8' })
     .replace('v', '')
 }
 
@@ -151,7 +151,13 @@ module.exports = {
             releaseType: 'draft'
           }
         ],
-        asarUnpack: ['*.worker.js', 'sandbox.js', '**/node_modules/sharp/**/*'],
+        asarUnpack: [
+          '*.worker.js',
+          'sandbox.js',
+          '**/node_modules/sharp/**/*',
+          '**/node_modules/better-sqlite/**/*',
+          '**/node_modules/bufferutil/**/*'
+        ],
         protocols: [
           {
             name: 'Default protocol',
@@ -185,6 +191,7 @@ module.exports = {
         config.plugin('define').tap((args) => {
           args[0] = {
             ...args[0],
+            'process.env.DEBUG_LOGGING': JSON.stringify(dotenv.parsed['DEBUG_LOGGING']) || process.env.DEBUG_LOGGING,
             'process.env.MOOSYNC_VERSION': JSON.stringify(manifest.version),
             ...MainSecrets
           }

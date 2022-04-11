@@ -92,7 +92,6 @@ export class WindowHandler {
 
   public setHardwareAcceleration() {
     const enabled = loadPreferences().system.find((val) => val.key === 'hardwareAcceleration')?.enabled
-    console.debug(loadPreferences().system)
     if (enabled === false) {
       console.debug('Disabling hardware acceleration')
       app.disableHardwareAcceleration()
@@ -100,7 +99,7 @@ export class WindowHandler {
   }
 
   public setZoom(window?: BrowserWindow) {
-    const zoom = parseInt(loadPreferences().zoomFactor.replace('%', '')) / 100
+    const zoom = parseInt(loadPreferences()?.zoomFactor.replace('%', '') ?? 100) / 100
     const value = Math.min(Math.max(0.1, zoom), 1.6)
 
     const windows = window ? [window] : BrowserWindow.getAllWindows()
