@@ -151,13 +151,7 @@ module.exports = {
             releaseType: 'draft'
           }
         ],
-        asarUnpack: [
-          '*.worker.js',
-          'sandbox.js',
-          '**/node_modules/sharp/**/*',
-          '**/node_modules/better-sqlite/**/*',
-          '**/node_modules/bufferutil/**/*'
-        ],
+        asarUnpack: ['*.worker.js', 'sandbox.js', '**/node_modules/**/*.node'],
         protocols: [
           {
             name: 'Default protocol',
