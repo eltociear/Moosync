@@ -102,6 +102,15 @@ export class YTScraper extends CacheHandler {
     return ytMusicSearches
   }
 
+  private parseYoutubeDuration(dur: string) {
+    const split = dur.split(':')
+    let ret = 0
+    for (let i = split.length - 1; i >= 0; i--) {
+      ret += parseInt(split[i]) * Math.pow(60, split.length - i - 1)
+    }
+    return ret
+  }
+
   private async scrapeYoutube(title: string, artists?: string[], matchTitle = true) {
     const term = `${artists ? artists.join(', ') + ' - ' : ''}${title}`
 
@@ -114,7 +123,7 @@ export class YTScraper extends CacheHandler {
           title: vid.title,
           thumbnailUrl: vid.bestThumbnail.url ?? undefined,
           artists: [{ id: vid.author?.channelID, name: vid.author?.name ?? '' }],
-          duration: { label: '', totalSeconds: vid.duration ? parseInt(vid.duration) : 0 }
+          duration: { label: '', totalSeconds: vid.duration ? this.parseYoutubeDuration(vid.duration ?? '') : 0 }
         })
       }
     }
