@@ -185,7 +185,7 @@ module.exports = {
         config.plugin('define').tap((args) => {
           args[0] = {
             ...args[0],
-            'process.env.DEBUG_LOGGING': process.env.DEBUG_LOGGING,
+            'process.env.DEBUG_LOGGING': JSON.stringify(dotenv.parsed['DEBUG_LOGGING']) || process.env.DEBUG_LOGGING,
             'process.env.MOOSYNC_VERSION': JSON.stringify(manifest.version),
             ...MainSecrets
           }
