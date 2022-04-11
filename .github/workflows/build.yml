@@ -1,9 +1,6 @@
 name: Build/release
 
-on:
-  push:
-    branches:
-      - "main"
+on: push
 
 jobs:
   release:
@@ -63,6 +60,11 @@ jobs:
 
       # - run: yarn test:electron
       #   if: matrix.os != 'ubuntu-latest'
+
+      - name: Sets env vars for release
+        run: |
+          echo "DEBUG_LOGGING=true" >> $GITHUB_ENV
+        if: ${GITHUB_REF##*/} == 'dev'
 
       - name: yarn electron:build
         run: yarn electron:build

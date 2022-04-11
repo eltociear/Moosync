@@ -5,4 +5,5 @@ echo SPOTIFYCLIENTSECRET=\'$SPOTIFYCLIENTSECRET\' >> config.env
 echo LASTFMAPIKEY=\'$LASTFMAPIKEY\' >> config.env
 echo LASTFMSECRET=\'$LASTFMSECRET\' >> config.env
 echo FANARTTVAPIKEY=\'$FANARTTVAPIKEY\' >> config.env
+echo DEBUG_LOGGING=\'$DEBUG_LOGGING\' >> config.env
 echo $(ls)
