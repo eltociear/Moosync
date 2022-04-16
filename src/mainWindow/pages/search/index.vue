@@ -86,6 +86,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   }
 
   private async fetchData() {
+    console.log(this.term)
     window.SearchUtils.searchAll(`%${this.term}%`).then((data) => {
       this.result = {
         ...this.result,
@@ -371,12 +372,17 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     this.fetchData()
   }
 
-  @Watch('$route.query.search_term') onTermChanged(newValue: string) {
-    this.term = newValue
-    this.fetchData()
+  @Watch('$route.query.search_term')
+  @Watch('$route.query.timestamp')
+  onTermChanged() {
+    if (this.$route.query.search_term) {
+      this.term = this.$route.query.search_term as string
+      this.result = {}
+      this.fetchData()
 
-    for (const k of Object.keys(this.loadedMore)) {
-      this.loadedMore[k] = false
+      for (const k of Object.keys(this.loadedMore)) {
+        this.loadedMore[k] = false
+      }
     }
   }
 }
