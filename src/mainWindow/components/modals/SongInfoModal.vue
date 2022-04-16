@@ -21,7 +21,7 @@
               @error="handleImageError"
             ></b-img>
           </b-col>
-          <b-col class="details" cols="9">
+          <b-col class="details" cols="8" xl="9">
             <b-row>
               <b-col>
                 <div
@@ -35,15 +35,37 @@
               </b-col>
             </b-row>
             <b-row class="mt-1">
-              <b-col cols="6" v-for="field in fieldFilter" :key="getKey(field)" class="d-flex">
-                <div
-                  :id="getKey(field)"
-                  :title="getValue(field)"
-                  class="subtitle text-truncate"
-                  @click="copyText(field)"
+              <b-col>
+                <b-tabs
+                  nav-class="custom-nav"
+                  active-nav-item-class="active-nav-item"
+                  no-nav-style
+                  content-class="mt-3 tab-inner-container"
+                  justified
+                  class="h-100"
                 >
-                  {{ getKey(field) }}: {{ getValue(field) }}
-                </div>
+                  <div v-for="i in tabs" :key="i.tab">
+                    <b-tab :title="i.tab" :id="i.tab">
+                      <div class="tab-content">
+                        <b-container fluid class="tab-content-container">
+                          <b-row no-gutters>
+                            <b-col cols="6" v-for="field in i.items" :key="getKey(field)" class="d-flex">
+                              <div
+                                :id="getKey(field)"
+                                :title="getValue(field)"
+                                class="subtitle text-truncate"
+                                @click="copyText(field)"
+                              >
+                                <span class="field-title">{{ getKey(field) }}:</span>
+                                <span class="ml-1">{{ getValue(field) }}</span>
+                              </div>
+                            </b-col>
+                          </b-row>
+                        </b-container>
+                      </div>
+                    </b-tab>
+                  </div>
+                </b-tabs>
               </b-col>
               <b-popover
                 id="clipboard-popover"
@@ -90,22 +112,34 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   private showPopover = false
   private popoverTimeout: ReturnType<typeof setTimeout> | undefined
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private fieldFilter: ([keyof Song, ((value: any) => string)?] | keyof Song)[] = [
-    ['artists', (a: string[]) => this.getFirstFromArray(a)],
-    ['genre', (g: string[]) => this.getFirstFromArray(g)],
-    ['album', (a: Album) => a.album_name ?? ''],
-    ['date_added', (d: string) => new Date(parseInt(d)).toDateString()],
-    'year',
-    ['size', (s: number) => humanByteSize(s)],
-    ['bitrate', (s: number) => humanByteSize(s, true)],
-    'codec',
-    'container',
-    ['sampleRate', (s: string) => `${s} Hz`],
-    ['duration', (s: number) => `${s.toFixed(2)}s`],
-    'hash',
-    'path'
+  private tabs = [
+    {
+      tab: 'Song Info',
+      items: [
+        ['artists', (a: string[]) => this.getFirstFromArray(a)],
+        ['genre', (g: string[]) => this.getFirstFromArray(g)],
+        ['album', (a: Album) => a.album_name ?? ''],
+        ['date_added', (d: string) => new Date(parseInt(d)).toDateString()],
+        'year',
+        ['size', (s: number) => humanByteSize(s)],
+        ['duration', (s: number) => `${s.toFixed(2)}s`]
+      ]
+    },
+    {
+      tab: 'File Info',
+      items: [
+        ['bitrate', (s: number) => humanByteSize(s, true)],
+        'codec',
+        'container',
+        ['sampleRate', (s: string) => `${s} Hz`],
+        'hash',
+        'path'
+      ]
+    }
   ]
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private fieldFilter: ([keyof Song, ((value: any) => string)?] | keyof Song)[] = []
 
   private getKey(t: typeof this.fieldFilter[0]) {
     let ret: string
@@ -162,7 +196,40 @@ export default class SongInfoModal extends mixins(ImgLoader) {
 }
 </script>
 
+<style lang="sass">
+.custom-nav
+  border-bottom: none
+  margin-bottom: 25px
+  :not(:first-child)
+    margin-left: 30px
+  li
+    text-align: left
+    flex: 0 0 auto !important
+    *
+      padding: 0
+      color: var(--textPrimary)
+
+.active-nav-item
+  color: var(--accent) !important
+  border-bottom: var(--accent) 1px solid
+</style>
+
 <style lang="sass" scoped>
+.tab-content
+  position: absolute
+  width: 100%
+  *
+    margin-bottom: 10px
+
+.tab-content-container
+  padding-left: 0
+
+.field-title
+  font-weight: 700
+
+.modal-content-container
+  height: 300px
+
 .title
   display: inline-block
   user-select: none
@@ -192,13 +259,16 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   margin-top: 5px
 
 .close-button
+  position: absolute
+  right: 0
+  bottom: 0
   font-size: 16px
   font-weight: 400
   color: var(--textPrimary)
   border-radius: 6px
   float: right
-  margin-bottom: 20px
-  margin-top: 15px
+  margin-bottom: 50px
+  margin-right: 50px
   border: 0
   background-color: var(--textSecondary)
 
