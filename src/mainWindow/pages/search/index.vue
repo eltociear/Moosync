@@ -9,40 +9,42 @@
 
 <template>
   <div class="w-100 h-100 tab-outer-container">
-    <b-tabs content-class="mt-3 tab-inner-container" justified v-model="tabModel" class="h-100">
-      <b-tab :title="i.tab" v-for="i in items" :id="i.tab" :key="i.key">
-        <RecycleScroller
-          class="scroller"
-          :items="ComputeTabContent(i.tab)"
-          :item-size="80"
-          :key-field="ComputeTabKeyField(i.tab)"
-          v-slot="{ item }"
-          v-if="ComputeTabContent(i.tab).length > 0"
-          :direction="'vertical'"
-        >
-          <SingleSearchResult
-            :title="ComputeTabTitle(tab, item)"
-            :subtitle="ComputeTabSubTitle(tab, item)"
-            :coverImg="ComputeTabImage(tab, item)"
-            :divider="true"
-            :id="item"
-            :showButtons="true"
-            :playable="isPlayable(item)"
-            @imgClick="imgClickHandler(tab, $event)"
-            @titleClick="titleClickHandler(tab, $event)"
-            @onContextMenu="contextMenuHandler(tab, ...arguments)"
-          />
-        </RecycleScroller>
-        <b-container v-else class="mt-5 mb-3">
-          <b-row align-v="center" align-h="center">
-            <b-col cols="auto" v-if="i.loading"><b-spinner class="spinner" label="Loading..."></b-spinner></b-col>
-            <b-col v-else class="nothing-found"> Nothing found... </b-col>
-          </b-row>
-        </b-container>
-        <b-button class="load-more" v-if="getLoadMore(tab)" @click="handleLoadMore(tab)"
-          >Load more from Spotify</b-button
-        >
-      </b-tab>
+    <b-tabs content-class="mt-3 tab-inner-container" justified class="h-100">
+      <div v-for="i in items" :key="i.key">
+        <b-tab v-if="showTab(i.tab)" :title="i.tab" :id="i.tab">
+          <RecycleScroller
+            class="scroller"
+            :items="ComputeTabContent(i.tab)"
+            :item-size="80"
+            :key-field="ComputeTabKeyField(i.tab)"
+            v-slot="{ item }"
+            v-if="ComputeTabContent(i.tab).length > 0"
+            :direction="'vertical'"
+          >
+            <SingleSearchResult
+              :title="ComputeTabTitle(i.tab, item)"
+              :subtitle="ComputeTabSubTitle(i.tab, item)"
+              :coverImg="ComputeTabImage(i.tab, item)"
+              :divider="true"
+              :id="item"
+              :showButtons="true"
+              :playable="isPlayable(item)"
+              @imgClick="imgClickHandler(i.tab, $event)"
+              @titleClick="titleClickHandler(i.tab, $event)"
+              @onContextMenu="contextMenuHandler(i.tab, ...arguments)"
+            />
+          </RecycleScroller>
+          <b-container v-else class="mt-5 mb-3">
+            <b-row align-v="center" align-h="center">
+              <b-col cols="auto" v-if="i.loading"><b-spinner class="spinner" label="Loading..."></b-spinner></b-col>
+              <b-col v-else class="nothing-found"> Nothing found... </b-col>
+            </b-row>
+          </b-container>
+          <b-button class="load-more" v-if="getLoadMore(i.tab)" @click="handleLoadMore(i.tab)"
+            >Load more from Spotify</b-button
+          >
+        </b-tab>
+      </div>
     </b-tabs>
   </div>
 </template>
@@ -63,7 +65,6 @@ import { vxm } from '@/mainWindow/store'
 })
 export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, ImgLoader) {
   private term = ''
-  private tabModel = 0
   private result: SearchResult = {}
   private items = [
     { tab: 'Songs', count: 0, key: 'Songs-0' },
@@ -77,8 +78,11 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
 
   private loadedMore: { [key: string]: boolean } = { artists: false }
 
-  get tab() {
-    return this.items[this.tabModel].tab
+  private showTab(tab: string) {
+    if (tab === 'Spotify') {
+      return vxm.providers.loggedInSpotify
+    }
+    return true
   }
 
   private async fetchData() {
