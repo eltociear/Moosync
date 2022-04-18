@@ -67,7 +67,7 @@
                     :class="field.key === 'artist_name' ? 'col-content' : ''"
                     class="ml-1"
                   >
-                    {{ artist }}{{ index !== item.artists.length - 1 ? ',' : '' }}
+                    {{ artist.artist_name }}{{ index !== item.artists.length - 1 ? ',' : '' }}
                   </div>
                 </div>
               </div>

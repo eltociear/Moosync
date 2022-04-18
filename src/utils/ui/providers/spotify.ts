@@ -224,7 +224,13 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       if (res.length > 0) return res[0]
     }
 
-    const ytItem = await window.SearchUtils.searchYT(item.title, item.artists, false, false, true)
+    const ytItem = await window.SearchUtils.searchYT(
+      item.title,
+      item.artists?.map((val) => val.artist_name ?? ''),
+      false,
+      false,
+      true
+    )
     console.debug('Found', ytItem[0]?.title, '-', ytItem[0]?.url, 'for spotify song', item.artists, item.title)
     if (ytItem.length > 0) return ytItem[0]
   }
@@ -239,7 +245,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       },
       url: track.id,
       song_coverPath_high: track.album.images[0] ? track.album.images[0].url : '',
-      artists: track.artists.map((artist) => artist.name),
+      artists: track.artists.map((artist) => ({ artist_name: artist.name, artist_id: `spotify-author-${artist.id}` })),
       duration: track.duration_ms / 1000,
       date_added: Date.now(),
       type: 'SPOTIFY'
@@ -377,7 +383,11 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       if (track.artists?.length > 0) {
         song.artists = []
         for (const artist of track.artists) {
-          song.artists.push(artist.name)
+          song.artists.push({
+            artist_id: `spotify-author-${artist.id}`,
+            artist_name: artist.name,
+            artist_coverPath: artist.images?.at(0)?.url
+          })
         }
       }
 

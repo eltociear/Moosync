@@ -289,7 +289,13 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
               const final: Song = {
                 _id: song.playlinks[0].id,
                 title: parsed.name,
-                artists: [parsed.artist?.name],
+                artists: [
+                  {
+                    artist_id: `lastfm-author-${parsed.artist?.mbid}`,
+                    artist_name: parsed.artist?.name,
+                    artist_mbid: parsed.artist?.mbid
+                  }
+                ],
                 duration: song.duration,
                 date_added: Date.now(),
                 song_coverPath_high: this.getCoverImage(parsed, true),

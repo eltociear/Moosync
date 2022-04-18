@@ -53,7 +53,7 @@
             :class="index !== 0 ? 'ml-1' : ''"
             @click="onSubtitleClicked(artist)"
           >
-            {{ artist }}{{ index !== item.artists.length - 1 ? ',' : '' }}</b-col
+            {{ artist.artist_name }}{{ index !== item.artists.length - 1 ? ',' : '' }}</b-col
           >
         </b-row>
       </b-col>
@@ -152,13 +152,8 @@ export default class SongListCompact extends mixins(ImgLoader) {
     this.$emit('onPlayNowClicked', item)
   }
 
-  private async onSubtitleClicked(artist_name: string) {
-    const artist = await window.SearchUtils.searchEntityByOptions({
-      artist: {
-        artist_name: artist_name
-      }
-    })
-    this.$emit('onArtistClicked', artist[0])
+  private async onSubtitleClicked(artist: Artists) {
+    this.$emit('onArtistClicked', artist)
   }
 
   async created() {

@@ -51,7 +51,7 @@ export class DBUtils {
       },
       date: dbSong.date,
       year: dbSong.year,
-      artists: dbSong.artist_name ? dbSong.artist_name.split(',') : [],
+      artists: this.parseArtists(dbSong.artists ?? ''),
       genre: dbSong.genre_name ? dbSong.genre_name.split(',') : [],
       lyrics: dbSong.lyrics,
       releaseType: undefined,
@@ -70,6 +70,23 @@ export class DBUtils {
       playbackUrl: dbSong.playbackUrl,
       providerExtension: dbSong.provider_extension
     }
+  }
+
+  private parseArtists(artistStr: string) {
+    const artists = artistStr.split(';')
+    const ret: Artists[] = []
+    for (const a of artists) {
+      const split = a.split(',')
+      ret.push({
+        artist_id: split[0],
+        artist_name: split[1],
+        artist_coverPath: split[2],
+        artist_mbid: split[3],
+        artist_song_count: parseInt(split[4])
+      })
+    }
+
+    return ret
   }
 
   protected marshalSong(song: Song): marshaledSong {
@@ -181,6 +198,6 @@ export class DBUtils {
   }
 
   protected addGroupConcatClause() {
-    return 'group_concat(artist_name) as artist_name, group_concat(genre_name) as genre_name'
+    return `group_concat(artist_id||','||artist_name||','||artist_coverPath||','||artist_mbid||','||artist_song_count, ';') as artists, group_concat(genre_name) as genre_name`
   }
 }

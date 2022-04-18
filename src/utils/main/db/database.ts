@@ -514,19 +514,32 @@ export class SongDBInstance extends DBUtils {
     })
   }
 
-  private storeArtists(...artists: string[]): string[] {
+  private storeArtists(...artists: Artists[]): string[] {
     const artistID: string[] = []
     for (const a of artists) {
-      const sanitizedName = sanitizeArtistName(a, true)
-      const id = this.db.queryFirstCell(
-        `SELECT artist_id FROM artists WHERE artist_name = ? COLLATE NOCASE`,
-        sanitizedName
-      )
-      if (id) artistID.push(id)
-      else {
-        const id = v4()
-        this.db.insert('artists', { artist_id: id, artist_name: sanitizedName })
-        artistID.push(id)
+      if (a.artist_name) {
+        const sanitizedName = sanitizeArtistName(a.artist_name, true)
+        const id = this.db.queryFirstCell(
+          `SELECT artist_id FROM artists WHERE artist_name = ? COLLATE NOCASE`,
+          sanitizedName
+        )
+        if (id) artistID.push(id)
+        else {
+          const id = v4()
+          this.db.insert('artists', { artist_id: id, artist_name: sanitizedName })
+          artistID.push(id)
+        }
+
+        if (a.artist_mbid) {
+          const existingMBID = this.db.queryFirstCell(
+            `SELECT artist_id FROM artists WHERE artist_id = ? COLLATE NOCASE`,
+            id
+          )
+
+          if (!existingMBID) {
+            this.db.update('artists', a.artist_mbid, ['artist_id = ?', id])
+          }
+        }
       }
     }
     return artistID

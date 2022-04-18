@@ -93,11 +93,8 @@ export default class MusicBar extends mixins(ImageLoader, ErrorHandler, FileMixi
     setTimeout(() => (this.showPopover = false), 1500)
   }
 
-  private async onSubtitleClick(artist: string) {
-    const artists = (await window.SearchUtils.searchEntityByOptions<Artists>({ artist: { artist_name: artist } }))[0]
-    if (artists) {
-      this.gotoArtist(artists)
-    }
+  private async onSubtitleClick(artist: Artists) {
+    this.gotoArtist(artist)
   }
 
   private handleError() {

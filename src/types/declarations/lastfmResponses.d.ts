@@ -34,6 +34,7 @@ declare namespace LastFMResponses {
       name: string
       artist: {
         name: string
+        mbid: string
       }
       album?: {
         title: string

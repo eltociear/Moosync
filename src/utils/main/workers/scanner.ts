@@ -158,10 +158,17 @@ async function processFile(stats: stats, buffer: Buffer): Promise<ScannedSong> {
 }
 
 async function getInfo(data: mm.IAudioMetadata, stats: stats): Promise<Song> {
-  const artists: string[] = []
+  const artists: Artists[] = []
   if (data.common.artists) {
-    for (const a of data.common.artists) {
-      artists.push(...a.split(/[,&;]+/))
+    for (let i = 0; i < data.common.artists.length; i++) {
+      const split = data.common.artists[i].split(/[,&;]+/)
+      for (const s of split) {
+        artists.push({
+          artist_id: '',
+          artist_name: s,
+          artist_mbid: data.common.musicbrainz_artistid?.at(i) ?? ''
+        })
+      }
     }
   }
 

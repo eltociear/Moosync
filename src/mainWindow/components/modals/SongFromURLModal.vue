@@ -131,13 +131,22 @@ export default class SongFromUrlModal extends Vue {
     })
   }
 
+  private getArtists(artists: string) {
+    const split = artists.split(',')
+    const ret: Artists[] = []
+    for (const s of split) {
+      ret.push({ artist_id: '', artist_name: s })
+    }
+    return ret
+  }
+
   private addToLibrary() {
     if (this.parsedSong) {
       window.DBUtils.storeSongs([
         {
           ...this.parsedSong,
           title: this.songTitle,
-          artists: this.songArtist.split(',')
+          artists: this.getArtists(this.songArtist)
         }
       ])
 

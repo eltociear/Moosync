@@ -32,7 +32,27 @@ function generateSong(options: options): Song {
   return {
     _id: v1(),
     title: v1(),
-    artists: options.sameArtists ? ['Test artist 1', 'Test artist 2'] : [v4(), v4()],
+    artists: options.sameArtists
+      ? [
+          {
+            artist_id: '',
+            artist_name: 'Test artist 1'
+          },
+          {
+            artist_id: '',
+            artist_name: 'Test artist 2'
+          }
+        ]
+      : [
+          {
+            artist_id: '',
+            artist_name: v4()
+          },
+          {
+            artist_id: '',
+            artist_name: v4()
+          }
+        ],
     album: {
       album_name: options.sameAlbum ? 'Test album' : v1()
     },

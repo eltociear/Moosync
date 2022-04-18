@@ -265,7 +265,12 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
         songs.push({
           _id: v.id,
           title: v.snippet.title,
-          artists: [v.snippet.channelTitle.replace('-', '').replace('Topic', '').trim()],
+          artists: [
+            {
+              artist_id: `youtube-author-${v.snippet.channelId}`,
+              artist_name: v.snippet.channelTitle.replace('-', '').replace('Topic', '').trim()
+            }
+          ],
           song_coverPath_high: (
             v.snippet.thumbnails.maxres ??
             v.snippet.thumbnails.high ??

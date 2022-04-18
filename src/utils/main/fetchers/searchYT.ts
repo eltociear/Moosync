@@ -51,7 +51,11 @@ export class YTScraper extends CacheHandler {
           album_coverPath_high: highResThumbnail,
           album_coverPath_low: s.thumbnailUrl
         },
-        artists: s.artists?.map((val) => val.name) ?? [],
+        artists:
+          s.artists?.map((val) => ({
+            artist_id: `youtube-author-${val.id}`,
+            artist_name: val.name
+          })) ?? [],
         duration: s.duration?.totalSeconds ?? 0,
         url: s.youtubeId,
         date_added: Date.now(),
