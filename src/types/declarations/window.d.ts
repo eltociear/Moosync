@@ -26,6 +26,12 @@ interface DBUtils {
   storeSongs: (songs: Song[]) => Promise<void>
 
   /**
+   * Update songs in database
+   * @param songs array of songs which are to be updated. Songs are found using _id.
+   */
+  updateSongs: (songs: Song[]) => Promise<void>
+
+  /**
    * Create new playlist
    * @param name name of playlist
    * @param desc description of playlist

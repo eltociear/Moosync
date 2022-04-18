@@ -24,6 +24,9 @@ export class SongsChannel implements IpcChannelInterface {
       case SongEvents.REMOVE_SONG:
         this.removeSongs(event, request as IpcRequest<SongRequests.Songs>)
         break
+      case SongEvents.UPDATE_SONG:
+        this.updateSong(event, request as IpcRequest<SongRequests.Songs>)
+        break
       case SongEvents.SAVE_AUDIO_TO_FILE:
         this.saveBufferToFile(event, request as IpcRequest<SongRequests.SaveBuffer>, 'audio')
         break
@@ -65,6 +68,17 @@ export class SongsChannel implements IpcChannelInterface {
       const songs = request.params.songs as Song[]
       for (const s of songs) {
         SongDB.store(s)
+      }
+    }
+
+    event.reply(request.responseChannel)
+  }
+
+  private updateSong(event: Electron.IpcMainEvent, request: IpcRequest<SongRequests.Songs>) {
+    if (request.params.songs) {
+      const songs = request.params.songs as Song[]
+      for (const s of songs) {
+        SongDB.updateSong(s)
       }
     }
 

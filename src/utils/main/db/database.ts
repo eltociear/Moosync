@@ -144,6 +144,14 @@ export class SongDBInstance extends DBUtils {
     this.updateAllSongCounts()
   }
 
+  public updateSong(song: Song) {
+    const oldSong = this.getSongByOptions({ song: { _id: song._id } })[0]
+
+    if (oldSong) {
+      // this.db.updateWithBlackList('allsongs', song, ['_id = ?', song._id], ['_id'])
+    }
+  }
+
   /**
    * Search every entity for matching keyword
    * @param term term to search

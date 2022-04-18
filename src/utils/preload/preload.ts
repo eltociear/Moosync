@@ -57,6 +57,12 @@ contextBridge.exposeInMainWorld('DBUtils', {
       params: { songs: songs }
     }),
 
+  updateSongs: (songs: Song[]) =>
+    ipcRendererHolder.send<SongRequests.Songs>(IpcEvents.SONG, {
+      type: SongEvents.UPDATE_SONG,
+      params: { songs: songs }
+    }),
+
   removeSongs: (songs: Song[]) =>
     ipcRendererHolder.send<SongRequests.Songs>(IpcEvents.SONG, {
       type: SongEvents.REMOVE_SONG,
