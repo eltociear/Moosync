@@ -530,14 +530,20 @@ export class SongDBInstance extends DBUtils {
           artistID.push(id)
         }
 
-        if (a.artist_mbid) {
-          const existingMBID = this.db.queryFirstCell(
-            `SELECT artist_id FROM artists WHERE artist_id = ? COLLATE NOCASE`,
-            id
-          )
+        const existingArtist = this.db.queryFirstRow<Artists>(
+          `SELECT * FROM artists WHERE artist_id = ? COLLATE NOCASE`,
+          id
+        )
 
-          if (!existingMBID) {
-            this.db.update('artists', a.artist_mbid, ['artist_id = ?', id])
+        if (existingArtist) {
+          if (a.artist_mbid) {
+            if (!existingArtist.artist_mbid) {
+              this.db.update('artists', a.artist_mbid, ['artist_id = ?', id])
+            }
+
+            if (!existingArtist.artist_coverPath && a.artist_coverPath) {
+              this.db.update('artists', a.artist_coverPath, ['artist_id = ?', id])
+            }
           }
         }
       }
