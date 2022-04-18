@@ -242,7 +242,6 @@ export class ScannerChannel implements IpcChannelInterface {
   }
 
   private async fetchArtworks(allArtists: Artists[]) {
-    console.trace('here')
     return new Promise((resolve) => {
       this.scraperWorker.fetchArtworks(allArtists, loggerPath).subscribe(
         (result: { artist: Artists; cover: TransferDescriptor<Buffer> }) =>
