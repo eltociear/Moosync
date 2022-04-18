@@ -24,14 +24,13 @@
           <b-col class="details" cols="8" xl="9">
             <b-row>
               <b-col>
-                <div
+                <b-input
                   :id="getKey('title')"
                   :title="getValue('title')"
-                  class="title text-truncate"
-                  @click="copyText('title')"
+                  class="title text-truncate editable"
+                  :value="song.title"
                 >
-                  {{ song.title }}
-                </div>
+                </b-input>
               </b-col>
             </b-row>
             <b-row class="mt-1">
@@ -49,15 +48,18 @@
                       <div class="tab-content">
                         <b-container fluid class="tab-content-container">
                           <b-row no-gutters>
-                            <b-col cols="6" v-for="field in i.items" :key="getKey(field)" class="d-flex">
-                              <div
-                                :id="getKey(field)"
-                                :title="getValue(field)"
-                                class="subtitle text-truncate"
-                                @click="copyText(field)"
-                              >
-                                <span class="field-title">{{ getKey(field) }}:</span>
-                                <span class="ml-1">{{ getValue(field) }}</span>
+                            <b-col cols="6" v-for="field in i.items" :key="getKey(field)">
+                              <div class="d-flex">
+                                <span @click="copyText(field)" class="field-title">{{ getKey(field) }}:</span>
+                                <component
+                                  :is="field[1] ? 'b-input' : 'div'"
+                                  :id="getKey(field)"
+                                  :title="getValue(field)"
+                                  :class="`field-value ${!field[1] && 'w-100'} editable ml-1`"
+                                  :value="getValue(field)"
+                                >
+                                  <span class="w-100 text-truncate" v-if="!field[1]">{{ getValue(field) }}</span>
+                                </component>
                               </div>
                             </b-col>
                           </b-row>
@@ -81,7 +83,10 @@
           </b-col>
         </b-row>
       </b-container>
-      <b-button class="close-button ml-3" @click="close">Close</b-button>
+      <div class="button-container">
+        <b-button class="close-button ml-3" @click="close">Close</b-button>
+        <b-button class="save-button ml-3" @click="save">Save</b-button>
+      </div>
     </div>
   </b-modal>
 </template>
@@ -108,40 +113,38 @@ export default class SongInfoModal extends mixins(ImgLoader) {
 
   private forceEmptyImg = false
 
-  private popoverTarget: string = this.getKey('path')
-  private showPopover = false
-  private popoverTimeout: ReturnType<typeof setTimeout> | undefined
-
-  private tabs = [
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private tabs: { tab: string; items: [keyof Song, boolean, ((value: any) => string)?][] }[] = [
     {
       tab: 'Song Info',
       items: [
-        ['artists', (a: string[]) => this.getFirstFromArray(a)],
-        ['genre', (g: string[]) => this.getFirstFromArray(g)],
-        ['album', (a: Album) => a.album_name ?? ''],
-        ['date_added', (d: string) => new Date(parseInt(d)).toDateString()],
-        'year',
-        ['size', (s: number) => humanByteSize(s)],
-        ['duration', (s: number) => `${s.toFixed(2)}s`]
+        ['artists', true, (a: string[]) => this.getFirstFromArray(a)],
+        ['genre', true, (g: string[]) => this.getFirstFromArray(g)],
+        ['album', true, (a: Album) => a.album_name ?? ''],
+        ['date_added', true, (d: string) => new Date(parseInt(d)).toDateString()],
+        ['year', true],
+        ['size', false, (s: number) => humanByteSize(s)],
+        ['duration', true, (s: number) => `${s.toFixed(2)}s`]
       ]
     },
     {
       tab: 'File Info',
       items: [
-        ['bitrate', (s: number) => humanByteSize(s, true)],
-        'codec',
-        'container',
-        ['sampleRate', (s: string) => `${s} Hz`],
-        'hash',
-        'path'
+        ['bitrate', false, (s: number) => humanByteSize(s, true)],
+        ['codec', false],
+        ['container', false],
+        ['sampleRate', false, (s: string) => `${s} Hz`],
+        ['hash', false],
+        ['path', false]
       ]
     }
   ]
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private fieldFilter: ([keyof Song, ((value: any) => string)?] | keyof Song)[] = []
+  private popoverTarget: string = this.getKey(this.tabs[0]['items'][0])
+  private showPopover = false
+  private popoverTimeout: ReturnType<typeof setTimeout> | undefined
 
-  private getKey(t: typeof this.fieldFilter[0]) {
+  private getKey(t: typeof this.tabs[0]['items'][0]) {
     let ret: string
     if (typeof t === 'string') return (ret = t)
     else ret = t[0]
@@ -149,12 +152,12 @@ export default class SongInfoModal extends mixins(ImgLoader) {
     return ret.replaceAll('_', ' ')
   }
 
-  private getValue(t: typeof this.fieldFilter[0]): string {
+  private getValue(t: typeof this.tabs[0]['items'][0]): string {
     if (this.song !== null) {
-      if (typeof t === 'string') return this.song[t] as string
+      if (!t[2]) return this.song[t[0] as keyof Song] as string
       else {
-        if (t[1] && this.song[t[0]]) {
-          return t[1](this.song[t[0]])
+        if (t[2] && this.song[t[0]]) {
+          return t[2](this.song[t[0]])
         }
       }
     }
@@ -174,7 +177,11 @@ export default class SongInfoModal extends mixins(ImgLoader) {
     this.$bvModal.hide(this.id)
   }
 
-  private async copyText(field: typeof this.fieldFilter[0]) {
+  private save() {
+    if (this.song) window.DBUtils.updateSongs([this.song])
+  }
+
+  private async copyText(field: typeof this.tabs[0]['items'][0]) {
     if (this.popoverTimeout) {
       clearTimeout(this.popoverTimeout)
       this.popoverTimeout = undefined
@@ -218,31 +225,30 @@ export default class SongInfoModal extends mixins(ImgLoader) {
 .tab-content
   position: absolute
   width: 100%
-  *
-    margin-bottom: 10px
 
 .tab-content-container
   padding-left: 0
 
 .field-title
+  text-transform: capitalize
   font-weight: 700
+  margin-bottom: 10px
+
+.field-value
+  font-size: 14px
+  font-weight: 400
+  width: auto
+  margin-bottom: 10px
 
 .modal-content-container
   height: 300px
 
 .title
-  display: inline-block
   user-select: none
   font-size: 26px
-
-.subtitle
-  display: inline-block
-  font-size: 14px
-  font-weight: normal
-  user-select: none
-  width: auto
-  &::first-letter
-    text-transform: capitalize
+  margin-bottom: 10px
+  width: 100%
+  max-width: 100%
 
 .song-url-cover
   width: 157px
@@ -258,20 +264,36 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   margin-left: 15px
   margin-top: 5px
 
-.close-button
+.button-container
   position: absolute
   right: 0
   bottom: 0
-  font-size: 16px
-  font-weight: 400
-  color: var(--textPrimary)
-  border-radius: 6px
-  float: right
   margin-bottom: 50px
   margin-right: 50px
-  border: 0
+
+.close-button
+  border-radius: 6px
   background-color: var(--textSecondary)
+
+.save-button
+  border-radius: 6px
+  border: 0
+  color: var(--textInverse)
+  background-color: var(--accent)
 
 .details
   margin-left: 30px
+
+.editable
+  display: flex
+  align-items: center
+  background-color: transparent
+  border: none
+  border-radius: 0
+  color: var(--textPrimary)
+  height: inherit
+  padding: 0
+  border-bottom: transparent 1px solid
+  &:focus
+    border-bottom: var(--accent) 1px solid
 </style>
