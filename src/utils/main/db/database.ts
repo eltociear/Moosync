@@ -43,7 +43,7 @@ export class SongDBInstance extends DBUtils {
 
       const artistID = newDoc.artists ? this.storeArtists(...newDoc.artists) : []
       const albumID = newDoc.album ? this.storeAlbum(newDoc.album) : ''
-      const genreID = this.storeGenre(newDoc.genre)
+      const genreID = newDoc.genre ? this.storeGenre(...newDoc.genre) : []
 
       this.db.insert('allsongs', marshaledSong)
       this.storeArtistBridge(artistID, marshaledSong._id)
@@ -144,11 +144,74 @@ export class SongDBInstance extends DBUtils {
     this.updateAllSongCounts()
   }
 
-  public updateSong(song: Song) {
-    const oldSong = this.getSongByOptions({ song: { _id: song._id } })[0]
+  private updateSongArtists(newArtists: Artists[], oldArtists: Artists[] | undefined, songID: string) {
+    if (JSON.stringify(oldArtists) !== JSON.stringify(newArtists)) {
+      for (const a of oldArtists ?? []) {
+        if (!newArtists.find((val) => val.artist_name === a.artist_name)) {
+          const songCount = this.db.queryFirstCell<number>(
+            'SELECT COUNT(id) FROM artists_bridge WHERE artist = ?',
+            a.artist_id
+          )
+          if (songCount === 1) {
+            this.db.delete('artists_bridge', { artist: a.artist_id, song: songID })
+            this.db.delete('artists', { artist_id: a.artist_id })
+            if (a.artist_coverPath) {
+              fsP.rm(a.artist_coverPath, { force: true })
+            }
+          }
+        }
+      }
 
-    if (oldSong) {
-      // this.db.updateWithBlackList('allsongs', song, ['_id = ?', song._id], ['_id'])
+      const artistIDs = this.storeArtists(...newArtists)
+      this.storeArtistBridge(artistIDs, songID)
+    }
+  }
+
+  private updateSongGenre(newGenres: string[], oldGenres: string[] | undefined, songID: string) {
+    if (JSON.stringify(newGenres) !== JSON.stringify(oldGenres)) {
+      for (const g of oldGenres ?? []) {
+        if (!newGenres.includes(g)) {
+          const songCount = this.db.queryFirstCell<number>('SELECT COUNT(id) FROM genre_bridge WHERE genre = ?', g)
+          if (songCount === 1) {
+            this.db.delete('genre_bridge', { genre: g, song: songID })
+            this.db.delete('genres', { genre_id: g })
+          }
+        }
+      }
+
+      const genreIDs = this.storeGenre(...newGenres)
+      this.storeGenreBridge(genreIDs, songID)
+    }
+  }
+
+  private updateSongAlbums(newAlbum: Album, oldAlbum: Album | undefined, songID: string) {
+    if (JSON.stringify(newAlbum) !== JSON.stringify(oldAlbum)) {
+      if (oldAlbum?.album_id) {
+        const songCount = this.db.queryFirstCell<number>(
+          'SELECT COUNT(id) FROM album_bridge WHERE album = ?',
+          oldAlbum.album_id
+        )
+        if (songCount === 1) {
+          this.db.delete('album_bridge', { album: oldAlbum.album_id, song: songID })
+          this.db.delete('albums', { album_id: oldAlbum.album_id })
+        }
+      }
+
+      const albumIDs = this.storeAlbum(newAlbum)
+      this.storeAlbumBridge(albumIDs, songID)
+    }
+  }
+
+  public updateSong(song: Song) {
+    if (this.verifySong(song)) {
+      const oldSong = this.getSongByOptions({ song: { _id: song._id } })[0]
+
+      if (oldSong) {
+        this.updateSongArtists(song.artists ?? [], oldSong.artists, song._id)
+        this.updateSongAlbums(song.album ?? {}, oldSong.album, song._id)
+        this.updateSongGenre(song.genre ?? [], oldSong.genre, song._id)
+      }
+      this.db.updateWithBlackList('allsongs', song, ['_id = ?', song._id], ['_id'])
     }
   }
 
@@ -246,7 +309,7 @@ export class SongDBInstance extends DBUtils {
     const { where, args } = this.populateWhereQuery(options)
 
     const songs: marshaledSong[] = this.db.query(
-      `SELECT *, ${this.addGroupConcatClause()} FROM allsongs
+      `SELECT ${this.getSelectClause()}, ${this.addGroupConcatClause()} FROM allsongs
       ${this.addLeftJoinClause(undefined, 'allsongs')}
         ${where}
         ${this.addExcludeWhereClause(args.length === 0, exclude)} GROUP BY allsongs._id ${this.addOrderClause(
@@ -467,7 +530,7 @@ export class SongDBInstance extends DBUtils {
     })()
   }
 
-  private storeGenre(genre?: string[]) {
+  private storeGenre(...genre: string[]) {
     const genreID: string[] = []
     if (genre) {
       for (const a of genre) {
