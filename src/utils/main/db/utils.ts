@@ -47,7 +47,7 @@ export class DBUtils {
         album_coverPath_high: dbSong.album_coverPath_high,
         album_coverPath_low: dbSong.album_coverPath_low,
         album_song_count: dbSong.album_song_count,
-        year: dbSong.year
+        year: dbSong.album_year
       },
       date: dbSong.date,
       year: dbSong.year,
@@ -77,13 +77,15 @@ export class DBUtils {
     const ret: Artists[] = []
     for (const a of artists) {
       const split = a.split(',')
-      ret.push({
-        artist_id: split[0],
-        artist_name: split[1],
-        artist_coverPath: split[2],
-        artist_mbid: split[3],
-        artist_song_count: parseInt(split[4])
-      })
+      if (ret.findIndex((val) => val.artist_id === split[0]) === -1) {
+        ret.push({
+          artist_id: split[0],
+          artist_name: split[1],
+          artist_coverPath: split[2],
+          artist_mbid: split[3],
+          artist_song_count: parseInt(split[4])
+        })
+      }
     }
 
     return ret
@@ -198,6 +200,10 @@ export class DBUtils {
   }
 
   protected addGroupConcatClause() {
-    return `group_concat(artist_id||','||artist_name||','||artist_coverPath||','||artist_mbid||','||artist_song_count, ';') as artists, group_concat(genre_name) as genre_name`
+    return `group_concat(artist_id||','||artist_name||','||COALESCE(artist_coverPath, '')||','||COALESCE(artist_mbid, '')||','||artist_song_count, ';') as artists, group_concat(genre_name) as genre_name`
+  }
+
+  protected getSelectClause() {
+    return `allsongs._id, allsongs.path, allsongs.size, allsongs.title, allsongs.song_coverPath_high, allsongs.song_coverPath_low, allsongs.date, allsongs.date_added, allsongs.year, allsongs.lyrics, allsongs.bitrate, allsongs.codec, allsongs.container, allsongs.duration, allsongs.sampleRate, allsongs.hash, allsongs.type, allsongs.url, allsongs.icon, allsongs.playbackUrl, allsongs.provider_extension, albums.album_id, albums.album_name, albums.album_coverPath_high, albums.album_coverPath_low, albums.album_song_count, albums.year as album_year, artists.artist_name, artists.artist_id, artists.artist_coverPath, artists.artist_song_count, artists.artist_mbid, genre.genre_name`
   }
 }

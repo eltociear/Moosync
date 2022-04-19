@@ -38,6 +38,7 @@ interface marshaledSong {
   genere_id?: string
   date?: string
   year?: number
+  album_year?: number
   bitrate?: number
   codec?: string
   container?: string
