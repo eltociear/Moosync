@@ -62,8 +62,8 @@
                                   <component
                                     :is="getComponent(field)"
                                     :id="getKey(field)"
+                                    :ref="getKey(field)"
                                     :title="getValue(field)"
-                                    v-model="vModel[field[0]]"
                                     :placeholder="getPlaceholder(field)"
                                     hide-input-on-limit
                                     add-tags-on-comma
@@ -74,7 +74,7 @@
                                     :value="getValue(field)"
                                     :existingTags="datalist[field[0]]"
                                     @input="onInputChange(field[0], ...arguments)"
-                                    @tags-updated="onInputChange(field[0], ...arguments)"
+                                    @tags-updated="onTagsUpdated(field[0])"
                                     :typeahead="true"
                                     :typeahead-hide-discard="true"
                                     typeahead-style="dropdown"
@@ -135,10 +135,9 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   private id!: string
 
   private song: Song | null = null
+  private tmpSong: Song | null = null
 
   private forceEmptyImg = false
-
-  private vModel = {}
 
   private datalist: { artists: DatalistArray; genre: DatalistArray; album: DatalistArray } = {
     artists: [],
@@ -147,17 +146,17 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private tabs: { tab: string; items: [keyof Song, boolean, ((value: any) => string | string[])?][] }[] = [
+  private tabs: { tab: string; items: [keyof Song, boolean, ((value: any) => string | DatalistArray)?][] }[] = [
     {
       tab: 'Song Info',
       items: [
         ['date_added', false, (d: string) => new Date(parseInt(d)).toDateString()],
-        ['year', true],
+        ['year', true, (y: string) => parseInt(y).toFixed(0)],
         ['playbackUrl', true],
         ['size', false, (s: number) => humanByteSize(s)],
-        ['genre', true],
+        ['genre', true, (g: string[]) => g.map((val) => ({ key: val, value: val || 'Unknown' }))],
         ['album', true, (a: Album) => a.album_name ?? ''],
-        ['artists', true, (a: Artists[]) => a.map((val) => val.artist_name ?? '')]
+        ['artists', true, (a: Artists[]) => a.map((val) => ({ key: val.artist_id, value: val.artist_name ?? '' }))]
       ]
     },
     {
@@ -197,7 +196,7 @@ export default class SongInfoModal extends mixins(ImgLoader) {
     return ret.replaceAll('_', ' ')
   }
 
-  private getValue(t: typeof this.tabs[0]['items'][0]): string | string[] {
+  private getValue(t: typeof this.tabs[0]['items'][0]): string | DatalistArray {
     if (this.song !== null) {
       if (!t[2]) return this.song[t[0] as keyof Song] as string
       else {
@@ -223,8 +222,9 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   }
 
   private save() {
-    if (this.song) {
-      window.DBUtils.updateSongs([this.song])
+    if (this.tmpSong) {
+      console.log(this.tmpSong)
+      window.DBUtils.updateSongs([this.tmpSong])
       this.close()
     }
   }
@@ -245,35 +245,41 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   }
 
   private onInputChange(field: keyof Song, value: never) {
-    if (this.song) {
-      if (field === 'artists') {
-        console.log(value)
-        // this.song.artists = (value as string[]).map((val) => ({
-        //   artist_id: '',
-        //   artist_name: val
-        // }))
-        return
-      }
-
-      if (field === 'album') {
-        this.song.album = {
-          album_id: '',
-          album_name: value as string
-        }
-        return
-      }
-
+    if (this.tmpSong) {
       if (field === 'date_added') {
-        this.song.date_added = new Date(value as string).getTime()
+        this.tmpSong.date_added = new Date(value as string).getTime()
         return
       }
 
-      if (field === 'genre') {
-        this.song.genre = value as string[]
-        return
-      }
+      this.tmpSong[field] = value
+    }
+  }
 
-      this.song[field] = value
+  private onTagsUpdated(field: keyof Song) {
+    if (this.tmpSong) {
+      const el = this.$refs[this.getKey(field)]
+      if (el) {
+        const value: DatalistArray = (el as never)[0]['tags']
+        if (value) {
+          if (field === 'artists') {
+            this.tmpSong.artists = value.map((val) => ({
+              artist_id: val.key,
+              artist_name: val.value
+            }))
+          }
+
+          if (field === 'genre') {
+            this.tmpSong.genre = value.map((val) => val.value)
+          }
+
+          if (field === 'album') {
+            // this.song.album = {
+            //   album_id: '',
+            //   album_name: value as string
+            // }
+          }
+        }
+      }
     }
   }
 
@@ -301,7 +307,9 @@ export default class SongInfoModal extends mixins(ImgLoader) {
     bus.$on(EventBus.SHOW_SONG_INFO_MODAL, (song: Song) => {
       this.fetchDatalist()
       this.forceEmptyImg = false
-      this.song = JSON.parse(JSON.stringify(song))
+      this.song = song
+      this.tmpSong = JSON.parse(JSON.stringify(song))
+
       if (this.song) {
         this.$bvModal.show(this.id)
       }
