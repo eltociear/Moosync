@@ -463,15 +463,15 @@ export class SongDBInstance extends DBUtils {
       )
       if (!id) {
         id = v4()
+        this.db.run(
+          `INSERT INTO albums (album_id, album_name, album_coverPath_low, album_coverPath_high, album_artist) VALUES(?, ?, ?, ?, ?)`,
+          id,
+          album.album_name,
+          album.album_coverPath_low,
+          album.album_coverPath_high,
+          album.album_artist
+        )
       }
-      this.db.run(
-        `INSERT OR REPLACE INTO albums (album_id, album_name, album_coverPath_low, album_coverPath_high, album_artist) VALUES(?, ?, ?, ?, ?)`,
-        id,
-        album.album_name,
-        album.album_coverPath_low,
-        album.album_coverPath_high,
-        album.album_artist
-      )
     }
     return id as string
   }
