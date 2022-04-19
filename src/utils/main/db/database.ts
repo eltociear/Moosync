@@ -146,7 +146,7 @@ export class SongDBInstance extends DBUtils {
 
   private updateSongArtists(newArtists: Artists[], oldArtists: Artists[] | undefined, songID: string) {
     if (JSON.stringify(oldArtists) !== JSON.stringify(newArtists)) {
-      console.log('updating artists')
+      ;('updating artists')
       this.db.delete('artists_bridge', { song: songID })
 
       for (const a of oldArtists ?? []) {
@@ -171,7 +171,7 @@ export class SongDBInstance extends DBUtils {
 
   private updateSongGenre(newGenres: string[], oldGenres: string[] | undefined, songID: string) {
     if (JSON.stringify(newGenres) !== JSON.stringify(oldGenres)) {
-      console.log('updating genre')
+      ;('updating genre')
       this.db.delete('genre_bridge', { song: songID })
 
       for (const g of oldGenres ?? []) {
@@ -189,7 +189,7 @@ export class SongDBInstance extends DBUtils {
   }
 
   private updateSongAlbums(newAlbum: Album, oldAlbum: Album | undefined, songID: string) {
-    console.log('updating albums')
+    ;('updating albums')
 
     this.db.delete('album_bridge', { song: songID })
 
