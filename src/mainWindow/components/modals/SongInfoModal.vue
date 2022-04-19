@@ -47,20 +47,43 @@
                     <b-tab :title="i.tab" :id="i.tab">
                       <div class="tab-content">
                         <b-container fluid class="tab-content-container">
-                          <b-row no-gutters>
-                            <b-col cols="6" v-for="field in i.items" :key="getKey(field)">
-                              <div class="d-flex">
-                                <span @click="copyText(field)" class="field-title">{{ getKey(field) }}:</span>
-                                <component
-                                  :is="field[1] ? 'b-input' : 'div'"
-                                  :id="getKey(field)"
-                                  :title="getValue(field)"
-                                  :class="`field-value ${!field[1] && 'w-100'} editable ml-1`"
-                                  :value="getValue(field)"
-                                >
-                                  <span class="w-100 text-truncate" v-if="!field[1]">{{ getValue(field) }}</span>
-                                </component>
-                              </div>
+                          <b-row>
+                            <b-col
+                              class="field-col"
+                              :cols="showDatalist(field[0]) ? 12 : 6"
+                              v-for="field in i.items"
+                              :key="getKey(field)"
+                            >
+                              <b-row class="d-flex" no-gutters>
+                                <b-col cols="auto" @click="copyText(field)" class="field-title">
+                                  {{ getKey(field) }}:
+                                </b-col>
+                                <b-col class="ml-1 d-flex">
+                                  <component
+                                    :is="getComponent(field)"
+                                    :id="getKey(field)"
+                                    :title="getValue(field)"
+                                    v-model="vModel[field[0]]"
+                                    :placeholder="getPlaceholder(field)"
+                                    hide-input-on-limit
+                                    add-tags-on-comma
+                                    :limit="5"
+                                    :class="`field-value w-100 ${
+                                      getComponent(field) !== 'tags-input' && 'd-flex align-items-center text-truncate'
+                                    } editable ml-1`"
+                                    :value="getValue(field)"
+                                    :existingTags="datalist[field[0]]"
+                                    @input="onInputChange(field[0], ...arguments)"
+                                    @tags-updated="onInputChange(field[0], ...arguments)"
+                                    :typeahead="true"
+                                    :typeahead-hide-discard="true"
+                                    typeahead-style="dropdown"
+                                    :typeahead-always-show="false"
+                                  >
+                                    <span class="w-100 text-truncate" v-if="!field[1]">{{ getValue(field) }}</span>
+                                  </component>
+                                </b-col>
+                              </b-row>
                             </b-col>
                           </b-row>
                         </b-container>
@@ -100,6 +123,8 @@ import { mixins } from 'vue-class-component'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 import { humanByteSize } from '@/utils/common'
 
+type DatalistArray = { key: string; value: string }[]
+
 @Component({
   components: {
     SongDefault
@@ -113,18 +138,26 @@ export default class SongInfoModal extends mixins(ImgLoader) {
 
   private forceEmptyImg = false
 
+  private vModel = {}
+
+  private datalist: { artists: DatalistArray; genre: DatalistArray; album: DatalistArray } = {
+    artists: [],
+    genre: [],
+    album: []
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private tabs: { tab: string; items: [keyof Song, boolean, ((value: any) => string)?][] }[] = [
+  private tabs: { tab: string; items: [keyof Song, boolean, ((value: any) => string | string[])?][] }[] = [
     {
       tab: 'Song Info',
       items: [
-        ['artists', true, (a: string[]) => this.getFirstFromArray(a)],
-        ['genre', true, (g: string[]) => this.getFirstFromArray(g)],
-        ['album', true, (a: Album) => a.album_name ?? ''],
-        ['date_added', true, (d: string) => new Date(parseInt(d)).toDateString()],
+        ['date_added', false, (d: string) => new Date(parseInt(d)).toDateString()],
         ['year', true],
+        ['playbackUrl', true],
         ['size', false, (s: number) => humanByteSize(s)],
-        ['duration', true, (s: number) => `${s.toFixed(2)}s`]
+        ['genre', true],
+        ['album', true, (a: Album) => a.album_name ?? ''],
+        ['artists', true, (a: Artists[]) => a.map((val) => val.artist_name ?? '')]
       ]
     },
     {
@@ -140,11 +173,23 @@ export default class SongInfoModal extends mixins(ImgLoader) {
     }
   ]
 
-  private popoverTarget: string = this.getKey(this.tabs[0]['items'][0])
+  private popoverTarget = this.getKey('title')
   private showPopover = false
   private popoverTimeout: ReturnType<typeof setTimeout> | undefined
 
-  private getKey(t: typeof this.tabs[0]['items'][0]) {
+  private getComponent(t: typeof this.tabs[0]['items'][0]) {
+    if (t[0] === 'artists' || t[0] === 'genre') {
+      return 'tags-input'
+    }
+
+    if (t[1]) {
+      return 'b-input'
+    }
+
+    return 'div'
+  }
+
+  private getKey(t: typeof this.tabs[0]['items'][0] | string) {
     let ret: string
     if (typeof t === 'string') return (ret = t)
     else ret = t[0]
@@ -152,7 +197,7 @@ export default class SongInfoModal extends mixins(ImgLoader) {
     return ret.replaceAll('_', ' ')
   }
 
-  private getValue(t: typeof this.tabs[0]['items'][0]): string {
+  private getValue(t: typeof this.tabs[0]['items'][0]): string | string[] {
     if (this.song !== null) {
       if (!t[2]) return this.song[t[0] as keyof Song] as string
       else {
@@ -164,8 +209,8 @@ export default class SongInfoModal extends mixins(ImgLoader) {
     return ''
   }
 
-  private getFirstFromArray(arr: string[]): string {
-    return arr.length > 0 ? arr[0] : ''
+  private getPlaceholder(t: typeof this.tabs[0]['items'][0]): string {
+    return `Add ${t[0].charAt(0).toUpperCase() + t[0].slice(1)}`
   }
 
   private handleImageError() {
@@ -178,7 +223,10 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   }
 
   private save() {
-    if (this.song) window.DBUtils.updateSongs([this.song])
+    if (this.song) {
+      window.DBUtils.updateSongs([this.song])
+      this.close()
+    }
   }
 
   private async copyText(field: typeof this.tabs[0]['items'][0]) {
@@ -188,16 +236,75 @@ export default class SongInfoModal extends mixins(ImgLoader) {
     }
 
     this.popoverTarget = this.getKey(field)
-    navigator.clipboard.writeText(this.getValue(field))
+    navigator.clipboard.writeText(this.getValue(field).toString())
     this.showPopover = true
-    this.popoverTimeout = setTimeout(() => (this.showPopover = false), 1000)
+    this.popoverTimeout = setTimeout(() => {
+      this.showPopover = false
+      this.popoverTarget = ''
+    }, 1000)
+  }
+
+  private onInputChange(field: keyof Song, value: never) {
+    if (this.song) {
+      if (field === 'artists') {
+        console.log(value)
+        // this.song.artists = (value as string[]).map((val) => ({
+        //   artist_id: '',
+        //   artist_name: val
+        // }))
+        return
+      }
+
+      if (field === 'album') {
+        this.song.album = {
+          album_id: '',
+          album_name: value as string
+        }
+        return
+      }
+
+      if (field === 'date_added') {
+        this.song.date_added = new Date(value as string).getTime()
+        return
+      }
+
+      if (field === 'genre') {
+        this.song.genre = value as string[]
+        return
+      }
+
+      this.song[field] = value
+    }
+  }
+
+  private showDatalist(field: keyof Song): boolean {
+    return !!(field === 'artists' || field === 'genre' || field === 'album')
+  }
+
+  private async fetchDatalist() {
+    this.datalist['artists'] = (await window.SearchUtils.searchEntityByOptions<Artists>({ artist: true })).map(
+      (val) => ({ key: val.artist_id, value: val.artist_name })
+    ) as DatalistArray
+
+    this.datalist['album'] = (await window.SearchUtils.searchEntityByOptions<Album>({ album: true })).map((val) => ({
+      key: val.album_id,
+      value: val.album_name
+    })) as DatalistArray
+
+    this.datalist['genre'] = (await window.SearchUtils.searchEntityByOptions<Genre>({ genre: true })).map((val) => ({
+      key: val.genre_id,
+      value: val.genre_name
+    }))
   }
 
   mounted() {
     bus.$on(EventBus.SHOW_SONG_INFO_MODAL, (song: Song) => {
+      this.fetchDatalist()
       this.forceEmptyImg = false
-      this.song = song
-      this.$bvModal.show(this.id)
+      this.song = JSON.parse(JSON.stringify(song))
+      if (this.song) {
+        this.$bvModal.show(this.id)
+      }
     })
   }
 }
@@ -216,9 +323,66 @@ export default class SongInfoModal extends mixins(ImgLoader) {
       padding: 0
       color: var(--textPrimary)
 
+.editable
+  color: var(--textPrimary)
+  border-bottom: transparent 1px solid !important
+  &:focus
+    border-bottom: var(--accent) 1px solid !important
+
+.input-tag
+  font-size: 14px
+
 .active-nav-item
   color: var(--accent) !important
   border-bottom: var(--accent) 1px solid
+
+.typeahead-dropdown
+  max-height: 150px
+  overflow-y: auto
+  &::-webkit-scrollbar-track
+    background: var(--tertiary)
+
+.tags-input-typeahead-item-default
+  background-color: var(--tertiary) !important
+
+.tags-input-typeahead-item-highlighted-default
+  background-color: var(--accent) !important
+  color: var(--textInverse)
+
+.tags-input-wrapper-default
+  padding-top: 1px !important
+  background: transparent !important
+  border: none
+  border-radius: 0
+  color: var(--textPrimary)
+  height: inherit
+  padding: 0
+  &.active
+    box-shadow: none !important
+    border: none !important
+  input
+    border-bottom: transparent 1px solid
+    color: var(--textPrimary) !important
+    &:focus
+      border-bottom: var(--accent) 1px solid
+
+.tags-input-badge
+  background-color: var(--secondary)
+  color: var(--textPrimary)
+  padding-top: 8px
+  padding-bottom: 8px
+  margin-bottom: 5px
+  a
+    margin-top: 6px
+    margin-right: 3px
+  span
+    font-size: 14px
+
+.tags-input-remove
+  &::before
+    background: var(--accent)
+  &::after
+    background: var(--accent)
 </style>
 
 <style lang="sass" scoped>
@@ -230,18 +394,22 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   padding-left: 0
 
 .field-title
+  margin-left: 1rem
   text-transform: capitalize
   font-weight: 700
-  margin-bottom: 10px
+
+.field-col
+  margin-bottom: 13px
 
 .field-value
   font-size: 14px
   font-weight: 400
   width: auto
-  margin-bottom: 10px
 
 .modal-content-container
-  height: 300px
+  max-height: 600px
+  height: 400px
+  overflow-y: visible
 
 .title
   user-select: none
@@ -269,7 +437,7 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   right: 0
   bottom: 0
   margin-bottom: 50px
-  margin-right: 50px
+  margin-right: 80px
 
 .close-button
   border-radius: 6px
@@ -285,15 +453,14 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   margin-left: 30px
 
 .editable
-  display: flex
-  align-items: center
-  background-color: transparent
-  border: none
-  border-radius: 0
-  color: var(--textPrimary)
+  background-color: transparent !important
+  background: transparent !important
+  border: none !important
+  border-radius: 0 !important
+  color: var(--textPrimary) !important
   height: inherit
-  padding: 0
-  border-bottom: transparent 1px solid
+  padding: 0 !important
+  border-bottom: transparent 1px solid !important
   &:focus
-    border-bottom: var(--accent) 1px solid
+    border-bottom: var(--accent) 1px solid !important
 </style>
