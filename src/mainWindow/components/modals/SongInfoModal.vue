@@ -154,7 +154,7 @@ export default class SongInfoModal extends mixins(ImgLoader) {
         ['year', true, (y: string) => parseInt(y).toFixed(0)],
         ['playbackUrl', true],
         ['size', false, (s: number) => humanByteSize(s)],
-        ['genre', true, (g: string[]) => g.map((val) => ({ key: val, value: val || 'Unknown' }))],
+        ['genre', true, (g: string[]) => g.map((val) => ({ key: val, value: val }))],
         ['album', true, (a: Album) => a.album_name ?? ''],
         ['artists', true, (a: Artists[]) => a.map((val) => ({ key: val.artist_id, value: val.artist_name ?? '' }))]
       ]
@@ -221,10 +221,10 @@ export default class SongInfoModal extends mixins(ImgLoader) {
     this.$bvModal.hide(this.id)
   }
 
-  private save() {
+  private async save() {
     if (this.tmpSong) {
       console.log(this.tmpSong)
-      window.DBUtils.updateSongs([this.tmpSong])
+      await window.DBUtils.updateSongs([this.tmpSong])
       this.close()
     }
   }

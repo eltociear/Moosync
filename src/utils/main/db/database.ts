@@ -146,14 +146,16 @@ export class SongDBInstance extends DBUtils {
 
   private updateSongArtists(newArtists: Artists[], oldArtists: Artists[] | undefined, songID: string) {
     if (JSON.stringify(oldArtists) !== JSON.stringify(newArtists)) {
+      console.log('updating artists')
+      this.db.delete('artists_bridge', { song: songID })
+
       for (const a of oldArtists ?? []) {
         if (!newArtists.find((val) => val.artist_name === a.artist_name)) {
           const songCount = this.db.queryFirstCell<number>(
             'SELECT COUNT(id) FROM artists_bridge WHERE artist = ?',
             a.artist_id
           )
-          if (songCount === 1) {
-            this.db.delete('artists_bridge', { artist: a.artist_id, song: songID })
+          if (songCount === 0) {
             this.db.delete('artists', { artist_id: a.artist_id })
             if (a.artist_coverPath) {
               fsP.rm(a.artist_coverPath, { force: true })
@@ -169,12 +171,14 @@ export class SongDBInstance extends DBUtils {
 
   private updateSongGenre(newGenres: string[], oldGenres: string[] | undefined, songID: string) {
     if (JSON.stringify(newGenres) !== JSON.stringify(oldGenres)) {
+      console.log('updating genre')
+      this.db.delete('genre_bridge', { song: songID })
+
       for (const g of oldGenres ?? []) {
         if (!newGenres.includes(g)) {
           const songCount = this.db.queryFirstCell<number>('SELECT COUNT(id) FROM genre_bridge WHERE genre = ?', g)
-          if (songCount === 1) {
-            this.db.delete('genre_bridge', { genre: g, song: songID })
-            this.db.delete('genres', { genre_id: g })
+          if (songCount === 0) {
+            this.db.delete('genre', { genre_id: g })
           }
         }
       }
@@ -185,15 +189,20 @@ export class SongDBInstance extends DBUtils {
   }
 
   private updateSongAlbums(newAlbum: Album, oldAlbum: Album | undefined, songID: string) {
+    console.log('updating albums')
+
+    this.db.delete('album_bridge', { song: songID })
+
     if (JSON.stringify(newAlbum) !== JSON.stringify(oldAlbum)) {
       if (oldAlbum?.album_id) {
         const songCount = this.db.queryFirstCell<number>(
           'SELECT COUNT(id) FROM album_bridge WHERE album = ?',
           oldAlbum.album_id
         )
-        if (songCount === 1) {
-          this.db.delete('album_bridge', { album: oldAlbum.album_id, song: songID })
+        if (songCount === 0) {
           this.db.delete('albums', { album_id: oldAlbum.album_id })
+          if (oldAlbum.album_coverPath_high) fsP.rm(oldAlbum.album_coverPath_high, { force: true })
+          if (oldAlbum.album_coverPath_low) fsP.rm(oldAlbum.album_coverPath_low, { force: true })
         }
       }
 
@@ -212,6 +221,7 @@ export class SongDBInstance extends DBUtils {
         this.updateSongGenre(song.genre ?? [], oldSong.genre, song._id)
       }
       this.db.updateWithBlackList('allsongs', song, ['_id = ?', song._id], ['_id'])
+      this.updateAllSongCounts()
     }
   }
 
@@ -510,7 +520,16 @@ export class SongDBInstance extends DBUtils {
   }
 
   private storeAlbumBridge(albumID: string, songID: string) {
-    if (albumID) this.db.insert('album_bridge', { song: songID, album: albumID })
+    if (albumID) {
+      const exists = this.db.queryFirstCell(
+        `SELECT COUNT(id) FROM album_bridge WHERE album = ? AND song = ?`,
+        albumID,
+        songID
+      )
+      if (exists === 0) {
+        this.db.insert('album_bridge', { song: songID, album: albumID })
+      }
+    }
   }
 
   /* ============================= 
@@ -550,7 +569,14 @@ export class SongDBInstance extends DBUtils {
 
   private storeGenreBridge(genreID: string[], songID: string) {
     for (const i of genreID) {
-      this.db.insert('genre_bridge', { song: songID, genre: i })
+      const exists = this.db.queryFirstCell(
+        `SELECT COUNT(id) FROM genre_bridge WHERE genre = ? AND song = ?`,
+        i,
+        songID
+      )
+      if (exists === 0) {
+        this.db.insert('genre_bridge', { song: songID, genre: i })
+      }
     }
   }
 
@@ -618,7 +644,14 @@ export class SongDBInstance extends DBUtils {
 
   private storeArtistBridge(artistID: string[], songID: string) {
     for (const i of artistID) {
-      this.db.insert('artists_bridge', { song: songID, artist: i })
+      const exists = this.db.queryFirstCell(
+        `SELECT COUNT(id) FROM artists_bridge WHERE artist = ? AND song = ?`,
+        i,
+        songID
+      )
+      if (exists === 0) {
+        this.db.insert('artists_bridge', { song: songID, artist: i })
+      }
     }
   }
 

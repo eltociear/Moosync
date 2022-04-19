@@ -77,7 +77,7 @@ export class DBUtils {
     const ret: Artists[] = []
     for (const a of artists) {
       const split = a.split(',')
-      if (ret.findIndex((val) => val.artist_id === split[0]) === -1) {
+      if (split[0] && split[1] && ret.findIndex((val) => val.artist_id === split[0]) === -1) {
         ret.push({
           artist_id: split[0],
           artist_name: split[1],
