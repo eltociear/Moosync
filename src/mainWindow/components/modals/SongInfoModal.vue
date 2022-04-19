@@ -67,7 +67,7 @@
                                     :placeholder="getPlaceholder(field)"
                                     hide-input-on-limit
                                     add-tags-on-comma
-                                    :limit="5"
+                                    :limit="getLimit(field[0])"
                                     :class="`field-value w-100 ${
                                       getComponent(field) !== 'tags-input' && 'd-flex align-items-center text-truncate'
                                     } editable ml-1`"
@@ -155,7 +155,7 @@ export default class SongInfoModal extends mixins(ImgLoader) {
         ['playbackUrl', true],
         ['size', false, (s: number) => humanByteSize(s)],
         ['genre', true, (g: string[]) => g.map((val) => ({ key: val, value: val }))],
-        ['album', true, (a: Album) => a.album_name ?? ''],
+        ['album', true, (a: Album) => [{ key: a.album_id ?? '', value: a.album_name ?? '' }]],
         ['artists', true, (a: Artists[]) => a.map((val) => ({ key: val.artist_id, value: val.artist_name ?? '' }))]
       ]
     },
@@ -176,8 +176,13 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   private showPopover = false
   private popoverTimeout: ReturnType<typeof setTimeout> | undefined
 
+  private getLimit(field: keyof Song) {
+    if (field === 'album') return 1
+    return 6
+  }
+
   private getComponent(t: typeof this.tabs[0]['items'][0]) {
-    if (t[0] === 'artists' || t[0] === 'genre') {
+    if (t[0] === 'artists' || t[0] === 'genre' || t[0] === 'album') {
       return 'tags-input'
     }
 
@@ -223,7 +228,6 @@ export default class SongInfoModal extends mixins(ImgLoader) {
 
   private async save() {
     if (this.tmpSong) {
-      console.log(this.tmpSong)
       await window.DBUtils.updateSongs([this.tmpSong])
       this.close()
     }
@@ -273,10 +277,10 @@ export default class SongInfoModal extends mixins(ImgLoader) {
           }
 
           if (field === 'album') {
-            // this.song.album = {
-            //   album_id: '',
-            //   album_name: value as string
-            // }
+            this.tmpSong.album = {
+              album_id: value[0]?.key,
+              album_name: value[0]?.value
+            }
           }
         }
       }
