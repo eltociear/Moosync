@@ -12,6 +12,8 @@ import { promises as fsP } from 'fs'
 import { v4 } from 'uuid'
 import { sanitizeArtistName } from '../../common'
 import { SongSortOptions } from '@moosync/moosync-types'
+import { loadPreferences } from './preferences'
+import path from 'path'
 
 type KeysOfUnion<T> = T extends T ? keyof T : never
 // AvailableKeys will basically be keyof Foo | keyof Bar
@@ -146,7 +148,6 @@ export class SongDBInstance extends DBUtils {
 
   private updateSongArtists(newArtists: Artists[], oldArtists: Artists[] | undefined, songID: string) {
     if (JSON.stringify(oldArtists) !== JSON.stringify(newArtists)) {
-      ;('updating artists')
       this.db.delete('artists_bridge', { song: songID })
 
       for (const a of oldArtists ?? []) {
@@ -171,7 +172,6 @@ export class SongDBInstance extends DBUtils {
 
   private updateSongGenre(newGenres: string[], oldGenres: string[] | undefined, songID: string) {
     if (JSON.stringify(newGenres) !== JSON.stringify(oldGenres)) {
-      ;('updating genre')
       this.db.delete('genre_bridge', { song: songID })
 
       for (const g of oldGenres ?? []) {
@@ -189,8 +189,6 @@ export class SongDBInstance extends DBUtils {
   }
 
   private updateSongAlbums(newAlbum: Album, oldAlbum: Album | undefined, songID: string) {
-    ;('updating albums')
-
     this.db.delete('album_bridge', { song: songID })
 
     if (JSON.stringify(newAlbum) !== JSON.stringify(oldAlbum)) {
@@ -211,7 +209,18 @@ export class SongDBInstance extends DBUtils {
     }
   }
 
-  public updateSong(song: Song) {
+  private async getCoverPath(oldCoverPath: string, newCoverpath: string, songID: string) {
+    if (oldCoverPath !== newCoverpath) {
+      if (newCoverpath) {
+        const finalPath = path.join(loadPreferences().thumbnailPath, songID + path.extname(newCoverpath))
+        await fsP.copyFile(newCoverpath, finalPath)
+        return finalPath
+      }
+    }
+    return oldCoverPath
+  }
+
+  public async updateSong(song: Song) {
     if (this.verifySong(song)) {
       const oldSong = this.getSongByOptions({ song: { _id: song._id } })[0]
 
@@ -219,9 +228,19 @@ export class SongDBInstance extends DBUtils {
         this.updateSongArtists(song.artists ?? [], oldSong.artists, song._id)
         this.updateSongAlbums(song.album ?? {}, oldSong.album, song._id)
         this.updateSongGenre(song.genre ?? [], oldSong.genre, song._id)
+        const finalCoverPath = await this.getCoverPath(
+          oldSong.song_coverPath_high ?? '',
+          song.song_coverPath_high ?? '',
+          song._id
+        )
+        song.song_coverPath_high = finalCoverPath
+        song.song_coverPath_low = finalCoverPath
+
+        this.db.updateWithBlackList('allsongs', song, ['_id = ?', song._id], ['_id'])
+        this.updateAllSongCounts()
+      } else {
+        this.store(song)
       }
-      this.db.updateWithBlackList('allsongs', song, ['_id = ?', song._id], ['_id'])
-      this.updateAllSongCounts()
     }
   }
 

@@ -13,13 +13,16 @@
       <b-container fluid class="p-0">
         <b-row no-gutters class="d-flex">
           <b-col cols="auto">
-            <SongDefault v-if="forceEmptyImg || !song.song_coverPath_high" class="song-url-cover" />
+            <SongDefault v-if="forceEmptyImg || !tmpSong.song_coverPath_high" class="song-url-cover" />
             <b-img
               v-else
               class="song-url-cover"
-              :src="getImgSrc(getValidImageHigh(song))"
+              :src="getImgSrc(getValidImageHigh(tmpSong))"
               @error="handleImageError"
             ></b-img>
+            <div @click="changeSongCover" class="edit-button d-flex justify-content-center">
+              <EditIcon class="align-self-center" />
+            </div>
           </b-col>
           <b-col class="details" cols="8" xl="9">
             <b-row>
@@ -117,6 +120,7 @@
 <script lang="ts">
 import { Component, Prop } from 'vue-property-decorator'
 import SongDefault from '@/icons/SongDefaultIcon.vue'
+import EditIcon from '@/icons/EditIcon.vue'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
 import { mixins } from 'vue-class-component'
@@ -127,7 +131,8 @@ type DatalistArray = { key: string; value: string }[]
 
 @Component({
   components: {
-    SongDefault
+    SongDefault,
+    EditIcon
   }
 })
 export default class SongInfoModal extends mixins(ImgLoader) {
@@ -307,6 +312,21 @@ export default class SongInfoModal extends mixins(ImgLoader) {
     }))
   }
 
+  private async changeSongCover() {
+    if (this.tmpSong) {
+      const file = await window.WindowUtils.openFileBrowser(true, true, [
+        {
+          name: 'Image',
+          extensions: ['png', 'jpg', 'jpeg', 'gif', 'svg']
+        }
+      ])
+
+      if (!file.canceled && file.filePaths.length > 0) {
+        this.tmpSong.song_coverPath_high = file.filePaths[0]
+      }
+    }
+  }
+
   mounted() {
     bus.$on(EventBus.SHOW_SONG_INFO_MODAL, (song: Song) => {
       this.fetchDatalist()
@@ -475,4 +495,20 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   border-bottom: transparent 1px solid !important
   &:focus
     border-bottom: var(--accent) 1px solid !important
+
+.edit-button
+  position: absolute
+  width: 100%
+  height: 100%
+  background: rgba(0, 0, 0, 0.6)
+  top: 0
+  left: 0
+  opacity: 0
+  border-radius: 16px
+  transition: opacity 0.2s ease
+  cursor: pointer
+  &:hover
+    opacity: 1
+  svg
+    width: 70%
 </style>
