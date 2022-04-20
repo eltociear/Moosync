@@ -91,7 +91,7 @@ export class DBUtils {
     return ret
   }
 
-  protected marshalSong(song: Song): marshaledSong {
+  protected marshalSong(song: Partial<Song>): marshaledSong {
     if (!song._id) {
       throw new Error('song _id cannot be null')
     }
@@ -100,7 +100,7 @@ export class DBUtils {
       _id: song._id,
       path: song.path?.trim(),
       size: song.size,
-      title: song.title.trim(),
+      title: song.title?.trim() ?? '',
       song_coverPath_high: song.song_coverPath_high?.trim(),
       song_coverPath_low: song.song_coverPath_low?.trim(),
       date: song.date,
@@ -109,12 +109,12 @@ export class DBUtils {
       bitrate: song.bitrate,
       codec: song.codec,
       container: song.container,
-      duration: song.duration,
+      duration: song.duration ?? 0,
       sampleRate: song.sampleRate,
       hash: song.hash?.trim(),
       inode: song.inode,
       deviceno: song.deviceno,
-      type: song.type,
+      type: song.type ?? 'URL',
       url: song.url?.trim(),
       playbackUrl: song.playbackUrl?.trim(),
       date_added: Date.now(),

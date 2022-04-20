@@ -253,6 +253,7 @@ class ExtensionRequestHandler {
         resp.data.push(
           SongDB.store({
             ...s,
+            _id: `${message.extensionName}-${s._id}`,
             providerExtension: message.extensionName
           })
         )
@@ -261,7 +262,7 @@ class ExtensionRequestHandler {
 
     if (message.type === 'add-playlist') {
       const playlist = message.data as Playlist
-      resp.data = SongDB.createPlaylist(playlist.playlist_name, '', playlist.playlist_coverPath, playlist.playlist_path)
+      resp.data = SongDB.createPlaylist(playlist, message.extensionName)
     }
 
     if (message.type === 'add-song-to-playlist') {

@@ -160,7 +160,10 @@ export class ScannerChannel implements IpcChannelInterface {
     if (songs.length > 0) {
       if (!existing) {
         console.debug('Storing scanned playlist', playlist)
-        const id = SongDB.createPlaylist(playlist.title, '', undefined, playlist.filePath)
+        const id = SongDB.createPlaylist({
+          playlist_name: playlist.title,
+          playlist_path: playlist.filePath
+        })
         SongDB.addToPlaylist(id, ...songs)
       } else {
         const playlistSongs = SongDB.getSongByOptions({ playlist: { playlist_id: existing.playlist_id } })

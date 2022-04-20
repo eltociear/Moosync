@@ -25,27 +25,23 @@ export class SongDBInstance extends DBUtils {
                 ALLSONGS
      ============================= */
 
-  private verifySong(song: Song) {
+  private verifySong(song: Partial<Song>) {
     return !!(song._id && song.title && song.date_added && song.duration && song.type)
   }
 
-  public store(newDoc: Song, extensionName?: string): boolean {
+  public store(newDoc: Partial<Song>): boolean {
     if (this.verifySong(newDoc)) {
-      const marshaledSong = this.marshalSong(newDoc)
       const existing = this.getSongByOptions({ song: { _id: newDoc._id } })[0]
       if (existing) {
-        if (extensionName && existing.providerExtension !== extensionName) {
-          // Song doesn't belong to extension, don't do anything
-          return false
-        } else {
-          // TODO: Write better song updates
-          this.removeSong(newDoc._id)
-        }
+        return false
       }
 
       const artistID = newDoc.artists ? this.storeArtists(...newDoc.artists) : []
       const albumID = newDoc.album ? this.storeAlbum(newDoc.album) : ''
       const genreID = newDoc.genre ? this.storeGenre(...newDoc.genre) : []
+
+      newDoc._id = `${newDoc.providerExtension ? newDoc.providerExtension + '-' : ''}${newDoc._id ?? v4()}`
+      const marshaledSong = this.marshalSong(newDoc)
 
       this.db.insert('allsongs', marshaledSong)
       this.storeArtistBridge(artistID, marshaledSong._id)
@@ -726,14 +722,12 @@ export class SongDBInstance extends DBUtils {
    * @param imgSrc cover image of playlist
    * @returns playlist id after creation
    */
-  public createPlaylist(name: string, desc: string, imgSrc?: string, filePath?: string, extension?: string): string {
-    const id = `${extension ? extension + '-' : ''}${v4()}`
+  public createPlaylist(playlist: Partial<Playlist>, extension?: string): string {
+    const id = `${extension ? extension + '-' : ''}${playlist.playlist_id ?? v4()}`
     this.db.insert('playlists', {
-      playlist_id: id,
-      playlist_name: name ? name : 'New Playlist',
-      playlist_desc: desc,
-      playlist_coverPath: imgSrc,
-      playlist_path: filePath
+      ...playlist,
+      playlist_name: 'New Playlist',
+      playlist_id: id
     })
     return id
   }
