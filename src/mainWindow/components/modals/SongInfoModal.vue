@@ -30,6 +30,7 @@
                 <b-input
                   :id="getKey('title')"
                   :title="getValue('title')"
+                  @input="onInputChange('title', ...arguments)"
                   class="title text-truncate editable"
                   :value="song.title"
                 >
@@ -234,7 +235,16 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   private async save() {
     if (this.tmpSong) {
       await window.DBUtils.updateSongs([this.tmpSong])
+      this.mergeIntoOriginal()
       this.close()
+    }
+  }
+
+  private mergeIntoOriginal() {
+    if (this.song && this.tmpSong) {
+      for (const key of Object.keys(this.song)) {
+        this.song[key as keyof Song] = this.tmpSong[key as keyof Song] as never
+      }
     }
   }
 
