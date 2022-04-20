@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-property-decorator'
+import { Component, Watch } from 'vue-property-decorator'
 import SongView from '@/mainWindow/components/songView/SongView.vue'
 
 import { mixins } from 'vue-class-component'
@@ -60,9 +60,16 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
     }
   }
 
-  created() {
+  @Watch('$route.params.id')
+  private onArtistChange() {
+    this.artist = null
+    this.songList = []
     this.fetchArtists()
     this.fetchSongList()
+  }
+
+  created() {
+    this.onArtistChange()
   }
 
   private async fetchArtists() {
