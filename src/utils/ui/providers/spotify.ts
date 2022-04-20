@@ -176,7 +176,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     const parsed: Playlist[] = []
     for (const i of items) {
       parsed.push({
-        playlist_id: `spotify-${i.id}`,
+        playlist_id: `spotify-playlist-${i.id}`,
         playlist_name: i.name,
         playlist_coverPath: i.images[0] ? i.images[0].url : '',
         playlist_song_count: i.tracks.total,
@@ -369,8 +369,12 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     const songList: Song[] = []
     for (const track of recommendations.tracks) {
       const song: Song = {
-        _id: track.id,
+        _id: `spotify-${track.id}`,
         title: track.name,
+        artists: track.artists.map((val) => ({
+          artist_id: `spotify-author-${val.id}`,
+          artist_name: val.name
+        })),
         album: {
           album_name: track.album.name,
           album_artist: track.album.artists && track.album.artists.length > 0 ? track.album.artists[0].name : undefined
@@ -468,7 +472,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
 
   private parseArtist(artist: SpotifyResponses.RecommendationDetails.SpotifyArtist): Artists {
     return {
-      artist_id: `spotify-artist-${artist.id}`,
+      artist_id: `spotify-author-${artist.id}`,
       artist_name: artist.name,
       artist_coverPath: artist.images?.at(0)?.url
     }

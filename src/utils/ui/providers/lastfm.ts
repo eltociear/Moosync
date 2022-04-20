@@ -287,7 +287,7 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
             const parsed = (await this.parseTrack(song.name, song.artists[0].name))?.track
             if (parsed) {
               const final: Song = {
-                _id: song.playlinks[0].id,
+                _id: `lastfm-${song.playlinks[0].id}`,
                 title: parsed.name,
                 artists: [
                   {

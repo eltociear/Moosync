@@ -125,7 +125,7 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
     for (const s of items) {
       const stream = (s as InvidiousResponses.VideoDetails.VideoResponse).formatStreams?.slice(-1).pop()
       songs.push({
-        _id: s.videoId,
+        _id: `youtube-${s.videoId}`,
         title: s.title,
         duration: s.lengthSeconds,
         artists: [
