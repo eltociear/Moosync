@@ -40,7 +40,7 @@ export class SongDBInstance extends DBUtils {
       const albumID = newDoc.album ? this.storeAlbum(newDoc.album) : ''
       const genreID = newDoc.genre ? this.storeGenre(...newDoc.genre) : []
 
-      newDoc._id = `${newDoc.providerExtension ? newDoc.providerExtension + '-' : ''}${newDoc._id ?? v4()}`
+      newDoc._id = `${newDoc.providerExtension ? newDoc.providerExtension + ':' : ''}${newDoc._id ?? v4()}`
       const marshaledSong = this.marshalSong(newDoc)
 
       this.db.insert('allsongs', marshaledSong)
@@ -723,7 +723,7 @@ export class SongDBInstance extends DBUtils {
    * @returns playlist id after creation
    */
   public createPlaylist(playlist: Partial<Playlist>, extension?: string): string {
-    const id = `${extension ? extension + '-' : ''}${playlist.playlist_id ?? v4()}`
+    const id = `${extension ? extension + ':' : ''}${playlist.playlist_id ?? v4()}`
     this.db.insert('playlists', {
       ...playlist,
       playlist_name: 'New Playlist',

@@ -42,7 +42,7 @@ export class YTScraper extends CacheHandler {
     for (const s of item) {
       const highResThumbnail = s.thumbnailUrl && this.getHighResThumbnail(s.thumbnailUrl)
       songs.push({
-        _id: 'youtube-' + s.youtubeId,
+        _id: 'youtube:' + s.youtubeId,
         title: s.title ? s.title.trim() : '',
         song_coverPath_high: highResThumbnail,
         song_coverPath_low: s.thumbnailUrl,
@@ -53,7 +53,7 @@ export class YTScraper extends CacheHandler {
         },
         artists:
           s.artists?.map((val) => ({
-            artist_id: `youtube-author-${val.id}`,
+            artist_id: `youtube-author:${val.id}`,
             artist_name: val.name
           })) ?? [],
         duration: s.duration?.totalSeconds ?? 0,

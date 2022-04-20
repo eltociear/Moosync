@@ -161,7 +161,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
       for (const p of items) {
         if (p.snippet)
           playlists.push({
-            playlist_id: `youtube-playlist-${p.id}`,
+            playlist_id: `youtube-playlist:${p.id}`,
             playlist_name: p.snippet.title,
             playlist_coverPath: (
               p.snippet.thumbnails.maxres ??
@@ -222,7 +222,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
 
   private getIDFromURL(url: string) {
     try {
-      return new URL(url)?.searchParams?.get('list') ?? undefined
+      return new URL(url)?.searchParams?.get('list') ?? url
     } catch (_) {
       return url
     }
@@ -263,11 +263,11 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     for (const v of items) {
       if (songs.findIndex((value) => value._id === v.id) === -1)
         songs.push({
-          _id: `youtube-${v.id}`,
+          _id: `youtube:${v.id}`,
           title: v.snippet.title,
           artists: [
             {
-              artist_id: `youtube-author-${v.snippet.channelId}`,
+              artist_id: `youtube-author:${v.snippet.channelId}`,
               artist_name: v.snippet.channelTitle.replace('-', '').replace('Topic', '').trim()
             }
           ],
