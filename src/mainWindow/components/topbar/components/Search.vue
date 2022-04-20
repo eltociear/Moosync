@@ -38,7 +38,7 @@
           <SingleSearchResult
             class="single-result"
             :title="item.title"
-            :subtitle="item.artists ? item.artists.join(', ') : ''"
+            :subtitle="item.artists ? item.artists.map((val) => val.artist_name).join(', ') : ''"
             :coverImg="getImgSrc(getValidImageLow(item))"
             :divider="index != results.length - 1"
             :id="index"

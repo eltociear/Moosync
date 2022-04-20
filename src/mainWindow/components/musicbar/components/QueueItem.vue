@@ -57,7 +57,7 @@
         </div>
 
         <div class="text-left song-subtitle text-truncate">
-          {{ song.artists && song.artists.join(', ') }}
+          {{ song.artists && song.artists.map((val) => val.artist_name).join(', ') }}
           {{ song.artists && song.artists.length > 0 && song.album && song.album.album_name ? ' - ' : '' }}
           {{ song.album && song.album.album_name }}
         </div>

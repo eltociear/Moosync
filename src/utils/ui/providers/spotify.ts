@@ -219,7 +219,9 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
 
   public async spotifyToYoutube(item: Song) {
     if (vxm.providers.loggedInYoutube) {
-      const res = await vxm.providers.youtubeProvider.searchSongs(`${item.artists?.join(', ') ?? ''} ${item.title}`)
+      const res = await vxm.providers.youtubeProvider.searchSongs(
+        `${item.artists?.map((val) => val.artist_name ?? '').join(', ') ?? ''} ${item.title}`
+      )
       console.debug('Found', res[0]?.title, '-', res[0]?.url, 'for spotify song', item.artists, item.title)
       if (res.length > 0) return res[0]
     }
@@ -540,7 +542,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   public async *getArtistSongs(artist_id: string): AsyncGenerator<Song[]> {
-    artist_id = artist_id.replace('spotify:artist-', '')
+    artist_id = artist_id.replace('spotify-author:', '')
     const resp = await this.populateRequest(ApiResources.ARTIST_TOP, {
       params: {
         id: artist_id,

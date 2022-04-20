@@ -30,12 +30,12 @@
         <div
           v-for="(artist, index) of artists"
           :key="index"
-          :title="artist"
+          :title="artist.artist_name"
           class="text song-subtitle text-truncate"
           :class="index !== 0 ? 'ml-1' : ''"
           @click="onSubtitleClick(artist)"
         >
-          {{ artist }}{{ index !== artists.length - 1 ? ',' : '' }}
+          {{ artist.artist_name }}{{ index !== artists.length - 1 ? ',' : '' }}
         </div>
       </div>
 
@@ -73,7 +73,7 @@ export default class MusicBar extends mixins(ImageLoader, ErrorHandler, FileMixi
   title!: string
 
   @Prop({ default: () => [] })
-  artists!: string[]
+  artists!: Artists[]
 
   @Prop({ default: '' })
   private imgSrc!: string
@@ -83,7 +83,7 @@ export default class MusicBar extends mixins(ImageLoader, ErrorHandler, FileMixi
   private forceEmptyImg = false
 
   private onTitleClick() {
-    let str = this.artists.join(', ')
+    let str = this.artists.map((val) => val.artist_name).join(', ')
     if (str) {
       str += ' - '
     }

@@ -375,7 +375,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
       const metadata = {
         title: song.title,
-        artist: song.artists && song.artists.join(', '),
+        artist: song.artists && song.artists.map((val) => val.artist_name).join(', '),
         album: song.album?.album_name,
         artwork
       }
