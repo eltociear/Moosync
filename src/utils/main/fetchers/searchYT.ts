@@ -138,7 +138,7 @@ export class YTScraper extends CacheHandler {
   public async getSuggestions(videoID: string) {
     const cached = this.getCache(videoID)
     if (cached) {
-      return JSON.parse(cached)
+      return this.parseSong(...JSON.parse(cached))
     }
 
     try {
