@@ -70,7 +70,7 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
     this.album = (
       await window.SearchUtils.searchEntityByOptions<Album>({
         album: {
-          album_id: this.$route.params.id
+          album_id: this.$route.query.id as string
         }
       })
     )[0]
@@ -79,7 +79,7 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
   private async fetchSongList() {
     this.songList = await window.SearchUtils.searchSongsByOptions({
       album: {
-        album_id: this.$route.params.id
+        album_id: this.$route.query.id as string
       },
       sortBy: vxm.themes.songSortBy
     })

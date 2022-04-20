@@ -60,12 +60,14 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
     }
   }
 
-  @Watch('$route.params.id')
+  @Watch('$route.query.id')
   private onArtistChange() {
-    this.artist = null
-    this.songList = []
-    this.fetchArtists()
-    this.fetchSongList()
+    if (typeof this.$route.query.id === 'string') {
+      this.artist = null
+      this.songList = []
+      this.fetchArtists()
+      this.fetchSongList()
+    }
   }
 
   created() {
@@ -76,23 +78,23 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
     this.artist = (
       await window.SearchUtils.searchEntityByOptions<Artists>({
         artist: {
-          artist_id: this.$route.params.id
+          artist_id: this.$route.query.id as string
         }
       })
     )[0]
 
     if (!this.artist?.artist_name) {
       this.artist = {
-        artist_id: this.$route.params.id,
-        artist_name: this.$route.params.name,
-        artist_coverPath: this.$route.params.cover
+        artist_id: this.$route.query.id as string,
+        artist_name: this.$route.query.name as string,
+        artist_coverPath: this.$route.query.cover as string
       }
     }
   }
 
   private async fetchSpotifySonglist() {
     if (vxm.providers.loggedInSpotify) {
-      for await (const songs of vxm.providers.spotifyProvider.getArtistSongs(this.$route.params.id)) {
+      for await (const songs of vxm.providers.spotifyProvider.getArtistSongs(this.$route.query.id as string)) {
         for (const s of songs) {
           if (!this.songList.find((val) => val._id === s._id)) {
             this.songList.push(s)
@@ -104,13 +106,13 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
   }
 
   private async fetchSongList() {
-    if (this.$route.params.id.startsWith('spotify')) {
+    if ((this.$route.query.id as string).startsWith('spotify')) {
       await this.fetchSpotifySonglist()
       this.lateSongCount = this.songList.length
     } else {
       this.songList = await window.SearchUtils.searchSongsByOptions({
         artist: {
-          artist_id: this.$route.params.id
+          artist_id: this.$route.query.id as string
         },
         sortBy: vxm.themes.songSortBy
       })
