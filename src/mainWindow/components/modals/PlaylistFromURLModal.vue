@@ -138,11 +138,7 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
 
   private async addToLibrary() {
     if (this.playlist) {
-      const playlistId = await window.DBUtils.createPlaylist(
-        this.playlist.playlist_name,
-        '',
-        this.playlist.playlist_coverPath ?? ''
-      )
+      const playlistId = await window.DBUtils.createPlaylist(this.playlist)
 
       await window.DBUtils.storeSongs(this.songList)
       await window.DBUtils.addToPlaylist(playlistId, ...this.songList)

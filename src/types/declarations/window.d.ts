@@ -41,7 +41,7 @@ interface DBUtils {
    * @param desc description of playlist
    * @param imgSrc cover image path of playlist
    */
-  createPlaylist: (name: string, desc: string, imgSrc?: string) => Promise<string>
+  createPlaylist: (playlist: Partial<Playlist>) => Promise<string>
 
   /**
    * Add song to playlist
@@ -123,6 +123,7 @@ interface fileUtils {
    * Scans for audio files in specified paths
    */
   scan: () => Promise<void>
+  scanSinglePlaylist: (playlistPath: string) => Promise<void>
 
   getScanProgress: () => Promise<Progress>
 

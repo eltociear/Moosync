@@ -99,7 +99,11 @@ export default class NewPlaylistModal extends mixins(ImgLoader) {
       path = await window.FileUtils.savePlaylistCover(data)
     }
 
-    let playlist_id = await window.DBUtils.createPlaylist(this.title, this.desc, path)
+    let playlist_id = await window.DBUtils.createPlaylist({
+      playlist_name: this.title,
+      playlist_coverPath: path,
+      playlist_desc: this.desc
+    })
     this.addToPlaylist(playlist_id, this.songs)
 
     this.$bvModal.hide(this.id)
