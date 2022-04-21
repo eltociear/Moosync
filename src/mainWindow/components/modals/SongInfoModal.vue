@@ -159,6 +159,7 @@ export default class SongInfoModal extends mixins(ImgLoader) {
         ['date_added', false, (d: string) => new Date(parseInt(d)).toDateString()],
         ['year', true, (y: string) => parseInt(y).toFixed(0)],
         ['playbackUrl', true],
+        ['type', false],
         ['size', false, (s: number) => humanByteSize(s)],
         ['genre', true, (g: string[]) => g.map((val) => ({ key: val, value: val }))],
         ['album', true, (a: Album) => [{ key: a.album_id ?? '', value: a.album_name ?? '' }]],

@@ -27,6 +27,9 @@ export class PlaylistsChannel implements IpcChannelInterface {
       case PlaylistEvents.CREATE_PLAYLIST:
         this.createPlaylist(event, request as IpcRequest<PlaylistRequests.CreatePlaylist>)
         break
+      case PlaylistEvents.UPDATE_PLAYLIST:
+        this.updatePlaylist(event, request as IpcRequest<PlaylistRequests.CreatePlaylist>)
+        break
       case PlaylistEvents.SAVE_COVER:
         this.saveCoverToFile(event, request as IpcRequest<PlaylistRequests.SaveCover>)
         break
@@ -41,15 +44,17 @@ export class PlaylistsChannel implements IpcChannelInterface {
 
   private createPlaylist(event: Electron.IpcMainEvent, request: IpcRequest<PlaylistRequests.CreatePlaylist>) {
     try {
-      const data = SongDB.createPlaylist({
-        playlist_name: request.params.name,
-        playlist_coverPath: request.params.imgSrc
-      })
+      const data = SongDB.createPlaylist(request.params.playlist)
       event.reply(request.responseChannel, data)
     } catch (e) {
       console.error(e)
       event.reply(request.responseChannel)
     }
+  }
+
+  private updatePlaylist(event: Electron.IpcMainEvent, request: IpcRequest<PlaylistRequests.CreatePlaylist>) {
+    const data = SongDB.updatePlaylist(request.params.playlist)
+    event.reply(request.responseChannel, data)
   }
 
   private addToPlaylist(event: Electron.IpcMainEvent, request: IpcRequest<PlaylistRequests.AddToPlaylist>) {

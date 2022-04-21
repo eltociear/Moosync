@@ -31,6 +31,10 @@ interface DBUtils {
    */
   updateSongs: (songs: Song[]) => Promise<void>
 
+  updatePlaylist: (playlist: Playlist) => Promise<void>
+  updateArtist: (artist: Artists) => Promise<void>
+  updateAlbum: (album: Album) => Promise<void>
+
   /**
    * Create new playlist
    * @param name name of playlist

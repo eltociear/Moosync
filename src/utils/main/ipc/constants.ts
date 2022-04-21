@@ -112,6 +112,7 @@ export enum ScannerEvents {
 
 export enum PlaylistEvents {
   CREATE_PLAYLIST = 'createPlaylist',
+  UPDATE_PLAYLIST = 'updatePlaylist',
   ADD_TO_PLAYLIST = 'AddToPlaylist',
   GET_ALL_PLAYLISTS = 'getPlaylists',
   GET_PLAYLIST = 'getPlaylist',
@@ -131,6 +132,8 @@ export enum SongEvents {
   STORE_SONG = 'storeSong',
   REMOVE_SONG = 'removeSong',
   UPDATE_SONG = 'updateSong',
+  UPDATE_ALBUM = 'updateAlbum',
+  UPDATE_ARTIST = 'updateArtist',
   UPDATE_LYRICS = 'updateLyrics',
   SAVE_AUDIO_TO_FILE = 'saveAudioToFile',
   SAVE_IMAGE_TO_FILE = 'saveImageToFile',
@@ -180,6 +183,7 @@ export enum EventBus {
   SHOW_PLAYLIST_FROM_URL_MODAL = 'show-playlist-from-url',
   SHOW_SETUP_MODAL = 'show-setup-modal',
   SHOW_SONG_INFO_MODAL = 'show-song-info-modal',
+  SHOW_ENTITY_INFO_MODAL = 'show-entity-info-modal',
   SHOW_OAUTH_MODAL = 'show-oauth-modal',
   HIDE_OAUTH_MODAL = 'hide-oauth-modal',
   SHOW_FORM_MODAL = 'show-form-modal',

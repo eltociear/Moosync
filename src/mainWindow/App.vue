@@ -21,6 +21,7 @@
     <SetupModal />
     <OAuthModal />
     <FormModal />
+    <EntityInfoModal />
   </div>
 </template>
 
@@ -44,6 +45,7 @@ import { EventBus } from '@/utils/main/ipc/constants'
 import OAuthModal from './components/modals/OAuthModal.vue'
 import FormModal from './components/modals/FormModal.vue'
 import { Checkbox } from '@moosync/moosync-types'
+import EntityInfoModal from './components/modals/EntityInfoModal.vue'
 
 @Component({
   components: {
@@ -55,7 +57,8 @@ import { Checkbox } from '@moosync/moosync-types'
     SetupModal,
     SongInfoModal,
     OAuthModal,
-    FormModal
+    FormModal,
+    EntityInfoModal
   }
 })
 export default class App extends mixins(ThemeHandler, PlayerControls) {

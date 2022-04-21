@@ -202,6 +202,8 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
           window.DBUtils.exportPlaylist(playlist.playlist_id)
         }
       })
+
+      items.push(this.getEntityInfoMenu(playlist))
     }
     return items
   }
@@ -283,6 +285,25 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     return items
   }
 
+  private getEntityInfoMenu(entity: Album | Artists | Playlist) {
+    return {
+      label: 'Show Info',
+      handler: () => {
+        bus.$emit(EventBus.SHOW_ENTITY_INFO_MODAL, entity)
+      }
+    }
+  }
+
+  private getArtistContextMenu(artist: Artists) {
+    const items = [this.getEntityInfoMenu(artist)]
+    return items
+  }
+
+  private getAlbumContextMenu(album: Album) {
+    const items = [this.getEntityInfoMenu(album)]
+    return items
+  }
+
   public getContextMenu(event: Event, options: ContextMenuArgs) {
     let items: { label: string; handler?: () => void }[] = []
     switch (options.type) {
@@ -300,6 +321,12 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
         break
       case 'PLAYLIST':
         items = this.getPlaylistContextMenu(options.args.playlist, options.args.deleteCallback)
+        break
+      case 'ALBUM':
+        items = this.getAlbumContextMenu(options.args.album)
+        break
+      case 'ARTIST':
+        items = this.getArtistContextMenu(options.args.artist)
         break
       case 'GENERAL_PLAYLIST':
         items = this.getGeneralPlaylistMenu(options.args.sort, options.args.refreshCallback)

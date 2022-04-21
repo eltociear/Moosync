@@ -63,9 +63,7 @@ declare namespace PlaylistRequests {
   }
 
   interface CreatePlaylist {
-    name: string
-    desc: string
-    imgSrc: string
+    playlist: Partial<Playlist>
   }
 
   interface SaveCover {
@@ -154,6 +152,14 @@ declare namespace SearchRequests {
 declare namespace SongRequests {
   interface Songs {
     songs: Song[]
+  }
+
+  interface UpdateArtist {
+    artist: Artist
+  }
+
+  interface UpdateAlbum {
+    album: Album
   }
 
   interface SaveBuffer {

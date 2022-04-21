@@ -13,7 +13,12 @@
       <b-row no-gutters class="page-title">Artists</b-row>
       <b-row class="d-flex">
         <b-col col xl="2" md="3" v-for="artist in artistList" :key="artist.artist_id">
-          <CardView :title="artist.artist_name" :imgSrc="artist.artist_coverPath" @click.native="gotoArtist(artist)">
+          <CardView
+            :title="artist.artist_name"
+            :imgSrc="artist.artist_coverPath"
+            @click.native="gotoArtist(artist)"
+            @CardContextMenu="singleItemContextHandler(artist, arguments[0])"
+          >
             <template #defaultCover> <ArtistDefault /></template>
           </CardView>
         </b-col>
@@ -30,6 +35,7 @@ import RouterPushes from '@/utils/ui/mixins/RouterPushes'
 import ArtistDefault from '@/icons/ArtistDefaultIcon.vue'
 import { vxm } from '@/mainWindow/store'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
+import { Artists } from '@moosync/moosync-types'
 
 @Component({
   components: {
@@ -62,6 +68,15 @@ export default class ArtistsPage extends mixins(RouterPushes, ContextMenuMixin) 
 
   private setSort(options: NormalSortOptions) {
     vxm.themes.otherSortBy = options
+  }
+
+  private singleItemContextHandler(artist: Artists, event: MouseEvent) {
+    this.getContextMenu(event, {
+      type: 'ARTIST',
+      args: {
+        artist
+      }
+    })
   }
 
   private contextHandler(event: MouseEvent) {

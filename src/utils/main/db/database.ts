@@ -519,6 +519,35 @@ export class SongDBInstance extends DBUtils {
     })(songid, coverHigh, coverLow)
   }
 
+  public async updateAlbum(album: Album) {
+    const oldAlbum = this.getEntityByOptions<Album>({
+      album: {
+        album_id: album.album_id
+      }
+    })[0]
+
+    if (oldAlbum?.album_coverPath_high !== album.album_coverPath_high) {
+      if (album.album_coverPath_high) {
+        const coverPath = path.join(
+          loadPreferences().thumbnailPath,
+          album.album_id + path.extname(album.album_coverPath_high)
+        )
+        await fsP.copyFile(album.album_coverPath_high, coverPath)
+        album.album_coverPath_high = coverPath
+        album.album_coverPath_low = coverPath
+      }
+
+      if (oldAlbum?.album_coverPath_high) {
+        await fsP.rm(oldAlbum?.album_coverPath_high, { force: true })
+      }
+
+      if (oldAlbum?.album_coverPath_low) {
+        await fsP.rm(oldAlbum?.album_coverPath_low, { force: true })
+      }
+    }
+    this.db.updateWithBlackList('albums', album, ['album_id = ?', album.album_id], ['album_id'])
+  }
+
   /**
    * Updates song count of all albums
    */
@@ -608,16 +637,26 @@ export class SongDBInstance extends DBUtils {
    * @returns number of rows updated
    */
   public async updateArtists(artist: Artists) {
-    return new Promise((resolve) => {
-      resolve(
-        this.db.updateWithBlackList(
-          'artists',
-          artist,
-          ['artist_id = ?', artist.artist_id],
-          ['artist_id', 'artist_name']
+    const oldArtist = this.getEntityByOptions<Artists>({
+      artist: {
+        artist_id: artist.artist_id
+      }
+    })[0]
+    if (artist.artist_coverPath !== oldArtist?.artist_coverPath) {
+      if (artist.artist_coverPath) {
+        const coverPath = path.join(
+          loadPreferences().thumbnailPath,
+          artist.artist_id + path.extname(artist.artist_coverPath)
         )
-      )
-    })
+        await fsP.copyFile(artist.artist_coverPath, coverPath)
+        artist.artist_coverPath = coverPath
+      }
+
+      if (oldArtist?.artist_coverPath) {
+        await fsP.rm(oldArtist.artist_coverPath, { force: true })
+      }
+    }
+    this.db.updateWithBlackList('artists', artist, ['artist_id = ?', artist.artist_id], ['artist_id'])
   }
 
   private storeArtists(...artists: Artists[]): string[] {
@@ -738,6 +777,26 @@ export class SongDBInstance extends DBUtils {
         playlist_path: filePath
       }
     }) as Playlist[]
+  }
+
+  public async updatePlaylist(playlist: Partial<Playlist>) {
+    const oldPlaylist = this.getEntityByOptions<Playlist>({ playlist: { playlist_id: playlist.playlist_id } })[0]
+    if (oldPlaylist?.playlist_coverPath !== playlist.playlist_coverPath) {
+      if (playlist.playlist_coverPath) {
+        const coverPath = path.join(
+          loadPreferences().thumbnailPath,
+          playlist.playlist_id + path.extname(playlist.playlist_coverPath)
+        )
+        await fsP.copyFile(playlist.playlist_coverPath, coverPath)
+        playlist.playlist_coverPath = coverPath
+      }
+
+      if (oldPlaylist?.playlist_coverPath) {
+        await fsP.rm(oldPlaylist.playlist_coverPath, { force: true })
+      }
+    }
+
+    this.db.updateWithBlackList('playlists', playlist, ['playlist_id = ?', playlist.playlist_id], ['playlist_id'])
   }
 
   /**
