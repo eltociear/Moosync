@@ -130,7 +130,9 @@ export class PlaylistsChannel implements IpcChannelInterface {
     let ret = ''
     const playlistSongs = SongDB.getSongByOptions({ playlist: { playlist_id: playlist.playlist_id } })
     for (const s of playlistSongs) {
-      ret += `#EXTINF:${Math.round(s.duration) ?? 0},${this.getSongTitleParsed(s)}\n${s.path}\n`
+      if (s.type === 'LOCAL') {
+        ret += `#EXTINF:${Math.round(s.duration) ?? 0},${this.getSongTitleParsed(s)}\n${s.path ?? s.url}\n`
+      }
     }
     return ret
   }
