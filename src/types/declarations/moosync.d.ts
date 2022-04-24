@@ -6,10 +6,6 @@ interface ExtendedPlaylist extends Playlist {
   extension?: string
 }
 
-type SongAPIOptions = Omit<OriginalSongAPIOptions, 'song'> & {
-  song?: SearchableSong
-}
-
 type Progress = { total: number; current: number }
 
 declare namespace NodeJS {

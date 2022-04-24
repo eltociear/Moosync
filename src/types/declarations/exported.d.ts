@@ -75,10 +75,10 @@ interface SearchableSong {
   // MD5 hash
   hash?: string
 
-  type?: 'LOCAL' | 'YOUTUBE' | 'SPOTIFY'
+  type?: PlayerTypes
 
   // Will return all songs provided by this extension
-  extension?: boolean
+  extension?: boolean | string
 }
 
 type PlayerState = 'PLAYING' | 'PAUSED' | 'STOPPED' | 'LOADING'

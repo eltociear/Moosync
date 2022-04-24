@@ -97,6 +97,7 @@ interface ExtensionDetails {
   version: string
   hasStarted: boolean
   entry: string
+  preferences: ExtensionPreferenceGroup[]
   extensionPath: string
   extensionIcon: string | undefined
 }

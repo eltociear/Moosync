@@ -27,7 +27,7 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
     this.player = new PlayerControls(this.packageName)
   }
 
-  public async getSongs(options: OriginalSongAPIOptions) {
+  public async getSongs(options: SongAPIOptions) {
     return sendAsync<Song[]>(this.packageName, 'get-songs', options)
   }
 
