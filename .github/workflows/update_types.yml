@@ -18,6 +18,7 @@ jobs:
           repository: Moosync/extension-api-types
           path: Moosync.types
           token: ${{ secrets.TYPES_TOKEN }}
+          ref: ${GITHUB_REF##*/}
 
       - name: Copy files and push
         run: |
