@@ -12,13 +12,18 @@ jobs:
         with:
           path: Moosync.app
 
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
       - name: Check out Git repository
         uses: actions/checkout@v3
         with:
           repository: Moosync/extension-api-types
           path: Moosync.types
           token: ${{ secrets.TYPES_TOKEN }}
-          ref: ${{ GITHUB_REF##*/ }}
+          ref: ${{ steps.extract_branch.outputs.branch }}
 
       - name: Copy files and push
         run: |
