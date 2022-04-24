@@ -25,7 +25,7 @@
     "@babel/types": "^7.17.0",
     "@caohenghu/vue-colorpicker": "^1.2.4",
     "@googleapis/oauth2": "^0.2.0",
-    "@moosync/moosync-types": "https://github.com/Moosync/extension-api-types",
+    "@moosync/moosync-types": "https://github.com/Moosync/extension-api-types#dev",
     "@openid/appauth": "^1.3.1",
     "@playwright/test": "^1.20.2",
     "@types/better-sqlite3": "^7.5.0",

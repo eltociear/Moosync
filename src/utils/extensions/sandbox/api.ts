@@ -20,6 +20,8 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
     ) => Promise<ExtraExtensionEventReturnType<key>>
   }> = {}
 
+  private contextMenuMap: ExtensionContextMenuItem<ContextMenuTypes>[] = []
+
   constructor(packageName: string) {
     this.packageName = packageName
     this.player = new PlayerControls(this.packageName)
@@ -119,6 +121,20 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
     if (callback) {
       return (await callback(...event.data)) as ExtraExtensionEventReturnType<T>
     }
+  }
+
+  public setContextMenuItem<T extends ContextMenuTypes>(...item: ExtensionContextMenuItem<T>[]): number {
+    console.debug('Adding context menu items for types', item.map((val) => val.type).join(', '))
+    return this.contextMenuMap.push(...item)
+  }
+
+  public removeContextMenuItem(index: number) {
+    console.debug('Removing context menu items at', index)
+    this.contextMenuMap.splice(index, 1)
+  }
+
+  public getContextMenuItems() {
+    return this.contextMenuMap
   }
 }
 

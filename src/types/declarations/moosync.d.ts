@@ -31,6 +31,9 @@ type ExtraExtensionEventData<T> = import('@moosync/moosync-types').ExtraExtensio
 type ExtraExtensionEventReturnType<T> = import('@moosync/moosync-types').ExtraExtensionEventReturnType<T>
 type ExtraExtensionEventTypes = import('@moosync/moosync-types').ExtraExtensionEventTypes
 
+type ExtensionContextMenuItem<T extends ContextMenuTypes> = import('@moosync/moosync-types').ExtensionContextMenuItem<T>
+type ContextMenuTypes = import('@moosync/moosync-types').ContextMenuTypes
+
 declare namespace NodeJS {
   export interface ProcessEnv {
     ELECTRON_NODE_INTEGRATION: boolean
