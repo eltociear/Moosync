@@ -99,7 +99,6 @@ interface ExtensionDetails {
   entry: string
   extensionPath: string
   extensionIcon: string | undefined
-  preferences: import('@moosync/moosync-types').ExtensionPreferenceGroup[]
 }
 
 type ExtraExtensionEventCombinedReturnType<T extends ExtraExtensionEventTypes> = {
@@ -112,7 +111,6 @@ interface ExtraExtensionEvents<T extends ExtraExtensionEventTypes> {
   packageName?: string
 }
 
-type ExtensionAPI = import('@moosync/moosync-types/extension').extensionAPI
 interface ExtendedExtensionAPI extends ExtensionAPI {
   _emit: <T extends ExtraExtensionEventTypes>(
     event: ExtraExtensionEvents<T>

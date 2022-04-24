@@ -20,7 +20,6 @@ import { vxm } from '../../../mainWindow/store/index'
 import { parseISO8601Duration } from '@/utils/common'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
-import { Song } from '@moosync/moosync-types'
 
 const BASE_URL = 'https://youtube.googleapis.com/youtube/v3/'
 

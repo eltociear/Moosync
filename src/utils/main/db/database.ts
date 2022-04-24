@@ -11,7 +11,7 @@ import { DBUtils } from './utils'
 import { promises as fsP } from 'fs'
 import { v4 } from 'uuid'
 import { sanitizeArtistName } from '../../common'
-import { SongSortOptions } from '@moosync/moosync-types'
+
 import { loadPreferences } from './preferences'
 import path from 'path'
 

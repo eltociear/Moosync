@@ -7,8 +7,6 @@
  *  See LICENSE in the project root for license information.
  */
 
-// import { SongAPIOptions, EntityApiOptions } from '@moosync/moosync-types';
-
 /**
  * Utils related to database operations
  */

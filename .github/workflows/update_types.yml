@@ -10,7 +10,7 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v3
         with:
-          path: Moosync
+          path: Moosync.app
 
       - name: Get branch name (pull request)
         if: github.event_name == 'pull_request'
@@ -29,7 +29,7 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "Types update"
           rm -f $GITHUB_WORKSPACE/Moosync.types/index.d.ts
-          cp -r $GITHUB_WORKSPACE/Moosync/src/types/exported.d.ts $GITHUB_WORKSPACE/Moosync.types/index.d.ts
+          cp -r $GITHUB_WORKSPACE/Moosync.app/src/types/exported.d.ts $GITHUB_WORKSPACE/Moosync.types/index.d.ts
           cd $GITHUB_WORKSPACE/Moosync.types
           git checkout -B ${{ env.BRANCH_NAME }}
           sed -i -e '/^[interface|type]/ s/./export &/' index.d.ts

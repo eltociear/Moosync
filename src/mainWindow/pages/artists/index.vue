@@ -35,7 +35,6 @@ import RouterPushes from '@/utils/ui/mixins/RouterPushes'
 import ArtistDefault from '@/icons/ArtistDefaultIcon.vue'
 import { vxm } from '@/mainWindow/store'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
-import { Artists } from '@moosync/moosync-types'
 
 @Component({
   components: {

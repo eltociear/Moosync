@@ -11,7 +11,7 @@ import { GenericProvider } from '@/utils/ui/providers/generics/genericProvider'
 
 import { GenericAuth } from './generics/genericAuth'
 import { GenericRecommendation } from './generics/genericRecommendations'
-import { Song } from '@moosync/moosync-types'
+
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
 import { InvidiousApiResources } from '@/utils/commonConstants'

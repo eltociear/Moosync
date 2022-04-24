@@ -20,7 +20,6 @@ import { vxm } from '@/mainWindow/store'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
 import { GenericSearch } from './generics/genericSearch'
-import { Artists, Song } from '@moosync/moosync-types'
 
 /**
  * Spotify API base URL
