@@ -1,0 +1,38 @@
+name: Build/release
+
+on: push
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+        with:
+          path: Moosync
+
+      - name: Get branch name (pull request)
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
+
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+        with:
+          repository: Moosync/extension-api-types
+          path: Moosync.types
+          token: ${{ secrets.TYPES_TOKEN }}
+
+      - name: Copy files and push
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "Types update"
+          rm -f $GITHUB_WORKSPACE/Moosync.types/index.d.ts
+          cp -r $GITHUB_WORKSPACE/Moosync/src/types/exported.d.ts $GITHUB_WORKSPACE/Moosync.types/index.d.ts
+          cd $GITHUB_WORKSPACE/Moosync.types
+          git checkout -B ${{ env.BRANCH_NAME }}
+          sed -i -e '/^[interface|type]/ s/./export &/' index.d.ts
+          git add -A
+          git diff-index --quiet HEAD -- || git commit -m "sync from Moosync"
+          git push
