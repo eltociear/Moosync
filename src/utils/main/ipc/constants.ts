@@ -159,7 +159,9 @@ export enum ExtensionHostEvents {
   GET_EXTENSION_ICON = 'getExtensionIcon',
   SEND_EXTRA_EVENT = 'sendExtraEvent',
   DOWNLOAD_EXTENSION = 'downloadExtension',
-  EXT_INSTALL_STATUS = 'extInstallStatus'
+  EXT_INSTALL_STATUS = 'extInstallStatus',
+  GET_EXT_CONTEXT_MENU = 'getExtContextMenu',
+  ON_CONTEXT_MENU_ITEM_CLICKED = 'onContextMenuItemClicked'
 }
 
 export enum ServiceProviderEvents {

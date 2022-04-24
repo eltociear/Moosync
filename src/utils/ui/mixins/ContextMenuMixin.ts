@@ -351,7 +351,55 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
         items = this.getGenericSortByMenu(options.args.sortOptions)
         break
     }
+
+    this.getExtensionItems(options.type, this.getExtensionArgs(options)).then((res) => items.push(...res))
     this.emitMenu(event, items)
+  }
+
+  private extensionContextMenuItems: ContextMenuTypes[] = [
+    'SONGS',
+    'ALBUM',
+    'ARTIST',
+    'GENERAL_PLAYLIST',
+    'GENERAL_SONGS',
+    'PLAYLIST',
+    'PLAYLIST_CONTENT',
+    'QUEUE_ITEM'
+  ]
+
+  private getExtensionArgs(args: ContextMenuArgs): ExtensionContextMenuHandlerArgs<ContextMenuTypes> {
+    switch (args.type) {
+      case 'ALBUM':
+        return args.args.album
+      case 'ARTIST':
+        return args.args.artist
+      default:
+      case 'GENERAL_PLAYLIST':
+      case 'GENERAL_SONGS':
+        return
+      case 'PLAYLIST':
+        return args.args.playlist
+      case 'PLAYLIST_CONTENT':
+        return args.args.songs
+      case 'QUEUE_ITEM':
+        return args.args.song
+    }
+  }
+
+  private async getExtensionItems(
+    type: ContextMenuArgs['type'],
+    arg: ExtensionContextMenuHandlerArgs<ContextMenuTypes>
+  ): Promise<MenuItem[]> {
+    if (this.extensionContextMenuItems.includes(type as ContextMenuTypes)) {
+      const items = await window.ExtensionUtils.getContextMenuItems(type as ContextMenuTypes)
+      for (const i of items) {
+        i.handler = () => window.ExtensionUtils.fireContextMenuHandler(i.id, i.packageName, arg)
+      }
+
+      return items as MenuItem[]
+    }
+
+    return []
   }
 
   private emitMenu(event: Event, items: { label: string; handler?: () => void }[]) {

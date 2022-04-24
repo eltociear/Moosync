@@ -48,6 +48,16 @@ declare namespace ExtensionHostRequests {
   interface DownloadExtension {
     ext: FetchedExtensionManifest
   }
+
+  interface ContextMenuItems {
+    type: ContextMenuTypes
+  }
+
+  interface ContextMenuHandler {
+    id: string
+    packageName: string
+    arg: ExtensionContextMenuHandlerArgs
+  }
 }
 
 declare namespace LoggerRequests {

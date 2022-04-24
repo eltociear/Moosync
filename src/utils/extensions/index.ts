@@ -177,6 +177,18 @@ class MainRequestGenerator {
     return this.sendAsync<ExtraExtensionEventCombinedReturnType<T>>('extra-extension-events', event)
   }
 
+  public async getContextMenuItems<T extends ContextMenuTypes>(type: T) {
+    return this.sendAsync<ExtendedExtensionContextMenuItems<T>>('get-extension-context-menu', { type })
+  }
+
+  public async sendContextMenuItemClicked(
+    id: string,
+    packageName: string,
+    arg: ExtensionContextMenuHandlerArgs<ContextMenuTypes>
+  ) {
+    return this.sendAsync<void>('on-clicked-context-menu', { id, packageName, arg })
+  }
+
   private sendAsync<T>(type: mainRequests, data?: unknown): Promise<T> {
     const channel = v4()
 

@@ -35,7 +35,9 @@ export const mainRequestsKeys = [
   'remove-extension',
   'stop-process',
   'get-extension-icon',
-  'extra-extension-events'
+  'extra-extension-events',
+  'get-extension-context-menu',
+  'on-clicked-context-menu'
 ] as const
 
 export type extensionUIRequests = typeof extensionUIRequestsKeys[number] | typeof playerControlRequests[number]

@@ -248,6 +248,12 @@ interface extensionUtils {
   toggleExtStatus: (packageName: string, enabled: boolean) => Promise<void>
   downloadExtension: (ext: FetchedExtensionManifest) => Promise<boolean>
   listenExtInstallStatus: (callback: (data: ExtInstallStatus) => void) => void
+  getContextMenuItems: (type: ContextMenuTypes) => Promise<ExtendedExtensionContextMenuItems<ContextMenuTypes>[]>
+  fireContextMenuHandler: (
+    id: string,
+    packageName: string,
+    arg: ExtensionContextMenuHandlerArgs<ContextMenuTypes>
+  ) => Promise<void>
 }
 
 /**

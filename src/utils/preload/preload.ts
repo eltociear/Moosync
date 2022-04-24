@@ -459,6 +459,18 @@ contextBridge.exposeInMainWorld('ExtensionUtils', {
       params: { ext }
     }),
 
+  getContextMenuItems: (type: ContextMenuTypes) =>
+    ipcRendererHolder.send<ExtensionHostRequests.ContextMenuItems>(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.GET_EXT_CONTEXT_MENU,
+      params: { type }
+    }),
+
+  fireContextMenuHandler: (id: string, packageName: string, arg: ExtensionContextMenuHandlerArgs<ContextMenuTypes>) =>
+    ipcRendererHolder.send<ExtensionHostRequests.ContextMenuHandler>(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.ON_CONTEXT_MENU_ITEM_CLICKED,
+      params: { id, packageName, arg }
+    }),
+
   listenExtInstallStatus: (callback: (data: ExtInstallStatus) => void) =>
     ipcRendererHolder.on(ExtensionHostEvents.EXT_INSTALL_STATUS, callback)
 })

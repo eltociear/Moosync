@@ -186,4 +186,27 @@ export class ExtensionHandler {
 
     return allData
   }
+
+  public getExtensionContextMenu<T extends ContextMenuTypes>(type: T): ExtensionContextMenuItem<T>[] {
+    const items: ExtensionContextMenuItem<ContextMenuTypes>[] = []
+    for (const ext of this.extensionManager.getExtensions({ started: true })) {
+      items.push(...ext.global.api._getContextMenuItems().filter((val) => val.type === type))
+    }
+
+    return items as ExtensionContextMenuItem<T>[]
+  }
+
+  public fireContextMenuCallback(
+    id: string,
+    packageName: string,
+    arg: ExtensionContextMenuHandlerArgs<ContextMenuTypes>
+  ) {
+    for (const ext of this.extensionManager.getExtensions({ started: true, packageName })) {
+      const item = (ext.global.api.getContextMenuItems() as ExtendedExtensionContextMenuItems<ContextMenuTypes>[]).find(
+        (val) => val.id
+      )
+
+      item?.handler && item.handler(arg)
+    }
+  }
 }

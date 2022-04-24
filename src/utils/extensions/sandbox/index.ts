@@ -160,6 +160,15 @@ class MainRequestHandler {
         this.sendToMain(message.channel, val)
       })
     }
+
+    if (message.type === 'get-extension-context-menu') {
+      const items = this.handler.getExtensionContextMenu(message.data.type)
+      this.sendToMain(message.channel, items)
+    }
+
+    if (message.type === 'on-clicked-context-menu') {
+      this.handler.fireContextMenuCallback(message.data.id, message.data.packageName, message.data.arg)
+    }
   }
 
   private sendToMain(channel: string, data?: unknown) {

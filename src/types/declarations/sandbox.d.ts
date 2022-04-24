@@ -112,10 +112,11 @@ interface ExtraExtensionEvents<T extends ExtraExtensionEventTypes> {
   packageName?: string
 }
 
-interface ExtendedExtensionAPI extends ExtensionAPI {
+interface ExtendedExtensionAPI extends extensionAPI {
   _emit: <T extends ExtraExtensionEventTypes>(
     event: ExtraExtensionEvents<T>
   ) => Promise<ExtraExtensionEventReturnType<T> | undefined>
+  _getContextMenuItems: () => ExtendedExtensionContextMenuItems<ContextMenuTypes>[]
 }
 
 interface ExtensionItem extends ExtensionDetails {
@@ -141,6 +142,13 @@ interface UnInitializedExtensionItem {
 interface getExtensionOptions {
   started?: boolean
   packageName?: string
+}
+
+interface ExtendedExtensionContextMenuItems<T extends ContextMenuTypes>
+  extends Omit<ExtensionContextMenuItem<T>, 'children'> {
+  id: string
+  packageName: string
+  children?: ExtendedExtensionContextMenuItems<T>[]
 }
 
 interface NodeRequire {
