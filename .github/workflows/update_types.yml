@@ -12,11 +12,6 @@ jobs:
         with:
           path: Moosync.app
 
-      - name: Get branch name (pull request)
-        if: github.event_name == 'pull_request'
-        shell: bash
-        run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
-
       - name: Check out Git repository
         uses: actions/checkout@v3
         with:
@@ -31,7 +26,7 @@ jobs:
           rm -f $GITHUB_WORKSPACE/Moosync.types/index.d.ts
           cp -r $GITHUB_WORKSPACE/Moosync.app/src/types/declarations/exported.d.ts $GITHUB_WORKSPACE/Moosync.types/index.d.ts
           cd $GITHUB_WORKSPACE/Moosync.types
-          git checkout -B ${{ env.BRANCH_NAME }}
+          git checkout -B ${GITHUB_REF##*/}
           sed -i -e '/^[interface|type]/ s/./export &/' index.d.ts
           git add -A
           git diff-index --quiet HEAD -- || git commit -m "sync from Moosync"
