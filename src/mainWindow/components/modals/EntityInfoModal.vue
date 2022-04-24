@@ -220,7 +220,6 @@ export default class EntityInfoModal extends Vue {
 
   mounted() {
     bus.$on(EventBus.SHOW_ENTITY_INFO_MODAL, (entity: Artists | Album | Playlist) => {
-      console.log(entity)
       this.forceEmptyImg = false
       this.entity = entity
       this.tmpEntity = JSON.parse(JSON.stringify(entity))
