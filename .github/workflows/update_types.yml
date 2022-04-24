@@ -30,4 +30,4 @@ jobs:
           sed -i -e '/^[interface|type]/ s/./export &/' index.d.ts
           git add -A
           git diff-index --quiet HEAD -- || git commit -m "sync from Moosync"
-          git push
+          git push --set-upstream origin ${GITHUB_REF##*/}
