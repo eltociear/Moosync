@@ -383,6 +383,8 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
         return args.args.songs
       case 'QUEUE_ITEM':
         return args.args.song
+      case 'SONGS':
+        return args.args.songs
     }
   }
 
@@ -392,7 +394,9 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
   ): Promise<MenuItem[]> {
     if (this.extensionContextMenuItems.includes(type as ContextMenuTypes)) {
       const items = await window.ExtensionUtils.getContextMenuItems(type as ContextMenuTypes)
+      console.log(items)
       for (const i of items) {
+        console.log(arg)
         i.handler = () => window.ExtensionUtils.fireContextMenuHandler(i.id, i.packageName, arg)
       }
 
