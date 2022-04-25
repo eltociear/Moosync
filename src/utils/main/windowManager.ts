@@ -417,7 +417,9 @@ class TrayHandler {
   }
 
   public destroy() {
-    this._tray && !this._tray.isDestroyed() && this._tray.destroy()
+    console.debug('Destroying tray icon')
+    this._tray && this._tray.destroy()
+    console.debug('Tray destroy status:', this._tray?.isDestroyed())
     this._tray = null
   }
 }
