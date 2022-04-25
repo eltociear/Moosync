@@ -166,6 +166,7 @@ module.exports = {
       preload: 'src/utils/preload/preload.ts',
       externals: ['better-sqlite3', 'vm2', 'sharp'],
       chainWebpackMainProcess: (config) => {
+        config.devtool('source-map').end()
         config.module
           .rule('babel')
           .before('ts')
@@ -185,8 +186,6 @@ module.exports = {
         config.plugin('define').tap((args) => {
           args[0] = {
             ...args[0],
-            'process.env.DEBUG_LOGGING':
-              (JSON.stringify(dotenv.parsed?.DEBUG_LOGGING) || process.env.DEBUG_LOGGING) ?? false,
             'process.env.MOOSYNC_VERSION': JSON.stringify(manifest.version),
             ...MainSecrets
           }
