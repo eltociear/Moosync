@@ -766,7 +766,8 @@ export class SongDBInstance extends DBUtils {
     this.db.insert('playlists', {
       ...playlist,
       playlist_name: 'New Playlist',
-      playlist_id: id
+      playlist_id: id,
+      playlist_song_count: playlist.playlist_song_count ?? 0
     })
     return id
   }
@@ -809,10 +810,9 @@ export class SongDBInstance extends DBUtils {
   }
 
   private isPlaylistCoverExists(playlist_id: string) {
-    return (
-      (this.db.query(`SELECT playlist_coverPath FROM playlists WHERE playlist_id = ?`, playlist_id)[0] as Playlist)
-        .playlist_coverPath !== null
-    )
+    return !!(
+      this.db.query(`SELECT playlist_coverPath FROM playlists WHERE playlist_id = ?`, playlist_id)[0] as Playlist
+    )?.playlist_coverPath
   }
 
   /**

@@ -98,7 +98,7 @@ export class PlaylistsChannel implements IpcChannelInterface {
     if (request.params.playlist_id) {
       const playlist = SongDB.getEntityByOptions<Playlist>({ playlist: { playlist_id: request.params.playlist_id } })[0]
       if (playlist) {
-        const m3u8 = `#EXTM3U\n#PLAYLIST:${playlist.playlist_name}\n${this.parsePlaylistSongs(playlist)}`
+        const m3u8 = `#EXTM3U\n#PLAYLIST:${playlist.playlist_name}\n${await this.parsePlaylistSongs(playlist)}`
 
         const filePath = await _windowHandler.openSaveDialog(true, {
           title: 'Save playlist as...',
@@ -126,22 +126,37 @@ export class PlaylistsChannel implements IpcChannelInterface {
     event.reply(request.responseChannel)
   }
 
-  private parsePlaylistSongs(playlist: Playlist) {
+  private async getParsedCoverPath(song: Song) {
+    const cover = song.song_coverPath_high ?? song.album?.album_coverPath_high
+
+    if (cover) {
+      if (cover.startsWith('http')) {
+        return cover
+      }
+    }
+  }
+
+  private async parsePlaylistSongs(playlist: Playlist) {
     let ret = ''
     const playlistSongs = SongDB.getSongByOptions({ playlist: { playlist_id: playlist.playlist_id } })
     for (const s of playlistSongs) {
-      if (s.type === 'LOCAL' || s.type === 'URL') {
-        if (s.path || s.url) {
-          ret += `#EXTINF:${Math.round(s.duration) ?? 0},${this.getSongTitleParsed(s)}\n${s.path ?? s.url}\n`
-        }
+      if (s.path || s.url) {
+        ret += `#EXTINF:${s.duration ?? 0},${this.getSongTitleParsed(s)}
+${s.album && '#EXTALB:' + s.album?.album_name}
+${s.genre && s.genre.length !== 0 ? '#EXTGENRE:' + s.genre.join(',') : ''}
+${(await this.getParsedCoverPath(s)) && '#EXTIMG:' + (await this.getParsedCoverPath(s))}
+#MOOSINF:${s.type}
+${(s.path && 'file://' + s.path) ?? s.url}\n`
       }
     }
-    return ret
+
+    // Remove blank lines
+    return ret.replace(/^s*$(?:\r\n?|\n)/gm, '')
   }
 
   private getSongTitleParsed(song: Song) {
     if (song.artists && song.artists.length > 0) {
-      return `${song.artists[0]} - ${song.title}`
+      return `${song.artists.map((val) => val.artist_name).join(';')} - ${song.title}`
     }
 
     return song.title

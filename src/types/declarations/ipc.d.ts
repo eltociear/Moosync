@@ -85,6 +85,12 @@ declare namespace PlaylistRequests {
   }
 }
 
+declare namespace ScannerRequests {
+  interface ScanSinglePlaylist {
+    playlistPath: string
+  }
+}
+
 declare namespace PreferenceRequests {
   interface Save {
     key: string

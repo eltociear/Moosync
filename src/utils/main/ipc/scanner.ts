@@ -24,6 +24,7 @@ import scannerWorker from 'threads-plugin/dist/loader?name=0!/src/utils/main/wor
 import scraperWorker from 'threads-plugin/dist/loader?name=1!/src/utils/main/workers/scraper.ts'
 import { Observable } from 'observable-fns'
 import { WindowHandler } from '../windowManager'
+import { v4 } from 'uuid'
 
 const loggerPath = app.getPath('logs')
 
@@ -45,6 +46,9 @@ export class ScannerChannel implements IpcChannelInterface {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private scraperWorker: any
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private singleScannerWorker: any
+
   private totalScanFiles = 0
   private currentScanFile = 0
 
@@ -55,6 +59,9 @@ export class ScannerChannel implements IpcChannelInterface {
         break
       case ScannerEvents.GET_PROGRESS:
         this.getScanProgress(event, request)
+        break
+      case ScannerEvents.SCAN_SINGLE_PLAYLIST:
+        this.scanSinglePlaylist(event, request as IpcRequest<ScannerRequests.ScanSinglePlaylist>)
         break
     }
   }
@@ -81,7 +88,7 @@ export class ScannerChannel implements IpcChannelInterface {
     )
   }
 
-  private async checkDuplicate(song: Song, cover: TransferDescriptor<Buffer> | undefined) {
+  private async checkDuplicateAndStore(song: Song, cover: TransferDescriptor<Buffer> | undefined) {
     notifyRenderer({ id: 'scan-status', message: `Scanned ${song.title}`, type: 'info' })
 
     if (song.hash) {
@@ -201,7 +208,7 @@ export class ScannerChannel implements IpcChannelInterface {
           }
 
           if ((result as ScannedSong).song) {
-            this.checkDuplicate((result as ScannedSong).song, (result as ScannedSong).cover)
+            this.checkDuplicateAndStore((result as ScannedSong).song, (result as ScannedSong).cover)
           }
 
           if ((result as ScannedPlaylist).filePath && (result as ScannedPlaylist).songHashes) {
@@ -385,5 +392,48 @@ export class ScannerChannel implements IpcChannelInterface {
     }
 
     if (event && request) event.reply(request.responseChannel)
+  }
+
+  private async scanSinglePlaylist(event: IpcMainEvent, request: IpcRequest<ScannerRequests.ScanSinglePlaylist>) {
+    if (request.params.playlistPath) {
+      if (this.singleScannerWorker) {
+        await Thread.terminate(this.singleScannerWorker)
+        this.singleScannerWorker = undefined
+      }
+
+      try {
+        this.singleScannerWorker = await spawn(new Worker(`./${scannerWorker}`), { timeout: 5000 })
+      } catch (e) {
+        console.error('Error Spawning', scannerWorker, e)
+        event.reply(request.responseChannel, e)
+        return
+      }
+
+      const songs: Song[] = []
+      let playlist: Partial<Playlist> | null = null
+      ;(
+        this.singleScannerWorker.scanSinglePlaylist(request.params.playlistPath, loggerPath) as Observable<
+          ScannedSong | ScannedPlaylist | Progress
+        >
+      ).subscribe(
+        (result) => {
+          if ((result as ScannedSong).song) {
+            console.log(result)
+            songs.push((result as ScannedSong).song)
+          }
+
+          if ((result as ScannedPlaylist).filePath && (result as ScannedPlaylist).songHashes) {
+            playlist = {
+              playlist_id: v4(),
+              playlist_name: (result as ScannedPlaylist).title,
+              playlist_path: (result as ScannedPlaylist).filePath
+            }
+            console.log(playlist)
+          }
+        },
+        console.error,
+        () => event.reply(request.responseChannel, { playlist, songs })
+      )
+    }
   }
 }

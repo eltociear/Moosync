@@ -13,7 +13,7 @@
       <b-container fluid class="p-0">
         <b-row no-gutters class="d-flex">
           <b-col cols="auto">
-            <SongDefault v-if="forceEmptyImg || !playlist" class="playlist-url-cover" />
+            <SongDefault v-if="forceEmptyImg || !playlist || !playlist.playlist_coverPath" class="playlist-url-cover" />
             <b-img
               v-else
               class="playlist-url-cover"
@@ -31,7 +31,7 @@
                 </b-row>
                 <b-row class="w-100">
                   <div class="subtitle text-truncate" :class="{ deactivated: !playlist }">
-                    {{ playlist ? playlist.playlist_song_count + ' Songs' : '0 Songs' }}
+                    {{ playlist ? (playlist.playlist_song_count || songList.length) + ' Songs' : '0 Songs' }}
                   </div>
                 </b-row>
               </b-col>
@@ -83,6 +83,7 @@ import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 import SingleSearchResult from '@/mainWindow/components/generic/SingleSearchResult.vue'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import InputGroup from '../generic/InputGroup.vue'
+import { v4 } from 'uuid'
 
 @Component({
   components: {
@@ -101,6 +102,7 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
   private playlist: Playlist | null = null
 
   private handleImageError() {
+    console.log('handling error')
     this.forceEmptyImg = true
   }
 
@@ -115,20 +117,36 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
     this.songList = []
     this.playlist = null
 
-    if (vxm.providers.youtubeProvider.matchPlaylist(url)) {
-      this.playlist = (await vxm.providers.youtubeProvider.getPlaylistDetails(url)) ?? null
-      generator = vxm.providers.youtubeProvider.getPlaylistContent(url, true)
-    }
-
-    if (vxm.providers.spotifyProvider.matchPlaylist(url)) {
-      this.playlist = (await vxm.providers.spotifyProvider.getPlaylistDetails(url)) ?? null
-      generator = vxm.providers.spotifyProvider.getPlaylistContent(url, true)
-    }
-
-    if (generator) {
-      for await (const items of generator) {
-        this.songList.push(...items)
+    if (url.startsWith('http')) {
+      if (vxm.providers.youtubeProvider.matchPlaylist(url)) {
+        this.playlist = (await vxm.providers.youtubeProvider.getPlaylistDetails(url)) ?? null
+        generator = vxm.providers.youtubeProvider.getPlaylistContent(url, true)
       }
+
+      if (vxm.providers.spotifyProvider.matchPlaylist(url)) {
+        this.playlist = (await vxm.providers.spotifyProvider.getPlaylistDetails(url)) ?? null
+        generator = vxm.providers.spotifyProvider.getPlaylistContent(url, true)
+      }
+
+      if (generator) {
+        for await (const items of generator) {
+          this.songList.push(...items)
+        }
+      }
+    } else {
+      const data = await window.FileUtils.scanSinglePlaylist(url)
+      this.playlist = {
+        playlist_id: data.playlist?.playlist_id ?? v4(),
+        playlist_name: data.playlist?.playlist_name ?? 'New Playlist',
+        playlist_path: data.playlist?.playlist_path,
+        playlist_coverPath: data.playlist?.playlist_coverPath,
+        playlist_desc: data.playlist?.playlist_desc,
+        playlist_song_count: data.playlist?.playlist_song_count
+      }
+
+      console.log(data)
+
+      this.songList.push(...data.songs)
     }
   }
 
