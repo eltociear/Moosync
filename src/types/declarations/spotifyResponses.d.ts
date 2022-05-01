@@ -11,6 +11,7 @@
 declare namespace SpotifyResponses {
   enum ApiResources {
     USER_DETAILS = 'me',
+    LIKED_SONGS = 'me/tracks',
     PLAYLISTS = 'me/playlists',
     PLAYLIST = 'playlists/{playlist_id}',
     PLAYLIST_ITEMS = 'playlists/{playlist_id}/tracks',
@@ -43,6 +44,13 @@ declare namespace SpotifyResponses {
   }
 
   type PlaylistRequest = {
+    params: {
+      limit?: number
+      offset?: number
+    }
+  }
+
+  type LikedSongsRequest = {
     params: {
       limit?: number
       offset?: number
@@ -125,6 +133,8 @@ declare namespace SpotifyResponses {
     ? ArtistAlbumsRequest
     : T extends ApiResources.ALBUM_SONGS
     ? AlbumTracksRequest
+    : T extends ApiResources.LIKED_SONGS
+    ? LikedSongsRequest
     : undefined
 
   interface Image {
@@ -438,5 +448,7 @@ declare namespace SpotifyResponses {
     ? ArtistAlbumsResponse
     : T extends ApiResources.ALBUM_SONGS
     ? AlbumTracksResponse
+    : T extends ApiResources.LIKED_SONGS
+    ? PlaylistItems.PlaylistItems
     : undefined
 }

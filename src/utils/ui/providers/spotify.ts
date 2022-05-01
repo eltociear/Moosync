@@ -28,6 +28,7 @@ const BASE_URL = 'https://api.spotify.com/v1/'
 
 enum ApiResources {
   USER_DETAILS = 'me',
+  LIKED_SONGS = 'me/tracks',
   PLAYLISTS = 'me/playlists',
   PLAYLIST = 'playlists/{playlist_id}',
   PLAYLIST_ITEMS = 'playlists/{playlist_id}/tracks',
@@ -59,7 +60,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       clientId: id,
       clientSecret: secret,
       redirectUri: 'https://moosync.app/spotify',
-      scope: 'playlist-read-private user-top-read',
+      scope: 'playlist-read-private user-top-read user-library-read',
       keytarService: 'MoosyncSpotifyRefreshToken',
       oAuthChannel: oauthChannel
     }
@@ -194,6 +195,12 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     const playlists: Playlist[] = []
 
     if (this.auth?.loggedIn() || validRefreshToken) {
+      playlists.push({
+        playlist_id: 'spotify-playlist:saved-tracks',
+        playlist_name: 'Liked Songs',
+        playlist_coverPath: 'https://t.scdn.co/images/3099b3803ad9496896c43f22fe9be8c4.png',
+        isRemote: true
+      })
       while (hasNext) {
         const resp = await this.populateRequest(
           ApiResources.PLAYLISTS,
@@ -282,20 +289,35 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       if (this.auth?.loggedIn() || validRefreshToken) {
         let nextOffset = 0
         let isNext = false
-        const limit = 100
+        const limit = id === 'saved-tracks' ? 50 : 100
         const parsed: Song[] = []
         do {
-          const resp = await this.populateRequest(
-            ApiResources.PLAYLIST_ITEMS,
-            {
-              params: {
-                playlist_id: id,
-                limit,
-                offset: nextOffset
-              }
-            },
-            invalidateCache
-          )
+          let resp: SpotifyResponses.PlaylistItems.PlaylistItems
+
+          if (id === 'saved-tracks') {
+            resp = await this.populateRequest(
+              ApiResources.LIKED_SONGS,
+              {
+                params: {
+                  limit,
+                  offset: nextOffset
+                }
+              },
+              invalidateCache
+            )
+          } else {
+            resp = await this.populateRequest(
+              ApiResources.PLAYLIST_ITEMS,
+              {
+                params: {
+                  playlist_id: id,
+                  limit,
+                  offset: nextOffset
+                }
+              },
+              invalidateCache
+            )
+          }
           const items = await this.parsePlaylistItems(resp.items)
           parsed.push(...items)
           isNext = !!resp.next
