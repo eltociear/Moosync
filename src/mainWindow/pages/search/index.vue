@@ -11,7 +11,7 @@
   <div class="w-100 h-100 tab-outer-container">
     <b-tabs content-class="mt-3 tab-inner-container" justified class="h-100">
       <div v-for="i in items" :key="i.key">
-        <b-tab v-if="showTab(i.tab)" :title="i.tab" :id="i.tab">
+        <b-tab lazy v-if="showTab(i.tab)" :title="i.tab" :id="i.tab">
           <RecycleScroller
             class="scroller"
             :items="ComputeTabContent(i.tab)"
@@ -232,7 +232,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Spotify':
         case 'Youtube':
         case 'Songs':
-          return (item as Song).artists?.join(', ')
+          return (item as Song).artists?.map((val) => val.artist_name).join(', ')
         case 'Albums':
           return `${(item as Album).album_song_count} Songs`
         case 'Artists':
