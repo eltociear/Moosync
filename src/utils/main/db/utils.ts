@@ -47,11 +47,11 @@ export class DBUtils {
         album_coverPath_high: dbSong.album_coverPath_high,
         album_coverPath_low: dbSong.album_coverPath_low,
         album_song_count: dbSong.album_song_count,
-        year: dbSong.year
+        year: dbSong.album_year
       },
       date: dbSong.date,
       year: dbSong.year,
-      artists: dbSong.artist_name ? dbSong.artist_name.split(',') : [],
+      artists: this.parseArtists(dbSong.artists ?? ''),
       genre: dbSong.genre_name ? dbSong.genre_name.split(',') : [],
       lyrics: dbSong.lyrics,
       releaseType: undefined,
@@ -72,7 +72,26 @@ export class DBUtils {
     }
   }
 
-  protected marshalSong(song: Song): marshaledSong {
+  private parseArtists(artistStr: string) {
+    const artists = artistStr.split(';')
+    const ret: Artists[] = []
+    for (const a of artists) {
+      const split = a.split(',')
+      if (split[0] && split[1] && ret.findIndex((val) => val.artist_id === split[0]) === -1) {
+        ret.push({
+          artist_id: split[0],
+          artist_name: split[1],
+          artist_coverPath: split[2],
+          artist_mbid: split[3],
+          artist_song_count: parseInt(split[4])
+        })
+      }
+    }
+
+    return ret
+  }
+
+  protected marshalSong(song: Partial<Song>): marshaledSong {
     if (!song._id) {
       throw new Error('song _id cannot be null')
     }
@@ -81,7 +100,7 @@ export class DBUtils {
       _id: song._id,
       path: song.path?.trim(),
       size: song.size,
-      title: song.title.trim(),
+      title: song.title?.trim() ?? '',
       song_coverPath_high: song.song_coverPath_high?.trim(),
       song_coverPath_low: song.song_coverPath_low?.trim(),
       date: song.date,
@@ -90,12 +109,12 @@ export class DBUtils {
       bitrate: song.bitrate,
       codec: song.codec,
       container: song.container,
-      duration: song.duration,
+      duration: song.duration ?? 0,
       sampleRate: song.sampleRate,
       hash: song.hash?.trim(),
       inode: song.inode,
       deviceno: song.deviceno,
-      type: song.type,
+      type: song.type ?? 'URL',
       url: song.url?.trim(),
       playbackUrl: song.playbackUrl?.trim(),
       date_added: Date.now(),
@@ -181,6 +200,10 @@ export class DBUtils {
   }
 
   protected addGroupConcatClause() {
-    return 'group_concat(artist_name) as artist_name, group_concat(genre_name) as genre_name'
+    return `group_concat(artist_id||','||artist_name||','||COALESCE(artist_coverPath, '')||','||COALESCE(artist_mbid, '')||','||artist_song_count, ';') as artists, group_concat(genre_name) as genre_name`
+  }
+
+  protected getSelectClause() {
+    return `allsongs._id, allsongs.path, allsongs.size, allsongs.title, allsongs.song_coverPath_high, allsongs.song_coverPath_low, allsongs.date, allsongs.date_added, allsongs.year, allsongs.lyrics, allsongs.bitrate, allsongs.codec, allsongs.container, allsongs.duration, allsongs.sampleRate, allsongs.hash, allsongs.type, allsongs.url, allsongs.icon, allsongs.playbackUrl, allsongs.provider_extension, albums.album_id, albums.album_name, albums.album_coverPath_high, albums.album_coverPath_low, albums.album_song_count, albums.year as album_year, artists.artist_name, artists.artist_id, artists.artist_coverPath, artists.artist_song_count, artists.artist_mbid, genre.genre_name`
   }
 }

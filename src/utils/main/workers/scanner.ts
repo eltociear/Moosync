@@ -40,6 +40,16 @@ expose({
       prefixLogger(loggerPath, logger)
       startScan(paths, existingFiles, observer)
     })
+  },
+
+  scanSinglePlaylist(path: string, loggerPath: string) {
+    return new Observable((observer) => {
+      prefixLogger(loggerPath, logger)
+      scanPlaylistByPath(path, observer).then(() => {
+        logger.debug('Completed playlist scan')
+        observer.complete()
+      })
+    })
   }
 })
 
@@ -71,33 +81,33 @@ function createXMLParser() {
   }
 }
 
-async function parseWPL(filePath: string) {
-  logger.debug('parsing wpl')
-  const data = parser?.parse(await fsP.readFile(filePath), {})
-  const songs: string[] = []
-  let title = ''
+// async function parseWPL(filePath: string) {
+//   logger.debug('parsing wpl')
+//   const data = parser?.parse(await fsP.readFile(filePath), {})
+//   const songs: string[] = []
+//   let title = ''
 
-  if (data['smil']) {
-    if (data['smil']['body'] && data['smil']['body']['seq']) {
-      const media = data['smil']['body']['seq']['media']
-      if (media) {
-        if (Array.isArray(media)) {
-          for (const m of media) {
-            songs.push(m['@_src'])
-          }
-        } else {
-          songs.push(media['@_src'])
-        }
-      }
-    }
+//   if (data['smil']) {
+//     if (data['smil']['body'] && data['smil']['body']['seq']) {
+//       const media = data['smil']['body']['seq']['media']
+//       if (media) {
+//         if (Array.isArray(media)) {
+//           for (const m of media) {
+//             songs.push(m['@_src'])
+//           }
+//         } else {
+//           songs.push(media['@_src'])
+//         }
+//       }
+//     }
 
-    if (data['smil']['head']) {
-      title = data['smil']['head']['title']
-    }
-  }
+//     if (data['smil']['head']) {
+//       title = data['smil']['head']['title']
+//     }
+//   }
 
-  return { title, songs }
-}
+//   return { title, songs }
+// }
 
 async function processLineByLine(filePath: string, callback: (data: string, index: number) => Promise<boolean>) {
   const rl = readline.createInterface({
@@ -118,8 +128,11 @@ async function processLineByLine(filePath: string, callback: (data: string, inde
 
 async function parseM3U(filePath: string) {
   logger.debug('Parsing m3u')
-  const songs: string[] = []
+  const songs: Song[] = []
   let title = ''
+
+  let prevSongDetails: Partial<Song> = {}
+
   await processLineByLine(filePath, async (data, index) => {
     logger.debug('Parsing line', index, data)
     if (index === 0) {
@@ -127,23 +140,90 @@ async function parseM3U(filePath: string) {
     }
 
     if (!data.startsWith('#')) {
-      const songPath = path.resolve(filePath, data.startsWith('file') ? fileURLToPath(data) : data)
-      songs.push(songPath)
+      let songPath = ''
+      if (data.startsWith('file://')) {
+        songPath = path.resolve(filePath, data.startsWith('file') ? fileURLToPath(data) : data)
+      } else {
+        songPath = data
+      }
+
+      if (!prevSongDetails.type) {
+        prevSongDetails.type = 'LOCAL'
+      }
+
+      if (!prevSongDetails?.title) {
+        prevSongDetails.title = path.basename(songPath)
+      }
+
+      if (!prevSongDetails.duration) {
+        prevSongDetails.duration = 0
+      }
+
+      if (prevSongDetails.type !== 'LOCAL') {
+        songs.push({
+          _id: v4(),
+          ...prevSongDetails,
+          type: prevSongDetails.type,
+          url: songPath,
+          date_added: Date.now(),
+          hash: await generateChecksum(Buffer.from(prevSongDetails.type + songPath))
+        } as Song)
+      } else {
+        songs.push({
+          _id: v4(),
+          ...prevSongDetails,
+          type: prevSongDetails.type,
+          date_added: Date.now(),
+          path: songPath
+        } as Song)
+      }
+
+      prevSongDetails = {}
     } else if (data.startsWith('#PLAYLIST')) {
       title = data.replace('#PLAYLIST:', '')
+    } else if (data.startsWith('#EXTINF')) {
+      const str = data.replace('#EXTINF:', '')
+      prevSongDetails = {
+        title: str.substring(str.indexOf('-') + 1, str.length).trim(),
+        duration: parseInt(str.substring(0, str.indexOf(','))) ?? 0,
+        artists: str
+          .substring(str.indexOf(',') + 1, str.indexOf('-'))
+          .split(';')
+          .map((val) => ({
+            artist_id: '',
+            artist_name: val
+          }))
+      }
+    } else if (data.startsWith('#MOOSINF')) {
+      prevSongDetails.type = data.replace('#MOOSINF:', '') as PlayerTypes
+    } else if (data.startsWith('#EXTALB')) {
+      prevSongDetails.album = {
+        album_name: data.replace('#EXTALB:', '')
+      }
+    } else if (data.startsWith('#EXTGENRE')) {
+      prevSongDetails.genre = data.replace('#EXTGENRE:', '').split(',')
+    } else if (data.startsWith('#EXTIMG')) {
+      prevSongDetails.song_coverPath_high = data.replace('#EXTIMG:', '')
+      prevSongDetails.song_coverPath_low = prevSongDetails.song_coverPath_high
     }
-
     return true
   })
   return { songs, title }
 }
 
 async function scanPlaylist(filePath: string) {
+  try {
+    await fsP.access(filePath)
+  } catch (e) {
+    console.error('Failed to access playlist at path', filePath)
+    return
+  }
+
   createXMLParser()
   const ext = path.extname(filePath).toLowerCase()
   switch (ext) {
-    case '.wpl':
-      return parseWPL(filePath)
+    // case '.wpl':
+    // return parseWPL(filePath)
     case '.m3u':
     case '.m3u8':
       return parseM3U(filePath)
@@ -158,10 +238,17 @@ async function processFile(stats: stats, buffer: Buffer): Promise<ScannedSong> {
 }
 
 async function getInfo(data: mm.IAudioMetadata, stats: stats): Promise<Song> {
-  const artists: string[] = []
+  const artists: Artists[] = []
   if (data.common.artists) {
-    for (const a of data.common.artists) {
-      artists.push(...a.split(/[,&;]+/))
+    for (let i = 0; i < data.common.artists.length; i++) {
+      const split = data.common.artists[i].split(/[,&;]+/)
+      for (const s of split) {
+        artists.push({
+          artist_id: '',
+          artist_name: s,
+          artist_mbid: data.common.musicbrainz_artistid?.at(i) ?? ''
+        })
+      }
     }
   }
 
@@ -195,6 +282,40 @@ async function getInfo(data: mm.IAudioMetadata, stats: stats): Promise<Song> {
   }
 }
 
+async function scanPlaylistByPath(
+  filePath: string,
+  observer: SubscriptionObserver<ScannedSong | ScannedPlaylist | Progress>
+) {
+  const result = await scanPlaylist(filePath)
+  const songHashes: string[] = []
+  if (result?.songs) {
+    for (const songPath of result.songs) {
+      try {
+        if (songPath.path) {
+          try {
+            await fsP.access(songPath.path)
+          } catch (e) {
+            console.error('Failed to access file at', songPath.path, 'while scanning playlist')
+            continue
+          }
+          const result = await scanFile(songPath.path)
+          if (result.song.hash) {
+            observer.next({ song: result.song, cover: result.cover && Transfer(result.cover as Buffer) })
+            songHashes.push(result.song.hash)
+          }
+        } else if (songPath.url && songPath.hash) {
+          observer.next({ song: songPath, cover: undefined })
+          songHashes.push(songPath.hash)
+        }
+      } catch (e) {
+        logger.error(e)
+      }
+    }
+    logger.debug('Sending playlist data to main process')
+    observer.next({ title: result.title, songHashes: songHashes, filePath })
+  }
+}
+
 async function scan(allFiles: string[], observer: SubscriptionObserver<ScannedSong | ScannedPlaylist | Progress>) {
   for (const [i, filePath] of allFiles.entries()) {
     if (audioPatterns.exec(path.extname(filePath).toLowerCase())) {
@@ -209,23 +330,7 @@ async function scan(allFiles: string[], observer: SubscriptionObserver<ScannedSo
 
     if (playlistPatterns.exec(path.extname(filePath).toLowerCase())) {
       logger.debug('Scanning playlist', filePath)
-      const result = await scanPlaylist(filePath)
-      const songHashes: string[] = []
-      if (result?.songs) {
-        for (const songPath of result.songs) {
-          try {
-            const result = await scanFile(songPath)
-            if (result.song.hash) {
-              observer.next({ song: result.song, cover: result.cover && Transfer(result.cover as Buffer) })
-              songHashes.push(result.song.hash)
-            }
-          } catch (e) {
-            logger.error(e)
-          }
-        }
-        logger.debug('Sending playlist data to main process')
-        observer.next({ title: result.title, songHashes: songHashes, filePath })
-      }
+      await scanPlaylistByPath(filePath, observer)
     }
 
     observer.next({ total: allFiles.length, current: i + 1 } as Progress)

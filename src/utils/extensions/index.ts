@@ -177,6 +177,18 @@ class MainRequestGenerator {
     return this.sendAsync<ExtraExtensionEventCombinedReturnType<T>>('extra-extension-events', event)
   }
 
+  public async getContextMenuItems<T extends ContextMenuTypes>(type: T) {
+    return this.sendAsync<ExtendedExtensionContextMenuItems<T>>('get-extension-context-menu', { type })
+  }
+
+  public async sendContextMenuItemClicked(
+    id: string,
+    packageName: string,
+    arg: ExtensionContextMenuHandlerArgs<ContextMenuTypes>
+  ) {
+    return this.sendAsync<void>('on-clicked-context-menu', { id, packageName, arg })
+  }
+
   private sendAsync<T>(type: mainRequests, data?: unknown): Promise<T> {
     const channel = v4()
 
@@ -240,7 +252,7 @@ class ExtensionRequestHandler {
     message.type && console.debug('Received message from extension', message.extensionName, message.type)
     const resp: extensionReplyMessage = { ...message, data: undefined }
     if (message.type === 'get-songs') {
-      if (message.data && message.data.song && message.data.song?.extension) {
+      if (message.data && message.data.song && !!message.data.song?.extension) {
         message.data['song']['extension'] = message.extensionName
       }
       const songs = SongDB.getSongByOptions(message.data)
@@ -253,6 +265,7 @@ class ExtensionRequestHandler {
         resp.data.push(
           SongDB.store({
             ...s,
+            _id: `${message.extensionName}-${s._id}`,
             providerExtension: message.extensionName
           })
         )
@@ -261,7 +274,7 @@ class ExtensionRequestHandler {
 
     if (message.type === 'add-playlist') {
       const playlist = message.data as Playlist
-      resp.data = SongDB.createPlaylist(playlist.playlist_name, '', playlist.playlist_coverPath, playlist.playlist_path)
+      resp.data = SongDB.createPlaylist(playlist, message.extensionName)
     }
 
     if (message.type === 'add-song-to-playlist') {

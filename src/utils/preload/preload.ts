@@ -27,10 +27,16 @@ import { IpcRendererHolder } from '@/utils/preload/ipc/index'
 const ipcRendererHolder = new IpcRendererHolder(ipcRenderer)
 
 contextBridge.exposeInMainWorld('DBUtils', {
-  createPlaylist: (name: string, desc: string, imgSrc: string) =>
+  createPlaylist: (playlist: Partial<Playlist>) =>
     ipcRendererHolder.send<PlaylistRequests.CreatePlaylist>(IpcEvents.PLAYLIST, {
       type: PlaylistEvents.CREATE_PLAYLIST,
-      params: { name: name, desc: desc, imgSrc: imgSrc }
+      params: { playlist }
+    }),
+
+  updatePlaylist: (playlist: Partial<Playlist>) =>
+    ipcRendererHolder.send<PlaylistRequests.CreatePlaylist>(IpcEvents.PLAYLIST, {
+      type: PlaylistEvents.UPDATE_PLAYLIST,
+      params: { playlist }
     }),
 
   addToPlaylist: (playlistID: string, ...songIDs: Song[]) =>
@@ -55,6 +61,24 @@ contextBridge.exposeInMainWorld('DBUtils', {
     ipcRendererHolder.send<SongRequests.Songs>(IpcEvents.SONG, {
       type: SongEvents.STORE_SONG,
       params: { songs: songs }
+    }),
+
+  updateSongs: (songs: Song[]) =>
+    ipcRendererHolder.send<SongRequests.Songs>(IpcEvents.SONG, {
+      type: SongEvents.UPDATE_SONG,
+      params: { songs: songs }
+    }),
+
+  updateArtist: (artist: Artists) =>
+    ipcRendererHolder.send<SongRequests.UpdateArtist>(IpcEvents.SONG, {
+      type: SongEvents.UPDATE_ARTIST,
+      params: { artist }
+    }),
+
+  updateAlbum: (album: Album) =>
+    ipcRendererHolder.send<SongRequests.UpdateAlbum>(IpcEvents.SONG, {
+      type: SongEvents.UPDATE_ARTIST,
+      params: { album }
     }),
 
   removeSongs: (songs: Song[]) =>
@@ -121,6 +145,12 @@ contextBridge.exposeInMainWorld('FileUtils', {
 
   listenScanProgress: (callback: (progress: Progress) => void) =>
     ipcRendererHolder.on(ScannerEvents.PROGRESS_CHANNEL, callback),
+
+  scanSinglePlaylist: (playlistPath: string) =>
+    ipcRendererHolder.send<ScannerRequests.ScanSinglePlaylist>(IpcEvents.SCANNER, {
+      type: ScannerEvents.SCAN_SINGLE_PLAYLIST,
+      params: { playlistPath }
+    }),
 
   saveAudioToFile: (path: string, blob: Buffer) =>
     ipcRendererHolder.send<SongRequests.SaveBuffer>(IpcEvents.SONG, {
@@ -433,6 +463,18 @@ contextBridge.exposeInMainWorld('ExtensionUtils', {
     ipcRendererHolder.send<ExtensionHostRequests.DownloadExtension>(IpcEvents.EXTENSION_HOST, {
       type: ExtensionHostEvents.DOWNLOAD_EXTENSION,
       params: { ext }
+    }),
+
+  getContextMenuItems: (type: ContextMenuTypes) =>
+    ipcRendererHolder.send<ExtensionHostRequests.ContextMenuItems>(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.GET_EXT_CONTEXT_MENU,
+      params: { type }
+    }),
+
+  fireContextMenuHandler: (id: string, packageName: string, arg: ExtensionContextMenuHandlerArgs<ContextMenuTypes>) =>
+    ipcRendererHolder.send<ExtensionHostRequests.ContextMenuHandler>(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.ON_CONTEXT_MENU_ITEM_CLICKED,
+      params: { id, packageName, arg }
     }),
 
   listenExtInstallStatus: (callback: (data: ExtInstallStatus) => void) =>

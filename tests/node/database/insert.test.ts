@@ -64,13 +64,11 @@ test('Album count', async () => {
 test('Artist was inserted', async () => {
   for (const i of inserted) {
     const artistResult = SongDB.getEntityByOptions<Artists>({
-      artist: {
-        artist_name: i.artists?.at(0)
-      }
+      artist: i.artists![0]
     })
 
     expect(artistResult.length).toBe(1)
-    expect(artistResult[0].artist_name?.toLowerCase()).toBe(i.artists?.at(0)?.toLowerCase())
+    expect(artistResult[0].artist_name?.toLowerCase()).toBe(i.artists?.at(0)?.artist_name?.toLowerCase())
     expect(artistResult[0].artist_song_count).toBe(1)
   }
 })

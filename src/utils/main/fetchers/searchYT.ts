@@ -42,7 +42,7 @@ export class YTScraper extends CacheHandler {
     for (const s of item) {
       const highResThumbnail = s.thumbnailUrl && this.getHighResThumbnail(s.thumbnailUrl)
       songs.push({
-        _id: 'youtube-' + s.youtubeId,
+        _id: 'youtube:' + s.youtubeId,
         title: s.title ? s.title.trim() : '',
         song_coverPath_high: highResThumbnail,
         song_coverPath_low: s.thumbnailUrl,
@@ -51,7 +51,11 @@ export class YTScraper extends CacheHandler {
           album_coverPath_high: highResThumbnail,
           album_coverPath_low: s.thumbnailUrl
         },
-        artists: s.artists?.map((val) => val.name) ?? [],
+        artists:
+          s.artists?.map((val) => ({
+            artist_id: `youtube-author:${val.id}`,
+            artist_name: val.name
+          })) ?? [],
         duration: s.duration?.totalSeconds ?? 0,
         url: s.youtubeId,
         date_added: Date.now(),
@@ -102,6 +106,15 @@ export class YTScraper extends CacheHandler {
     return ytMusicSearches
   }
 
+  private parseYoutubeDuration(dur: string) {
+    const split = dur.split(':')
+    let ret = 0
+    for (let i = split.length - 1; i >= 0; i--) {
+      ret += parseInt(split[i]) * Math.pow(60, split.length - i - 1)
+    }
+    return ret
+  }
+
   private async scrapeYoutube(title: string, artists?: string[], matchTitle = true) {
     const term = `${artists ? artists.join(', ') + ' - ' : ''}${title}`
 
@@ -114,7 +127,7 @@ export class YTScraper extends CacheHandler {
           title: vid.title,
           thumbnailUrl: vid.bestThumbnail.url ?? undefined,
           artists: [{ id: vid.author?.channelID, name: vid.author?.name ?? '' }],
-          duration: { label: '', totalSeconds: vid.duration ? parseInt(vid.duration) : 0 }
+          duration: { label: '', totalSeconds: vid.duration ? this.parseYoutubeDuration(vid.duration ?? '') : 0 }
         })
       }
     }
@@ -125,7 +138,7 @@ export class YTScraper extends CacheHandler {
   public async getSuggestions(videoID: string) {
     const cached = this.getCache(videoID)
     if (cached) {
-      return JSON.parse(cached)
+      return this.parseSong(...JSON.parse(cached))
     }
 
     try {

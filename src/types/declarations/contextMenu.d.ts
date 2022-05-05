@@ -63,6 +63,18 @@ type ContextMenuArgs =
         sortOptions: Sort<NormalSortOptions>
       }
     }
+  | {
+      type: 'ARTIST'
+      args: {
+        artist: Artists
+      }
+    }
+  | {
+      type: 'ALBUM'
+      args: {
+        album: Album
+      }
+    }
 
 type SongSortOptions = { type: 'title' | 'date_added'; asc: boolean }
 type PlaylistSortOptions = { type: 'name' | 'provider'; asc: boolean }

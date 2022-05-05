@@ -21,8 +21,20 @@ export class YoutubePlayer extends Player {
     this.playerInstance = playerInstance
   }
 
+  private extractVideoID(url: string) {
+    try {
+      return new URL(url).searchParams.get('v') ?? undefined
+    } catch (e) {
+      console.debug('Not a URL', url)
+    }
+    return url
+  }
+
   load(src?: string, volume?: number, autoplay?: boolean): void {
-    src && this.playerInstance.load(src, autoplay)
+    if (src) {
+      src = this.extractVideoID(src)
+      src && this.playerInstance.load(src, autoplay)
+    }
     volume && (this.volume = volume)
   }
 

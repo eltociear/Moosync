@@ -20,7 +20,7 @@
         <div :key="item._id" @click="playSong(item)" class="card-container">
           <CardView
             :title="item.title"
-            :subtitle="item.artists ? item.artists.join(', ') : ''"
+            :subtitle="item.artists ? item.artists.map((val) => val.artist_name).join(', ') : ''"
             :imgSrc="getValidImageHigh(item)"
             @CardContextMenu="showContextMenu(arguments[0], item)"
           >

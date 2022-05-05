@@ -45,6 +45,12 @@ export class ExtensionHostChannel implements IpcChannelInterface {
       case ExtensionHostEvents.DOWNLOAD_EXTENSION:
         this.downloadExtension(event, request as IpcRequest<ExtensionHostRequests.DownloadExtension>)
         break
+      case ExtensionHostEvents.GET_EXT_CONTEXT_MENU:
+        this.getContextMenuItems(event, request as IpcRequest<ExtensionHostRequests.ContextMenuItems>)
+        break
+      case ExtensionHostEvents.ON_CONTEXT_MENU_ITEM_CLICKED:
+        this.fireContextMenuHandler(event, request as IpcRequest<ExtensionHostRequests.ContextMenuHandler>)
+        break
     }
   }
 
@@ -190,6 +196,26 @@ export class ExtensionHostChannel implements IpcChannelInterface {
 
       event.reply(request.responseChannel, true)
     }
+  }
+
+  private async getContextMenuItems(
+    event: Electron.IpcMainEvent,
+    request: IpcRequest<ExtensionHostRequests.ContextMenuItems>
+  ) {
+    const data = await this.extensionHost.mainRequestGenerator.getContextMenuItems(request.params.type)
+    event.reply(request.responseChannel, data)
+  }
+
+  private async fireContextMenuHandler(
+    event: Electron.IpcMainEvent,
+    request: IpcRequest<ExtensionHostRequests.ContextMenuHandler>
+  ) {
+    await this.extensionHost.mainRequestGenerator.sendContextMenuItemClicked(
+      request.params.id,
+      request.params.packageName,
+      request.params.arg
+    )
+    event.reply(request.responseChannel)
   }
 
   public notifyPreferenceWindow(data: ExtInstallStatus) {

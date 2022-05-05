@@ -8,7 +8,7 @@
  */
 
 import { extensionRequests } from '../constants'
-import { v4 } from 'uuid'
+import crypto from 'crypto'
 
 export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
   private packageName: string
@@ -20,12 +20,14 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
     ) => Promise<ExtraExtensionEventReturnType<key>>
   }> = {}
 
+  private contextMenuMap: ExtendedExtensionContextMenuItems<ContextMenuTypes>[] = []
+
   constructor(packageName: string) {
     this.packageName = packageName
     this.player = new PlayerControls(this.packageName)
   }
 
-  public async getSongs(options: OriginalSongAPIOptions) {
+  public async getSongs(options: SongAPIOptions) {
     return sendAsync<Song[]>(this.packageName, 'get-songs', options)
   }
 
@@ -120,6 +122,46 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
       return (await callback(...event.data)) as ExtraExtensionEventReturnType<T>
     }
   }
+
+  private generateExtendedContextMenuItems<T extends ContextMenuTypes>(
+    ...items: ExtensionContextMenuItem<T>[]
+  ): ExtendedExtensionContextMenuItems<T>[] {
+    const ret: ExtendedExtensionContextMenuItems<T>[] = []
+    for (const m of items) {
+      let children: ExtendedExtensionContextMenuItems<T>[] | undefined = undefined
+      if (m.children) {
+        children = this.generateExtendedContextMenuItems(...m.children)
+      }
+      ret.push({
+        ...m,
+        id: crypto.randomUUID(),
+        children,
+        packageName: this.packageName
+      })
+    }
+
+    console.debug('Generated extended type for context menu items')
+
+    return ret
+  }
+
+  public setContextMenuItem<T extends ContextMenuTypes>(...items: ExtensionContextMenuItem<T>[]): number {
+    console.debug('Adding context menu items for types', items.map((val) => val.type).join(', '))
+    return this.contextMenuMap.push(...this.generateExtendedContextMenuItems(...items))
+  }
+
+  public removeContextMenuItem(index: number) {
+    console.debug('Removing context menu items at', index)
+    this.contextMenuMap.splice(index, 1)
+  }
+
+  public getContextMenuItems() {
+    return this.contextMenuMap
+  }
+
+  public _getContextMenuItems(): ExtendedExtensionContextMenuItems<ContextMenuTypes>[] {
+    return JSON.parse(JSON.stringify(this.getContextMenuItems()))
+  }
 }
 
 class PlayerControls implements playerControls {
@@ -151,7 +193,7 @@ class PlayerControls implements playerControls {
 }
 
 function sendAsync<T>(packageName: string, type: extensionRequests, data?: unknown): Promise<T | undefined> {
-  const channel = v4()
+  const channel = crypto.randomUUID()
   return new Promise((resolve) => {
     if (process.send) {
       let listener: (data: extensionReplyMessage) => void

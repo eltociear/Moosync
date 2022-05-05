@@ -11,7 +11,9 @@ import { DBUtils } from './utils'
 import { promises as fsP } from 'fs'
 import { v4 } from 'uuid'
 import { sanitizeArtistName } from '../../common'
-import { SongSortOptions } from '@moosync/moosync-types'
+
+import { loadPreferences } from './preferences'
+import path from 'path'
 
 type KeysOfUnion<T> = T extends T ? keyof T : never
 // AvailableKeys will basically be keyof Foo | keyof Bar
@@ -23,27 +25,23 @@ export class SongDBInstance extends DBUtils {
                 ALLSONGS
      ============================= */
 
-  private verifySong(song: Song) {
+  private verifySong(song: Partial<Song>) {
     return !!(song._id && song.title && song.date_added && song.duration && song.type)
   }
 
-  public store(newDoc: Song, extensionName?: string): boolean {
+  public store(newDoc: Partial<Song>): boolean {
     if (this.verifySong(newDoc)) {
-      const marshaledSong = this.marshalSong(newDoc)
       const existing = this.getSongByOptions({ song: { _id: newDoc._id } })[0]
       if (existing) {
-        if (extensionName && existing.providerExtension !== extensionName) {
-          // Song doesn't belong to extension, don't do anything
-          return false
-        } else {
-          // TODO: Write better song updates
-          this.removeSong(newDoc._id)
-        }
+        return false
       }
 
       const artistID = newDoc.artists ? this.storeArtists(...newDoc.artists) : []
       const albumID = newDoc.album ? this.storeAlbum(newDoc.album) : ''
-      const genreID = this.storeGenre(newDoc.genre)
+      const genreID = newDoc.genre ? this.storeGenre(...newDoc.genre) : []
+
+      newDoc._id = `${newDoc.providerExtension ? newDoc.providerExtension + ':' : ''}${newDoc._id ?? v4()}`
+      const marshaledSong = this.marshalSong(newDoc)
 
       this.db.insert('allsongs', marshaledSong)
       this.storeArtistBridge(artistID, marshaledSong._id)
@@ -144,6 +142,104 @@ export class SongDBInstance extends DBUtils {
     this.updateAllSongCounts()
   }
 
+  private updateSongArtists(newArtists: Artists[], oldArtists: Artists[] | undefined, songID: string) {
+    if (JSON.stringify(oldArtists) !== JSON.stringify(newArtists)) {
+      this.db.delete('artists_bridge', { song: songID })
+
+      for (const a of oldArtists ?? []) {
+        if (!newArtists.find((val) => val.artist_name === a.artist_name)) {
+          const songCount = this.db.queryFirstCell<number>(
+            'SELECT COUNT(id) FROM artists_bridge WHERE artist = ?',
+            a.artist_id
+          )
+          if (songCount === 0) {
+            this.db.delete('artists', { artist_id: a.artist_id })
+            if (a.artist_coverPath) {
+              fsP.rm(a.artist_coverPath, { force: true })
+            }
+          }
+        }
+      }
+
+      const artistIDs = this.storeArtists(...newArtists)
+      this.storeArtistBridge(artistIDs, songID)
+    }
+  }
+
+  private updateSongGenre(newGenres: string[], oldGenres: string[] | undefined, songID: string) {
+    if (JSON.stringify(newGenres) !== JSON.stringify(oldGenres)) {
+      this.db.delete('genre_bridge', { song: songID })
+
+      for (const g of oldGenres ?? []) {
+        if (!newGenres.includes(g)) {
+          const songCount = this.db.queryFirstCell<number>('SELECT COUNT(id) FROM genre_bridge WHERE genre = ?', g)
+          if (songCount === 0) {
+            this.db.delete('genre', { genre_id: g })
+          }
+        }
+      }
+
+      const genreIDs = this.storeGenre(...newGenres)
+      this.storeGenreBridge(genreIDs, songID)
+    }
+  }
+
+  private updateSongAlbums(newAlbum: Album, oldAlbum: Album | undefined, songID: string) {
+    this.db.delete('album_bridge', { song: songID })
+
+    if (JSON.stringify(newAlbum) !== JSON.stringify(oldAlbum)) {
+      if (oldAlbum?.album_id) {
+        const songCount = this.db.queryFirstCell<number>(
+          'SELECT COUNT(id) FROM album_bridge WHERE album = ?',
+          oldAlbum.album_id
+        )
+        if (songCount === 0) {
+          this.db.delete('albums', { album_id: oldAlbum.album_id })
+          if (oldAlbum.album_coverPath_high) fsP.rm(oldAlbum.album_coverPath_high, { force: true })
+          if (oldAlbum.album_coverPath_low) fsP.rm(oldAlbum.album_coverPath_low, { force: true })
+        }
+      }
+
+      const albumIDs = this.storeAlbum(newAlbum)
+      this.storeAlbumBridge(albumIDs, songID)
+    }
+  }
+
+  private async getCoverPath(oldCoverPath: string, newCoverpath: string, songID: string) {
+    if (oldCoverPath !== newCoverpath) {
+      if (newCoverpath) {
+        const finalPath = path.join(loadPreferences().thumbnailPath, songID + path.extname(newCoverpath))
+        await fsP.copyFile(newCoverpath, finalPath)
+        return finalPath
+      }
+    }
+    return oldCoverPath
+  }
+
+  public async updateSong(song: Song) {
+    if (this.verifySong(song)) {
+      const oldSong = this.getSongByOptions({ song: { _id: song._id } })[0]
+
+      if (oldSong) {
+        this.updateSongArtists(song.artists ?? [], oldSong.artists, song._id)
+        this.updateSongAlbums(song.album ?? {}, oldSong.album, song._id)
+        this.updateSongGenre(song.genre ?? [], oldSong.genre, song._id)
+        const finalCoverPath = await this.getCoverPath(
+          oldSong.song_coverPath_high ?? '',
+          song.song_coverPath_high ?? '',
+          song._id
+        )
+        song.song_coverPath_high = finalCoverPath
+        song.song_coverPath_low = finalCoverPath
+
+        this.db.updateWithBlackList('allsongs', song, ['_id = ?', song._id], ['_id'])
+        this.updateAllSongCounts()
+      } else {
+        this.store(song)
+      }
+    }
+  }
+
   /**
    * Search every entity for matching keyword
    * @param term term to search
@@ -238,7 +334,7 @@ export class SongDBInstance extends DBUtils {
     const { where, args } = this.populateWhereQuery(options)
 
     const songs: marshaledSong[] = this.db.query(
-      `SELECT *, ${this.addGroupConcatClause()} FROM allsongs
+      `SELECT ${this.getSelectClause()}, ${this.addGroupConcatClause()} FROM allsongs
       ${this.addLeftJoinClause(undefined, 'allsongs')}
         ${where}
         ${this.addExcludeWhereClause(args.length === 0, exclude)} GROUP BY allsongs._id ${this.addOrderClause(
@@ -320,7 +416,9 @@ export class SongDBInstance extends DBUtils {
         }
       }
     }
-    return (this.db.query(`${query} ${args.length > 0 ? where : ''} ORDER BY ${orderBy} ASC`, ...args) as T[]) ?? []
+    return (
+      (this.db.query(`${query} ${args.length > 0 ? where : ''} ORDER BY ${orderBy} ASC`, ...args) as T[]) ?? []
+    ).filter((val) => val)
   }
 
   /**
@@ -380,15 +478,15 @@ export class SongDBInstance extends DBUtils {
       )
       if (!id) {
         id = v4()
+        this.db.run(
+          `INSERT INTO albums (album_id, album_name, album_coverPath_low, album_coverPath_high, album_artist) VALUES(?, ?, ?, ?, ?)`,
+          id,
+          album.album_name,
+          album.album_coverPath_low,
+          album.album_coverPath_high,
+          album.album_artist
+        )
       }
-      this.db.run(
-        `INSERT OR REPLACE INTO albums (album_id, album_name, album_coverPath_low, album_coverPath_high, album_artist) VALUES(?, ?, ?, ?, ?)`,
-        id,
-        album.album_name,
-        album.album_coverPath_low,
-        album.album_coverPath_high,
-        album.album_artist
-      )
     }
     return id as string
   }
@@ -421,6 +519,35 @@ export class SongDBInstance extends DBUtils {
     })(songid, coverHigh, coverLow)
   }
 
+  public async updateAlbum(album: Album) {
+    const oldAlbum = this.getEntityByOptions<Album>({
+      album: {
+        album_id: album.album_id
+      }
+    })[0]
+
+    if (oldAlbum?.album_coverPath_high !== album.album_coverPath_high) {
+      if (album.album_coverPath_high) {
+        const coverPath = path.join(
+          loadPreferences().thumbnailPath,
+          album.album_id + path.extname(album.album_coverPath_high)
+        )
+        await fsP.copyFile(album.album_coverPath_high, coverPath)
+        album.album_coverPath_high = coverPath
+        album.album_coverPath_low = coverPath
+      }
+
+      if (oldAlbum?.album_coverPath_high) {
+        await fsP.rm(oldAlbum?.album_coverPath_high, { force: true })
+      }
+
+      if (oldAlbum?.album_coverPath_low) {
+        await fsP.rm(oldAlbum?.album_coverPath_low, { force: true })
+      }
+    }
+    this.db.updateWithBlackList('albums', album, ['album_id = ?', album.album_id], ['album_id'])
+  }
+
   /**
    * Updates song count of all albums
    */
@@ -437,7 +564,16 @@ export class SongDBInstance extends DBUtils {
   }
 
   private storeAlbumBridge(albumID: string, songID: string) {
-    if (albumID) this.db.insert('album_bridge', { song: songID, album: albumID })
+    if (albumID) {
+      const exists = this.db.queryFirstCell(
+        `SELECT COUNT(id) FROM album_bridge WHERE album = ? AND song = ?`,
+        albumID,
+        songID
+      )
+      if (exists === 0) {
+        this.db.insert('album_bridge', { song: songID, album: albumID })
+      }
+    }
   }
 
   /* ============================= 
@@ -459,7 +595,7 @@ export class SongDBInstance extends DBUtils {
     })()
   }
 
-  private storeGenre(genre?: string[]) {
+  private storeGenre(...genre: string[]) {
     const genreID: string[] = []
     if (genre) {
       for (const a of genre) {
@@ -477,7 +613,14 @@ export class SongDBInstance extends DBUtils {
 
   private storeGenreBridge(genreID: string[], songID: string) {
     for (const i of genreID) {
-      this.db.insert('genre_bridge', { song: songID, genre: i })
+      const exists = this.db.queryFirstCell(
+        `SELECT COUNT(id) FROM genre_bridge WHERE genre = ? AND song = ?`,
+        i,
+        songID
+      )
+      if (exists === 0) {
+        this.db.insert('genre_bridge', { song: songID, genre: i })
+      }
     }
   }
 
@@ -494,31 +637,60 @@ export class SongDBInstance extends DBUtils {
    * @returns number of rows updated
    */
   public async updateArtists(artist: Artists) {
-    return new Promise((resolve) => {
-      resolve(
-        this.db.updateWithBlackList(
-          'artists',
-          artist,
-          ['artist_id = ?', artist.artist_id],
-          ['artist_id', 'artist_name']
+    const oldArtist = this.getEntityByOptions<Artists>({
+      artist: {
+        artist_id: artist.artist_id
+      }
+    })[0]
+    if (artist.artist_coverPath !== oldArtist?.artist_coverPath) {
+      if (artist.artist_coverPath) {
+        const coverPath = path.join(
+          loadPreferences().thumbnailPath,
+          artist.artist_id + path.extname(artist.artist_coverPath)
         )
-      )
-    })
+        await fsP.copyFile(artist.artist_coverPath, coverPath)
+        artist.artist_coverPath = coverPath
+      }
+
+      if (oldArtist?.artist_coverPath) {
+        await fsP.rm(oldArtist.artist_coverPath, { force: true })
+      }
+    }
+    this.db.updateWithBlackList('artists', artist, ['artist_id = ?', artist.artist_id], ['artist_id'])
   }
 
-  private storeArtists(...artists: string[]): string[] {
+  private storeArtists(...artists: Artists[]): string[] {
     const artistID: string[] = []
     for (const a of artists) {
-      const sanitizedName = sanitizeArtistName(a, true)
-      const id = this.db.queryFirstCell(
-        `SELECT artist_id FROM artists WHERE artist_name = ? COLLATE NOCASE`,
-        sanitizedName
-      )
-      if (id) artistID.push(id)
-      else {
-        const id = v4()
-        this.db.insert('artists', { artist_id: id, artist_name: sanitizedName })
-        artistID.push(id)
+      if (a.artist_name) {
+        const sanitizedName = sanitizeArtistName(a.artist_name, true)
+        const id = this.db.queryFirstCell(
+          `SELECT artist_id FROM artists WHERE artist_name = ? COLLATE NOCASE`,
+          sanitizedName
+        )
+        if (id) artistID.push(id)
+        else {
+          const id = v4()
+          this.db.insert('artists', { artist_id: id, artist_name: sanitizedName })
+          artistID.push(id)
+        }
+
+        const existingArtist = this.db.queryFirstRow<Artists>(
+          `SELECT * FROM artists WHERE artist_id = ? COLLATE NOCASE`,
+          id
+        )
+
+        if (existingArtist) {
+          if (a.artist_mbid) {
+            if (!existingArtist.artist_mbid) {
+              this.db.update('artists', a.artist_mbid, ['artist_id = ?', id])
+            }
+
+            if (!existingArtist.artist_coverPath && a.artist_coverPath) {
+              this.db.update('artists', a.artist_coverPath, ['artist_id = ?', id])
+            }
+          }
+        }
       }
     }
     return artistID
@@ -526,7 +698,14 @@ export class SongDBInstance extends DBUtils {
 
   private storeArtistBridge(artistID: string[], songID: string) {
     for (const i of artistID) {
-      this.db.insert('artists_bridge', { song: songID, artist: i })
+      const exists = this.db.queryFirstCell(
+        `SELECT COUNT(id) FROM artists_bridge WHERE artist = ? AND song = ?`,
+        i,
+        songID
+      )
+      if (exists === 0) {
+        this.db.insert('artists_bridge', { song: songID, artist: i })
+      }
     }
   }
 
@@ -582,14 +761,13 @@ export class SongDBInstance extends DBUtils {
    * @param imgSrc cover image of playlist
    * @returns playlist id after creation
    */
-  public createPlaylist(name: string, desc: string, imgSrc?: string, filePath?: string, extension?: string): string {
-    const id = `${extension ? extension + '-' : ''}${v4()}`
+  public createPlaylist(playlist: Partial<Playlist>, extension?: string): string {
+    const id = `${extension ? extension + ':' : ''}${playlist.playlist_id ?? v4()}`
     this.db.insert('playlists', {
+      ...playlist,
+      playlist_name: 'New Playlist',
       playlist_id: id,
-      playlist_name: name ? name : 'New Playlist',
-      playlist_desc: desc,
-      playlist_coverPath: imgSrc,
-      playlist_path: filePath
+      playlist_song_count: playlist.playlist_song_count ?? 0
     })
     return id
   }
@@ -602,6 +780,26 @@ export class SongDBInstance extends DBUtils {
     }) as Playlist[]
   }
 
+  public async updatePlaylist(playlist: Partial<Playlist>) {
+    const oldPlaylist = this.getEntityByOptions<Playlist>({ playlist: { playlist_id: playlist.playlist_id } })[0]
+    if (oldPlaylist?.playlist_coverPath !== playlist.playlist_coverPath) {
+      if (playlist.playlist_coverPath) {
+        const coverPath = path.join(
+          loadPreferences().thumbnailPath,
+          playlist.playlist_id + path.extname(playlist.playlist_coverPath)
+        )
+        await fsP.copyFile(playlist.playlist_coverPath, coverPath)
+        playlist.playlist_coverPath = coverPath
+      }
+
+      if (oldPlaylist?.playlist_coverPath) {
+        await fsP.rm(oldPlaylist.playlist_coverPath, { force: true })
+      }
+    }
+
+    this.db.updateWithBlackList('playlists', playlist, ['playlist_id = ?', playlist.playlist_id], ['playlist_id'])
+  }
+
   /**
    * Updates playlist cover path
    * @param playlist_id id of playlist whose cover is to be updated
@@ -612,10 +810,9 @@ export class SongDBInstance extends DBUtils {
   }
 
   private isPlaylistCoverExists(playlist_id: string) {
-    return (
-      (this.db.query(`SELECT playlist_coverPath FROM playlists WHERE playlist_id = ?`, playlist_id)[0] as Playlist)
-        .playlist_coverPath !== null
-    )
+    return !!(
+      this.db.query(`SELECT playlist_coverPath FROM playlists WHERE playlist_id = ?`, playlist_id)[0] as Playlist
+    )?.playlist_coverPath
   }
 
   /**

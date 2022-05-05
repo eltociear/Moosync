@@ -14,8 +14,8 @@ export default class PlayerControls extends Vue {
   public gotoAlbum(album: Album) {
     try {
       this.$router.push({
-        name: 'albums-id',
-        params: {
+        name: 'albums-single',
+        query: {
           id: album.album_id as string
         }
       })
@@ -27,8 +27,8 @@ export default class PlayerControls extends Vue {
   public gotoGenre(genre: Genre) {
     try {
       this.$router.push({
-        name: 'genre-id',
-        params: {
+        name: 'genre-single',
+        query: {
           id: genre.genre_id
         }
       })
@@ -40,8 +40,8 @@ export default class PlayerControls extends Vue {
   public gotoArtist(artist: Artists) {
     try {
       this.$router.push({
-        name: 'artists-id',
-        params: {
+        name: 'artists-single',
+        query: {
           id: artist.artist_id,
           name: artist.artist_name ?? '',
           cover: artist.artist_coverPath ?? ''
@@ -55,8 +55,8 @@ export default class PlayerControls extends Vue {
   public gotoPlaylist(playlist: ExtendedPlaylist) {
     try {
       this.$router.push({
-        name: 'playlists-id',
-        params: {
+        name: 'playlists-single',
+        query: {
           id: playlist.playlist_id,
           playlist_id: playlist.playlist_id,
           playlist_name: playlist.playlist_name,

@@ -64,7 +64,7 @@ jobs:
         run: chmod +x setup_env.sh && . setup_env.sh
         shell: bash
 
-      - run: yarn test:unit
+      # - run: yarn test:unit
 
       # - run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn test:electron
       #   if: matrix.os == 'ubuntu-latest'

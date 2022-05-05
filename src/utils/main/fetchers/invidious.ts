@@ -54,10 +54,15 @@ export class InvidiousRequester extends CacheHandler {
     const songs: Song[] = []
     for (const s of items) {
       songs.push({
-        _id: s.videoId,
+        _id: `youtube:${s.videoId}`,
         title: s.title,
         duration: s.lengthSeconds,
-        artists: [s.author],
+        artists: [
+          {
+            artist_id: `youtube-author:${s.authorId}`,
+            artist_name: s.author
+          }
+        ],
         date_added: Date.now(),
         song_coverPath_high: s.videoThumbnails.find((val) => val.quality.includes('maxres'))?.url,
         song_coverPath_low: s.videoThumbnails.find((val) => val.quality.includes('medium'))?.url,

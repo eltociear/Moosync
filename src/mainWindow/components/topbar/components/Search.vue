@@ -38,7 +38,7 @@
           <SingleSearchResult
             class="single-result"
             :title="item.title"
-            :subtitle="item.artists ? item.artists.join(', ') : ''"
+            :subtitle="item.artists ? item.artists.map((val) => val.artist_name).join(', ') : ''"
             :coverImg="getImgSrc(getValidImageLow(item))"
             :divider="index != results.length - 1"
             :id="index"
@@ -93,7 +93,8 @@ export default class Sidebar extends mixins(PlayerControls, ImgLoader) {
       .push({
         name: 'search',
         query: {
-          search_term: `${this.inputText}`
+          search_term: `${this.inputText}`,
+          timestamp: Date.now().toString()
         }
       })
       .catch((e) => console.error(e))

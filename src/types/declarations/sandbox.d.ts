@@ -97,9 +97,9 @@ interface ExtensionDetails {
   version: string
   hasStarted: boolean
   entry: string
+  preferences: ExtensionPreferenceGroup[]
   extensionPath: string
   extensionIcon: string | undefined
-  preferences: import('@moosync/moosync-types').ExtensionPreferenceGroup[]
 }
 
 type ExtraExtensionEventCombinedReturnType<T extends ExtraExtensionEventTypes> = {
@@ -112,11 +112,11 @@ interface ExtraExtensionEvents<T extends ExtraExtensionEventTypes> {
   packageName?: string
 }
 
-type ExtensionAPI = import('@moosync/moosync-types/extension').extensionAPI
-interface ExtendedExtensionAPI extends ExtensionAPI {
+interface ExtendedExtensionAPI extends extensionAPI {
   _emit: <T extends ExtraExtensionEventTypes>(
     event: ExtraExtensionEvents<T>
   ) => Promise<ExtraExtensionEventReturnType<T> | undefined>
+  _getContextMenuItems: () => ExtendedExtensionContextMenuItems<ContextMenuTypes>[]
 }
 
 interface ExtensionItem extends ExtensionDetails {
@@ -142,6 +142,13 @@ interface UnInitializedExtensionItem {
 interface getExtensionOptions {
   started?: boolean
   packageName?: string
+}
+
+interface ExtendedExtensionContextMenuItems<T extends ContextMenuTypes>
+  extends Omit<ExtensionContextMenuItem<T>, 'children'> {
+  id: string
+  packageName: string
+  children?: ExtendedExtensionContextMenuItems<T>[]
 }
 
 interface NodeRequire {

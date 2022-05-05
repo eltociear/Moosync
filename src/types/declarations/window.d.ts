@@ -7,8 +7,6 @@
  *  See LICENSE in the project root for license information.
  */
 
-// import { SongAPIOptions, EntityApiOptions } from '@moosync/moosync-types';
-
 /**
  * Utils related to database operations
  */
@@ -26,12 +24,22 @@ interface DBUtils {
   storeSongs: (songs: Song[]) => Promise<void>
 
   /**
+   * Update songs in database
+   * @param songs array of songs which are to be updated. Songs are found using _id.
+   */
+  updateSongs: (songs: Song[]) => Promise<void>
+
+  updatePlaylist: (playlist: Playlist) => Promise<void>
+  updateArtist: (artist: Artists) => Promise<void>
+  updateAlbum: (album: Album) => Promise<void>
+
+  /**
    * Create new playlist
    * @param name name of playlist
    * @param desc description of playlist
    * @param imgSrc cover image path of playlist
    */
-  createPlaylist: (name: string, desc: string, imgSrc?: string) => Promise<string>
+  createPlaylist: (playlist: Partial<Playlist>) => Promise<string>
 
   /**
    * Add song to playlist
@@ -113,6 +121,7 @@ interface fileUtils {
    * Scans for audio files in specified paths
    */
   scan: () => Promise<void>
+  scanSinglePlaylist: (playlistPath: string) => Promise<{ songs: Song[]; playlist: Partial<Playlist> | null }>
 
   getScanProgress: () => Promise<Progress>
 
@@ -239,6 +248,12 @@ interface extensionUtils {
   toggleExtStatus: (packageName: string, enabled: boolean) => Promise<void>
   downloadExtension: (ext: FetchedExtensionManifest) => Promise<boolean>
   listenExtInstallStatus: (callback: (data: ExtInstallStatus) => void) => void
+  getContextMenuItems: (type: ContextMenuTypes) => Promise<ExtendedExtensionContextMenuItems<ContextMenuTypes>[]>
+  fireContextMenuHandler: (
+    id: string,
+    packageName: string,
+    arg: ExtensionContextMenuHandlerArgs<ContextMenuTypes>
+  ) => Promise<void>
 }
 
 /**

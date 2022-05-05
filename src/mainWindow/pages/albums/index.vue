@@ -13,7 +13,12 @@
       <b-row no-gutters class="page-title">Albums</b-row>
       <b-row class="d-flex">
         <b-col col xl="2" md="3" v-for="album in filteredAlbumList" :key="album.album_id">
-          <CardView :title="album.album_name" :imgSrc="album.album_coverPath_high" @click.native="gotoAlbum(album)">
+          <CardView
+            :title="album.album_name"
+            :imgSrc="album.album_coverPath_high"
+            @click.native="gotoAlbum(album)"
+            @CardContextMenu="singleItemContextHandler(album, arguments[0])"
+          >
             <template #defaultCover>
               <AlbumDefault />
             </template>
@@ -69,6 +74,15 @@ export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
               ? a.album_name?.localeCompare(b.album_name ?? '')
               : b.album_name?.localeCompare(a.album_name ?? '')) ?? 0
           )
+      }
+    })
+  }
+
+  private singleItemContextHandler(album: Album, event: MouseEvent) {
+    this.getContextMenu(event, {
+      type: 'ALBUM',
+      args: {
+        album
       }
     })
   }

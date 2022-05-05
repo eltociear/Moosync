@@ -63,7 +63,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   /**
    * Holds type of player which is current active
    */
-  private activePlayerType!: PlayerType
+  private activePlayerTypes!: PlayerTypes
 
   /**
    * True is page has just loaded and a new song is to be loaded into the player
@@ -108,7 +108,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     this.ignoreStateChange = false
   }
 
-  private parsePlayerType(type: PlayerType): 'LOCAL' | 'YOUTUBE' {
+  private parsePlayerTypes(type: PlayerTypes): 'LOCAL' | 'YOUTUBE' {
     switch (type) {
       case 'LOCAL':
       case 'URL':
@@ -125,9 +125,9 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    * This method is responsible of detaching old player
    * and setting new player as active
    */
-  private onPlayerTypeChanged(newType: PlayerType): 'LOCAL' | 'YOUTUBE' {
-    const parsedType = this.parsePlayerType(newType)
-    if (this.activePlayerType !== parsedType) {
+  private onPlayerTypesChanged(newType: PlayerTypes): 'LOCAL' | 'YOUTUBE' {
+    const parsedType = this.parsePlayerTypes(newType)
+    if (this.activePlayerTypes !== parsedType) {
       console.debug('Changing player type to', newType)
       this.unloadAudio()
       this.activePlayer.removeAllListeners()
@@ -143,7 +143,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
       this.activePlayer.volume = vxm.player.volume
       this.registerPlayerListeners()
-      this.activePlayerType = parsedType
+      this.activePlayerTypes = parsedType
     }
 
     return parsedType
@@ -200,7 +200,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     )
     this.localPlayer = new LocalPlayer(this.audioElement)
     this.activePlayer = this.localPlayer
-    this.activePlayerType = 'LOCAL'
+    this.activePlayerTypes = 'LOCAL'
   }
 
   private setupSync() {
@@ -280,7 +280,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   private setBufferTrap() {
     if (!this._bufferTrap) {
       this._bufferTrap = setTimeout(() => {
-        if (this.activePlayerType === 'YOUTUBE' && this.activePlayer instanceof YoutubePlayer) {
+        if (this.activePlayerTypes === 'YOUTUBE' && this.activePlayer instanceof YoutubePlayer) {
           this.activePlayer.setPlaybackQuality('small')
           this.pause()
           Vue.nextTick(() => this.play())
@@ -375,14 +375,14 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
       const metadata = {
         title: song.title,
-        artist: song.artists && song.artists.join(', '),
+        artist: song.artists && song.artists.map((val) => val.artist_name).join(', '),
         album: song.album?.album_name,
         artwork
       }
 
       const dummyAudio: HTMLAudioElement = document.getElementById('dummy-yt-player') as HTMLAudioElement
 
-      if (this.parsePlayerType(this.activePlayerType) === 'YOUTUBE') {
+      if (this.parsePlayerTypes(this.activePlayerTypes) === 'YOUTUBE') {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         const audio = require('../../../../assets/5-seconds-of-silence.mp3')
         dummyAudio.load()
@@ -451,7 +451,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       }
     }
 
-    const playerType = this.onPlayerTypeChanged(song.type)
+    const PlayerTypes = this.onPlayerTypesChanged(song.type)
 
     if (!song.playbackUrl || !song.duration) {
       console.debug('PlaybackUrl or Duration empty for', song._id)
@@ -477,7 +477,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       }
     }
 
-    if (playerType === 'LOCAL') {
+    if (PlayerTypes === 'LOCAL') {
       this.activePlayer.load(
         song.path ? 'media://' + song.path : song.playbackUrl,
         this.volume,

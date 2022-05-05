@@ -66,7 +66,7 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin) {
     this.genre = (
       await window.SearchUtils.searchEntityByOptions<Genre>({
         genre: {
-          genre_id: this.$route.params.id
+          genre_id: this.$route.query.id as string
         }
       })
     )[0]
@@ -75,7 +75,7 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin) {
   private async fetchSongList() {
     this.songList = await window.SearchUtils.searchSongsByOptions({
       genre: {
-        genre_id: this.$route.params.id
+        genre_id: this.$route.query.id as string
       },
       sortBy: vxm.themes.songSortBy
     })

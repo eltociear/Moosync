@@ -24,6 +24,15 @@ export class SongsChannel implements IpcChannelInterface {
       case SongEvents.REMOVE_SONG:
         this.removeSongs(event, request as IpcRequest<SongRequests.Songs>)
         break
+      case SongEvents.UPDATE_SONG:
+        this.updateSong(event, request as IpcRequest<SongRequests.Songs>)
+        break
+      case SongEvents.UPDATE_ALBUM:
+        this.updateAlbum(event, request as IpcRequest<SongRequests.UpdateAlbum>)
+        break
+      case SongEvents.UPDATE_ARTIST:
+        this.updateArtists(event, request as IpcRequest<SongRequests.UpdateArtist>)
+        break
       case SongEvents.SAVE_AUDIO_TO_FILE:
         this.saveBufferToFile(event, request as IpcRequest<SongRequests.SaveBuffer>, 'audio')
         break
@@ -68,6 +77,27 @@ export class SongsChannel implements IpcChannelInterface {
       }
     }
 
+    event.reply(request.responseChannel)
+  }
+
+  private async updateSong(event: Electron.IpcMainEvent, request: IpcRequest<SongRequests.Songs>) {
+    if (request.params.songs) {
+      const songs = request.params.songs as Song[]
+      for (const s of songs) {
+        await SongDB.updateSong(s)
+      }
+    }
+
+    event.reply(request.responseChannel)
+  }
+
+  private async updateArtists(event: Electron.IpcMainEvent, request: IpcRequest<SongRequests.UpdateArtist>) {
+    await SongDB.updateArtists(request.params.artist)
+    event.reply(request.responseChannel)
+  }
+
+  private async updateAlbum(event: Electron.IpcMainEvent, request: IpcRequest<SongRequests.UpdateAlbum>) {
+    await SongDB.updateAlbum(request.params.album)
     event.reply(request.responseChannel)
   }
 

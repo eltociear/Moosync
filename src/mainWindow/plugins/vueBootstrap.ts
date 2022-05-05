@@ -18,7 +18,8 @@ import {
   FormInputPlugin,
   FormTextareaPlugin,
   LinkPlugin,
-  SpinnerPlugin
+  SpinnerPlugin,
+  FormTagsPlugin
 } from 'bootstrap-vue'
 import Vue from 'vue'
 
@@ -33,3 +34,4 @@ Vue.use(FormInputPlugin)
 Vue.use(FormTextareaPlugin)
 Vue.use(LinkPlugin)
 Vue.use(SpinnerPlugin)
+Vue.use(FormTagsPlugin)

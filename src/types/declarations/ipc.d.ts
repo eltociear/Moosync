@@ -48,6 +48,16 @@ declare namespace ExtensionHostRequests {
   interface DownloadExtension {
     ext: FetchedExtensionManifest
   }
+
+  interface ContextMenuItems {
+    type: ContextMenuTypes
+  }
+
+  interface ContextMenuHandler {
+    id: string
+    packageName: string
+    arg: ExtensionContextMenuHandlerArgs
+  }
 }
 
 declare namespace LoggerRequests {
@@ -63,9 +73,7 @@ declare namespace PlaylistRequests {
   }
 
   interface CreatePlaylist {
-    name: string
-    desc: string
-    imgSrc: string
+    playlist: Partial<Playlist>
   }
 
   interface SaveCover {
@@ -74,6 +82,12 @@ declare namespace PlaylistRequests {
 
   interface RemoveExportPlaylist {
     playlist_id: string
+  }
+}
+
+declare namespace ScannerRequests {
+  interface ScanSinglePlaylist {
+    playlistPath: string
   }
 }
 
@@ -154,6 +168,14 @@ declare namespace SearchRequests {
 declare namespace SongRequests {
   interface Songs {
     songs: Song[]
+  }
+
+  interface UpdateArtist {
+    artist: Artist
+  }
+
+  interface UpdateAlbum {
+    album: Album
   }
 
   interface SaveBuffer {

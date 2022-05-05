@@ -30,6 +30,7 @@ interface marshaledSong {
   album_coverPath_low?: string
   album_song_count?: number
   lyrics?: string
+  artists?: string
   artist_name?: string
   artists_id?: string
   artist_coverPath?: string
@@ -37,6 +38,7 @@ interface marshaledSong {
   genere_id?: string
   date?: string
   year?: number
+  album_year?: number
   bitrate?: number
   codec?: string
   container?: string
@@ -48,7 +50,7 @@ interface marshaledSong {
   url?: string
   playbackUrl?: string
   date_added: number
-  type: PlayerType
+  type: PlayerTypes
   icon?: string
   provider_extension?: string
 }

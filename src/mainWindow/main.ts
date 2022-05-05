@@ -10,6 +10,7 @@
 import '@/mainWindow/plugins/recycleScroller'
 import '@/mainWindow/plugins/toasted'
 import '@/mainWindow/plugins/vueBootstrap'
+import '@/mainWindow/plugins/tags-typeahead'
 import '@/mainWindow/plugins/vueSliderBar'
 import '@/mainWindow/plugins/inlineSVG'
 import '@/sass/global.sass'

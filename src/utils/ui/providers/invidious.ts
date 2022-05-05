@@ -11,7 +11,7 @@ import { GenericProvider } from '@/utils/ui/providers/generics/genericProvider'
 
 import { GenericAuth } from './generics/genericAuth'
 import { GenericRecommendation } from './generics/genericRecommendations'
-import { Song } from '@moosync/moosync-types'
+
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
 import { InvidiousApiResources } from '@/utils/commonConstants'
@@ -105,7 +105,7 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
     const playlists: Playlist[] = []
     for (const p of items) {
       playlists.push({
-        playlist_id: `youtube-${p.playlistId}`,
+        playlist_id: `youtube:${p.playlistId}`,
         playlist_name: p.title,
         playlist_song_count: p.videoCount,
         playlist_coverPath: p.videos[0]?.videoThumbnails[0]?.url ?? '',
@@ -125,10 +125,15 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
     for (const s of items) {
       const stream = (s as InvidiousResponses.VideoDetails.VideoResponse).formatStreams?.slice(-1).pop()
       songs.push({
-        _id: s.videoId,
+        _id: `youtube:${s.videoId}`,
         title: s.title,
         duration: s.lengthSeconds,
-        artists: [s.author],
+        artists: [
+          {
+            artist_id: `youtube-author:${s.authorId}`,
+            artist_name: s.author
+          }
+        ],
         date_added: Date.now(),
         song_coverPath_high: s.videoThumbnails.find((val) => val.quality.includes('maxres'))?.url,
         song_coverPath_low: s.videoThumbnails.find((val) => val.quality.includes('medium'))?.url,

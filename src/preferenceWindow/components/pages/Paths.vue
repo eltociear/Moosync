@@ -19,7 +19,7 @@
                   <b-progress-bar class="progress-bar" :value="currentValue" animated />
                 </b-progress>
               </b-col>
-              <b-col cols="auto" class="ml-3"> {{ (currentValue / totalValue) * 100 }}% </b-col>
+              <b-col cols="auto" class="ml-3"> {{ ((currentValue / totalValue) * 100).toPrecision(2) }}% </b-col>
             </b-row>
           </b-container>
 

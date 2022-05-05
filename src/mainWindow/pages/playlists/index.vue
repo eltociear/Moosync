@@ -26,12 +26,12 @@
           >
             <template slot="icon">
               <SpotifyIcon
-                v-if="playlist.playlist_id && playlist.playlist_id.startsWith('spotify-')"
+                v-if="playlist.playlist_id && playlist.playlist_id.startsWith('spotify')"
                 color="#07C330"
                 :filled="true"
               />
               <YoutubeIcon
-                v-if="playlist.playlist_id && playlist.playlist_id.startsWith('youtube-')"
+                v-if="playlist.playlist_id && playlist.playlist_id.startsWith('youtube')"
                 color="#E62017"
                 :filled="true"
               />
@@ -84,11 +84,11 @@ export default class Playlists extends mixins(RouterPushes, ContextMenuMixin) {
   private playlistInAction: Playlist | undefined
 
   private getIconBgColor(playlist: Playlist) {
-    if (playlist.playlist_id?.startsWith('youtube-')) {
+    if (playlist.playlist_id?.startsWith('youtube')) {
       return '#E62017'
     }
 
-    if (playlist.playlist_id?.startsWith('spotify-')) {
+    if (playlist.playlist_id?.startsWith('spotify')) {
       return '#07C330'
     }
   }

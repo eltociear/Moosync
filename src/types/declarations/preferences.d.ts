@@ -11,7 +11,7 @@ type togglePaths = { path: string; enabled: boolean }[]
 
 type songMenu = 'compact' | 'classic'
 
-type SystemSettings = import('@moosync/moosync-types').Checkbox
+type SystemSettings = Checkbox
 
 interface Preferences {
   isFirstLaunch: boolean
