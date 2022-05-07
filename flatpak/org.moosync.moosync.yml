@@ -10,8 +10,7 @@ finish-args:
   - --socket=x11
   - --socket=pulseaudio
   - --share=network
-  - --device=dri
-  - --filesystem=host
+  - --filesystem=home
 modules:
   - name: libvips
     builddir: true
@@ -33,6 +32,9 @@ modules:
         dest-filename: Moosync-2.1.0-linux-x64.tar.xz
         dest: Moosync
 
+      - type: file
+        path: org.moosync.moosync.appdata.xml
+
       - type: script
         dest-filename: moosync.sh
         commands:
@@ -47,3 +49,4 @@ modules:
       - sed -e 's|Exec=/opt/Moosync/moosync|Exec=moosync|' -e 's/Icon=moosync/Icon=org.moosync.moosync/' Moosync/share/applications/moosync.desktop > /app/share/applications/${FLATPAK_ID}.desktop
       - cp -r Moosync/share/icons /app/share/icons
       - find /app/share/icons -iname "moosync.png" -exec rename moosync.png ${FLATPAK_ID}.png '{}' \;
+      - install -D org.moosync.moosync.appdata.xml --target-directory=/app/share/metainfo/
