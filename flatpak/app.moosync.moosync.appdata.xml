@@ -26,7 +26,7 @@
       <li>Available on Windows and Linux and MacOS</li>
     </ul>
   </description>
-  <launchable type="desktop-id">org.moosync.moosync.desktop</launchable>
+  <launchable type="desktop-id">app.moosync.moosync.desktop</launchable>
   <screenshots>
     <screenshot type="default">
       <caption>Music info and Queue</caption>

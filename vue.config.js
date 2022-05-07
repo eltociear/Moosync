@@ -82,7 +82,7 @@ module.exports = {
       customFileProtocol: 'moosync://./',
       builderOptions: {
         ...archElectronConfig,
-        appId: 'org.moosync.Moosync',
+        appId: 'app.moosync.Moosync',
         productName: 'Moosync',
         artifactName: '${productName}-${version}-${os}-${arch}.${ext}',
         icon: './build/icons/512x512.png',
