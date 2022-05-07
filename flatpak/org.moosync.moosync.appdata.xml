@@ -2,12 +2,12 @@
 <application>
   <id type="desktop">com.discordapp.Discord.desktop</id>
   <name>Moosync</name>
-  <developer_name>Sahil Gupte</developer_name>
   <summary>Customizable music player</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
   <url type="homepage">https://moosync.app</url>
   <icon type="remote" height="256" width="256">https://raw.githubusercontent.com/Moosync/Moosync/main/build/icons/icon.png</icon>
+  <project_group>Moosync</project_group>
   <description>
     <p>Moosync is an Electron based simple music player with a primary goal to provide a clean and easy interface.</p>
     <p>Through Moosync you can easily listen songs from your desktop or through Youtube and Spotify.</p>
@@ -28,7 +28,14 @@
   </description>
   <launchable type="desktop-id">org.moosync.moosync.desktop</launchable>
   <screenshots>
-  
+    <screenshot type="default">
+      <caption>Music info and Queue</caption>
+      <image>https://github.com/Moosync/Moosync/blob/dev/extras/screenshot_musicinfo_view.png?raw=true</image>
+    </screenshot>
+    <screenshot>
+      <caption>Song view</caption>
+      <image>https://github.com/Moosync/Moosync/blob/dev/extras/screenshot_song_view.png?raw=true</image>
+    </screenshot>
   </screenshots>
   <keywords>
     <keyword>music</keyword>
@@ -45,7 +52,7 @@
     <category>Network</category>
   </categories>
   <releases>
-    <release version="2.1.0" date="2022-05-06"/>
+    <release version="2.1.0" date="2022-05-06" />
   </releases>
   <content_rating type="oars-1.1">
     <content_attribute id="social-info">mild</content_attribute>
