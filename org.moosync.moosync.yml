@@ -36,13 +36,14 @@ modules:
       - type: script
         dest-filename: moosync.sh
         commands:
-          - zypak-wrapper.sh /app/Moosync/moosync "$@"
+          # TODO: Find a way to get extension-host and relaunch working with zypak
+          - /app/Moosync/moosync --no-sandbox "$@"
+
     build-commands:
-      - ls -a Moosync/share
       - "install -Dm755 moosync.sh /app/bin/moosync"
       - "mv Moosync/Moosync /app/Moosync"
       - chmod +x /app/Moosync/moosync
       - install -d /app/share/applications
       - sed -e 's|Exec=/opt/Moosync/moosync|Exec=moosync|' -e 's/Icon=moosync/Icon=org.moosync.moosync/' Moosync/share/applications/moosync.desktop > /app/share/applications/${FLATPAK_ID}.desktop
-      - install -d Moosync/share/icons /app/share/icons
-      - find . -iname "moosync.png" -exec rename moosync.png ${FLATPAK_ID}.png '{}' \;
+      - cp -r Moosync/share/icons /app/share/icons
+      - find /app/share/icons -iname "moosync.png" -exec rename moosync.png ${FLATPAK_ID}.png '{}' \;
