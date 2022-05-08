@@ -94,11 +94,14 @@ module.exports = {
         },
         linux: {
           icon: './build/icons/',
-          target: ['AppImage', 'deb', 'tar.gz', 'pacman']
+          target: ['AppImage', 'deb', 'tar.gz', 'pacman', 'snap']
         },
         nsis: {
           oneClick: false,
           perMachine: true
+        },
+        snap: {
+          stagePackages: ['default', 'libvips-dev']
         },
         fileAssociations: [
           {
@@ -149,6 +152,10 @@ module.exports = {
             repo: 'Moosync',
             vPrefixedTagName: true,
             releaseType: 'draft'
+          },
+          {
+            provider: 'snapStore',
+            repo: 'moosync'
           }
         ],
         asarUnpack: ['*.worker.js', 'sandbox.js', '**/node_modules/**/*.node'],

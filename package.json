@@ -3,6 +3,7 @@
   "version": "2.1.0",
   "private": true,
   "author": "Ovenoboyo <ovenoboyo@gmail.com>",
+  "description": "Moosync is a customizable desktop music player with a clean interface",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
