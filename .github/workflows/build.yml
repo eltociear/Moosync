@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-latest, snapcore/snapcraft, windows-latest]
 
     steps:
       - name: Check out Git repository
@@ -24,6 +24,7 @@ jobs:
         uses: samuelmeuli/action-snapcraft@v1
         with:
           snapcraft_token: ${{ secrets.SNAPCRAFT_TOKEN }}
+          skip_install: true
 
       - name: Get yarn cache dir
         id: yarn-cache
