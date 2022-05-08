@@ -25,6 +25,10 @@ jobs:
         with:
           snapcraft_token: ${{ secrets.SNAPCRAFT_TOKEN }}
 
+      - name: Install multipass
+        if: ${{ runner.os == 'Linux' }}
+        run: sudo snap install multipass
+
       - name: Get yarn cache dir
         id: yarn-cache
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -88,7 +92,6 @@ jobs:
           WIN_CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SNAPCRAFT_BUILD_ENVIRONMENT: host
-          SNAP_DESTRUCTIVE_MODE: true
           CI: true
 
       - name: yarn electron:build
