@@ -26,6 +26,7 @@ jobs:
           snapcraft_token: ${{ secrets.SNAPCRAFT_TOKEN }}
 
       - name: Install multipass
+        if: ${{ runner.os == 'Linux' }}
         run: sudo snap install multipass
 
       - name: Get yarn cache dir
