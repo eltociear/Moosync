@@ -91,7 +91,6 @@ jobs:
           WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SNAPCRAFT_BUILD_ENVIRONMENT: host
           CI: true
 
       - name: yarn electron:build
@@ -101,6 +100,7 @@ jobs:
           CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SNAPCRAFT_BUILD_ENVIRONMENT: host
           CI: true
 
       - uses: actions/upload-artifact@v2
