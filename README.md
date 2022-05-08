@@ -1,4 +1,4 @@
-<img align="left" width="100" height="100" src="extras/banner_logo.png" alt="moosync logo">
+<img align="left" width="130" height="130" src="extras/banner_logo.png" alt="moosync logo">
 
 # Moosync
 
