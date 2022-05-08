@@ -20,6 +20,7 @@ jobs:
           node-version: 16
 
       - name: Install Snapcraft
+        if: ${{ runner.os == 'Linux' }}
         uses: samuelmeuli/action-snapcraft@v1
         with:
           snapcraft_token: ${{ secrets.SNAPCRAFT_TOKEN }}
