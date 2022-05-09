@@ -31,6 +31,14 @@
 
 You may download the latest release from [Official website](https://moosync.app) or from [GitHub Releases](https://github.com/Moosync/Moosync/releases)
 
+### Flatpak
+
+Moosync can be found on [FlatHub](https://flathub.org/apps/details/app.moosync.moosync) as ```app.moosync.moosync```.
+You may install it by
+```bash
+flatpak install flathub app.moosync.moosync
+```
+
 ### Archlinux User Repository (AUR)
 
 Moosync can be found on [AUR](https://aur.archlinux.org/packages/moosync). You can install it using an AUR helper such as [Yay](https://github.com/Jguer/yay)
