@@ -33,3 +33,8 @@ config.env
 test-results/
 playwright-report/
 coverage/
+
+.flatpak-builder
+build-dir
+generated-sources.json
+

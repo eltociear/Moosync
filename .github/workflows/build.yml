@@ -19,6 +19,16 @@ jobs:
         with:
           node-version: 16
 
+      - name: Install Snapcraft
+        if: ${{ runner.os == 'Linux' }}
+        uses: samuelmeuli/action-snapcraft@v1
+        with:
+          snapcraft_token: ${{ secrets.SNAPCRAFT_TOKEN }}
+
+      - name: Install multipass
+        if: ${{ runner.os == 'Linux' }}
+        run: sudo snap install multipass
+
       - name: Get yarn cache dir
         id: yarn-cache
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -90,6 +100,7 @@ jobs:
           CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SNAPCRAFT_BUILD_ENVIRONMENT: host
           CI: true
 
       - uses: actions/upload-artifact@v2

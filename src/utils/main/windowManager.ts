@@ -193,8 +193,8 @@ export class WindowHandler {
     setWindowSize(isMainWindow ? 'mainWindow' : 'prefWindow', { width, height })
 
     if (isMainWindow) {
-      event.preventDefault()
       if (!AppExitHandler._isQuitting && AppExitHandler._minimizeToTray) {
+        event.preventDefault()
         await this.trayHandler.createTray()
         window.hide()
       } else {
