@@ -145,6 +145,7 @@ export class SystemThemeHandler {
 
   private async getKDEConfigDirs() {
     const execUtil = await this.getKDEConfigUtil()
+    console.debug('Got config tool', execUtil)
 
     if (execUtil) {
       try {
@@ -233,40 +234,39 @@ export class SystemThemeHandler {
   }
 
   private async findVar(varName: string, filename: string): Promise<string | undefined> {
-    try {
-      const themeVar = (await execAsync(`grep '@define-color ${varName} ' ${filename}`)).stdout
-        .replaceAll(`@define-color ${varName}`, '')
-        .replaceAll(';', '')
-        .trim()
-      if (themeVar.startsWith('@')) {
-        return this.findVar(themeVar.substring(1, themeVar.length), filename)
-      }
-
-      return themeVar
-    } catch (e) {
-      console.error('error while grep', filename, varName, e)
+    const themeVar = (await execAsync(`grep '@define-color ${varName} ' ${filename}`)).stdout
+      .replaceAll(`@define-color ${varName}`, '')
+      .replaceAll(';', '')
+      .trim()
+    if (themeVar.startsWith('@')) {
+      return this.findVar(themeVar.substring(1, themeVar.length), filename)
     }
+
+    return themeVar
   }
 
-  private async parseGTKTheme(themePath: string): Promise<ThemeDetails> {
+  private async parseGTKTheme(themePath: string): Promise<ThemeDetails | undefined> {
     const filename = path.join(themePath, 'gtk-3.0', 'gtk.css')
+    try {
+      const theme = {
+        primary: (await this.findVar('theme_base_color', filename)) ?? defaultTheme.primary,
+        secondary: (await this.findVar('wm_bg', filename)) ?? defaultTheme.secondary,
+        tertiary: (await this.findVar('theme_bg_color', filename)) ?? defaultTheme.tertiary,
+        textPrimary: (await this.findVar('theme_text_color', filename)) ?? defaultTheme.textPrimary,
+        textSecondary: (await this.findVar('placeholder_text_color', filename)) ?? defaultTheme.textSecondary,
+        textInverse: (await this.findVar('theme_unfocused_selected_fg_color', filename)) ?? defaultTheme.textInverse,
+        accent: (await this.findVar('theme_selected_bg_color', filename)) ?? defaultTheme.accent,
+        divider: (await this.findVar('borders', filename)) ?? defaultTheme.divider
+      }
 
-    const theme = {
-      primary: (await this.findVar('theme_base_color', filename)) ?? defaultTheme.primary,
-      secondary: (await this.findVar('wm_bg', filename)) ?? defaultTheme.secondary,
-      tertiary: (await this.findVar('theme_bg_color', filename)) ?? defaultTheme.tertiary,
-      textPrimary: (await this.findVar('theme_text_color', filename)) ?? defaultTheme.textPrimary,
-      textSecondary: (await this.findVar('placeholder_text_color', filename)) ?? defaultTheme.textSecondary,
-      textInverse: (await this.findVar('theme_unfocused_selected_fg_color', filename)) ?? defaultTheme.textInverse,
-      accent: (await this.findVar('theme_selected_bg_color', filename)) ?? defaultTheme.accent,
-      divider: (await this.findVar('borders', filename)) ?? defaultTheme.divider
-    }
-
-    return {
-      id: 'system_default',
-      name: 'System Theme (GTK) (Beta)',
-      author: 'Moosync',
-      theme: theme as ThemeItem
+      return {
+        id: 'system_default',
+        name: 'System Theme (GTK) (Beta)',
+        author: 'Moosync',
+        theme: theme as ThemeItem
+      }
+    } catch (e) {
+      console.error('Error while fetching theme')
     }
   }
 
@@ -276,7 +276,7 @@ export class SystemThemeHandler {
     for (const dir of themePaths) {
       try {
         const themeDir = path.join(dir, theme.trim().replaceAll(/['"]+/g, ''))
-        access(themeDir)
+        await access(themeDir)
         return this.parseGTKTheme(themeDir)
       } catch (e) {
         console.error('Cant access', dir)
