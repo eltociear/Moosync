@@ -10,15 +10,15 @@
     <!-- ============================== -->
 
     <!-- == SOFTWARE SPECIFIC SECTION == -->
-    <title>Moosync (Install)</title>
+    <title>Moosync</title>
     <authors>Sahil Gupte</authors>
-    <projectUrl>https://github.com/Moosync/Moosync</projectUrl>
+    <projectUrl>https://moosync.app</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/Moosync/Moosync/main/build/icons/icon.png</iconUrl>
     <licenseUrl>https://www.gnu.org/licenses/gpl-3.0.md</licenseUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <projectSourceUrl>https://github.com/Moosync/Moosync</projectSourceUrl>
     <docsUrl>https://moosync.app/wiki/</docsUrl>
-    <tags>moosync music audio player youtube spotify</tags>
+    <tags>moosync music audio player youtube spotify theme extension plugin</tags>
     <summary>Moosync is a customizable desktop music player with a clean interface</summary>
     <description>
       Moosync is an Electron based simple music player with a primary goal to provide a clean and easy interface.
