@@ -38,3 +38,5 @@ coverage/
 build-dir
 generated-sources.json
 
+*.nupkg
+
