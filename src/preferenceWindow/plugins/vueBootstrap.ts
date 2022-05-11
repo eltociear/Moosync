@@ -12,10 +12,13 @@ import {
   SidebarPlugin,
   TooltipPlugin,
   FormCheckboxPlugin,
+  DropdownPlugin,
   ModalPlugin,
   FormInputPlugin,
   ButtonPlugin,
-  ProgressPlugin
+  ProgressPlugin,
+  TablePlugin,
+  PaginationPlugin
 } from 'bootstrap-vue'
 
 import Vue from 'vue'
@@ -28,3 +31,6 @@ Vue.use(ModalPlugin)
 Vue.use(FormInputPlugin)
 Vue.use(ButtonPlugin)
 Vue.use(ProgressPlugin)
+Vue.use(TablePlugin)
+Vue.use(DropdownPlugin)
+Vue.use(PaginationPlugin)

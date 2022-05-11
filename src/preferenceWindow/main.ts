@@ -9,6 +9,7 @@
 
 import '@/preferenceWindow/plugins/vueBootstrap'
 import '@/sass/global.sass'
+import '@/preferenceWindow/plugins/recycleScroller'
 import 'animate.css'
 
 import App from './Preferences.vue'

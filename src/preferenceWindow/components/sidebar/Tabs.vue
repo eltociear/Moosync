@@ -67,7 +67,8 @@ export default class Sidebar extends Vue {
     { component: 'Paths', title: 'Paths', link: '/paths' },
     { component: 'Themes', title: 'Themes', link: '/themes' },
     { component: 'Extensions', title: 'Extensions', link: '/extensions' },
-    { component: 'System', title: 'System', link: '/system' }
+    { component: 'System', title: 'System', link: '/system' },
+    { component: 'System', title: 'Logs', link: '/logs' }
   ]
 }
 </script>

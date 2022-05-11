@@ -410,7 +410,14 @@ contextBridge.exposeInMainWorld('LoggerUtils', {
     ipcRendererHolder.send<LoggerRequests.LogEvents>(IpcEvents.LOGGER, {
       type: LoggerEvents.TRACE,
       params: { message: message }
-    })
+    }),
+
+  watchLogs: (callback: (data: unknown) => void) => {
+    ipcRendererHolder.on(LoggerEvents.WATCH_LOGS, callback)
+    return ipcRendererHolder.send<void>(IpcEvents.LOGGER, { type: LoggerEvents.WATCH_LOGS, params: undefined })
+  },
+
+  unwatchLogs: () => ipcRendererHolder.send(IpcEvents.LOGGER, { type: LoggerEvents.UNWATCH_LOGS, params: undefined })
 })
 
 contextBridge.exposeInMainWorld('NotifierUtils', {

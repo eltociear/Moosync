@@ -13,8 +13,9 @@ import { WriteStream, createWriteStream, readdir, unlink } from 'fs'
 import log from 'loglevel'
 import path from 'path'
 import stripAnsi from 'strip-ansi'
+import { Tail } from 'tail'
 
-let fileName: string
+let filePath: string
 let fileStream: WriteStream
 let fileConsole: Console | undefined
 
@@ -67,11 +68,12 @@ function createFile(basePath: string) {
   const newFile = `moosync-${new Date().toLocaleDateString('en-GB').replaceAll('/', '-')}${
     isDevelopment ? '-development' : ''
   }.log`
-  if (fileName !== newFile) {
-    fileName = newFile
+  const newPath = path.join(basePath, newFile)
+
+  if (filePath !== newPath) {
+    filePath = newPath
     fileStream && fileStream.end()
 
-    const newPath = path.join(basePath, newFile)
     fileStream = createWriteStream(newPath, { flags: 'a' })
     fileConsole = new Console(fileStream, fileStream)
   }
@@ -107,4 +109,8 @@ export function prefixLogger(basePath: string, logger: log.Logger) {
     }
   }
   logger.setLevel(logLevel)
+}
+
+export function getLogTail() {
+  return new Tail(path.join(filePath), { encoding: 'utf-8', fromBeginning: true, follow: true })
 }

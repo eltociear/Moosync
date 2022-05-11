@@ -233,7 +233,7 @@ async function scanPlaylist(filePath: string) {
 async function findCoverFile(baseDir: string, fileName: string): Promise<Buffer | undefined> {
   const files = await readdir(baseDir)
   const validFiles = files.filter((val) =>
-    val.match(new RegExp(`cover|albumart|album_art|${fileName.replace(path.extname(fileName), '')}`, 'i'))
+    val.match(new RegExp(`cover|albumart|album_art|folder|${fileName.replace(path.extname(fileName), '')}`, 'i'))
   )
 
   for (const f of validFiles) {
