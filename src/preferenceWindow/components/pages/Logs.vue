@@ -40,9 +40,27 @@
           class="log-table"
           @filtered="onFiltered"
         >
+          <template #cell(time)="data">
+            <div :class="`time-col ${data.item.level.toLowerCase()}`">
+              {{ data.item.time }}
+            </div>
+          </template>
+
+          <template #cell(level)="data">
+            <div :class="`level-col ${data.item.level.toLowerCase()}`">
+              {{ data.item.level }}
+            </div>
+          </template>
+
+          <template #cell(process)="data">
+            <div :class="`process-col ${data.item.level.toLowerCase()}`">
+              {{ data.item.process }}
+            </div>
+          </template>
+
           <template #cell(message)="data">
             <div class="message-col">
-              <pre>{{ data.item.message }}</pre>
+              <pre :class="data.item.level.toLowerCase()">{{ data.item.message }}</pre>
             </div>
           </template>
         </b-table>
@@ -243,4 +261,16 @@ td
 .pagination
   margin-top: 15px
   justify-content: center
+
+.debug
+  color: #29B8DB
+
+.info
+  color: #2E80EA
+
+.warn
+  color: #F5F543
+
+.error
+  color: #F04538
 </style>

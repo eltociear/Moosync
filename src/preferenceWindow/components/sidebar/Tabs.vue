@@ -53,13 +53,15 @@ import Extensions from '@/icons/ExtensionsIcon.vue'
 import Paths from '@/icons/PathsIcon.vue'
 import System from '@/icons/SystemIcon.vue'
 import Themes from '@/icons/ThemesIcon.vue'
+import Logs from '@/icons/LogsIcon.vue'
 
 @Component({
   components: {
     Extensions,
     Paths,
     System,
-    Themes
+    Themes,
+    Logs
   }
 })
 export default class Sidebar extends Vue {
@@ -68,7 +70,7 @@ export default class Sidebar extends Vue {
     { component: 'Themes', title: 'Themes', link: '/themes' },
     { component: 'Extensions', title: 'Extensions', link: '/extensions' },
     { component: 'System', title: 'System', link: '/system' },
-    { component: 'System', title: 'Logs', link: '/logs' }
+    { component: 'Logs', title: 'Logs', link: '/logs' }
   ]
 }
 </script>
