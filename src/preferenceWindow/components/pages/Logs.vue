@@ -9,7 +9,10 @@
 
 <template>
   <div class="w-100 h-100">
-    <div class="logger-bg h-100">
+    <div>
+      <CheckboxGroup prefKey="logs" title="Log settings" :defaultValue="logSettings" />
+    </div>
+    <div class="logger-bg">
       <div class="controls w-100 d-flex" no-gutters>
         <b-dropdown :text="capitalizeFirstLetter(levelFilter)" variant="success" class="m-2">
           <b-dropdown-item @click="logLevelChange('ALL')">All</b-dropdown-item>
@@ -79,6 +82,7 @@
 <script lang="ts">
 import { Component } from 'vue-property-decorator'
 import Vue from 'vue'
+import CheckboxGroup from '../CheckboxGroup.vue'
 
 type LogLines = {
   index: number
@@ -95,7 +99,9 @@ type LogPrevLine = {
 type LogLevels = 'ALL' | 'DEBUG' | 'INFO' | 'WARN' | 'ERROR'
 
 @Component({
-  components: {}
+  components: {
+    CheckboxGroup
+  }
 })
 export default class Logs extends Vue {
   private logLines: LogLines[] = []
@@ -113,6 +119,16 @@ export default class Logs extends Vue {
   private perPage = 50
   private currentPage = 1
   private totalRows = this.logLines.length
+
+  private get logSettings(): Checkbox[] {
+    return [
+      {
+        key: 'debug_logging',
+        title: 'Enable debug logging',
+        enabled: false
+      }
+    ]
+  }
 
   private get processFilters() {
     return Object.keys(this.possibleProcessFilters)
@@ -246,6 +262,7 @@ td
 <style lang="sass" scoped>
 .logger-bg
   background: var(--tertiary)
+  height: calc(100% - 65px)
 
 .log-content
   height: calc( 100% - 120px )
