@@ -117,11 +117,10 @@ export class MainHostIPCHandler {
       this.reSpawnProcess()
     }
 
-    try {
-      !isKilled && this.sandboxProcess.send(data)
-    } catch (e) {
-      console.error('Error communicating with sandbox process. Probably killed')
-    }
+    !isKilled &&
+      this.sandboxProcess.send(data, () => {
+        console.warn('Error communicating with sandbox process. Probably killed')
+      })
   }
 
   public async closeHost() {
