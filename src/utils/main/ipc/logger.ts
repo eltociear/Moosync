@@ -12,6 +12,8 @@ import { IpcEvents, LoggerEvents } from './constants'
 import { getLogTail } from '../logger/utils'
 import { WindowHandler } from '../windowManager'
 import { Tail } from 'tail'
+import { setLogLevel } from '../logger/utils'
+import { getExtensionHostChannel } from '.'
 
 export class LoggerChannel implements IpcChannelInterface {
   name = IpcEvents.LOGGER
@@ -39,6 +41,9 @@ export class LoggerChannel implements IpcChannelInterface {
         break
       case LoggerEvents.UNWATCH_LOGS:
         this.stopListenLogs(event, request)
+        break
+      case LoggerEvents.TOGGLE_DEBUG:
+        this.setLogLevel(event, request as IpcRequest<LoggerRequests.LogLevels>)
         break
     }
   }
@@ -95,5 +100,13 @@ export class LoggerChannel implements IpcChannelInterface {
     } else {
       return { prev: line }
     }
+  }
+
+  private setLogLevel(event: Electron.IpcMainEvent, request: IpcRequest<LoggerRequests.LogLevels>) {
+    if (request.params.level) {
+      setLogLevel(request.params.level)
+      getExtensionHostChannel().setLogLevel(request.params.level)
+    }
+    event.reply(request.responseChannel)
   }
 }

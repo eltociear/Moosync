@@ -10,7 +10,7 @@
 import { mainRequestsKeys } from '@/utils/extensions/constants'
 
 import { ExtensionHandler } from '@/utils/extensions/sandbox/extensionHandler'
-import { prefixLogger } from '@/utils/main/logger/utils'
+import { prefixLogger, setLogLevel } from '@/utils/main/logger/utils'
 import log from 'loglevel'
 import { mainRequests } from '../constants'
 
@@ -168,6 +168,10 @@ class MainRequestHandler {
 
     if (message.type === 'on-clicked-context-menu') {
       this.handler.fireContextMenuCallback(message.data.id, message.data.packageName, message.data.arg)
+    }
+
+    if (message.type === 'set-log-level') {
+      setLogLevel(message.data.level)
     }
   }
 

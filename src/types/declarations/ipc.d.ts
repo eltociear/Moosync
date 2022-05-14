@@ -64,6 +64,10 @@ declare namespace LoggerRequests {
   interface LogEvents {
     message: unknown[]
   }
+
+  interface LogLevels {
+    level: import('loglevel').LogLevelDesc
+  }
 }
 
 declare namespace PlaylistRequests {

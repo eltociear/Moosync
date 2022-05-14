@@ -11,9 +11,11 @@ import Store from 'electron-store'
 import { app } from 'electron'
 import { enableStartup } from '../autoLaunch'
 import path from 'path'
-import { getPreferenceChannel, getScannerChannel } from '../ipc'
+import { getExtensionHostChannel, getPreferenceChannel, getScannerChannel } from '../ipc'
 import { setMinimizeToTray } from '@/utils/main/windowManager'
 import { watch } from 'fs/promises'
+import { setLogLevel } from '../logger/utils'
+import log from 'loglevel'
 
 type MusicPaths = { path: string; enabled: boolean }
 
@@ -104,6 +106,12 @@ export function removeSelectivePreference(key: string, isExtension = false) {
  */
 export function setInitialPreferences() {
   onPreferenceChanged('system', loadPreferences()?.system)
+
+  saveSelectivePreference('logs.0', {
+    key: 'debug_logging',
+    title: 'Enable debug logging',
+    enabled: process.env.DEBUG_LOGGING
+  })
 }
 
 /**
@@ -136,6 +144,16 @@ export async function onPreferenceChanged(key: string, value: any) {
     getScannerChannel().scanAll()
     shouldWatchFileChanges()
     return
+  }
+
+  if (key === 'logs') {
+    for (const l of value as Checkbox[]) {
+      if (l.key === 'debug_logging') {
+        const level = l.enabled ? log.levels.TRACE : log.levels.INFO
+        setLogLevel(level)
+        getExtensionHostChannel().setLogLevel(level)
+      }
+    }
   }
 }
 

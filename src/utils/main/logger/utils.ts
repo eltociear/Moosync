@@ -19,7 +19,20 @@ let filePath: string
 let fileStream: WriteStream
 let fileConsole: Console | undefined
 
-const logLevel = process.env.DEBUG_LOGGING ? log.levels.TRACE : log.levels.INFO
+let logLevel: log.LogLevelDesc = process.env.DEBUG_LOGGING ? log.levels.TRACE : log.levels.INFO
+
+const activeLoggers: log.Logger[] = []
+
+export function setLogLevel(level: log.LogLevelDesc) {
+  logLevel = level
+  for (const l of activeLoggers) {
+    l.setLevel(logLevel)
+  }
+}
+
+export function getLoggerLevel() {
+  return logLevel
+}
 
 export function cleanLogs(basePath: string) {
   const lowestDate = new Date(Date.now())
@@ -109,6 +122,7 @@ export function prefixLogger(basePath: string, logger: log.Logger) {
     }
   }
   logger.setLevel(logLevel)
+  activeLoggers.push(logger)
 }
 
 export function getLogTail() {
