@@ -14,24 +14,52 @@
         <b-col class="title" cols="auto">Logging in to</b-col>
         <b-col class="title ml-1" cols="auto" :style="{ color: textColor }">{{ title }}</b-col>
       </b-row>
-      <b-row>
-        <b-col class="mt-4 waiting">Waiting for response from your browser...</b-col>
-      </b-row>
-      <b-row>
-        <b-col class="d-flex justify-content-center">
-          <div
-            @click="openBrowser"
-            class="start-button button-grow mt-4 d-flex justify-content-center align-items-center"
-          >
-            Open browser
-          </div>
-        </b-col>
-      </b-row>
-      <b-row>
-        <b-col>
-          <b-input class="ext-input mt-3" @click="copyToClipboard" v-model="url" readonly />
-        </b-col>
-      </b-row>
+      <div v-if="!alternative">
+        <b-row>
+          <b-col class="mt-4 waiting">Waiting for response from your browser...</b-col>
+        </b-row>
+        <b-row>
+          <b-col class="d-flex justify-content-center">
+            <div
+              @click="openBrowser"
+              class="start-button button-grow mt-4 d-flex justify-content-center align-items-center"
+            >
+              Open browser
+            </div>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col class="not-working-text mt-3" @click="alternative = true"> Browser not opening? </b-col>
+        </b-row>
+      </div>
+      <div v-if="alternative">
+        <b-row>
+          <b-col class="mt-4 waiting">Paste this link in your browser...</b-col>
+        </b-row>
+        <b-row>
+          <b-col>
+            <b-input class="ext-input mt-3" @click="copyToClipboard" v-model="url" readonly />
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col class="mt-4 waiting">Then enter the code shown</b-col>
+        </b-row>
+        <b-row>
+          <b-col>
+            <b-input class="ext-input mt-3 code-input" v-model="oauthCode" placeholder="Code" />
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col class="d-flex justify-content-center">
+            <div
+              @click="submitCode"
+              class="start-button button-grow mt-4 d-flex justify-content-center align-items-center"
+            >
+              Submit
+            </div>
+          </b-col>
+        </b-row>
+      </div>
     </b-container>
     <CrossIcon @click.native="close" class="close-icon button-grow" />
   </b-modal>
@@ -59,8 +87,11 @@ export default class OAuthModal extends Vue {
   private textColor = ''
   private title = ''
   private url = ''
+  private oauthCode = ''
 
   private showing = false
+
+  private alternative = true
 
   private openBrowser() {
     window.WindowUtils.openExternal(this.url)
@@ -74,9 +105,17 @@ export default class OAuthModal extends Vue {
     navigator.clipboard.writeText(this.url)
   }
 
+  private submitCode() {
+    if (this.oauthCode.startsWith('?')) {
+      this.oauthCode = 'moosync://callback' + this.oauthCode
+    }
+    bus.$emit(EventBus.GOT_OAUTH_CODE, this.oauthCode)
+  }
+
   mounted() {
     bus.$on(EventBus.SHOW_OAUTH_MODAL, (title: string, url: string, textColor: string) => {
       if (!this.showing) {
+        this.alternative = false
         this.title = title
         this.textColor = textColor
         this.url = url
@@ -135,4 +174,15 @@ export default class OAuthModal extends Vue {
   padding: 20px 15px 20px  15px
   &::placeholder
     color: var(--textSecondary)
+
+.code-input
+  color: var(--textPrimary)
+
+.not-working-text
+  color: var(--textSecondary)
+  font-size: 14px
+  transition: all 0.1s ease-in
+  cursor: pointer
+  &:hover
+    color: var(--accent)
 </style>
