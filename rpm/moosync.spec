@@ -10,7 +10,7 @@ Release: 1
 URL: https://github.com/Moosync/Moosync
 License: GPLv3+
 Group: Applications/Multimedia
-Source: %{url}/releases/download/v%{version}/Moosync-%{version}-linux-x86_64.rpm
+Source0: %{url}/releases/download/v%{version}/Moosync-%{version}-linux-x86_64.rpm
 ExclusiveArch: x86_64
 
 BuildRequires: desktop-file-utils
@@ -34,7 +34,7 @@ Features
   * Available on Windows and Linux and MacOS
 
 %prep
-rpm2cpio %{Source} | cpio -idmv
+rpm2cpio %{SOURCE0} | cpio -idmv
 sed -i 's|/opt/Moosync/moosync|%{_libdir}/%{name}/moosync|' \
     %{_builddir}/usr/share/applications/moosync.desktop
 
