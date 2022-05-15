@@ -59,7 +59,6 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/*.desktop
 %{_bindir}/moosync
 %{_datadir}/applications/*.desktop
 %{_datadir}/icons/hicolor/*/apps/*.png
-%{_licensedir}/%{name}/
 %attr(4755,root,root) %{_libdir}/%{name}/chrome-sandbox
 
 
