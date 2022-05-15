@@ -14,7 +14,6 @@ import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import RemoteSong from '@/utils/ui/mixins/remoteSongMixin'
 import { bus } from '@/mainWindow/main'
 import { mixins } from 'vue-class-component'
-import { toSong } from '@/utils/models/youtube'
 import { vxm } from '@/mainWindow/store'
 
 @Component
@@ -28,18 +27,54 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     await window.DBUtils.addToPlaylist(playlist_id, ...songs)
   }
 
-  private getSortByMenu(sortCallback: sortCallback, currentSort: sortOptions) {
+  private getSongSortByMenu(sort: Sort<SongSortOptions>) {
     const menu: MenuItem[] = [
       {
         label: 'Sort by',
         children: [
           {
-            label: `Name ${currentSort.type === 'name' ? (currentSort.asc ? '▲' : '▼') : ''}`,
-            handler: () => sortCallback({ type: 'name', asc: currentSort.type === 'name' && !currentSort.asc })
+            label: `Name ${sort.current.type === 'title' ? (sort.current.asc ? '▲' : '▼') : ''}`,
+            handler: () => sort.callback({ type: 'title', asc: sort.current.type === 'title' && !sort.current.asc })
           },
           {
-            label: `Date added ${currentSort.type === 'date' ? (currentSort.asc ? '▲' : '▼') : ''}`,
-            handler: () => sortCallback({ type: 'date', asc: currentSort.type === 'date' && !currentSort.asc })
+            label: `Date added ${sort.current.type === 'date_added' ? (sort.current.asc ? '▲' : '▼') : ''}`,
+            handler: () =>
+              sort.callback({ type: 'date_added', asc: sort.current.type === 'date_added' && !sort.current.asc })
+          }
+        ]
+      }
+    ]
+    return menu
+  }
+
+  private getPlaylistSortByMenu(sort: Sort<PlaylistSortOptions>) {
+    const menu: MenuItem[] = [
+      {
+        label: 'Sort by',
+        children: [
+          {
+            label: `Name ${sort.current.type === 'name' ? (sort.current.asc ? '▲' : '▼') : ''}`,
+            handler: () => sort.callback({ type: 'name', asc: sort.current.type === 'name' && !sort.current.asc })
+          },
+          {
+            label: `Provider ${sort.current.type === 'provider' ? (sort.current.asc ? '▲' : '▼') : ''}`,
+            handler: () =>
+              sort.callback({ type: 'provider', asc: sort.current.type === 'provider' && !sort.current.asc })
+          }
+        ]
+      }
+    ]
+    return menu
+  }
+
+  private getGenericSortByMenu(sort: Sort<NormalSortOptions>) {
+    const menu: MenuItem[] = [
+      {
+        label: 'Sort by',
+        children: [
+          {
+            label: `Name ${sort.current.type === 'name' ? (sort.current.asc ? '▲' : '▼') : ''}`,
+            handler: () => sort.callback({ type: 'name', asc: sort.current.type === 'name' && !sort.current.asc })
           }
         ]
       }
@@ -70,11 +105,11 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     return menu
   }
 
-  private getGeneralSongsContextMenu(refreshCallback: () => void, sort?: sort) {
+  private getGeneralSongsContextMenu(refreshCallback: () => void, sort?: Sort<SongSortOptions>) {
     const items: MenuItem[] = []
 
     if (sort) {
-      items.push(...this.getSortByMenu(sort.callback, sort.current))
+      items.push(...this.getSongSortByMenu(sort))
     }
 
     items.push({
@@ -89,7 +124,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     exclude: string | undefined,
     refreshCallback?: () => void,
     isRemote = false,
-    sort?: sort,
+    sort?: Sort<SongSortOptions>,
     ...item: Song[]
   ) {
     const items: MenuItem[] = [
@@ -112,7 +147,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     ]
 
     if (sort) {
-      items.push(...this.getSortByMenu(sort.callback, sort.current))
+      items.push(...this.getSongSortByMenu(sort))
     }
 
     if (!isRemote) {
@@ -135,6 +170,11 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
           }
         ]
       )
+    } else {
+      items.push({
+        label: 'Add Song to Library',
+        handler: () => this.addSongsToLibrary(...item)
+      })
     }
 
     items.push({
@@ -143,32 +183,6 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
         bus.$emit(EventBus.SHOW_SONG_INFO_MODAL, item[0])
       }
     })
-    return items
-  }
-
-  private getYoutubeContextMenu(...item: YTMusicVideo[]) {
-    const items = [
-      {
-        label: 'Play Now',
-        handler: () => {
-          this.playTop(toSong(...item))
-        }
-      },
-      {
-        label: 'Add To Queue',
-        handler: () => {
-          this.queueSong(toSong(...item))
-        }
-      },
-      {
-        label: 'Add To Library',
-        handler: () => this.addYTItemsToLibrary(...item)
-      },
-      {
-        label: 'Add To Playlist',
-        children: this.populatePlaylistMenu(toSong(...item))
-      }
-    ]
     return items
   }
 
@@ -188,34 +202,31 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
           window.DBUtils.exportPlaylist(playlist.playlist_id)
         }
       })
+
+      items.push(this.getEntityInfoMenu(playlist))
     }
     return items
   }
 
   private getPlaylistContentContextMenu(
     isRemote: boolean,
-    sort: sort | undefined,
+    sort: Sort<SongSortOptions> | undefined,
     refreshCallback: () => void,
     ...item: Song[]
   ) {
     const items = this.getSongContextMenu(undefined, refreshCallback, isRemote, sort, ...item)
-    if (isRemote) {
-      items.push({
-        label: 'Add Song to Library',
-        handler: () => this.addSongsToLibrary(...item)
-      })
-    }
     return items
   }
 
-  private getGeneralPlaylistMenu(refreshCallback?: () => void) {
+  private getGeneralPlaylistMenu(sort: Sort<PlaylistSortOptions>, refreshCallback?: () => void) {
     const items = [
       {
         label: 'Add Playlist from URL',
         handler: () => {
           bus.$emit(EventBus.SHOW_PLAYLIST_FROM_URL_MODAL, refreshCallback)
         }
-      }
+      },
+      ...this.getPlaylistSortByMenu(sort)
     ]
     return items
   }
@@ -274,6 +285,25 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     return items
   }
 
+  private getEntityInfoMenu(entity: Album | Artists | Playlist) {
+    return {
+      label: 'Show Info',
+      handler: () => {
+        bus.$emit(EventBus.SHOW_ENTITY_INFO_MODAL, entity)
+      }
+    }
+  }
+
+  private getArtistContextMenu(artist: Artists) {
+    const items = [this.getEntityInfoMenu(artist)]
+    return items
+  }
+
+  private getAlbumContextMenu(album: Album) {
+    const items = [this.getEntityInfoMenu(album)]
+    return items
+  }
+
   public getContextMenu(event: Event, options: ContextMenuArgs) {
     let items: { label: string; handler?: () => void }[] = []
     switch (options.type) {
@@ -281,7 +311,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
         items = this.getSongContextMenu(
           options.args.exclude,
           options.args.refreshCallback,
-          false,
+          options.args.isRemote,
           options.args.sortOptions,
           ...options.args.songs
         )
@@ -289,14 +319,17 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
       case 'GENERAL_SONGS':
         items = this.getGeneralSongsContextMenu(options.args.refreshCallback, options.args.sortOptions)
         break
-      case 'YOUTUBE':
-        items = this.getYoutubeContextMenu(...options.args.ytItems)
-        break
       case 'PLAYLIST':
         items = this.getPlaylistContextMenu(options.args.playlist, options.args.deleteCallback)
         break
+      case 'ALBUM':
+        items = this.getAlbumContextMenu(options.args.album)
+        break
+      case 'ARTIST':
+        items = this.getArtistContextMenu(options.args.artist)
+        break
       case 'GENERAL_PLAYLIST':
-        items = this.getGeneralPlaylistMenu(options.args.refreshCallback)
+        items = this.getGeneralPlaylistMenu(options.args.sort, options.args.refreshCallback)
         break
       case 'PLAYLIST_CONTENT':
         items = this.getPlaylistContentContextMenu(
@@ -314,8 +347,63 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
           options.args.songIndex
         )
         break
+      case 'GENERIC_SORT':
+        items = this.getGenericSortByMenu(options.args.sortOptions)
+        break
     }
+
+    this.getExtensionItems(options.type, this.getExtensionArgs(options)).then((res) => items.push(...res))
     this.emitMenu(event, items)
+  }
+
+  private extensionContextMenuItems: ContextMenuTypes[] = [
+    'SONGS',
+    'ALBUM',
+    'ARTIST',
+    'GENERAL_PLAYLIST',
+    'GENERAL_SONGS',
+    'PLAYLIST',
+    'PLAYLIST_CONTENT',
+    'QUEUE_ITEM'
+  ]
+
+  private getExtensionArgs(args: ContextMenuArgs): ExtensionContextMenuHandlerArgs<ContextMenuTypes> {
+    switch (args.type) {
+      case 'ALBUM':
+        return args.args.album
+      case 'ARTIST':
+        return args.args.artist
+      default:
+      case 'GENERAL_PLAYLIST':
+      case 'GENERAL_SONGS':
+        return
+      case 'PLAYLIST':
+        return args.args.playlist
+      case 'PLAYLIST_CONTENT':
+        return args.args.songs
+      case 'QUEUE_ITEM':
+        return args.args.song
+      case 'SONGS':
+        return args.args.songs
+    }
+  }
+
+  private async getExtensionItems(
+    type: ContextMenuArgs['type'],
+    arg: ExtensionContextMenuHandlerArgs<ContextMenuTypes>
+  ): Promise<MenuItem[]> {
+    if (this.extensionContextMenuItems.includes(type as ContextMenuTypes)) {
+      const items = await window.ExtensionUtils.getContextMenuItems(type as ContextMenuTypes)
+      console.log(items)
+      for (const i of items) {
+        console.log(arg)
+        i.handler = () => window.ExtensionUtils.fireContextMenuHandler(i.id, i.packageName, arg)
+      }
+
+      return items as MenuItem[]
+    }
+
+    return []
   }
 
   private emitMenu(event: Event, items: { label: string; handler?: () => void }[]) {

@@ -138,7 +138,7 @@ body {
   min-height: 40px
 
 *::-webkit-scrollbar-track
-  background: var(--primary)
+  background: transparent
 </style>
 
 <style lang="sass" scoped>

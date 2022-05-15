@@ -99,6 +99,7 @@
       "YOUTUBECLIENTSECRET",
       "ytdl",
       "ytoauth",
+      "ytsr",
       "Zbps"
     ],
     "editor.formatOnSave": true,

@@ -14,6 +14,7 @@ import Router from 'vue-router'
 import System from '../components/pages/System.vue'
 import Themes from '../components/pages/Themes.vue'
 import Vue from 'vue'
+import Logs from '../components/pages/Logs.vue'
 
 Vue.use(Router)
 
@@ -46,6 +47,11 @@ const routes = [
     name: 'new_theme',
     path: '/themes/new',
     component: NewTheme
+  },
+  {
+    name: 'logs',
+    path: '/logs',
+    component: Logs
   }
 ]
 

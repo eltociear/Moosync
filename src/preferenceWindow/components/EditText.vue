@@ -14,7 +14,14 @@
       <b-row no-gutters class="mt-3 item w-100">
         <b-col cols="auto" align-self="center" class="ml-4 folder-icon"> </b-col>
         <b-col cols="auto" align-self="center" class="flex-grow-1 justify-content-start">
-          <b-input v-model="value" id="ext-input" class="ext-input" debounce="500" @update="onInputChange" />
+          <b-input
+            :type="type"
+            v-model="value"
+            id="ext-input"
+            class="ext-input"
+            :debounce="debounce"
+            @update="onInputChange"
+          />
         </b-col>
         <b-col cols="auto" class="mr-4"></b-col>
       </b-row>
@@ -39,6 +46,9 @@ export default class EditText extends Mixins(ExtensionPreferenceMixin) {
 
   @Prop()
   private tooltip!: string
+
+  @Prop({ default: 500 })
+  private debounce!: number
 
   private emitTooltipClick() {
     this.$emit('tooltipClick')

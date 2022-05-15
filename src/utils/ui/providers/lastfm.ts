@@ -12,9 +12,9 @@ import { GenericRecommendation } from './generics/genericRecommendations'
 import { GenericScrobbler } from './generics/genericScrobbler'
 import axios from 'axios'
 import { cache } from '@/utils/ui/providers/generics/genericProvider'
-import md5 from 'md5'
 import { vxm } from '@/mainWindow/store'
 import { bus } from '@/mainWindow/main'
+import { md5 } from 'hash-wasm'
 import { EventBus } from '@/utils/main/ipc/constants'
 
 const AUTH_BASE_URL = 'https://www.last.fm/api/'
@@ -78,7 +78,7 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
     return !!(conf && conf.api_key && conf.client_secret) || this.isEnvExists()
   }
 
-  private getMethodSignature(...params: object[]) {
+  private async getMethodSignature(...params: object[]) {
     let str = ''
     let allParams: { [key: string]: object } = {}
 
@@ -97,7 +97,7 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
       str += key + allParams[key]
     }
     str += this._config?.secret
-    return md5(str)
+    return await md5(str)
   }
 
   private async populateRequest<T extends ApiResources>(
@@ -127,7 +127,7 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
       const parsedParams = new URLSearchParams({
         ...defaultParams,
         ...signatureParams,
-        api_sig: this.getMethodSignature(defaultParams, signatureParams ?? []),
+        api_sig: await this.getMethodSignature(defaultParams, signatureParams ?? []),
         format: 'json'
       })
 
@@ -170,7 +170,7 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
         bus.$emit(
           EventBus.SHOW_OAUTH_MODAL,
           'LastFM',
-          'AUTH_BASE_URL + `auth/?api_key=${this._config?.key}&cb=https://moosync.app/lastfm`',
+          AUTH_BASE_URL + `auth/?api_key=${this._config?.key}&cb=https://moosync.app/lastfm`,
           '#BA0000'
         )
 
@@ -287,9 +287,15 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
             const parsed = (await this.parseTrack(song.name, song.artists[0].name))?.track
             if (parsed) {
               const final: Song = {
-                _id: song.playlinks[0].id,
+                _id: `lastfm:${song.playlinks[0].id}`,
                 title: parsed.name,
-                artists: [parsed.artist?.name],
+                artists: [
+                  {
+                    artist_id: `lastfm:author-${parsed.artist?.mbid}`,
+                    artist_name: parsed.artist?.name,
+                    artist_mbid: parsed.artist?.mbid
+                  }
+                ],
                 duration: song.duration,
                 date_added: Date.now(),
                 song_coverPath_high: this.getCoverImage(parsed, true),

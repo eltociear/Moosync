@@ -10,10 +10,10 @@ const manifest = require('./package.json')
 
 const archElectronConfig = {}
 
-if (fs.existsSync('/usr/lib/electron17') && fs.existsSync('/usr/lib/electron17/version')) {
-  archElectronConfig.electronDist = '/usr/lib/electron17'
+if (fs.existsSync('/usr/lib/electron') && fs.existsSync('/usr/lib/electron/version')) {
+  archElectronConfig.electronDist = '/usr/lib/electron'
   archElectronConfig.electronVersion = fs
-    .readFileSync('/usr/lib/electron17/version', { encoding: 'utf-8' })
+    .readFileSync('/usr/lib/electron/version', { encoding: 'utf-8' })
     .replace('v', '')
 }
 
@@ -82,7 +82,7 @@ module.exports = {
       customFileProtocol: 'moosync://./',
       builderOptions: {
         ...archElectronConfig,
-        appId: 'org.moosync.Moosync',
+        appId: 'app.moosync.Moosync',
         productName: 'Moosync',
         artifactName: '${productName}-${version}-${os}-${arch}.${ext}',
         icon: './build/icons/512x512.png',
@@ -94,11 +94,14 @@ module.exports = {
         },
         linux: {
           icon: './build/icons/',
-          target: ['AppImage', 'deb', 'tar.gz', 'pacman']
+          target: ['AppImage', 'deb', 'tar.gz', 'pacman', 'snap', 'rpm']
         },
         nsis: {
           oneClick: false,
           perMachine: true
+        },
+        snap: {
+          stagePackages: ['default', 'libvips-dev', 'libhogweed5', 'libnettle7', 'libgtk2.0-0', 'libffi7']
         },
         fileAssociations: [
           {
@@ -149,9 +152,13 @@ module.exports = {
             repo: 'Moosync',
             vPrefixedTagName: true,
             releaseType: 'draft'
+          },
+          {
+            provider: 'snapStore',
+            repo: 'moosync'
           }
         ],
-        asarUnpack: ['*.worker.js', 'sandbox.js', '**/node_modules/sharp/**/*'],
+        asarUnpack: ['*.worker.js', 'sandbox.js', '**/node_modules/**/*.node'],
         protocols: [
           {
             name: 'Default protocol',
@@ -166,6 +173,10 @@ module.exports = {
       preload: 'src/utils/preload/preload.ts',
       externals: ['better-sqlite3', 'vm2', 'sharp'],
       chainWebpackMainProcess: (config) => {
+        console.log(process.env.NODE_ENV)
+        if (process.env.NODE_ENV === 'production') {
+          config.devtool('source-map').end()
+        }
         config.module
           .rule('babel')
           .before('ts')

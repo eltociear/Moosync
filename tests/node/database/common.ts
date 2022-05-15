@@ -21,7 +21,7 @@ export async function insertSong(SongDB: SongDBInstance, options: options): Prom
 
   for (let i = 0; i < (options.size ?? 1); i++) {
     const song = generateSong(options)
-    await SongDB.store(song)
+    SongDB.store(song)
     generate.push(song)
   }
 
@@ -32,7 +32,27 @@ function generateSong(options: options): Song {
   return {
     _id: v1(),
     title: v1(),
-    artists: options.sameArtists ? ['Test artist 1', 'Test artist 2'] : [v4(), v4()],
+    artists: options.sameArtists
+      ? [
+          {
+            artist_id: '',
+            artist_name: 'Test artist 1'
+          },
+          {
+            artist_id: '',
+            artist_name: 'Test artist 2'
+          }
+        ]
+      : [
+          {
+            artist_id: '',
+            artist_name: v4()
+          },
+          {
+            artist_id: '',
+            artist_name: v4()
+          }
+        ],
     album: {
       album_name: options.sameAlbum ? 'Test album' : v1()
     },
@@ -45,11 +65,7 @@ function generateSong(options: options): Song {
 
 export function insertPlaylist(SongDB: SongDBInstance) {
   const playlist = generatePlaylist()
-  const id = SongDB.createPlaylist(
-    playlist.playlist_name ?? '',
-    playlist.playlist_name ?? '',
-    playlist.playlist_coverPath
-  )
+  const id = SongDB.createPlaylist({ ...playlist })
   return {
     playlist_id: id,
     playlist_name: playlist.playlist_name,

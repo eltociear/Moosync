@@ -27,6 +27,9 @@ export class PlaylistsChannel implements IpcChannelInterface {
       case PlaylistEvents.CREATE_PLAYLIST:
         this.createPlaylist(event, request as IpcRequest<PlaylistRequests.CreatePlaylist>)
         break
+      case PlaylistEvents.UPDATE_PLAYLIST:
+        this.updatePlaylist(event, request as IpcRequest<PlaylistRequests.CreatePlaylist>)
+        break
       case PlaylistEvents.SAVE_COVER:
         this.saveCoverToFile(event, request as IpcRequest<PlaylistRequests.SaveCover>)
         break
@@ -41,7 +44,7 @@ export class PlaylistsChannel implements IpcChannelInterface {
 
   private createPlaylist(event: Electron.IpcMainEvent, request: IpcRequest<PlaylistRequests.CreatePlaylist>) {
     try {
-      const data = SongDB.createPlaylist(request.params.name, request.params.desc, request.params.imgSrc)
+      const data = SongDB.createPlaylist(request.params.playlist)
       event.reply(request.responseChannel, data)
     } catch (e) {
       console.error(e)
@@ -49,15 +52,14 @@ export class PlaylistsChannel implements IpcChannelInterface {
     }
   }
 
+  private updatePlaylist(event: Electron.IpcMainEvent, request: IpcRequest<PlaylistRequests.CreatePlaylist>) {
+    const data = SongDB.updatePlaylist(request.params.playlist)
+    event.reply(request.responseChannel, data)
+  }
+
   private addToPlaylist(event: Electron.IpcMainEvent, request: IpcRequest<PlaylistRequests.AddToPlaylist>) {
-    SongDB.addToPlaylist(request.params.playlist_id, ...request.params.song_ids)
-      .then((data) => {
-        event.reply(request.responseChannel, data)
-      })
-      .catch((e) => {
-        console.error(e)
-        event.reply(request.responseChannel)
-      })
+    const data = SongDB.addToPlaylist(request.params.playlist_id, ...request.params.song_ids)
+    event.reply(request.responseChannel, data)
   }
 
   private async saveCoverToFile(event: Electron.IpcMainEvent, request: IpcRequest<PlaylistRequests.SaveCover>) {
@@ -96,7 +98,7 @@ export class PlaylistsChannel implements IpcChannelInterface {
     if (request.params.playlist_id) {
       const playlist = SongDB.getEntityByOptions<Playlist>({ playlist: { playlist_id: request.params.playlist_id } })[0]
       if (playlist) {
-        const m3u8 = `#EXTM3U\n#PLAYLIST:${playlist.playlist_name}\n${this.parsePlaylistSongs(playlist)}`
+        const m3u8 = `#EXTM3U\n#PLAYLIST:${playlist.playlist_name}\n${await this.parsePlaylistSongs(playlist)}`
 
         const filePath = await _windowHandler.openSaveDialog(true, {
           title: 'Save playlist as...',
@@ -124,18 +126,37 @@ export class PlaylistsChannel implements IpcChannelInterface {
     event.reply(request.responseChannel)
   }
 
-  private parsePlaylistSongs(playlist: Playlist) {
+  private async getParsedCoverPath(song: Song) {
+    const cover = song.song_coverPath_high ?? song.album?.album_coverPath_high
+
+    if (cover) {
+      if (cover.startsWith('http')) {
+        return cover
+      }
+    }
+  }
+
+  private async parsePlaylistSongs(playlist: Playlist) {
     let ret = ''
     const playlistSongs = SongDB.getSongByOptions({ playlist: { playlist_id: playlist.playlist_id } })
     for (const s of playlistSongs) {
-      ret += `#EXTINF:${Math.round(s.duration) ?? 0},${this.getSongTitleParsed(s)}\n${s.path}\n`
+      if (s.path || s.url) {
+        ret += `#EXTINF:${s.duration ?? 0},${this.getSongTitleParsed(s)}
+${s.album && '#EXTALB:' + s.album?.album_name}
+${s.genre && s.genre.length !== 0 ? '#EXTGENRE:' + s.genre.join(',') : ''}
+${(await this.getParsedCoverPath(s)) && '#EXTIMG:' + (await this.getParsedCoverPath(s))}
+#MOOSINF:${s.type}
+${(s.path && 'file://' + s.path) ?? s.url}\n`
+      }
     }
-    return ret
+
+    // Remove blank lines
+    return ret.replace(/^s*$(?:\r\n?|\n)/gm, '')
   }
 
   private getSongTitleParsed(song: Song) {
     if (song.artists && song.artists.length > 0) {
-      return `${song.artists[0]} - ${song.title}`
+      return `${song.artists.map((val) => val.artist_name).join(';')} - ${song.title}`
     }
 
     return song.title

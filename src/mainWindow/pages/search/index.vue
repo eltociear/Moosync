@@ -9,30 +9,42 @@
 
 <template>
   <div class="w-100 h-100 tab-outer-container">
-    <b-tabs content-class="mt-3 tab-inner-container" justified v-model="tabModel" class="h-100">
-      <b-tab :title="i.tab" v-for="i in items" :id="i.tab" :key="i.key">
-        <RecycleScroller
-          class="scroller"
-          :items="ComputeTabContent(i.tab)"
-          :item-size="80"
-          :key-field="ComputeTabKeyField(i.tab)"
-          v-slot="{ item, index }"
-          v-if="result"
-          :direction="'vertical'"
-        >
-          <SingleSearchResult
-            :title="ComputeTabTitle(tab, item)"
-            :subtitle="ComputeTabSubTitle(tab, item)"
-            :coverImg="ComputeTabImage(tab, item)"
-            :divider="index != result.songs.length - 1"
-            :id="item"
-            :showButtons="true"
-            @imgClick="imgClickHandler(tab, $event)"
-            @titleClick="titleClickHandler(tab, $event)"
-            @onContextMenu="contextMenuHandler(tab, ...arguments)"
-          />
-        </RecycleScroller>
-      </b-tab>
+    <b-tabs content-class="mt-3 tab-inner-container" justified class="h-100">
+      <div v-for="i in items" :key="i.key">
+        <b-tab lazy v-if="showTab(i.tab)" :title="i.tab" :id="i.tab">
+          <RecycleScroller
+            class="scroller"
+            :items="ComputeTabContent(i.tab)"
+            :item-size="80"
+            :key-field="ComputeTabKeyField(i.tab)"
+            v-slot="{ item }"
+            v-if="ComputeTabContent(i.tab).length > 0"
+            :direction="'vertical'"
+          >
+            <SingleSearchResult
+              :title="ComputeTabTitle(i.tab, item)"
+              :subtitle="ComputeTabSubTitle(i.tab, item)"
+              :coverImg="ComputeTabImage(i.tab, item)"
+              :divider="true"
+              :id="item"
+              :showButtons="true"
+              :playable="isPlayable(item)"
+              @imgClick="imgClickHandler(i.tab, $event)"
+              @titleClick="titleClickHandler(i.tab, $event)"
+              @onContextMenu="contextMenuHandler(i.tab, ...arguments)"
+            />
+          </RecycleScroller>
+          <b-container v-else class="mt-5 mb-3">
+            <b-row align-v="center" align-h="center">
+              <b-col cols="auto" v-if="i.loading"><b-spinner class="spinner" label="Loading..."></b-spinner></b-col>
+              <b-col v-else class="nothing-found"> Nothing found... </b-col>
+            </b-row>
+          </b-container>
+          <b-button class="load-more" v-if="getLoadMore(i.tab)" @click="handleLoadMore(i.tab)"
+            >Load more from Spotify</b-button
+          >
+        </b-tab>
+      </div>
     </b-tabs>
   </div>
 </template>
@@ -42,9 +54,9 @@ import { Component, Watch } from 'vue-property-decorator'
 import SingleSearchResult from '@/mainWindow/components/generic/SingleSearchResult.vue'
 import { mixins } from 'vue-class-component'
 import RouterPushes from '@/utils/ui/mixins/RouterPushes'
-import { toSong } from '@/utils/models/youtube'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
+import { vxm } from '@/mainWindow/store'
 
 @Component({
   components: {
@@ -53,7 +65,6 @@ import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 })
 export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, ImgLoader) {
   private term = ''
-  private tabModel = 0
   private result: SearchResult = {}
   private items = [
     { tab: 'Songs', count: 0, key: 'Songs-0' },
@@ -61,19 +72,59 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     { tab: 'Artists', count: 0, key: 'Artists-0' },
     { tab: 'Genres', count: 0, key: 'Genres-0' },
     { tab: 'Playlists', count: 0, key: 'Playlists-0' },
-    { tab: 'Youtube', count: 0, key: 'Youtube-0' }
+    { tab: 'Youtube', count: 0, key: 'Youtube-0', loading: false },
+    { tab: 'Spotify', count: 0, key: 'Spotify-0', loading: false }
   ]
 
-  get tab() {
-    return this.items[this.tabModel].tab
+  private loadedMore: { [key: string]: boolean } = { artists: false }
+
+  private showTab(tab: string) {
+    if (tab === 'Spotify') {
+      return vxm.providers.loggedInSpotify
+    }
+    return true
   }
 
   private async fetchData() {
-    this.result = await window.SearchUtils.searchAll(this.term)
-    this.refreshLocal()
+    console.log(this.term)
+    window.SearchUtils.searchAll(`%${this.term}%`).then((data) => {
+      this.result = {
+        ...this.result,
+        ...data
+      }
+      this.refreshLocal()
+    })
 
-    this.result.youtube = await window.SearchUtils.searchYT(this.term)
-    this.refreshYoutube()
+    const youtubeItem = this.items.find((val) => val.tab === 'Youtube')
+    if (youtubeItem) {
+      youtubeItem.loading = true
+
+      if (vxm.providers.loggedInYoutube) {
+        vxm.providers.youtubeProvider.searchSongs(this.term).then((data) => {
+          this.result.youtube = data
+          this.refreshYoutube()
+          youtubeItem.loading = false
+        })
+      } else {
+        window.SearchUtils.searchYT(this.term, undefined, false, false, true).then((data) => {
+          this.result.youtube = data
+          this.refreshYoutube()
+          youtubeItem.loading = false
+        })
+      }
+    }
+
+    const spotifyItem = this.items.find((val) => val.tab === 'Spotify')
+    if (spotifyItem) {
+      if (vxm.providers.loggedInSpotify) {
+        spotifyItem.loading = true
+        vxm.providers.spotifyProvider.searchSongs(this.term).then((data) => {
+          this.result.spotify = data
+          this.refreshSpotify()
+          spotifyItem.loading = false
+        })
+      }
+    }
   }
 
   private refreshLocal() {
@@ -86,9 +137,41 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     this.items[5].key = 'Youtube' + this.items[5].count++
   }
 
+  private refreshSpotify() {
+    this.items[6].key = 'Spotify' + this.items[6].count++
+  }
+
+  private getLoadMore(tab: string) {
+    if (tab === 'Artists' && !this.loadedMore.artists) return true
+    return false
+  }
+
+  private isPlayable(item: Song | Album | Artists | Genre | Playlist) {
+    if ((item as Artists).artist_id?.startsWith('spotify')) return false
+    return true
+  }
+
+  private async handleLoadMore(tab: string) {
+    if (tab === 'Artists') {
+      const resp = await vxm.providers.spotifyProvider.searchArtists(this.term)
+      for (const a of resp) {
+        if (!this.result.artists) {
+          this.result.artists = []
+        }
+
+        if (!this.result.artists.find((val) => val.artist_id === a.artist_id)) {
+          this.result.artists.push(a)
+        }
+        this.loadedMore.artists = true
+      }
+    }
+  }
+
   private ComputeTabKeyField(tab: string) {
     switch (tab) {
       case 'Songs':
+      case 'Youtube':
+      case 'Spotify':
         return '_id'
       case 'Albums':
         return 'album_id'
@@ -98,8 +181,6 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         return 'genre_id'
       case 'Playlists':
         return 'playlist_id'
-      case 'Youtube':
-        return 'youtubeId'
     }
   }
 
@@ -118,6 +199,8 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
           return this.result.playlists ?? []
         case 'Youtube':
           return this.result.youtube ?? []
+        case 'Spotify':
+          return this.result.spotify ?? []
       }
     }
     return []
@@ -126,6 +209,8 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   private ComputeTabTitle(tab: string, item: Song | Album | Artists | Genre | Playlist) {
     if (item) {
       switch (tab) {
+        case 'Spotify':
+        case 'Youtube':
         case 'Songs':
           return (item as Song).title
         case 'Albums':
@@ -136,8 +221,6 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
           return (item as Genre).genre_name
         case 'Playlists':
           return (item as Playlist).playlist_name
-        case 'Youtube':
-          return (item as YTMusicVideo).title
       }
     }
     return ''
@@ -146,20 +229,18 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   private ComputeTabSubTitle(tab: string, item: Song | Album | Artists | Genre | Playlist) {
     if (item) {
       switch (tab) {
+        case 'Spotify':
+        case 'Youtube':
         case 'Songs':
-          return (item as Song).artists?.join(', ')
+          return (item as Song).artists?.map((val) => val.artist_name).join(', ')
         case 'Albums':
           return `${(item as Album).album_song_count} Songs`
         case 'Artists':
-          return `${(item as Artists).artist_song_count} Songs`
+          return (item as Artists).artist_song_count ? `${(item as Artists).artist_song_count} Songs` : ''
         case 'Genres':
           return `${(item as Genre).genre_song_count} Songs`
         case 'Playlists':
           return `${(item as Playlist).playlist_song_count} Songs`
-        case 'Youtube':
-          return `${(item as YTMusicVideo).album} - ${(item as YTMusicVideo).artists
-            ?.map((val) => val.name)
-            ?.join(', ')}`
       }
     }
     return ''
@@ -168,6 +249,8 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   private ComputeTabImage(tab: string, item: Song | Album | Artists | Genre | Playlist) {
     if (item) {
       switch (tab) {
+        case 'Spotify':
+        case 'Youtube':
         case 'Songs':
           return this.getValidImageLow(item as Song) ?? this.getValidImageHigh(item as Song)
         case 'Albums':
@@ -178,8 +261,6 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
           return ''
         case 'Playlists':
           return (item as Playlist).playlist_coverPath
-        case 'Youtube':
-          return (item as YTMusicVideo).thumbnailUrl
       }
     }
     return ''
@@ -188,6 +269,8 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   private titleClickHandler(tab: string, item: Album | Artists | Genre | Playlist) {
     switch (tab) {
       case 'Songs':
+      case 'Spotify':
+      case 'Youtube':
         // TODO: Redirect to a seperate page with song details
         return
       case 'Albums':
@@ -205,9 +288,11 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     }
   }
 
-  private imgClickHandler(tab: string, item: Song | Album | Artists | Genre | Playlist | YTMusicVideo) {
+  private imgClickHandler(tab: string, item: Song | Album | Artists | Genre | Playlist) {
     switch (tab) {
       case 'Songs':
+      case 'Spotify':
+      case 'Youtube':
         this.playTop([item as Song])
         return
       case 'Albums':
@@ -222,18 +307,18 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
       case 'Playlists':
         this.playPlaylist(item as Playlist)
         return
-      case 'Youtube':
-        this.playTop(toSong(item as YTMusicVideo))
     }
   }
 
-  private contextMenuHandler(tab: string, event: Event, item: Song | YTMusicVideo) {
+  private contextMenuHandler(tab: string, event: Event, item: Song) {
     switch (tab) {
       case 'Youtube':
-        this.getContextMenu(event, { type: 'YOUTUBE', args: { ytItems: [item as YTMusicVideo] } })
-        break
       case 'Songs':
-        this.getContextMenu(event, { type: 'SONGS', args: { songs: [item as Song] } })
+      case 'Spotify':
+        this.getContextMenu(event, {
+          type: 'SONGS',
+          args: { songs: [item as Song], isRemote: tab === 'Youtube' || tab === 'Spotify' }
+        })
         break
     }
   }
@@ -287,19 +372,40 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
     this.fetchData()
   }
 
-  @Watch('$route.query.search_term') onTermChanged(newValue: string) {
-    this.term = newValue
-    this.fetchData()
+  @Watch('$route.query.search_term')
+  @Watch('$route.query.timestamp')
+  onTermChanged() {
+    if (this.$route.query.search_term) {
+      this.term = this.$route.query.search_term as string
+      this.result = {}
+      this.fetchData()
+
+      for (const k of Object.keys(this.loadedMore)) {
+        this.loadedMore[k] = false
+      }
+    }
   }
 }
 </script>
 
 <style lang="sass">
 .tab-inner-container
-  overflow-y: scroll
   height: calc(100% - 58px)
 
 .tab-outer-container
   padding-top: 15px
   overflow-y: scroll
+
+.nothing-found
+  font-size: 22px
+  font-weight: 700
+
+.tab-pane
+  height: 100%
+
+.load-more
+  background-color: var(--accent)
+  color: var(--textInverse)
+
+.spinner
 </style>

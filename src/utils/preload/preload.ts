@@ -23,14 +23,21 @@ import {
 import { contextBridge, ipcRenderer } from 'electron'
 
 import { IpcRendererHolder } from '@/utils/preload/ipc/index'
+import { LogLevelDesc } from 'loglevel'
 
 const ipcRendererHolder = new IpcRendererHolder(ipcRenderer)
 
 contextBridge.exposeInMainWorld('DBUtils', {
-  createPlaylist: (name: string, desc: string, imgSrc: string) =>
+  createPlaylist: (playlist: Partial<Playlist>) =>
     ipcRendererHolder.send<PlaylistRequests.CreatePlaylist>(IpcEvents.PLAYLIST, {
       type: PlaylistEvents.CREATE_PLAYLIST,
-      params: { name: name, desc: desc, imgSrc: imgSrc }
+      params: { playlist }
+    }),
+
+  updatePlaylist: (playlist: Partial<Playlist>) =>
+    ipcRendererHolder.send<PlaylistRequests.CreatePlaylist>(IpcEvents.PLAYLIST, {
+      type: PlaylistEvents.UPDATE_PLAYLIST,
+      params: { playlist }
     }),
 
   addToPlaylist: (playlistID: string, ...songIDs: Song[]) =>
@@ -55,6 +62,24 @@ contextBridge.exposeInMainWorld('DBUtils', {
     ipcRendererHolder.send<SongRequests.Songs>(IpcEvents.SONG, {
       type: SongEvents.STORE_SONG,
       params: { songs: songs }
+    }),
+
+  updateSongs: (songs: Song[]) =>
+    ipcRendererHolder.send<SongRequests.Songs>(IpcEvents.SONG, {
+      type: SongEvents.UPDATE_SONG,
+      params: { songs: songs }
+    }),
+
+  updateArtist: (artist: Artists) =>
+    ipcRendererHolder.send<SongRequests.UpdateArtist>(IpcEvents.SONG, {
+      type: SongEvents.UPDATE_ARTIST,
+      params: { artist }
+    }),
+
+  updateAlbum: (album: Album) =>
+    ipcRendererHolder.send<SongRequests.UpdateAlbum>(IpcEvents.SONG, {
+      type: SongEvents.UPDATE_ARTIST,
+      params: { album }
     }),
 
   removeSongs: (songs: Song[]) =>
@@ -87,7 +112,9 @@ contextBridge.exposeInMainWorld('PreferenceUtils', {
     ipcRendererHolder.send<PreferenceRequests.PreferenceChange>(IpcEvents.PREFERENCES, {
       type: PreferenceEvents.PREFERENCE_REFRESH,
       params: { key, value }
-    })
+    }),
+  listenPreferenceChange: (callback: (...args: unknown[]) => void) =>
+    ipcRendererHolder.on(PreferenceEvents.PREFERENCE_REFRESH, callback)
 })
 
 contextBridge.exposeInMainWorld('Store', {
@@ -113,6 +140,18 @@ contextBridge.exposeInMainWorld('Store', {
 contextBridge.exposeInMainWorld('FileUtils', {
   scan: () =>
     ipcRendererHolder.send<undefined>(IpcEvents.SCANNER, { type: ScannerEvents.SCAN_MUSIC, params: undefined }),
+
+  getScanProgress: () =>
+    ipcRendererHolder.send<void>(IpcEvents.SCANNER, { type: ScannerEvents.GET_PROGRESS, params: undefined }),
+
+  listenScanProgress: (callback: (progress: Progress) => void) =>
+    ipcRendererHolder.on(ScannerEvents.PROGRESS_CHANNEL, callback),
+
+  scanSinglePlaylist: (playlistPath: string) =>
+    ipcRendererHolder.send<ScannerRequests.ScanSinglePlaylist>(IpcEvents.SCANNER, {
+      type: ScannerEvents.SCAN_SINGLE_PLAYLIST,
+      params: { playlistPath }
+    }),
 
   saveAudioToFile: (path: string, blob: Buffer) =>
     ipcRendererHolder.send<SongRequests.SaveBuffer>(IpcEvents.SONG, {
@@ -167,10 +206,10 @@ contextBridge.exposeInMainWorld('SearchUtils', {
       params: { searchTerm: term }
     }),
 
-  searchYT: (term: string) =>
-    ipcRendererHolder.send<SearchRequests.Search>(IpcEvents.SEARCH, {
+  searchYT: (title: string, artists?: string[], matchTitle = true, scrapeYTMusic = true, scrapeYoutube = false) =>
+    ipcRendererHolder.send<SearchRequests.SearchYT>(IpcEvents.SEARCH, {
       type: SearchEvents.SEARCH_YT,
-      params: { searchTerm: term }
+      params: { title, artists, matchTitle, scrapeYTMusic, scrapeYoutube }
     }),
 
   getYTSuggestions: (videoID: string) =>
@@ -189,6 +228,17 @@ contextBridge.exposeInMainWorld('SearchUtils', {
     ipcRendererHolder.send<SearchRequests.LyricsScrape>(IpcEvents.SEARCH, {
       type: SearchEvents.SCRAPE_LYRICS,
       params: { artists, title }
+    }),
+
+  requestInvidious: <K extends InvidiousResponses.InvidiousApiResources>(
+    resource: K,
+    search: InvidiousResponses.SearchObject<K>,
+    authorization: string,
+    invalidateCache: boolean
+  ) =>
+    ipcRendererHolder.send<SearchRequests.InvidiousRequest>(IpcEvents.SEARCH, {
+      type: SearchEvents.REQUEST_INVIDIOUS,
+      params: { resource, search, authorization, invalidateCache }
     })
 })
 
@@ -326,7 +376,10 @@ contextBridge.exposeInMainWorld('WindowUtils', {
     ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.AUTOMATE_SPOTIFY, params: undefined }),
 
   restartApp: () =>
-    ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.RESTART_APP, params: undefined })
+    ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.RESTART_APP, params: undefined }),
+
+  updateZoom: () =>
+    ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.UPDATE_ZOOM, params: undefined })
 })
 
 contextBridge.exposeInMainWorld('LoggerUtils', {
@@ -358,6 +411,19 @@ contextBridge.exposeInMainWorld('LoggerUtils', {
     ipcRendererHolder.send<LoggerRequests.LogEvents>(IpcEvents.LOGGER, {
       type: LoggerEvents.TRACE,
       params: { message: message }
+    }),
+
+  watchLogs: (callback: (data: unknown) => void) => {
+    ipcRendererHolder.on(LoggerEvents.WATCH_LOGS, callback)
+    return ipcRendererHolder.send<void>(IpcEvents.LOGGER, { type: LoggerEvents.WATCH_LOGS, params: undefined })
+  },
+
+  unwatchLogs: () => ipcRendererHolder.send(IpcEvents.LOGGER, { type: LoggerEvents.UNWATCH_LOGS, params: undefined }),
+
+  setLogLevel: (level: LogLevelDesc) =>
+    ipcRendererHolder.send<LoggerRequests.LogLevels>(IpcEvents.LOGGER, {
+      type: LoggerEvents.WATCH_LOGS,
+      params: { level }
     })
 })
 
@@ -379,16 +445,16 @@ contextBridge.exposeInMainWorld('ExtensionUtils', {
       params: { packageName }
     }),
 
-  sendEvent: (data: extensionEventMessage) =>
-    ipcRendererHolder.send<ExtensionHostRequests.EventTrigger>(IpcEvents.EXTENSION_HOST, {
-      type: ExtensionHostEvents.EVENT_TRIGGER,
-      params: { data: data }
-    }),
-
   getAllExtensions: () =>
     ipcRendererHolder.send(IpcEvents.EXTENSION_HOST, {
       type: ExtensionHostEvents.GET_ALL_EXTENSIONS,
       params: undefined
+    }),
+
+  getExtensionIcon: (packageName: string) =>
+    ipcRendererHolder.send<ExtensionHostRequests.RemoveExtension>(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.GET_EXTENSION_ICON,
+      params: { packageName }
     }),
 
   listenRequests: (callback: (request: extensionUIRequestMessage) => void) =>
@@ -399,7 +465,34 @@ contextBridge.exposeInMainWorld('ExtensionUtils', {
     ipcRendererHolder.send<ExtensionHostRequests.ToggleExtensionStatus>(IpcEvents.EXTENSION_HOST, {
       type: ExtensionHostEvents.TOGGLE_EXT_STATUS,
       params: { packageName, enabled }
-    })
+    }),
+
+  sendEvent: <T extends ExtraExtensionEventTypes>(event: ExtraExtensionEvents<T>) =>
+    ipcRendererHolder.send<ExtensionHostRequests.ExtraEvent>(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.SEND_EXTRA_EVENT,
+      params: { event }
+    }),
+
+  downloadExtension: (ext: FetchedExtensionManifest) =>
+    ipcRendererHolder.send<ExtensionHostRequests.DownloadExtension>(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.DOWNLOAD_EXTENSION,
+      params: { ext }
+    }),
+
+  getContextMenuItems: (type: ContextMenuTypes) =>
+    ipcRendererHolder.send<ExtensionHostRequests.ContextMenuItems>(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.GET_EXT_CONTEXT_MENU,
+      params: { type }
+    }),
+
+  fireContextMenuHandler: (id: string, packageName: string, arg: ExtensionContextMenuHandlerArgs<ContextMenuTypes>) =>
+    ipcRendererHolder.send<ExtensionHostRequests.ContextMenuHandler>(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.ON_CONTEXT_MENU_ITEM_CLICKED,
+      params: { id, packageName, arg }
+    }),
+
+  listenExtInstallStatus: (callback: (data: ExtInstallStatus) => void) =>
+    ipcRendererHolder.on(ExtensionHostEvents.EXT_INSTALL_STATUS, callback)
 })
 
 contextBridge.exposeInMainWorld('UpdateUtils', {

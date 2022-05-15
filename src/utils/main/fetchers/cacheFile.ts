@@ -7,10 +7,12 @@ export class CacheHandler {
   protected cache: Cache = {}
   private cacheFile: string
   private cacheDir: string
+  private tryJson = true
 
-  constructor(cacheFile: string) {
+  constructor(cacheFile: string, tryJson = true) {
     this.cacheFile = cacheFile
     this.cacheDir = path.dirname(cacheFile)
+    this.tryJson = tryJson
     this.readCache()
   }
 
@@ -20,7 +22,7 @@ export class CacheHandler {
     try {
       await fsP.writeFile(this.cacheFile, JSON.stringify(this.cache), { encoding: 'utf-8' })
     } catch (e) {
-      console.error('Failed to write to LastFM cache at', this.cacheFile, e)
+      console.error('Failed to write to cache at', this.cacheFile, e)
     }
   }
 
@@ -36,18 +38,19 @@ export class CacheHandler {
         this.cacheFile,
         'does not exists (This may happen if the app is run for the first time).'
       )
+      await this.dumpCache()
     }
   }
 
   protected async addToCache(url: string, data: string) {
     try {
-      if (JSON.parse(data)) {
+      if (this.tryJson && JSON.parse(data)) {
         const expiry = Date.now() + 2 * 60 * 60 * 1000
         this.cache[url] = { expiry, data }
         await this.dumpCache()
       }
     } catch (e) {
-      console.warn('Recommendation data is invalid')
+      console.warn('Data cant be parsed to JSON. Not storing in cache')
     }
   }
 

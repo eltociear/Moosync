@@ -60,23 +60,21 @@ export class ExtensionHandler {
 
   public async startAll() {
     if (this.initialized) {
-      for (const ext of this.extensionManager.getExtensions({ started: false })) {
-        await this.toggleExtStatus(ext.packageName, true)
-      }
+      await this.toggleExtStatus(undefined, true)
     } else {
       this.preInitializedCalls.push({ func: this.startAll })
     }
   }
 
-  public async toggleExtStatus(packageName: string, enabled: boolean) {
-    const ext = this.extensionManager.getExtensions({ packageName })
+  public async toggleExtStatus(packageName: string | undefined, enabled: boolean) {
+    const ext = this.extensionManager.getExtensions(packageName ? { packageName } : undefined)
     for (const e of ext) {
       if (enabled) {
-        e.instance.onStarted && (await e.instance.onStarted())
+        this.sendToExtensions(e.packageName, 'onStarted')
       } else {
-        e.instance.onStopped && (await e.instance.onStopped())
+        this.sendToExtensions(e.packageName, 'onStopped')
       }
-      this.extensionManager.setStarted(packageName, enabled)
+      this.extensionManager.setStarted(e.packageName, enabled)
     }
   }
 
@@ -85,6 +83,13 @@ export class ExtensionHandler {
     await this.toggleExtStatus(packageName, false)
 
     this.extensionManager.deregister(packageName)
+  }
+
+  public getExtensionIcon(packageName: string) {
+    const ext = this.extensionManager.getExtensions({ packageName })
+    for (const e of ext) {
+      return e.extensionIcon
+    }
   }
 
   public sendEvent(event: extensionEventMessage) {
@@ -106,7 +111,8 @@ export class ExtensionHandler {
       hasStarted: item.hasStarted,
       entry: item.entry,
       preferences: item.preferences,
-      extensionPath: item.extensionPath
+      extensionPath: item.extensionPath,
+      extensionIcon: item.extensionIcon
     }
   }
 
@@ -124,12 +130,15 @@ export class ExtensionHandler {
     method: keyof MoosyncExtensionTemplate,
     args?: unknown
   ) {
-    for (const ext of this.extensionManager.getExtensions({ started: true, packageName })) {
+    for (const ext of this.extensionManager.getExtensions({
+      started: method === 'onStarted' ? false : true,
+      packageName
+    })) {
       try {
         console.debug('Trying to send event:', method, 'to', ext.packageName)
         if (ext.instance[method]) {
           console.debug('Extension can handle event, sending')
-          await (ext.instance[method] as (args: unknown) => Promise<void>)(args)
+          ;(ext.instance[method] as (args: unknown) => Promise<void>)(args)
         }
       } catch (e) {
         console.error(e)
@@ -139,8 +148,65 @@ export class ExtensionHandler {
 
   public async stopAllExtensions() {
     console.debug('Stopping all extensions')
-    for (const ext of this.getInstalledExtensions()) {
-      await this.sendToExtensions(ext.packageName, 'onStopped')
+    this.toggleExtStatus(undefined, false)
+  }
+
+  public async sendExtraEventToExtensions<T extends ExtraExtensionEventTypes>(event: ExtraExtensionEvents<T>) {
+    const allData: { [key: string]: ExtraExtensionEventReturnType<T> | undefined } = {}
+    const EventType: T = event.type
+    for (const ext of this.extensionManager.getExtensions({ started: true, packageName: event.packageName })) {
+      if (event.type === 'requestedPlaylistSongs') {
+        event.data[0] = (event.data as ExtraExtensionEventData<'requestedPlaylistSongs'>)[0]?.replace(
+          `${ext.packageName}:`,
+          ''
+        )
+      }
+
+      const resp = await ext.global.api._emit<T>({
+        type: event.type,
+        data: event.data
+      })
+
+      if (resp) {
+        if (EventType === 'requestedPlaylists') {
+          ;(resp as ExtraExtensionEventReturnType<'requestedPlaylists'>).playlists = (
+            resp as ExtraExtensionEventReturnType<'requestedPlaylists'>
+          ).playlists.map((val) => ({ ...val, playlist_id: `${ext.packageName}:${val.playlist_id}` }))
+        }
+
+        if (EventType === 'requestedPlaylistSongs') {
+          ;(resp as ExtraExtensionEventReturnType<'requestedPlaylistSongs'>).songs = (
+            resp as ExtraExtensionEventReturnType<'requestedPlaylistSongs'>
+          ).songs.map((val) => ({ ...val, _id: `${ext.packageName}:${val._id}`, providerExtension: ext.packageName }))
+        }
+      }
+
+      allData[ext.packageName] = resp
+    }
+
+    return allData
+  }
+
+  public getExtensionContextMenu<T extends ContextMenuTypes>(type: T): ExtensionContextMenuItem<T>[] {
+    const items: ExtensionContextMenuItem<ContextMenuTypes>[] = []
+    for (const ext of this.extensionManager.getExtensions({ started: true })) {
+      items.push(...ext.global.api._getContextMenuItems().filter((val) => val.type === type))
+    }
+
+    return items as ExtensionContextMenuItem<T>[]
+  }
+
+  public fireContextMenuCallback(
+    id: string,
+    packageName: string,
+    arg: ExtensionContextMenuHandlerArgs<ContextMenuTypes>
+  ) {
+    for (const ext of this.extensionManager.getExtensions({ started: true, packageName })) {
+      const item = (ext.global.api.getContextMenuItems() as ExtendedExtensionContextMenuItems<ContextMenuTypes>[]).find(
+        (val) => val.id
+      )
+
+      item?.handler && item.handler(arg)
     }
   }
 }

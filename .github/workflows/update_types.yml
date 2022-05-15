@@ -1,0 +1,39 @@
+name: Build/release
+
+on: push
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+        with:
+          path: Moosync.app
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+        with:
+          repository: Moosync/extension-api-types
+          path: Moosync.types
+          token: ${{ secrets.TYPES_TOKEN }}
+          ref: ${{ steps.extract_branch.outputs.branch }}
+
+      - name: Copy files and push
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "Types update"
+          rm -f $GITHUB_WORKSPACE/Moosync.types/*.d.ts
+          cp -r $GITHUB_WORKSPACE/Moosync.app/src/types/declarations/exported.d.ts $GITHUB_WORKSPACE/Moosync.types/index.d.ts
+          cd $GITHUB_WORKSPACE/Moosync.types
+          git checkout -B ${GITHUB_REF##*/}
+          sed -i -e '/^[interface|type]/ s/./export &/' index.d.ts
+          git add -A
+          git diff-index --quiet HEAD -- || git commit -m "sync from Moosync"
+          git push --set-upstream origin ${GITHUB_REF##*/}

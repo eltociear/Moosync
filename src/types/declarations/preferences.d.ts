@@ -11,11 +11,7 @@ type togglePaths = { path: string; enabled: boolean }[]
 
 type songMenu = 'compact' | 'classic'
 
-interface SystemSettings {
-  key: string
-  title: string
-  enabled: boolean
-}
+type SystemSettings = Checkbox
 
 interface Preferences {
   isFirstLaunch: boolean
@@ -24,4 +20,5 @@ interface Preferences {
   artworkPath: string
   system: SystemSettings[]
   themes: { [key: string]: ThemeDetails }
+  zoomFactor: string
 }

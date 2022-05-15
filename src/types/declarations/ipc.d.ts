@@ -40,11 +40,33 @@ declare namespace ExtensionHostRequests {
   interface RemoveExtension {
     packageName: string
   }
+
+  interface ExtraEvent {
+    event: ExtraExtensionEvents
+  }
+
+  interface DownloadExtension {
+    ext: FetchedExtensionManifest
+  }
+
+  interface ContextMenuItems {
+    type: ContextMenuTypes
+  }
+
+  interface ContextMenuHandler {
+    id: string
+    packageName: string
+    arg: ExtensionContextMenuHandlerArgs
+  }
 }
 
 declare namespace LoggerRequests {
   interface LogEvents {
     message: unknown[]
+  }
+
+  interface LogLevels {
+    level: import('loglevel').LogLevelDesc
   }
 }
 
@@ -55,9 +77,7 @@ declare namespace PlaylistRequests {
   }
 
   interface CreatePlaylist {
-    name: string
-    desc: string
-    imgSrc: string
+    playlist: Partial<Playlist>
   }
 
   interface SaveCover {
@@ -66,6 +86,12 @@ declare namespace PlaylistRequests {
 
   interface RemoveExportPlaylist {
     playlist_id: string
+  }
+}
+
+declare namespace ScannerRequests {
+  interface ScanSinglePlaylist {
+    playlistPath: string
   }
 }
 
@@ -106,6 +132,14 @@ declare namespace SearchRequests {
     searchTerm: string
   }
 
+  interface SearchYT {
+    title: string
+    artists?: string[]
+    matchTitle?: boolean
+    scrapeYTMusic?: boolean
+    scrapeYoutube?: boolean
+  }
+
   interface YTSuggestions {
     videoID: string
   }
@@ -126,11 +160,26 @@ declare namespace SearchRequests {
     artists: string[]
     title: string
   }
+
+  interface InvidiousRequest {
+    resource: InvidiousResponses.ApiResources
+    search: InvidiousResponses.SearchObject
+    authorization: string | undefined
+    invalidateCache: boolean
+  }
 }
 
 declare namespace SongRequests {
   interface Songs {
     songs: Song[]
+  }
+
+  interface UpdateArtist {
+    artist: Artist
+  }
+
+  interface UpdateAlbum {
+    album: Album
   }
 
   interface SaveBuffer {

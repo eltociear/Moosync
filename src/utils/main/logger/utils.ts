@@ -7,14 +7,52 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { WriteStream, createWriteStream } from 'fs'
+import { Console } from 'console'
+import { WriteStream, createWriteStream, readdir, unlink } from 'fs'
 
 import log from 'loglevel'
 import path from 'path'
 import stripAnsi from 'strip-ansi'
+import { Tail } from 'tail'
 
-let fileName: string
+let filePath: string
 let fileStream: WriteStream
+let fileConsole: Console | undefined
+
+let logLevel: log.LogLevelDesc = process.env.DEBUG_LOGGING ? log.levels.TRACE : log.levels.INFO
+
+const activeLoggers: log.Logger[] = []
+
+export function setLogLevel(level: log.LogLevelDesc) {
+  logLevel = level
+  for (const l of activeLoggers) {
+    l.setLevel(logLevel)
+  }
+}
+
+export function getLoggerLevel() {
+  return logLevel
+}
+
+export function cleanLogs(basePath: string) {
+  const lowestDate = new Date(Date.now())
+  lowestDate.setDate(lowestDate.getDate() - 7)
+  readdir(basePath, (err, files) => {
+    if (!err) {
+      for (const file of files) {
+        if (file.startsWith('moosync-') && file.endsWith('.log')) {
+          const day = file.substring(8, 10)
+          const month = file.substring(11, 13)
+          const year = file.substring(14, 18)
+          const fileDate = new Date(`${month}-${day}-${year}`)
+          if (fileDate.getTime() - lowestDate.getTime() < 0) {
+            unlink(path.join(basePath, file), console.error)
+          }
+        }
+      }
+    }
+  })
+}
 
 function getLevel(method: string) {
   return method.toUpperCase()
@@ -38,37 +76,20 @@ function generatePrefix(level: string, loggerName: string | symbol) {
   }]: \u001b[0m${getColor(level)}`
 }
 
-function concatArgs(...messages: (string | object)[]) {
-  let ret = ''
-  for (const m of messages) {
-    if (m instanceof Error) {
-      ret += m.message
-      ret += m.stack
-    } else {
-      ret += (typeof m === 'object' ? JSON.stringify(m) : m) + ' '
-    }
-  }
-
-  return ret.trim() + '\n'
-}
-
 function createFile(basePath: string) {
   const isDevelopment = process.env.NODE_ENV !== 'production'
   const newFile = `moosync-${new Date().toLocaleDateString('en-GB').replaceAll('/', '-')}${
     isDevelopment ? '-development' : ''
   }.log`
-  if (fileName !== newFile) {
-    fileName = newFile
+  const newPath = path.join(basePath, newFile)
+
+  if (filePath !== newPath) {
+    filePath = newPath
     fileStream && fileStream.end()
 
-    const newPath = path.join(basePath, newFile)
     fileStream = createWriteStream(newPath, { flags: 'a' })
+    fileConsole = new Console(fileStream, fileStream)
   }
-}
-
-async function streamToFile(basePath: string, message: string) {
-  createFile(basePath)
-  fileStream.write(message)
 }
 
 function getColor(level: string) {
@@ -83,16 +104,27 @@ function getColor(level: string) {
   return outputColors[level]
 }
 
+type logMethods = 'trace' | 'debug' | 'warn' | 'info' | 'error'
+
 export function prefixLogger(basePath: string, logger: log.Logger) {
-  const originalFactory = log.methodFactory
+  const stockConsole = new Console({
+    stdout: process.stdout,
+    stderr: process.stderr,
+    colorMode: false
+  })
+
   logger.methodFactory = (methodName, logLevel, loggerName) => {
-    const originalMethod = originalFactory(methodName, logLevel, loggerName)
+    createFile(basePath)
     return (...args) => {
       const prefix = generatePrefix(methodName, loggerName)
-      const final = concatArgs(prefix, ...args).trim() + '\u001b[0m'
-      originalMethod(final)
-      streamToFile(basePath, stripAnsi(final) + '\n')
+      stockConsole[methodName as logMethods](prefix, ...args)
+      fileConsole && fileConsole[methodName as logMethods](stripAnsi(prefix), ...args)
     }
   }
-  logger.setLevel(logger.getLevel())
+  logger.setLevel(logLevel)
+  activeLoggers.push(logger)
+}
+
+export function getLogTail() {
+  return new Tail(path.join(filePath), { encoding: 'utf-8', fromBeginning: true, follow: true })
 }

@@ -64,8 +64,6 @@ import { mixins } from 'vue-class-component'
 import AccountsMixin from '@/utils/ui/mixins/AccountsMixin'
 import ConfirmationModal from '../../../commonComponents/ConfirmationModal.vue'
 
-type Providers = 'Youtube' | 'Spotify' | 'LastFM'
-
 @Component({
   components: {
     Logo,
@@ -79,7 +77,7 @@ type Providers = 'Youtube' | 'Spotify' | 'LastFM'
 export default class AccountsSetup extends mixins(AccountsMixin) {
   protected activeSignout: Providers | null = null
 
-  mounted() {
+  async mounted() {
     this.signoutMethod = this.showSignoutModal
   }
 
@@ -104,7 +102,7 @@ export default class AccountsSetup extends mixins(AccountsMixin) {
     }
   }
 
-  protected showSignoutModal(signout: 'Youtube' | 'Spotify' | 'LastFM') {
+  protected showSignoutModal(signout: Providers) {
     this.activeSignout = signout
     this.$bvModal.show('signoutSetupModal')
   }

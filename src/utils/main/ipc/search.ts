@@ -14,11 +14,16 @@ import { SongDB } from '@/utils/main/db'
 import { YTScraper } from '../fetchers/searchYT'
 import { AZLyricsFetcher } from '../fetchers/lyrics'
 import { LastFMScraper } from '../fetchers/lastfm'
+import { InvidiousRequester } from '../fetchers/invidious'
+import { loadSelectivePreference } from '../db/preferences'
+import { InvidiousApiResources } from '@/utils/commonConstants'
 
 export class SearchChannel implements IpcChannelInterface {
   name = IpcEvents.SEARCH
   private ytScraper = new YTScraper()
   private lastFmScraper = new LastFMScraper()
+  private invidiousRequester = new InvidiousRequester()
+  private azLyricsFetcher = new AZLyricsFetcher()
 
   handle(event: Electron.IpcMainEvent, request: IpcRequest): void {
     switch (request.type) {
@@ -29,7 +34,7 @@ export class SearchChannel implements IpcChannelInterface {
         this.searchAll(event, request as IpcRequest<SearchRequests.Search>)
         break
       case SearchEvents.SEARCH_YT:
-        this.searchYT(event, request as IpcRequest<SearchRequests.Search>)
+        this.searchYT(event, request as IpcRequest<SearchRequests.SearchYT>)
         break
       case SearchEvents.YT_SUGGESTIONS:
         this.getYTSuggestions(event, request as IpcRequest<SearchRequests.YTSuggestions>)
@@ -42,6 +47,9 @@ export class SearchChannel implements IpcChannelInterface {
         break
       case SearchEvents.SCRAPE_LYRICS:
         this.scrapeLyrics(event, request as IpcRequest<SearchRequests.LyricsScrape>)
+        break
+      case SearchEvents.REQUEST_INVIDIOUS:
+        this.requestIndivious(event, request as IpcRequest<SearchRequests.InvidiousRequest>)
         break
     }
   }
@@ -57,16 +65,38 @@ export class SearchChannel implements IpcChannelInterface {
     event.reply(request.responseChannel)
   }
 
-  private searchYT(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.Search>) {
-    if (request.params && request.params.searchTerm) {
-      this.ytScraper
-        .searchTerm(request.params.searchTerm)
-        .then((data) => event.reply(request.responseChannel, data))
-        .catch((e) => {
-          console.error(e)
-          event.reply(request.responseChannel)
-        })
+  private async searchYT(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.SearchYT>) {
+    if (request.params && request.params.title) {
+      try {
+        const useInvidious =
+          loadSelectivePreference<SystemSettings[]>('system')?.find((val) => val.key === 'use_invidious')?.enabled ??
+          false
+
+        let data
+        if (!useInvidious) {
+          data = await this.ytScraper.searchTerm(
+            request.params.title,
+            request.params.artists,
+            request.params.matchTitle,
+            request.params.scrapeYTMusic,
+            request.params.scrapeYoutube
+          )
+        } else {
+          const searchTerm = `${request.params.artists ? request.params.artists.join(', ') + ' - ' : ''}${
+            request.params.title
+          }`
+          const resp = await this.invidiousRequester.makeInvidiousRequest(InvidiousApiResources.SEARCH, {
+            params: { q: searchTerm, type: 'video', sort_by: 'relevance' }
+          })
+
+          if (resp) data = this.invidiousRequester.parseSongs(resp)
+        }
+        event.reply(request.responseChannel, data)
+      } catch (e) {
+        console.error(e)
+      }
     }
+    event.reply(request.responseChannel)
   }
 
   private getYTSuggestions(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.YTSuggestions>) {
@@ -102,8 +132,21 @@ export class SearchChannel implements IpcChannelInterface {
 
   private async scrapeLyrics(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.LyricsScrape>) {
     if (request.params && request.params.artists && request.params.title) {
-      const resp = await new AZLyricsFetcher().getLyrics(request.params.artists, request.params.title)
+      const resp = await this.azLyricsFetcher.getLyrics(request.params.artists, request.params.title)
       event.reply(request.responseChannel, resp)
     }
+  }
+
+  private async requestIndivious(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.InvidiousRequest>) {
+    if (request.params.resource && request.params.search) {
+      const resp = await this.invidiousRequester.makeInvidiousRequest(
+        request.params.resource,
+        request.params.search,
+        request.params.authorization,
+        request.params.invalidateCache
+      )
+      event.reply(request.responseChannel, resp)
+    }
+    event.reply(request.responseChannel)
   }
 }

@@ -65,6 +65,7 @@ function interceptHttp() {
 
     if (details.url.startsWith('https://i.ytimg.com')) {
       headers = {
+        ...headers,
         'Access-Control-Allow-Origin': '*'
       }
     }
@@ -158,22 +159,24 @@ function registerProtocols() {
   protocol.registerSchemesAsPrivileged([{ scheme: 'media', privileges: { corsEnabled: true, supportFetchAPI: true } }])
 }
 
-// Exit cleanly on request from parent process in development mode.
-if (isDevelopment) {
-  if (process.platform === 'win32') {
-    process.on('message', async (data) => {
-      if (data === 'graceful-exit') {
-        await getExtensionHostChannel().closeExtensionHost()
-        app.quit()
-      }
-    })
-  } else {
-    process.on('SIGTERM', async () => {
-      await getExtensionHostChannel().closeExtensionHost()
+if (process.platform === 'win32') {
+  process.on('message', async (data) => {
+    if (data === 'graceful-exit') {
+      await _windowHandler.stopAll()
       app.quit()
-    })
-  }
+    }
+  })
 }
+
+process.on('SIGTERM', async () => {
+  await _windowHandler.stopAll()
+  app.quit()
+})
+
+process.on('SIGINT', async () => {
+  await _windowHandler.stopAll()
+  app.quit()
+})
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {

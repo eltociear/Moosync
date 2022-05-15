@@ -26,9 +26,19 @@
       <div id="musicbar-title" :title="title" class="text song-title w-100 text-truncate" @click="onTitleClick">
         {{ title }}
       </div>
-      <div :title="artists ? artists.join(', ') : '-'" class="text song-subtitle text-truncate">
-        {{ artists ? artists.join(', ') : '-' }}
+      <div class="d-flex">
+        <div
+          v-for="(artist, index) of artists"
+          :key="index"
+          :title="artist.artist_name"
+          class="text song-subtitle text-truncate"
+          :class="index !== 0 ? 'ml-1' : ''"
+          @click="onSubtitleClick(artist)"
+        >
+          {{ artist.artist_name }}{{ index !== artists.length - 1 ? ',' : '' }}
+        </div>
       </div>
+
       <b-popover
         id="clipboard-popover"
         :show.sync="showPopover"
@@ -50,6 +60,7 @@ import ImageLoader from '@/utils/ui/mixins/ImageLoader'
 import ErrorHandler from '@/utils/ui/mixins/errorHandler'
 import Timestamp from '@/mainWindow/components/musicbar/components/Timestamp.vue'
 import FileMixin from '@/utils/ui/mixins/FileMixin'
+import RouterPushes from '@/utils/ui/mixins/RouterPushes'
 
 @Component({
   components: {
@@ -57,12 +68,12 @@ import FileMixin from '@/utils/ui/mixins/FileMixin'
     Timestamp
   }
 })
-export default class MusicBar extends mixins(ImageLoader, ErrorHandler, FileMixin) {
+export default class MusicBar extends mixins(ImageLoader, ErrorHandler, FileMixin, RouterPushes) {
   @Prop({ default: '-' })
   title!: string
 
   @Prop({ default: () => [] })
-  artists!: string[]
+  artists!: Artists[]
 
   @Prop({ default: '' })
   private imgSrc!: string
@@ -72,7 +83,7 @@ export default class MusicBar extends mixins(ImageLoader, ErrorHandler, FileMixi
   private forceEmptyImg = false
 
   private onTitleClick() {
-    let str = this.artists.join(', ')
+    let str = this.artists.map((val) => val.artist_name).join(', ')
     if (str) {
       str += ' - '
     }
@@ -80,6 +91,10 @@ export default class MusicBar extends mixins(ImageLoader, ErrorHandler, FileMixi
     navigator.clipboard.writeText(str)
     this.showPopover = true
     setTimeout(() => (this.showPopover = false), 1500)
+  }
+
+  private async onSubtitleClick(artist: Artists) {
+    this.gotoArtist(artist)
   }
 
   private handleError() {
@@ -115,4 +130,8 @@ export default class MusicBar extends mixins(ImageLoader, ErrorHandler, FileMixi
   font-size: 14.2592px
   color: var(--textSecondary)
   width: fit-content
+  cursor: pointer
+  text-decoration: none
+  &:hover
+    text-decoration: underline
 </style>

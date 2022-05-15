@@ -13,8 +13,6 @@ import { vxm } from '@/mainWindow/store'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
 
-type Providers = 'Youtube' | 'Spotify' | 'LastFM'
-
 @Component
 export default class AccountsMixin extends Vue {
   private _signoutProvider?: (provider: Providers) => void
@@ -35,10 +33,10 @@ export default class AccountsMixin extends Vue {
     provider: GenericAuth
   }[] = [
     {
-      name: 'Youtube',
-      bgColor: '#E62017',
+      name: this.useInvidious ? 'Invidious' : 'Youtube',
+      bgColor: this.useInvidious ? '#00B6F0' : '#E62017',
       username: '',
-      icon: 'YoutubeIcon',
+      icon: this.useInvidious ? 'InvidiousIcon' : 'YoutubeIcon',
       provider: this.youtube
     },
     {
@@ -56,6 +54,10 @@ export default class AccountsMixin extends Vue {
       provider: this.lastFm
     }
   ]
+
+  private get useInvidious() {
+    return vxm.providers.useInvidious
+  }
 
   protected getProvider(provider: Providers) {
     return this.providers.find((val) => val.name === provider)
@@ -120,6 +122,14 @@ export default class AccountsMixin extends Vue {
     this.getUserDetails('Youtube')
     this.getUserDetails('Spotify')
     this.getUserDetails('LastFM')
+
+    vxm.providers.$watch(
+      'useInvidious',
+      (val) => {
+        this.getUserDetails(val ? 'Invidious' : 'Youtube')
+      },
+      { immediate: true, deep: false }
+    )
 
     bus.$on(EventBus.REFRESH_USERNAMES, (provider: Providers) => {
       this.getUserDetails(provider)

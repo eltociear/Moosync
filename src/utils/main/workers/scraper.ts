@@ -95,7 +95,7 @@ async function queryArtistUrls(id: string) {
     const data = await musicbrainz.get(encodeURI(`/${id}?inc=url-rels`))
     return data
   } catch (e) {
-    logger.warn('Failed to fetch artist info from MusicBrainz', e)
+    logger.debug('MusicBrainz fetch failed', e)
   }
 }
 
@@ -106,24 +106,31 @@ async function fetchImagesRemote(a: Artists) {
     if (data && data.data.relations) {
       for (const r of data.data.relations) {
         if (r.type == 'image') {
+          logger.info('Found artwork for', a.artist_name, 'on MusicBrainz')
           return downloadImage(r.url.resource)
         }
       }
     }
 
-    logger.warn('Failed to fetch artwork from MusicBrainz for', a.artist_name)
+    logger.debug('Failed to fetch artwork from MusicBrainz for', a.artist_name)
 
     const url = await fetchFanartTv(a.artist_mbid)
-    if (url) return downloadImage(url)
+    if (url) {
+      logger.info('Found artwork for', a.artist_name, 'on FanartTv')
+      return downloadImage(url)
+    }
 
-    logger.warn('Failed to fetch artwork from FanArtTV for', a.artist_name)
+    logger.debug('Failed to fetch artwork from FanArtTV for', a.artist_name)
   }
 
   if (a.artist_name) {
     const url = await fetchTheAudioDB(a.artist_name)
-    if (url) return downloadImage(url)
+    if (url) {
+      logger.info('Found artwork for', a.artist_name, 'on TheAudioDB')
+      return downloadImage(url)
+    }
 
-    logger.warn('Failed to fetch artwork from TheAudioDB for', a.artist_name)
+    logger.debug('Failed to fetch artwork from TheAudioDB for', a.artist_name)
   }
 }
 
@@ -142,7 +149,7 @@ async function fetchTheAudioDB(artist_name: string) {
       }
     }
   } catch (e) {
-    logger.warn('Failed to fetch from TheAudioDB', e)
+    logger.debug('TheAudioDB fetch failed', e)
   }
 }
 
@@ -155,7 +162,7 @@ async function fetchFanartTv(mbid: string): Promise<string | undefined> {
       return data.data.artistthumb ? data.data.artistthumb[0].url : undefined
     }
   } catch (e) {
-    logger.warn('Failed to fetch artist info from FanartTV', (e as Error).message)
+    logger.debug('FanartTV fetch failed', (e as Error).message)
   }
 }
 
@@ -176,7 +183,7 @@ async function followWikimediaRedirects(fileName: string): Promise<string | unde
       return encodeURI(`https://upload.wikimedia.org/wikipedia/commons/${md5[0]}/${md5[0] + md5[1]}/${filename}`)
     }
   } catch (e) {
-    logger.warn('Failed to follow wikimedia redirects', e)
+    logger.debug('Failed to follow wikimedia redirects', e)
   }
 
   return undefined
@@ -201,7 +208,7 @@ async function downloadImage(url: string): Promise<ArrayBuffer | undefined> {
       const data = await axios.get(parsed, { responseType: 'arraybuffer' })
       return data.data
     } catch (e) {
-      logger.warn('Failed to fetch from', url, e)
+      logger.debug('Failed to fetch from', url, e)
     }
   }
 }
@@ -238,7 +245,7 @@ export async function fetchArtworks(
         const result = await queryArtwork(a)
         observer.next({ artist: a, cover: result && Transfer(result) })
       } catch (e) {
-        logger.warn('Failed to fetch artwork for', a.artist_name, e)
+        logger.debug('Failed to fetch artwork for', a.artist_name, e)
         observer.next({ artist: a, cover: undefined })
       }
     }

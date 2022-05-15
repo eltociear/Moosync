@@ -53,6 +53,7 @@
                 :defaultValue="pref.default ? pref.default : pref.items"
                 :isExtension="true"
                 :packageName="ext.packageName"
+                :type="pref.inputType || 'text'"
                 :is="pref.type"
               />
             </b-row>
@@ -73,6 +74,8 @@ import CheckboxGroup from '../CheckboxGroup.vue'
 import PrevIcon from '@/icons/PrevIcon.vue'
 import NextIcon from '@/icons/NextIcon.vue'
 import ExtensionGroup from '../ExtensionGroup.vue'
+import ProgressBar from '../Progressbar.vue'
+import ButtonGroup from '../ButtonGroup.vue'
 
 @Component({
   components: {
@@ -81,6 +84,8 @@ import ExtensionGroup from '../ExtensionGroup.vue'
     FilePicker,
     CheckboxGroup,
     ExtensionGroup,
+    ProgressBar,
+    ButtonGroup,
     PrevIcon,
     NextIcon
   }

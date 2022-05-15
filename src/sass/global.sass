@@ -217,6 +217,8 @@ img
   width: 20px
   min-height: 20px
   min-width: 20px
+  align-self: center
+  border-radius: 0px !important
 
 .main-container
   padding-top: 15px
@@ -315,6 +317,7 @@ img
       border-bottom-color: var(--tertiary) !important
 
 .modal-content
+  font-family: 'Nunito Sans'
   background-color: var(--primary) !important
   color: var(--textPrimary) !important
 
@@ -344,6 +347,7 @@ img
 
 .parent
   overflow-y: scroll
+  padding-left: 30px
 
 .tooltip-inner
   background-color: var(--tertiary) !important
@@ -353,8 +357,12 @@ img
 .bs-tooltip-right .arrow::before
   border-right-color: var(--tertiary) !important
 
+.colors > .item
+  margin: 10px 0 0 5px !important
+
 @import "./transitions"
 @import "./scrollbar"
 @import "node_modules/bootstrap/scss/mixins"
 @import 'node_modules/bootstrap/scss/bootstrap.scss'
 @import 'node_modules/bootstrap-vue/src/index.scss'
+@import 'node_modules/@voerro/vue-tagsinput/dist/style'

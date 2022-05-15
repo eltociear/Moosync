@@ -18,6 +18,7 @@ import { getActiveTheme } from './themes/preferences'
 import pie from 'puppeteer-in-electron'
 import puppeteer from 'puppeteer-core'
 import { getExtensionHostChannel } from './ipc'
+import { SongDB } from './db/index'
 
 export class WindowHandler {
   private static mainWindow: number
@@ -53,7 +54,7 @@ export class WindowHandler {
       backgroundColor: this.windowBackgroundColor,
       titleBarStyle: 'hidden',
       frame: WindowHandler.hasFrame,
-      show: true,
+      show: false,
       icon: path.join(__static, 'logo.png'),
       webPreferences: {
         contextIsolation: true,
@@ -91,14 +92,27 @@ export class WindowHandler {
 
   public setHardwareAcceleration() {
     const enabled = loadPreferences().system.find((val) => val.key === 'hardwareAcceleration')?.enabled
-    console.debug(loadPreferences().system)
     if (enabled === false) {
       console.debug('Disabling hardware acceleration')
       app.disableHardwareAcceleration()
     }
   }
 
-  public restartApp() {
+  public setZoom(window?: BrowserWindow) {
+    let zoom = parseInt(loadPreferences()?.zoomFactor?.replace('%', '') ?? 100) / 100
+    if (isNaN(zoom)) {
+      zoom = 0.5
+    }
+    const value = Math.min(Math.max(0.5, zoom), 1.6)
+
+    const windows = window ? [window] : BrowserWindow.getAllWindows()
+    for (const win of windows) {
+      win.webContents.setZoomFactor(value)
+    }
+  }
+
+  public async restartApp() {
+    await this.stopAll()
     app.relaunch()
     app.exit()
   }
@@ -153,8 +167,9 @@ export class WindowHandler {
     let win: BrowserWindow | undefined | null
     if (!WindowHandler.getWindow(isMainWindow) || WindowHandler.getWindow(isMainWindow)?.isDestroyed()) {
       win = new BrowserWindow(isMainWindow ? this.mainWindowProps : this.prefWindowProps)
+      this.attachWindowEvents(win, isMainWindow)
 
-      await win.loadURL(this.getWindowURL(isMainWindow))
+      win.loadURL(this.getWindowURL(isMainWindow))
 
       win.removeMenu()
 
@@ -162,8 +177,6 @@ export class WindowHandler {
 
       if (isMainWindow) WindowHandler.mainWindow = win.id
       else WindowHandler.preferenceWindow = win.id
-
-      this.attachWindowEvents(win, isMainWindow)
     } else {
       console.info('Window already exists, focusing')
       win = WindowHandler.getWindow(isMainWindow)
@@ -171,7 +184,7 @@ export class WindowHandler {
       else console.warn('Cant find existing window')
     }
 
-    win?.webContents.send(WindowEvents.GOT_EXTRA_ARGS, args)
+    win?.webContents.on('did-finish-load', () => win?.webContents.send(WindowEvents.GOT_EXTRA_ARGS, args))
   }
 
   private async handleWindowClose(event: Event, window: BrowserWindow, isMainWindow: boolean) {
@@ -183,16 +196,21 @@ export class WindowHandler {
     setWindowSize(isMainWindow ? 'mainWindow' : 'prefWindow', { width, height })
 
     if (isMainWindow) {
-      event.preventDefault()
       if (!AppExitHandler._isQuitting && AppExitHandler._minimizeToTray) {
+        event.preventDefault()
         await this.trayHandler.createTray()
         window.hide()
       } else {
-        // Stop extension Host
-        await getExtensionHostChannel().closeExtensionHost()
+        this.stopAll()
         app.exit()
       }
     }
+  }
+
+  public async stopAll() {
+    // Stop extension Host
+    await getExtensionHostChannel().closeExtensionHost()
+    SongDB.close()
   }
 
   public createScrapeWindow() {
@@ -202,12 +220,17 @@ export class WindowHandler {
   }
 
   private handleWindowShow(window: BrowserWindow) {
+    this.setZoom(window)
     window.focus()
   }
 
   private attachWindowEvents(window: BrowserWindow, isMainWindow: boolean) {
     window.on('close', (event) => {
       this.handleWindowClose(event, window, isMainWindow)
+    })
+
+    window.on('ready-to-show', () => {
+      window.show()
     })
 
     window.on('show', () => {
@@ -397,7 +420,9 @@ class TrayHandler {
   }
 
   public destroy() {
-    this._tray && !this._tray.isDestroyed() && this._tray.destroy()
+    console.debug('Destroying tray icon')
+    this._tray && this._tray.destroy()
+    console.debug('Tray destroy status:', this._tray?.isDestroyed())
     this._tray = null
   }
 }

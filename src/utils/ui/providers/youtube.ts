@@ -160,7 +160,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
       for (const p of items) {
         if (p.snippet)
           playlists.push({
-            playlist_id: `youtube-${p.id}`,
+            playlist_id: `youtube-playlist:${p.id}`,
             playlist_name: p.snippet.title,
             playlist_coverPath: (
               p.snippet.thumbnails.maxres ??
@@ -221,7 +221,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
 
   private getIDFromURL(url: string) {
     try {
-      return new URL(url)?.searchParams?.get('list') ?? undefined
+      return new URL(url)?.searchParams?.get('list') ?? url
     } catch (_) {
       return url
     }
@@ -262,9 +262,14 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     for (const v of items) {
       if (songs.findIndex((value) => value._id === v.id) === -1)
         songs.push({
-          _id: v.id,
+          _id: `youtube:${v.id}`,
           title: v.snippet.title,
-          artists: [v.snippet.channelTitle.replace('-', '').replace('Topic', '').trim()],
+          artists: [
+            {
+              artist_id: `youtube-author:${v.snippet.channelId}`,
+              artist_name: v.snippet.channelTitle.replace('-', '').replace('Topic', '').trim()
+            }
+          ],
           song_coverPath_high: (
             v.snippet.thumbnails.maxres ??
             v.snippet.thumbnails.high ??
@@ -330,6 +335,28 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     }
   }
 
+  public async searchSongs(term: string): Promise<Song[]> {
+    const songList: Song[] = []
+    const resp = await this.populateRequest(ApiResources.SEARCH, {
+      params: {
+        part: ['id', 'snippet'],
+        q: term,
+        type: 'video',
+        maxResults: 30,
+        order: 'relevance',
+        videoEmbeddable: true
+      }
+    })
+
+    const finalIDs: string[] = []
+    if (resp.items) {
+      resp.items.forEach((val) => finalIDs.push(val.id.videoId))
+      songList.push(...(await this.getSongDetailsFromID(false, ...finalIDs)))
+    }
+
+    return songList
+  }
+
   public async getSongDetails(url: string, invalidateCache = false): Promise<Song | undefined> {
     if (
       url.match(
@@ -343,6 +370,12 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
         const details = await this.getSongDetailsFromID(invalidateCache, videoID)
         if (details && details.length > 0) {
           return details[0]
+        }
+
+        // Apparently searching Video ID in youtube returns the proper video as first result
+        const scraped = await window.SearchUtils.searchYT(videoID, undefined, false, false)
+        if (scraped && scraped.length > 0) {
+          return scraped[0]
         }
       }
       return
@@ -362,30 +395,8 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     for (const song of youtubeSongs.slice(0, 10)) {
       if (song.url) {
         const songs = await window.SearchUtils.getYTSuggestions(song.url)
-
-        for (const song of songs) {
-          if (song.duration && song.youtubeId) {
-            count++
-            yield [
-              {
-                _id: song.youtubeId,
-                url: song.youtubeId,
-                title: song.title ?? '',
-                artists: song.artists?.map((val) => val.name) ?? [],
-                duration: song.duration.totalSeconds,
-                album: {
-                  album_name: song.album,
-                  album_coverPath_high: song.thumbnailUrl,
-                  album_coverPath_low: song.thumbnailUrl
-                },
-                type: 'YOUTUBE',
-                date_added: Date.now(),
-                song_coverPath_high: song.thumbnailUrl,
-                song_coverPath_low: song.thumbnailUrl
-              }
-            ]
-          }
-        }
+        count += songs.length
+        yield songs
       }
     }
 
@@ -394,6 +405,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
         ;(
           await this.populateRequest(ApiResources.SEARCH, {
             params: {
+              part: ['id', 'snippet'],
               type: 'video',
               videoCategoryId: 10,
               videoDuration: 'short',
@@ -407,5 +419,9 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
 
       yield await this.getSongDetailsFromID(false, ...resp)
     }
+  }
+
+  public async *getArtistSongs(): AsyncGenerator<Song[]> {
+    yield []
   }
 }

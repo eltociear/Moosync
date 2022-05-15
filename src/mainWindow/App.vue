@@ -21,6 +21,7 @@
     <SetupModal />
     <OAuthModal />
     <FormModal />
+    <EntityInfoModal />
   </div>
 </template>
 
@@ -43,6 +44,7 @@ import { v1 } from 'uuid'
 import { EventBus } from '@/utils/main/ipc/constants'
 import OAuthModal from './components/modals/OAuthModal.vue'
 import FormModal from './components/modals/FormModal.vue'
+import EntityInfoModal from './components/modals/EntityInfoModal.vue'
 
 @Component({
   components: {
@@ -54,7 +56,8 @@ import FormModal from './components/modals/FormModal.vue'
     SetupModal,
     SongInfoModal,
     OAuthModal,
-    FormModal
+    FormModal,
+    EntityInfoModal
   }
 })
 export default class App extends mixins(ThemeHandler, PlayerControls) {
@@ -63,6 +66,7 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     this.listenThemeChanges()
     this.listenExtensionEvents()
     this.listenExtensionRequests()
+    this.useInvidious()
 
     this.themeStore = vxm.themes
   }
@@ -75,6 +79,13 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     this.registerFileDragListener()
     this.handleInitialSetup()
     this.checkUpdate()
+  }
+
+  private async useInvidious() {
+    const useInvidious = (await window.PreferenceUtils.loadSelective<Checkbox[]>('system'))?.find(
+      (val) => val.key === 'use_invidious'
+    )?.enabled
+    vxm.providers.useInvidious = useInvidious ?? false
   }
 
   private checkUpdate() {
@@ -112,7 +123,7 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
   }
 
   private async populatePlaylists() {
-    let RawPlaylists = await window.SearchUtils.searchEntityByOptions({
+    let RawPlaylists = await window.SearchUtils.searchEntityByOptions<Playlist>({
       playlist: true
     })
     let playlists: playlistInfo = {}
@@ -269,11 +280,9 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
           return
         }
 
-        console.log('Sending song to extension host')
-
         window.ExtensionUtils.sendEvent({
-          type: 'onSongChanged',
-          data: newVal
+          type: 'songChanged',
+          data: [newVal]
         })
 
         vxm.providers.lastfmProvider.scrobble(newVal)
@@ -283,29 +292,29 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
 
     vxm.player.$watch('playerState', (newVal: PlayerState) =>
       window.ExtensionUtils.sendEvent({
-        type: 'onPlayerStateChanged',
-        data: newVal
+        type: 'playerStateChanged',
+        data: [newVal]
       })
     )
 
     vxm.player.$watch('volume', (newVal: number) =>
       window.ExtensionUtils.sendEvent({
-        type: 'onVolumeChanged',
-        data: newVal
+        type: 'volumeChanged',
+        data: [newVal]
       })
     )
 
     vxm.player.$watch('songQueue', (newVal: SongQueue) =>
       window.ExtensionUtils.sendEvent({
-        type: 'onSongQueueChanged',
-        data: newVal
+        type: 'songQueueChanged',
+        data: [newVal]
       })
     )
 
     bus.$on('forceSeek', (newVal: number) =>
       window.ExtensionUtils.sendEvent({
-        type: 'onSeeked',
-        data: newVal
+        type: 'seeked',
+        data: [newVal]
       })
     )
   }

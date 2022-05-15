@@ -8,12 +8,17 @@
 -->
 
 <template>
-  <div class="h-100 w-100 parent">
+  <div class="h-100 w-100 parent" @contextmenu="contextHandler">
     <b-container fluid>
       <b-row no-gutters class="page-title">Albums</b-row>
       <b-row class="d-flex">
         <b-col col xl="2" md="3" v-for="album in filteredAlbumList" :key="album.album_id">
-          <CardView :title="album.album_name" :imgSrc="album.album_coverPath_high" @click.native="gotoAlbum(album)">
+          <CardView
+            :title="album.album_name"
+            :imgSrc="album.album_coverPath_high"
+            @click.native="gotoAlbum(album)"
+            @CardContextMenu="singleItemContextHandler(album, arguments[0])"
+          >
             <template #defaultCover>
               <AlbumDefault />
             </template>
@@ -30,6 +35,8 @@ import { mixins } from 'vue-class-component'
 import { Component } from 'vue-property-decorator'
 import RouterPushes from '@/utils/ui/mixins/RouterPushes'
 import AlbumDefault from '@/icons/AlbumDefaultIcon.vue'
+import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
+import { vxm } from '@/mainWindow/store'
 
 @Component({
   components: {
@@ -37,13 +44,14 @@ import AlbumDefault from '@/icons/AlbumDefaultIcon.vue'
     AlbumDefault
   }
 })
-export default class Albums extends mixins(RouterPushes) {
+export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
   private albumList: Album[] = []
 
   private async getAlbums() {
     this.albumList = await window.SearchUtils.searchEntityByOptions({
       album: true
     })
+    this.sort()
   }
 
   get filteredAlbumList() {
@@ -52,8 +60,48 @@ export default class Albums extends mixins(RouterPushes) {
     })
   }
 
+  private setSort(options: NormalSortOptions) {
+    vxm.themes.otherSortBy = options
+  }
+
+  private sort() {
+    this.albumList.sort((a, b) => {
+      switch (vxm.themes.otherSortBy.type) {
+        default:
+        case 'name':
+          return (
+            (vxm.themes.otherSortBy.asc
+              ? a.album_name?.localeCompare(b.album_name ?? '')
+              : b.album_name?.localeCompare(a.album_name ?? '')) ?? 0
+          )
+      }
+    })
+  }
+
+  private singleItemContextHandler(album: Album, event: MouseEvent) {
+    this.getContextMenu(event, {
+      type: 'ALBUM',
+      args: {
+        album
+      }
+    })
+  }
+
+  private contextHandler(event: MouseEvent) {
+    this.getContextMenu(event, {
+      type: 'GENERIC_SORT',
+      args: {
+        sortOptions: {
+          callback: this.setSort,
+          current: vxm.themes.otherSortBy
+        }
+      }
+    })
+  }
+
   mounted() {
     this.getAlbums()
+    vxm.themes.$watch('otherSortBy', this.sort)
   }
 }
 </script>

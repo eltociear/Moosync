@@ -13,7 +13,10 @@
       <b-container fluid class="p-0">
         <b-row no-gutters class="d-flex">
           <b-col cols="auto">
-            <SongDefault v-if="forceEmptyImg || !parsedSong" class="song-url-cover" />
+            <SongDefault
+              v-if="forceEmptyImg || !parsedSong || !parsedSong.song_coverPath_high"
+              class="song-url-cover"
+            />
             <b-img
               v-else
               class="song-url-cover"
@@ -23,16 +26,24 @@
           </b-col>
           <b-col cols="9">
             <b-row no-gutters class="song-url-details">
-              <b-col cols="12" class="w-100">
+              <b-col class="w-100">
                 <b-row class="w-100">
-                  <div class="title text-truncate" :class="{ deactivated: !parsedSong }">
-                    {{ parsedSong ? parsedSong.title : 'New Song' }}
-                  </div>
+                  <b-input
+                    class="title text-truncate"
+                    placeholder="New Song"
+                    :class="{ deactivated: !parsedSong }"
+                    v-model="songTitle"
+                    :disabled="!parsedSong"
+                  />
                 </b-row>
                 <b-row class="w-100">
-                  <div class="subtitle text-truncate" :class="{ deactivated: !parsedSong }">
-                    {{ parsedSong ? parsedSong.artists && parsedSong.artists.join(', ') : 'Artist' }}
-                  </div>
+                  <b-input
+                    class="subtitle text-truncate"
+                    placeholder="Artist"
+                    :class="{ deactivated: !parsedSong }"
+                    v-model="songArtist"
+                    :disabled="!parsedSong"
+                  />
                 </b-row>
               </b-col>
             </b-row>
@@ -58,6 +69,7 @@ import InputGroup from '../generic/InputGroup.vue'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
 import { vxm } from '@/mainWindow/store'
+import { v4 } from 'uuid'
 
 @Component({
   components: {
@@ -73,6 +85,9 @@ export default class SongFromUrlModal extends Vue {
 
   private parsedSong: Song | undefined | null = null
 
+  private songTitle = ''
+  private songArtist = ''
+
   private refreshCallback?: () => void
 
   private handleImageError() {
@@ -82,17 +97,62 @@ export default class SongFromUrlModal extends Vue {
   private isLoggedIn = false
 
   private async parseURL(url: string) {
+    this.forceEmptyImg = false
     this.parsedSong =
       (await vxm.providers.youtubeProvider.getSongDetails(url)) ??
       (await vxm.providers.spotifyProvider.getSongDetails(url)) ??
+      (await this.parseStream(url)) ??
       null
+
+    if (this.parsedSong) {
+      this.songTitle = this.parsedSong.title ?? ''
+      this.songArtist = this.parsedSong.artists?.join(', ') ?? ''
+    }
+  }
+
+  private async parseStream(url: string): Promise<Song | undefined> {
+    return new Promise<Song | undefined>((resolve) => {
+      const audio = new Audio()
+      audio.onloadedmetadata = () => {
+        const song: Song = {
+          _id: v4(),
+          title: 'Song from URL',
+          duration: audio.duration,
+          date_added: Date.now(),
+          playbackUrl: url,
+          type: 'URL'
+        }
+
+        resolve(song)
+      }
+
+      audio.onerror = () => resolve(undefined)
+      audio.src = url
+    })
+  }
+
+  private getArtists(artists: string) {
+    const split = artists.split(',')
+    const ret: Artists[] = []
+    for (const s of split) {
+      ret.push({ artist_id: '', artist_name: s })
+    }
+    return ret
   }
 
   private addToLibrary() {
-    window.DBUtils.storeSongs([this.parsedSong as Song])
+    if (this.parsedSong) {
+      window.DBUtils.storeSongs([
+        {
+          ...this.parsedSong,
+          title: this.songTitle,
+          artists: this.getArtists(this.songArtist)
+        }
+      ])
 
-    this.refreshCallback && this.refreshCallback()
-    this.close()
+      this.refreshCallback && this.refreshCallback()
+      this.close()
+    }
   }
 
   private close() {
@@ -102,6 +162,7 @@ export default class SongFromUrlModal extends Vue {
   mounted() {
     bus.$on(EventBus.SHOW_SONG_FROM_URL_MODAL, (refreshCallback: () => void) => {
       this.refreshCallback = refreshCallback
+      this.forceEmptyImg = false
       this.isLoggedIn = vxm.providers.youtubeProvider.loggedIn && vxm.providers.spotifyProvider.loggedIn
       this.$bvModal.show(this.id)
     })
@@ -112,13 +173,39 @@ export default class SongFromUrlModal extends Vue {
 <style lang="sass" scoped>
 .title
   font-size: 26px
+  max-width: 100%
+  color: var(--textPrimary)
+  background-color: transparent
+  border: 0
+  border-bottom: 1px solid var(--divider)
+  border-radius: 0
+  padding: 0
+  &:hover
+    border-bottom: 1px solid var(--accent)
+  &:focus
+    outline: none
+    -webkit-box-shadow: none
 
 .subtitle
   font-size: 14px
   font-weight: normal
+  max-width: 100%
+  color: var(--textPrimary)
+  background-color: transparent
+  border: 0
+  border-bottom: 1px solid var(--divider)
+  border-radius: 0
+  padding: 0
+  &:hover
+    border-bottom: 1px solid var(--accent)
+  &:focus
+    outline: none
+    -webkit-box-shadow: none
 
 .title.deactivated, .subtitle.deactivated
   color: var(--textSecondary)
+  border-bottom: none !important
+  margin-bottom: -10px
 
 .topbar-container
   background: var(--primary)

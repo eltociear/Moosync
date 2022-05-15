@@ -11,12 +11,17 @@
 declare namespace SpotifyResponses {
   enum ApiResources {
     USER_DETAILS = 'me',
+    LIKED_SONGS = 'me/tracks',
     PLAYLISTS = 'me/playlists',
     PLAYLIST = 'playlists/{playlist_id}',
     PLAYLIST_ITEMS = 'playlists/{playlist_id}/tracks',
     SONG_DETAILS = 'tracks/{song_id}',
     TOP = 'me/top/{type}',
-    RECOMMENDATIONS = 'recommendations'
+    RECOMMENDATIONS = 'recommendations',
+    SEARCH = 'search',
+    ARTIST_TOP = 'artists/{artist_id}/top-tracks',
+    ARTIST_ALBUMS = 'artists/{artist_id}/albums',
+    ALBUM_SONGS = 'albums/{album_id}/tracks'
   }
 
   type RecommendationRequest = {
@@ -45,6 +50,13 @@ declare namespace SpotifyResponses {
     }
   }
 
+  type LikedSongsRequest = {
+    params: {
+      limit?: number
+      offset?: number
+    }
+  }
+
   type PlaylistItemsRequest = {
     params: {
       playlist_id: string
@@ -66,6 +78,39 @@ declare namespace SpotifyResponses {
     }
   }
 
+  type SearchRequest = {
+    params: {
+      query: string
+      type: 'track' | 'artist'
+      limit: number
+    }
+  }
+
+  type ArtistsTopTracks = {
+    params: {
+      id: string
+      market: 'ES'
+    }
+  }
+
+  type ArtistAlbumsRequest = {
+    params: {
+      id: string
+      market: 'ES'
+      limit?: number
+      offset?: number
+    }
+  }
+
+  type AlbumTracksRequest = {
+    params: {
+      id: string
+      market: 'ES'
+      limit?: number
+      offset?: number
+    }
+  }
+
   type SearchObject<T extends ApiResources> = T extends ApiResources.USER_DETAILS
     ? ChannelRequest
     : T extends ApiResources.PLAYLISTS
@@ -80,6 +125,16 @@ declare namespace SpotifyResponses {
     ? TopRequest
     : T extends ApiResources.RECOMMENDATIONS
     ? RecommendationRequest
+    : T extends ApiResources.SEARCH
+    ? SearchRequest
+    : T extends ApiResources.ARTIST_TOP
+    ? ArtistsTopTracks
+    : T extends ApiResources.ARTIST_ALBUMS
+    ? ArtistAlbumsRequest
+    : T extends ApiResources.ALBUM_SONGS
+    ? AlbumTracksRequest
+    : T extends ApiResources.LIKED_SONGS
+    ? LikedSongsRequest
     : undefined
 
   interface Image {
@@ -267,13 +322,14 @@ declare namespace SpotifyResponses {
       spotify: string
     }
 
-    export interface Artist {
+    export interface SpotifyArtist {
       external_urls: ExternalUrls
       href: string
       id: string
       name: string
       type: string
       uri: string
+      images?: Image[]
     }
 
     export interface Image {
@@ -284,7 +340,7 @@ declare namespace SpotifyResponses {
 
     export interface Album {
       album_type: string
-      artists: Artist[]
+      artists: SpotifyArtist[]
       available_markets: string[]
       external_urls: ExternalUrls
       href: string
@@ -298,22 +354,13 @@ declare namespace SpotifyResponses {
       uri: string
     }
 
-    export interface Artist2 {
-      external_urls: ExternalUrls
-      href: string
-      id: string
-      name: string
-      type: string
-      uri: string
-    }
-
     export interface ExternalIds {
       isrc: string
     }
 
     export interface Track {
       album: Album
-      artists: Artist2[]
+      artists: SpotifyArtist[]
       available_markets: string[]
       disc_number: number
       duration_ms: number
@@ -352,6 +399,33 @@ declare namespace SpotifyResponses {
     }[]
   }
 
+  interface SearchResponse {
+    tracks?: {
+      href: string
+      items: RecommendationDetails.Track[]
+    }
+    artists?: {
+      items: SpotifyArtist[]
+      href: string
+    }
+  }
+
+  interface ArtistsTopTracksResponse {
+    tracks: RecommendationDetails.Track[]
+  }
+
+  interface ArtistAlbumsResponse {
+    href: string
+    items: RecommendationDetails.Album[]
+  }
+
+  interface AlbumTracksResponse {
+    href: string
+    items: RecommendationDetails.Track[]
+    total: number
+    next: string
+  }
+
   type ResponseType<T extends ApiResources> = T extends ApiResources.USER_DETAILS
     ? UserDetails.UserDetails
     : T extends ApiResources.PLAYLISTS
@@ -366,5 +440,15 @@ declare namespace SpotifyResponses {
     ? RecommendationDetails.Recommendations
     : T extends ApiResources.TOP
     ? TopDetails
+    : T extends ApiResources.SEARCH
+    ? SearchResponse
+    : T extends ApiResources.ARTIST_TOP
+    ? ArtistsTopTracksResponse
+    : T extends ApiResources.ARTIST_ALBUMS
+    ? ArtistAlbumsResponse
+    : T extends ApiResources.ALBUM_SONGS
+    ? AlbumTracksResponse
+    : T extends ApiResources.LIKED_SONGS
+    ? PlaylistItems.PlaylistItems
     : undefined
 }

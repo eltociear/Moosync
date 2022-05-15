@@ -51,42 +51,46 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
 
   private tableBusy = false
 
-  private playlist: Playlist | null = null
+  private playlist: ExtendedPlaylist | null = null
 
   get buttonGroups(): SongDetailButtons {
     return {
       enableContainer: true,
-      enableLibraryStore: this.isRemote
+      enableLibraryStore: !!this.isRemote
     }
   }
 
   get defaultDetails(): SongDetailDefaults {
     return {
       defaultTitle: this.playlist?.playlist_name ?? '',
-      defaultSubSubtitle: `${this.playlist?.playlist_song_count ?? 0} Songs`,
+      defaultSubSubtitle: `${(this.playlist?.playlist_song_count || this.songList.length) ?? 0} Songs`,
       defaultCover: this.playlist?.playlist_coverPath ?? ''
     }
   }
 
   private get isYoutube() {
-    return this.$route.params.id.startsWith('youtube-')
+    return (this.$route.query.id as string)?.startsWith('youtube')
   }
 
   private get isSpotify() {
-    return this.$route.params.id.startsWith('spotify-')
+    return (this.$route.query.id as string)?.startsWith('spotify')
+  }
+
+  private get isExtension() {
+    return this.$route.query.extension
   }
 
   private get isRemote() {
-    return this.isYoutube || this.isSpotify
+    return this.isYoutube || this.isSpotify || this.isExtension
   }
 
   private async refresh(invalidateCache = false) {
-    this.fetchPlaylist(invalidateCache)
+    this.fetchPlaylist()
 
     this.songList = []
     if (!this.isYoutube && !this.isSpotify) await this.fetchLocalSongList()
 
-    await this.fetchAsyncGen(invalidateCache)
+    await this.fetchSongListAsync(invalidateCache)
   }
 
   created() {
@@ -104,70 +108,59 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     })
   }
 
-  private async fetchPlaylist(invalidateCache = false) {
-    if (this.isYoutube) {
-      this.playlist = await this.fetchPlaylistYoutube(invalidateCache)
-    } else if (this.isSpotify) {
-      this.playlist = await this.fetchPlaylistSpotify(invalidateCache)
-    } else {
-      this.playlist = (
-        await window.SearchUtils.searchEntityByOptions({
-          playlist: {
-            playlist_id: this.$route.params.id
-          }
-        })
-      )[0]
+  private async fetchPlaylist() {
+    this.playlist = {
+      playlist_id: this.$route.query.playlist_id as string,
+      playlist_name: this.$route.query.playlist_name as string,
+      playlist_coverPath: this.$route.query.playlist_coverPath as string,
+      playlist_song_count: parseInt(this.$route.query.playlist_song_count as string) ?? 0,
+      playlist_path: this.$route.query.playlist_path as string | undefined,
+      extension: this.$route.query.extension as string | undefined
     }
-  }
-
-  private async fetchPlaylistYoutube(invalidateCache = false) {
-    return (
-      (await vxm.providers.youtubeProvider.getPlaylistDetails(
-        this.$route.params.id.replace('youtube-', ''),
-        invalidateCache
-      )) ?? null
-    )
-  }
-
-  private async fetchPlaylistSpotify(invalidateCache = false) {
-    return (
-      (await vxm.providers.spotifyProvider.getPlaylistDetails(
-        this.$route.params.id.replace('spotify-', ''),
-        invalidateCache
-      )) ?? null
-    )
   }
 
   private async fetchLocalSongList() {
     this.songList = await window.SearchUtils.searchSongsByOptions({
       playlist: {
-        playlist_id: this.$route.params.id
+        playlist_id: this.$route.query.id as string
       },
-      sortBy: vxm.themes.sortBy
+      sortBy: vxm.themes.songSortBy
     })
   }
 
-  private async fetchAsyncGen(invalidateCache = false) {
+  private async fetchSongListAsync(invalidateCache = false) {
     let generator
     if (this.isYoutube)
       generator = vxm.providers.youtubeProvider.getPlaylistContent(
-        this.$route.params.id.replace('youtube-', ''),
+        (this.$route.query.id as string)?.replace('youtube-playlist:', ''),
         invalidateCache
       )
     else if (this.isSpotify)
       generator = vxm.providers.spotifyProvider.getPlaylistContent(
-        this.$route.params.id.replace('spotify-', ''),
+        (this.$route.query.id as string)?.replace('spotify-playlist:', ''),
         invalidateCache
       )
 
-    if (generator)
+    if (generator) {
       for await (const items of generator) {
         this.songList.push(...items)
       }
+      return
+    }
+
+    if (this.playlist?.extension) {
+      const data = await window.ExtensionUtils.sendEvent({
+        type: 'requestedPlaylistSongs',
+        data: [this.playlist.playlist_id],
+        packageName: this.playlist.extension
+      })
+
+      this.songList.push(...(data[this.playlist.extension]?.songs ?? []))
+    }
   }
 
-  private sort(options: sortOptions) {
-    vxm.themes.sortBy = options
+  private sort(options: SongSortOptions) {
+    vxm.themes.songSortBy = options
   }
 
   private getSongMenu(event: Event, songs: Song[]) {
@@ -175,8 +168,8 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
       type: 'PLAYLIST_CONTENT',
       args: {
         songs: songs,
-        isRemote: this.isRemote,
-        sortOptions: { callback: this.sort, current: vxm.themes.sortBy },
+        isRemote: !!this.isRemote,
+        sortOptions: { callback: this.sort, current: vxm.themes.songSortBy },
         refreshCallback: () => (this.songList = arrayDiff<Song>(this.songList, songs))
       }
     })

@@ -94,7 +94,7 @@ export default class DefaultLayout extends mixins(ContextMenuMixin) {
 
 .main-content
   position: absolute
-  left: calc(30px + 70px)
+  left: calc(70px)
   top: calc(70px + 18px + 4px)
   right: 0
   bottom: calc(6rem + 30px)
@@ -105,5 +105,5 @@ export default class DefaultLayout extends mixins(ContextMenuMixin) {
   transition: 0.2s
   padding-right: 20px
   &.is-open
-    left: calc(261px + 30px)
+    left: calc(261px)
 </style>

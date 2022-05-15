@@ -34,22 +34,21 @@ export function getVersion(verS: string) {
   return 0
 }
 
-export function sortSongList(songList: Song[], options: sortOptions) {
+export function sortSongList(songList: Song[], options: SongSortOptions) {
   songList.sort((a, b) => {
-    let field: keyof Song = 'title'
-    let compare = 0
-    if (options.type === 'name') {
-      field = 'title'
-      compare = a[field].localeCompare(b[field])
-    } else if (options.type === 'date') {
-      field = 'date_added'
-      compare = b[field] - a[field]
+    const field: keyof Song = options.type as keyof Song
+    const first = a[field]
+    const second = b[field]
+
+    if (first && second) {
+      if (!options.asc) {
+        return first.toString().localeCompare(second.toString())
+      } else {
+        return first.toString().localeCompare(second.toString())
+      }
     }
 
-    if (!options.asc) {
-      compare = -compare
-    }
-    return compare
+    return 0
   })
 }
 

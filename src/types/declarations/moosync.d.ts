@@ -1,16 +1,12 @@
-type Song = import('@moosync/moosync-types').Song
-type Album = import('@moosync/moosync-types').Album
-type Artists = import('@moosync/moosync-types').Artists
-type Genre = import('@moosync/moosync-types').Genre
-type Playlist = import('@moosync/moosync-types').Playlist
+interface InvidiousSong extends Song {
+  invidiousPlaybackUrl?: string
+}
 
-type playerControls = import('@moosync/moosync-types').playerControls
+interface ExtendedPlaylist extends Playlist {
+  extension?: string
+}
 
-type EntityApiOptions = import('@moosync/moosync-types').EntityApiOptions
-type SongAPIOptions = import('@moosync/moosync-types').SongAPIOptions
-
-type ExtensionFactory = import('@moosync/moosync-types').ExtensionFactory
-type MoosyncExtensionTemplate = import('@moosync/moosync-types').MoosyncExtensionTemplate
+type Progress = { total: number; current: number }
 
 declare namespace NodeJS {
   export interface ProcessEnv {

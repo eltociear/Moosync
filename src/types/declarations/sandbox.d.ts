@@ -8,6 +8,38 @@
  *  See LICENSE in the project root for license information.
  */
 
+type GithubRepoResponse = {
+  sha: string
+  url: string
+  tree: {
+    path: string
+    mode: string
+    type: 'blob' | 'tree'
+    sha: string
+    url: string
+  }[]
+}
+
+type FetchedExtensionManifest = {
+  name: string
+  packageName: string
+  logo: string
+  description: string
+  url: string
+  release: {
+    type: 'github-release' | 'url'
+    url: string
+    version: string
+  }
+}
+
+type ExtInstallStatus = {
+  packageName: string
+  status: string
+  error?: unknown
+  progress: number
+}
+
 type extensionEventMessage = {
   type: keyof MoosyncExtensionTemplate
   data: any
@@ -18,12 +50,14 @@ type extensionRequestMessage = {
   type: import('@/utils/extensions/constants').extensionRequests
   channel: string
   data: any
+  extensionName: string
 }
 
 type extensionUIRequestMessage = {
   type: import('@/utils/extensions/constants').extensionUIRequests
   channel: string
   data: any
+  extensionName: string
 }
 
 type extensionReplyMessage = extensionRequestMessage
@@ -63,14 +97,35 @@ interface ExtensionDetails {
   version: string
   hasStarted: boolean
   entry: string
-  extensionPath: string
   preferences: ExtensionPreferenceGroup[]
+  extensionPath: string
+  extensionIcon: string | undefined
+}
+
+type ExtraExtensionEventCombinedReturnType<T extends ExtraExtensionEventTypes> = {
+  [key: string]: ExtraExtensionEventReturnType<T>
+}
+
+interface ExtraExtensionEvents<T extends ExtraExtensionEventTypes> {
+  type: T
+  data: ExtraExtensionEventData<T>
+  packageName?: string
+}
+
+interface ExtendedExtensionAPI extends extensionAPI {
+  _emit: <T extends ExtraExtensionEventTypes>(
+    event: ExtraExtensionEvents<T>
+  ) => Promise<ExtraExtensionEventReturnType<T> | undefined>
+  _getContextMenuItems: () => ExtendedExtensionContextMenuItems<ContextMenuTypes>[]
 }
 
 interface ExtensionItem extends ExtensionDetails {
   instance: MoosyncExtensionTemplate
   preferences: ExtensionPreferenceGroup[]
   vm: import('vm2').NodeVM
+  global: {
+    api: ExtendedExtensionAPI
+  }
 }
 
 interface UnInitializedExtensionItem {
@@ -81,11 +136,19 @@ interface UnInitializedExtensionItem {
   version: string
   entry: string
   extensionPath: string
+  extensionIcon: string | undefined
 }
 
 interface getExtensionOptions {
   started?: boolean
   packageName?: string
+}
+
+interface ExtendedExtensionContextMenuItems<T extends ContextMenuTypes>
+  extends Omit<ExtensionContextMenuItem<T>, 'children'> {
+  id: string
+  packageName: string
+  children?: ExtendedExtensionContextMenuItems<T>[]
 }
 
 interface NodeRequire {

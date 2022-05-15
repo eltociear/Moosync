@@ -30,7 +30,6 @@
                 class="playlist-title"
                 maxlength="20"
                 placeholder="Playlist Name..."
-                onkeypress="this.style.width = this.value.length + 'ch'"
               />
             </div>
             <p class="songs-count">{{ songCount }} {{ songCount == 1 ? 'Song' : 'Songs' }}</p>
@@ -80,6 +79,8 @@ export default class NewPlaylistModal extends mixins(ImgLoader) {
 
   private showing = false
 
+  private createCallback: (() => void) | undefined
+
   @Ref('canvas') private canvas!: HTMLCanvasElement
 
   private isDuplicatePlaylistName(): boolean {
@@ -92,14 +93,23 @@ export default class NewPlaylistModal extends mixins(ImgLoader) {
   }
 
   private async createPlaylist() {
-    const data = this.canvas.toDataURL('image/png')
-    let path = await window.FileUtils.savePlaylistCover(data)
+    let path
+    if (this.canvas) {
+      const data = this.canvas.toDataURL('image/png')
+      path = await window.FileUtils.savePlaylistCover(data)
+    }
 
-    let playlist_id = await window.DBUtils.createPlaylist(this.title, this.desc, path)
+    let playlist_id = await window.DBUtils.createPlaylist({
+      playlist_name: this.title,
+      playlist_coverPath: path,
+      playlist_desc: this.desc
+    })
     this.addToPlaylist(playlist_id, this.songs)
 
     this.$bvModal.hide(this.id)
     vxm.playlist.updated = true
+
+    this.createCallback && this.createCallback()
   }
 
   private handleImageError() {
@@ -190,13 +200,15 @@ export default class NewPlaylistModal extends mixins(ImgLoader) {
   }
 
   mounted() {
-    bus.$on(EventBus.SHOW_NEW_PLAYLIST_MODAL, (songs: Song[]) => {
+    bus.$on(EventBus.SHOW_NEW_PLAYLIST_MODAL, (songs: Song[], createCallback?: () => void) => {
       if (!this.showing) {
         this.songs = songs
         this.songCount = songs.length
         this.forceEmptyImg = false
         this.desc = ''
         this.title = 'New Playlist'
+
+        this.createCallback = createCallback
 
         this.$nextTick(() => this.mergeImages())
 

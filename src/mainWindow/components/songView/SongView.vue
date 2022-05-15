@@ -25,6 +25,8 @@
         @onRowSelected="updateCoverDetails"
         @onRowSelectionClear="clearSelection"
         @onRowPlayNowClicked="playTop([arguments[0]])"
+        @onArtistClicked="gotoArtist"
+        @onAlbumClicked="gotoAlbum"
         @playAll="playAll"
         @addToQueue="addToQueue"
         @addToLibrary="addToLibrary"
@@ -44,6 +46,7 @@ import { vxm } from '@/mainWindow/store'
 import SongViewClassic from '@/mainWindow/components/songView/components/SongViewClassic.vue'
 import SongViewCompact from '@/mainWindow/components/songView/components/SongViewCompact.vue'
 import { sortSongList } from '@/utils/common'
+import RouterPushes from '@/utils/ui/mixins/RouterPushes'
 
 @Component({
   components: {
@@ -51,7 +54,7 @@ import { sortSongList } from '@/utils/common'
     SongViewCompact
   }
 })
-export default class AllSongs extends mixins(PlayerControls, ModelHelper, RemoteSong, ImgLoader) {
+export default class AllSongs extends mixins(PlayerControls, ModelHelper, RemoteSong, ImgLoader, RouterPushes) {
   @Prop({ default: () => [] })
   private songList!: Song[]
 
@@ -60,9 +63,9 @@ export default class AllSongs extends mixins(PlayerControls, ModelHelper, Remote
   @Prop({ default: false })
   private tableBusy!: boolean
 
-  private sort(sortOptions: sortOptions) {
+  private sort(SongSortOptions: SongSortOptions) {
     if (!this.ignoreSort) {
-      sortSongList(this.songList, sortOptions)
+      sortSongList(this.songList, SongSortOptions)
       this.ignoreSort = true
     } else {
       this.ignoreSort = false
@@ -72,15 +75,15 @@ export default class AllSongs extends mixins(PlayerControls, ModelHelper, Remote
   onSortChange() {
     vxm.themes.$watch(
       'sortBy',
-      (sortOptions: sortOptions) => {
-        this.sort(sortOptions)
+      (SongSortOptions: SongSortOptions) => {
+        this.sort(SongSortOptions)
       },
       { deep: true, immediate: true }
     )
   }
 
   @Watch('songList') onSongListChange() {
-    this.sort(vxm.themes.sortBy)
+    this.sort(vxm.themes.songSortBy)
   }
 
   mounted() {

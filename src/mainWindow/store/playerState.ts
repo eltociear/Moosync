@@ -141,11 +141,12 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
   @action
   public async pop(index: number) {
     if (index > -1) {
+      const data = this.songQueue.order[index]
       this.removeFromQueue(index)
-      this.removeFromQueueData(this.songQueue.order[index])
+      this.removeFromQueueData(data)
 
       if (this.songQueue.index === index) {
-        await this.loadSong(this.queueTop)
+        this.loadSong(this.queueTop)
       }
     }
   }

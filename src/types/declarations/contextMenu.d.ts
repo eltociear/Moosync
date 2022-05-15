@@ -14,20 +14,15 @@ type ContextMenuArgs =
         exclude?: string
         refreshCallback?: () => void
         songs: Song[]
-        sortOptions?: sort
+        sortOptions?: Sort<SongSortOptions>
+        isRemote?: boolean
       }
     }
   | {
       type: 'GENERAL_SONGS'
       args: {
-        sortOptions?: sort
+        sortOptions?: Sort<SongSortOptions>
         refreshCallback: () => void
-      }
-    }
-  | {
-      type: 'YOUTUBE'
-      args: {
-        ytItems: YoutubeItem[]
       }
     }
   | {
@@ -40,6 +35,7 @@ type ContextMenuArgs =
   | {
       type: 'GENERAL_PLAYLIST'
       args: {
+        sort: Sort<PlaylistSortOptions>
         refreshCallback?: () => void
       }
     }
@@ -48,7 +44,7 @@ type ContextMenuArgs =
       args: {
         isRemote: boolean
         refreshCallback: () => void
-        sortOptions?: sort
+        sortOptions?: Sort<SongSortOptions>
         songs: Song[]
       }
     }
@@ -61,7 +57,27 @@ type ContextMenuArgs =
         songIndex: number
       }
     }
+  | {
+      type: 'GENERIC_SORT'
+      args: {
+        sortOptions: Sort<NormalSortOptions>
+      }
+    }
+  | {
+      type: 'ARTIST'
+      args: {
+        artist: Artists
+      }
+    }
+  | {
+      type: 'ALBUM'
+      args: {
+        album: Album
+      }
+    }
 
-type sortOptions = import('@moosync/moosync-types').sortOptions
-type sort = { callback: sortCallback; current: sortOptions }
-type sortCallback = (options: sortOptions) => void
+type SongSortOptions = { type: 'title' | 'date_added'; asc: boolean }
+type PlaylistSortOptions = { type: 'name' | 'provider'; asc: boolean }
+type NormalSortOptions = { type: 'name'; asc: boolean }
+
+type Sort<T> = { callback: (options: T) => void; current: T }

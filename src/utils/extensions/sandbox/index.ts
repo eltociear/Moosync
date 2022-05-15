@@ -10,9 +10,8 @@
 import { mainRequestsKeys } from '@/utils/extensions/constants'
 
 import { ExtensionHandler } from '@/utils/extensions/sandbox/extensionHandler'
-import { prefixLogger } from '@/utils/main/logger/utils'
+import { prefixLogger, setLogLevel } from '@/utils/main/logger/utils'
 import log from 'loglevel'
-import { extensionEventsKeys } from '@/utils/extensions/constants'
 import { mainRequests } from '../constants'
 
 class ExtensionHostIPCHandler {
@@ -72,8 +71,8 @@ class ExtensionHostIPCHandler {
     }
   }
 
-  private isExtensionEvent(key: string) {
-    return extensionEventsKeys.includes(key as keyof MoosyncExtensionTemplate)
+  private isExtensionEvent(key: keyof MoosyncExtensionTemplate) {
+    return key === 'onStarted' || key === 'onStopped'
   }
 
   private isMainReply(key: string) {
@@ -85,17 +84,22 @@ class ExtensionHostIPCHandler {
       this.parseMessage(message as mainRequestMessage)
     })
 
-    process.on('exit', () => this.extensionHandler.stopAllExtensions())
-    process.on('SIGQUIT', () => this.extensionHandler.stopAllExtensions())
-    process.on('SIGINT', () => this.extensionHandler.stopAllExtensions())
-    process.on('SIGUSR1', () => this.extensionHandler.stopAllExtensions())
-    process.on('SIGUSR2', () => this.extensionHandler.stopAllExtensions())
-    process.on('SIGHUP', () => this.extensionHandler.stopAllExtensions())
-    process.on('uncaughtException', (e) => console.error('Asynchronous error caught.', e))
+    process.on('exit', () => this.mainRequestHandler.killSelf())
+    process.on('SIGQUIT', () => this.mainRequestHandler.killSelf())
+    process.on('SIGINT', () => this.mainRequestHandler.killSelf())
+    process.on('SIGUSR1', () => this.mainRequestHandler.killSelf())
+    process.on('SIGUSR2', () => this.mainRequestHandler.killSelf())
+    process.on('SIGHUP', () => this.mainRequestHandler.killSelf())
+    process.on('uncaughtException', (e) => {
+      console.error('Asynchronous error caught.', e)
+      if (e.message === 'Channel closed') {
+        process.exit()
+      }
+    })
   }
 
   private parseMessage(message: extensionHostMessage) {
-    if (this.isExtensionEvent(message.type)) {
+    if (this.isExtensionEvent(message.type as keyof MoosyncExtensionTemplate)) {
       this.extensionHandler.sendEvent(message as extensionEventMessage)
       return
     }
@@ -115,7 +119,7 @@ class MainRequestHandler {
   }
 
   public parseRequest(message: mainRequestMessage) {
-    console.debug('Received message from main process')
+    console.debug('Received message from main process', message.type)
     if (message.type === 'find-new-extensions') {
       this.handler
         .registerPlugins()
@@ -126,6 +130,11 @@ class MainRequestHandler {
 
     if (message.type === 'get-installed-extensions') {
       this.sendToMain(message.channel, this.handler.getInstalledExtensions())
+      return
+    }
+
+    if (message.type === 'get-extension-icon') {
+      this.sendToMain(message.channel, this.handler.getExtensionIcon(message.data.packageName))
       return
     }
 
@@ -142,10 +151,27 @@ class MainRequestHandler {
     }
 
     if (message.type === 'stop-process') {
-      this.handler.stopAllExtensions().then(() => {
-        this.sendToMain(message.channel)
-      })
+      this.killSelf(message.channel)
       return
+    }
+
+    if (message.type === 'extra-extension-events') {
+      this.handler.sendExtraEventToExtensions(message.data).then((val) => {
+        this.sendToMain(message.channel, val)
+      })
+    }
+
+    if (message.type === 'get-extension-context-menu') {
+      const items = this.handler.getExtensionContextMenu(message.data.type)
+      this.sendToMain(message.channel, items)
+    }
+
+    if (message.type === 'on-clicked-context-menu') {
+      this.handler.fireContextMenuCallback(message.data.id, message.data.packageName, message.data.arg)
+    }
+
+    if (message.type === 'set-log-level') {
+      setLogLevel(message.data.level)
     }
   }
 
@@ -153,6 +179,13 @@ class MainRequestHandler {
     if (process.send) {
       process.send({ channel, data } as mainReplyMessage)
     }
+  }
+
+  public killSelf(channel?: string) {
+    this.handler.stopAllExtensions().then(() => {
+      if (channel) this.sendToMain(channel)
+      process.exit()
+    })
   }
 }
 

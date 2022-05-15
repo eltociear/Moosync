@@ -31,6 +31,9 @@ export class ExtensionPreferenceMixin extends Vue {
   @Prop({ default: () => null })
   private onValueChange!: (val: unknown) => void
 
+  @Prop({ default: 'text' })
+  private type!: string
+
   public value: unknown = ''
 
   public loading = false
@@ -40,10 +43,22 @@ export class ExtensionPreferenceMixin extends Vue {
   }
 
   mounted() {
+    this.fetch()
+    this.registerPreferenceListener()
+  }
+
+  private fetch() {
     if (this.prefKey) {
       this.loading = true
-      window.PreferenceUtils.loadSelective(this.prefKey, this.isExtension)
+      ;(this.type === 'password'
+        ? window.Store.getSecure(this.prefKey)
+        : window.PreferenceUtils.loadSelective(this.prefKey, this.isExtension)
+      )
         .then((val) => {
+          if (this.type === 'password') {
+            val = val && JSON.parse(val as string)
+          }
+
           if (typeof val === 'object' && typeof this.defaultValue === 'object') {
             this.value = Object.assign(this.defaultValue, val)
           } else {
@@ -55,17 +70,33 @@ export class ExtensionPreferenceMixin extends Vue {
     }
   }
 
+  private registerPreferenceListener() {
+    window.PreferenceUtils.listenPreferenceChange((...[key]) => {
+      if (typeof key === 'string') {
+        if (this.prefKey === key) {
+          this.fetch()
+        }
+      }
+    })
+  }
+
   public onInputChange() {
-    this.prefKey && window.PreferenceUtils.saveSelective(this.prefKey, this.value, this.isExtension)
+    if (this.prefKey) {
+      if (this.type === 'password') {
+        window.Store.setSecure(this.prefKey, JSON.stringify(this.value))
+      } else {
+        window.PreferenceUtils.saveSelective(this.prefKey, this.value, this.isExtension)
+      }
 
-    if (this.isExtension)
-      window.ExtensionUtils.sendEvent({
-        data: { key: this.prefKey, value: this.value },
-        type: 'onPreferenceChanged',
-        packageName: this.packageName
-      } as extensionEventMessage)
-    else this.prefKey && window.PreferenceUtils.notifyPreferenceChanged(this.prefKey, this.value)
+      if (this.isExtension)
+        window.ExtensionUtils.sendEvent({
+          data: [{ key: this.prefKey.replace(`${this.packageName}.`, ''), value: this.value }],
+          type: 'preferenceChanged',
+          packageName: this.packageName
+        })
+      else window.PreferenceUtils.notifyPreferenceChanged(this.prefKey, this.value)
 
-    this.onValueChange && this.onValueChange(this.value)
+      this.onValueChange && this.onValueChange(this.value)
+    }
   }
 }

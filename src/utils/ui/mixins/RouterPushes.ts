@@ -12,38 +12,62 @@ import { Component, Vue } from 'vue-property-decorator'
 @Component
 export default class PlayerControls extends Vue {
   public gotoAlbum(album: Album) {
-    this.$router.push({
-      name: 'albums-id',
-      params: {
-        id: album.album_id as string
-      }
-    })
+    try {
+      this.$router.push({
+        name: 'albums-single',
+        query: {
+          id: album.album_id as string
+        }
+      })
+    } catch (e) {
+      console.debug(e)
+    }
   }
 
   public gotoGenre(genre: Genre) {
-    this.$router.push({
-      name: 'genre-id',
-      params: {
-        id: genre.genre_id
-      }
-    })
+    try {
+      this.$router.push({
+        name: 'genre-single',
+        query: {
+          id: genre.genre_id
+        }
+      })
+    } catch (e) {
+      console.debug(e)
+    }
   }
 
   public gotoArtist(artist: Artists) {
-    this.$router.push({
-      name: 'artists-id',
-      params: {
-        id: artist.artist_id
-      }
-    })
+    try {
+      this.$router.push({
+        name: 'artists-single',
+        query: {
+          id: artist.artist_id,
+          name: artist.artist_name ?? '',
+          cover: artist.artist_coverPath ?? ''
+        }
+      })
+    } catch (e) {
+      console.debug(e)
+    }
   }
 
-  public gotoPlaylist(playlist: Playlist) {
-    this.$router.push({
-      name: 'playlists-id',
-      params: {
-        id: playlist.playlist_id
-      }
-    })
+  public gotoPlaylist(playlist: ExtendedPlaylist) {
+    try {
+      this.$router.push({
+        name: 'playlists-single',
+        query: {
+          id: playlist.playlist_id,
+          playlist_id: playlist.playlist_id,
+          playlist_name: playlist.playlist_name,
+          playlist_coverPath: playlist.playlist_coverPath ?? '',
+          playlist_song_count: (playlist.playlist_song_count ?? 0).toString(),
+          playlist_path: playlist.playlist_path ?? '',
+          extension: playlist.extension ?? ''
+        }
+      })
+    } catch (e) {
+      console.debug(e)
+    }
   }
 }

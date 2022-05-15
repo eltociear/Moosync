@@ -39,13 +39,34 @@ export class ExtensionManager extends AbstractExtensionManager {
     this.extensionRegistry.deregister(packageName)
   }
 
+  private getProcessEnv() {
+    const env = JSON.parse(JSON.stringify(process.env)) as Partial<NodeJS.ProcessEnv>
+    delete env.FanartTVApiKey
+    delete env.LastFmApiKey
+    delete env.LastFmSecret
+    delete env.SpotifyClientID
+    delete env.SpotifyClientSecret
+    delete env.YoutubeClientID
+    delete env.YoutubeClientSecret
+
+    delete env['YOUTUBECLIENTID']
+    delete env['YOUTUBECLIENTSECRET']
+    delete env['LASTFMAPIKEY']
+    delete env['LASTFMSECRET']
+    delete env['FANARTTVAPIKEY']
+    delete env['GH_TOKEN']
+
+    env['MOOSYNC_VERSION'] = process.env.MOOSYNC_VERSION
+    return env
+  }
+
   private async getVM(entryFilePath: string, extensionPath: string) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const events = require('events')
     const vm = new NodeVM({
-      console: 'inherit',
+      console: 'redirect',
       sandbox: {},
-      env: process.env,
+      env: this.getProcessEnv(),
       nesting: true,
       require: {
         external: true,
@@ -64,8 +85,6 @@ export class ExtensionManager extends AbstractExtensionManager {
   private getGlobalObject(packageName: string, entryFilePath: string) {
     const child = log.getLogger(packageName)
     prefixLogger(this.logsPath, child)
-    const logLevel = process.env.DEBUG_LOGGING ? log.levels.DEBUG : log.levels.INFO
-    child.setLevel(logLevel)
 
     return {
       __dirname: path.dirname(entryFilePath),
@@ -112,19 +131,30 @@ export class ExtensionManager extends AbstractExtensionManager {
     }
   }
 
-  private async setGlobalObjectToVM(vm: NodeVM, packageName: string, entryFilePath: string) {
+  private setGlobalObjectToVM(vm: NodeVM, packageName: string, entryFilePath: string) {
     const globalObj = this.getGlobalObject(packageName, entryFilePath)
     vm.freeze(globalObj.api, 'api')
     vm.freeze(globalObj.logger, 'logger')
+
+    vm.on('console.log', globalObj.logger.log)
+    vm.on('console.info', globalObj.logger.info)
+    vm.on('console.trace', globalObj.logger.trace)
+    vm.on('console.debug', globalObj.logger.debug)
+    vm.on('console.warn', globalObj.logger.warn)
+    vm.on('console.error', globalObj.logger.error)
+
+    return globalObj
   }
 
   async instantiateAndRegister(extension: UnInitializedExtensionItem) {
     const vmObj = await this.checkExtValidityAndGetInstance(extension.entry, extension.extensionPath)
     if (vmObj) {
-      this.setGlobalObjectToVM(vmObj.vm, extension.packageName, extension.entry)
+      const global = this.setGlobalObjectToVM(vmObj.vm, extension.packageName, extension.entry)
 
       const preferences = vmObj.factory.registerPreferences ? await vmObj.factory.registerPreferences() : []
       const instance = await vmObj.factory.create()
+
+      console.debug('Instantiated', extension.name)
 
       this.register({
         name: extension.name,
@@ -136,7 +166,9 @@ export class ExtensionManager extends AbstractExtensionManager {
         entry: extension.entry,
         vm: vmObj.vm,
         extensionPath: extension.extensionPath,
+        extensionIcon: extension.extensionIcon,
         preferences,
+        global,
         instance
       })
     }

@@ -1,9 +1,6 @@
 name: Build/release
 
-on:
-  push:
-    branches:
-      - "main"
+on: push
 
 jobs:
   release:
@@ -21,6 +18,16 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 16
+
+      - name: Install Snapcraft
+        if: ${{ runner.os == 'Linux' }}
+        uses: samuelmeuli/action-snapcraft@v1
+        with:
+          snapcraft_token: ${{ secrets.SNAPCRAFT_TOKEN }}
+
+      - name: Install multipass
+        if: ${{ runner.os == 'Linux' }}
+        run: sudo snap install multipass
 
       - name: Get yarn cache dir
         id: yarn-cache
@@ -40,10 +47,21 @@ jobs:
       - uses: microsoft/playwright-github-action@v1
 
       - if: ${{ runner.os == 'Linux' }}
-        run: sudo apt-get update -y && sudo apt-get install -y libarchive-tools
+        run: sudo apt-get update -y && sudo apt-get install -y libarchive-tools rpm libcrypt1
 
       - name: yarn install
         run: yarn install
+
+      - name: Set env BRANCH
+        run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
+
+      - name: Set DEBUG_LOGGING
+        shell: bash
+        run: |
+          if [[ $BRANCH == 'dev' ]]; then
+              echo "DEBUG_LOGGING=true" >> "$GITHUB_ENV"
+          fi
+
       - name: setup env
         env:
           YOUTUBECLIENTID: "${{ secrets.YOUTUBECLIENTID }}"
@@ -56,7 +74,7 @@ jobs:
         run: chmod +x setup_env.sh && . setup_env.sh
         shell: bash
 
-      - run: yarn test:unit
+      # - run: yarn test:unit
 
       # - run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn test:electron
       #   if: matrix.os == 'ubuntu-latest'
@@ -82,6 +100,7 @@ jobs:
           CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SNAPCRAFT_BUILD_ENVIRONMENT: host
           CI: true
 
       - uses: actions/upload-artifact@v2

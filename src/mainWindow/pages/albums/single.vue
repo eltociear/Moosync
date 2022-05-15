@@ -19,8 +19,8 @@
       :songList="songList"
       :detailsButtonGroup="buttonGroups"
       @onRowContext="getSongMenu(arguments[0], arguments[1], undefined)"
-      @playAll="playGenre"
-      @addToQueue="addGenreToQueue"
+      @playAll="playAlbum"
+      @addToQueue="addAlbumToQueue"
     />
   </div>
 </template>
@@ -31,17 +31,19 @@ import SongView from '@/mainWindow/components/songView/SongView.vue'
 
 import { mixins } from 'vue-class-component'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
-import { arrayDiff } from '@/utils/common'
 import { vxm } from '@/mainWindow/store'
+import PlayerControls from '@/utils/ui/mixins/PlayerControls'
+import RemoteSong from '@/utils/ui/mixins/remoteSongMixin'
+import { arrayDiff } from '@/utils/common'
 
 @Component({
   components: {
     SongView
   }
 })
-export default class SingleAlbumView extends mixins(ContextMenuMixin) {
+export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerControls, RemoteSong) {
+  private album: Album | null = null
   private songList: Song[] = []
-  private genre: Genre | null = null
 
   get buttonGroups(): SongDetailButtons {
     return {
@@ -52,21 +54,23 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin) {
 
   get defaultDetails(): SongDetailDefaults {
     return {
-      defaultTitle: this.genre?.genre_name,
-      defaultSubSubtitle: `${this.genre?.genre_song_count} Songs`
+      defaultTitle: this.album?.album_name,
+      defaultSubtitle: this.album?.album_artist,
+      defaultSubSubtitle: `${this.album?.album_song_count} Songs`,
+      defaultCover: this.album?.album_coverPath_high
     }
   }
 
   created() {
-    this.fetchGenre()
+    this.fetchAlbum()
     this.fetchSongList()
   }
 
-  private async fetchGenre() {
-    this.genre = (
-      await window.SearchUtils.searchEntityByOptions({
-        genre: {
-          genre_id: this.$route.params.id
+  private async fetchAlbum() {
+    this.album = (
+      await window.SearchUtils.searchEntityByOptions<Album>({
+        album: {
+          album_id: this.$route.query.id as string
         }
       })
     )[0]
@@ -74,15 +78,15 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin) {
 
   private async fetchSongList() {
     this.songList = await window.SearchUtils.searchSongsByOptions({
-      genre: {
-        genre_id: this.$route.params.id
+      album: {
+        album_id: this.$route.query.id as string
       },
-      sortBy: vxm.themes.sortBy
+      sortBy: vxm.themes.songSortBy
     })
   }
 
-  private sort(options: sortOptions) {
-    vxm.themes.sortBy = options
+  private sort(options: SongSortOptions) {
+    if (options.type === 'title' || options.type === 'date_added') vxm.themes.songSortBy = options
   }
 
   private getSongMenu(event: Event, songs: Song[], exclude: string | undefined) {
@@ -91,18 +95,17 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin) {
       args: {
         songs: songs,
         exclude: exclude,
-        sortOptions: { callback: this.sort, current: vxm.themes.sortBy },
-
+        sortOptions: { callback: this.sort, current: vxm.themes.songSortBy },
         refreshCallback: () => (this.songList = arrayDiff(this.songList, songs))
       }
     })
   }
 
-  private playGenre() {
+  private playAlbum() {
     this.playTop(this.songList)
   }
 
-  private addGenreToQueue() {
+  private addAlbumToQueue() {
     this.queueSong(this.songList)
   }
 }

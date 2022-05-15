@@ -68,6 +68,7 @@ export default class Context extends Vue {
 <style lang="sass">
 .context-menu
   background: var(--secondary)
+  border-radius: 16px
   ul li
     &:hover
       background: var(--accent)

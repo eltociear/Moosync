@@ -9,6 +9,15 @@
 
 import { MainHostIPCHandler } from '@/utils/extensions'
 import { ExtensionHostEvents, IpcEvents } from './constants'
+import { SongDB } from '../db/index'
+import { createWriteStream } from 'fs'
+import path from 'path'
+import { app } from 'electron'
+import https from 'https'
+import { v1 } from 'uuid'
+import { WindowHandler } from '../windowManager'
+import { IncomingMessage } from 'http'
+import { LogLevelDesc } from 'loglevel'
 
 export class ExtensionHostChannel implements IpcChannelInterface {
   name = IpcEvents.EXTENSION_HOST
@@ -16,9 +25,6 @@ export class ExtensionHostChannel implements IpcChannelInterface {
   private extensionHost = new MainHostIPCHandler()
   handle(event: Electron.IpcMainEvent, request: IpcRequest): void {
     switch (request.type) {
-      case ExtensionHostEvents.EVENT_TRIGGER:
-        this.sendData(event, request as IpcRequest<ExtensionHostRequests.EventTrigger>)
-        break
       case ExtensionHostEvents.INSTALL:
         this.installExt(event, request as IpcRequest<ExtensionHostRequests.Install>)
         break
@@ -31,6 +37,21 @@ export class ExtensionHostChannel implements IpcChannelInterface {
       case ExtensionHostEvents.REMOVE_EXT:
         this.removeExtension(event, request as IpcRequest<ExtensionHostRequests.RemoveExtension>)
         break
+      case ExtensionHostEvents.GET_EXTENSION_ICON:
+        this.getExtensionIcon(event, request as IpcRequest<ExtensionHostRequests.RemoveExtension>)
+        break
+      case ExtensionHostEvents.SEND_EXTRA_EVENT:
+        this.handleMainWindowExtraEvent(event, request as IpcRequest<ExtensionHostRequests.ExtraEvent>)
+        break
+      case ExtensionHostEvents.DOWNLOAD_EXTENSION:
+        this.downloadExtension(event, request as IpcRequest<ExtensionHostRequests.DownloadExtension>)
+        break
+      case ExtensionHostEvents.GET_EXT_CONTEXT_MENU:
+        this.getContextMenuItems(event, request as IpcRequest<ExtensionHostRequests.ContextMenuItems>)
+        break
+      case ExtensionHostEvents.ON_CONTEXT_MENU_ITEM_CLICKED:
+        this.fireContextMenuHandler(event, request as IpcRequest<ExtensionHostRequests.ContextMenuHandler>)
+        break
     }
   }
 
@@ -39,6 +60,7 @@ export class ExtensionHostChannel implements IpcChannelInterface {
       this.extensionHost
         .installExtension(request.params.path)
         .then((result) => event.reply(request.responseChannel, result))
+        .catch(console.error)
       return
     }
     event.reply(request.responseChannel, { success: false })
@@ -66,16 +88,21 @@ export class ExtensionHostChannel implements IpcChannelInterface {
     event.reply(request.responseChannel)
   }
 
-  private removeExtension(event: Electron.IpcMainEvent, request: IpcRequest<ExtensionHostRequests.RemoveExtension>) {
+  private async removeExtension(
+    event: Electron.IpcMainEvent,
+    request: IpcRequest<ExtensionHostRequests.RemoveExtension>
+  ) {
     if (request.params.packageName) {
-      this.extensionHost.uninstallExtension(request.params.packageName).then(() => event.reply(request.responseChannel))
-      return
-    }
-    event.reply(request.responseChannel)
-  }
+      await this.extensionHost
+        .uninstallExtension(request.params.packageName)
+        .then(() => event.reply(request.responseChannel))
 
-  private sendData(event: Electron.IpcMainEvent, request: IpcRequest<ExtensionHostRequests.EventTrigger>) {
-    if (request.params.data) this.extensionHost.extensionEventGenerator.send(request.params.data)
+      // Remove all song added by this extension
+      const songs = SongDB.getSongByOptions({ song: { extension: request.params.packageName } })
+      for (const s of songs) {
+        await SongDB.removeSong(s._id)
+      }
+    }
     event.reply(request.responseChannel)
   }
 
@@ -85,5 +112,118 @@ export class ExtensionHostChannel implements IpcChannelInterface {
 
   public onMainWindowCreated() {
     this.extensionHost.mainWindowCreated()
+  }
+
+  public async getExtensionIcon(
+    event: Electron.IpcMainEvent,
+    request: IpcRequest<ExtensionHostRequests.RemoveExtension>
+  ) {
+    if (request.params && request.params.packageName) {
+      const data = await this.extensionHost.mainRequestGenerator.getExtensionIcon(request.params.packageName)
+      event.reply(request.responseChannel, data)
+    }
+    event.reply(request.responseChannel)
+  }
+
+  public async sendExtraEvent<T extends ExtraExtensionEventTypes>(event: ExtraExtensionEvents<T>) {
+    const data = await this.extensionHost.sendExtraEventToExtensions(event)
+    return data
+  }
+
+  private async handleMainWindowExtraEvent(
+    event: Electron.IpcMainEvent,
+    request: IpcRequest<ExtensionHostRequests.ExtraEvent>
+  ) {
+    if (request.params.event) {
+      const data = await this.sendExtraEvent(request.params.event)
+      event.reply(request.responseChannel, data)
+    }
+    event.reply(request.responseChannel)
+  }
+
+  private followRedirectAndDownload(url: string, callback: (data: IncomingMessage) => void) {
+    https.get(url, (res) => {
+      if (res.statusCode === 302 && res.headers.location) {
+        this.followRedirectAndDownload(res.headers.location, callback)
+      } else {
+        callback(res)
+      }
+    })
+  }
+
+  private async downloadExtension(
+    event: Electron.IpcMainEvent,
+    request: IpcRequest<ExtensionHostRequests.DownloadExtension>
+  ) {
+    if (request.params.ext) {
+      const ext = request.params.ext
+      const parsedURL = ext.release.url
+        .replaceAll('{version}', ext.release.version)
+        .replaceAll('{platform}', process.platform)
+        .replaceAll('{arch}', process.arch)
+
+      const filePath = path.join(app.getPath('temp'), `${ext.packageName}-${v1()}.msox`)
+      const file = createWriteStream(filePath)
+
+      this.notifyPreferenceWindow({ packageName: ext.packageName, status: 'Downloading', progress: 10 })
+
+      try {
+        await new Promise<void>((resolve, reject) => {
+          this.followRedirectAndDownload(parsedURL, (res) => {
+            res.on('error', reject)
+            const stream = res.pipe(file)
+            stream.on('finish', resolve)
+            stream.on('error', reject)
+          })
+        })
+      } catch (e) {
+        console.error('Failed to download from', parsedURL, e)
+        this.notifyPreferenceWindow({ packageName: ext.packageName, status: 'Failed', error: e, progress: -1 })
+        event.reply(request.responseChannel, false)
+        return
+      }
+
+      this.notifyPreferenceWindow({ packageName: ext.packageName, status: 'Installing', progress: 50 })
+
+      try {
+        await this.extensionHost.installExtension([filePath])
+      } catch (e) {
+        console.error('Failed to install extension', e)
+        this.notifyPreferenceWindow({ packageName: ext.packageName, error: e, status: 'Failed', progress: -1 })
+        return
+      }
+
+      this.notifyPreferenceWindow({ packageName: ext.packageName, status: 'Installed', progress: 100 })
+
+      event.reply(request.responseChannel, true)
+    }
+  }
+
+  private async getContextMenuItems(
+    event: Electron.IpcMainEvent,
+    request: IpcRequest<ExtensionHostRequests.ContextMenuItems>
+  ) {
+    const data = await this.extensionHost.mainRequestGenerator.getContextMenuItems(request.params.type)
+    event.reply(request.responseChannel, data)
+  }
+
+  private async fireContextMenuHandler(
+    event: Electron.IpcMainEvent,
+    request: IpcRequest<ExtensionHostRequests.ContextMenuHandler>
+  ) {
+    await this.extensionHost.mainRequestGenerator.sendContextMenuItemClicked(
+      request.params.id,
+      request.params.packageName,
+      request.params.arg
+    )
+    event.reply(request.responseChannel)
+  }
+
+  public notifyPreferenceWindow(data: ExtInstallStatus) {
+    WindowHandler.getWindow(false)?.webContents.send(ExtensionHostEvents.EXT_INSTALL_STATUS, data)
+  }
+
+  public setLogLevel(level: LogLevelDesc) {
+    return this.extensionHost.setExtensionLogLevel(level)
   }
 }

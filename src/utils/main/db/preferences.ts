@@ -11,9 +11,11 @@ import Store from 'electron-store'
 import { app } from 'electron'
 import { enableStartup } from '../autoLaunch'
 import path from 'path'
-import { getScannerChannel } from '../ipc'
+import { getExtensionHostChannel, getPreferenceChannel, getScannerChannel } from '../ipc'
 import { setMinimizeToTray } from '@/utils/main/windowManager'
 import { watch } from 'fs/promises'
+import { setLogLevel } from '../logger/utils'
+import log from 'loglevel'
 
 type MusicPaths = { path: string; enabled: boolean }
 
@@ -23,6 +25,7 @@ const defaultPreferences: Preferences = {
   thumbnailPath: path.join(app.getPath('appData'), app.getName(), '.thumbnails'),
   artworkPath: path.join(app.getPath('appData'), app.getName(), '.thumbnails'),
   system: [],
+  zoomFactor: '100%',
   themes: {}
 }
 
@@ -67,8 +70,9 @@ export function getWindowSize(windowName: string, defaultValue: { width: number;
  * @param value
  * @param [isExtension] true if preference is of an extension. false otherwise
  */
-export function saveSelectivePreference(key: string, value: unknown, isExtension = false) {
+export function saveSelectivePreference(key: string, value: unknown, isExtension = false, notify = false) {
   store.set(`prefs.${isExtension ? 'extension.' : ''}${key}`, value)
+  if (notify) getPreferenceChannel().notifyPreferenceWindow(key)
 }
 
 /**
@@ -102,6 +106,12 @@ export function removeSelectivePreference(key: string, isExtension = false) {
  */
 export function setInitialPreferences() {
   onPreferenceChanged('system', loadPreferences()?.system)
+
+  saveSelectivePreference('logs.0', {
+    key: 'debug_logging',
+    title: 'Enable debug logging',
+    enabled: process.env.DEBUG_LOGGING
+  })
 }
 
 /**
@@ -135,6 +145,16 @@ export async function onPreferenceChanged(key: string, value: any) {
     shouldWatchFileChanges()
     return
   }
+
+  if (key === 'logs') {
+    for (const l of value as Checkbox[]) {
+      if (l.key === 'debug_logging') {
+        const level = l.enabled ? log.levels.TRACE : log.levels.INFO
+        setLogLevel(level)
+        getExtensionHostChannel().setLogLevel(level)
+      }
+    }
+  }
 }
 
 // TODO: Scan only changed file
@@ -144,7 +164,8 @@ export function shouldWatchFileChanges() {
     if (ac) ac.abort()
 
     const watchChanges =
-      loadSelectivePreference<SystemSettings[]>('system')?.find((val) => val.key === 'watchFileChanges') ?? false
+      loadSelectivePreference<SystemSettings[]>('system', false, [])?.find((val) => val.key === 'watchFileChanges')
+        ?.enabled ?? false
     if (watchChanges) {
       setupScanWatcher(value)
     }

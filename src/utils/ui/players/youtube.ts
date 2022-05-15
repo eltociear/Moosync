@@ -14,14 +14,27 @@ type YouTubePlayerQuality = 'small' | 'medium' | 'large' | 'hd720' | 'hd1080' | 
 
 export class YoutubePlayer extends Player {
   playerInstance: YTPlayer
+  private supposedVolume = 100
 
   constructor(playerInstance: YTPlayer) {
     super()
     this.playerInstance = playerInstance
   }
 
+  private extractVideoID(url: string) {
+    try {
+      return new URL(url).searchParams.get('v') ?? undefined
+    } catch (e) {
+      console.debug('Not a URL', url)
+    }
+    return url
+  }
+
   load(src?: string, volume?: number, autoplay?: boolean): void {
-    src && this.playerInstance.load(src, autoplay)
+    if (src) {
+      src = this.extractVideoID(src)
+      src && this.playerInstance.load(src, autoplay)
+    }
     volume && (this.volume = volume)
   }
 
@@ -51,6 +64,7 @@ export class YoutubePlayer extends Player {
   }
 
   set volume(volume: number) {
+    this.supposedVolume = volume
     this.playerInstance.setVolume(volume)
   }
 
@@ -66,13 +80,16 @@ export class YoutubePlayer extends Player {
     this.playerInstance.addListener('cued', callback)
   }
 
-  protected listenOnError(callback: OnErrorEventHandlerNonNull | ((err: ErrorEvent) => void)): void {
+  protected listenOnError(callback: (err: Error) => void): void {
     this.playerInstance.addListener('error', callback)
     this.playerInstance.addListener('unplayable', callback)
   }
 
   protected listenOnStateChange(callback: (state: PlayerState) => void): void {
-    this.playerInstance.addListener('playing', () => callback('PLAYING'))
+    this.playerInstance.addListener('playing', () => {
+      this.volume = this.supposedVolume
+      callback('PLAYING')
+    })
     this.playerInstance.addListener('paused', () => callback('PAUSED'))
     this.playerInstance.addListener('ended', () => callback('STOPPED'))
   }

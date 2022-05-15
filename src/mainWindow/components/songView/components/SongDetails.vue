@@ -152,7 +152,7 @@ export default class SongDetails extends mixins(ImageLoader, ErrorHandler, FileM
   private getParsedSubtitle() {
     if (this.currentSong && (this.currentSong.artists?.length || this.currentSong.album?.album_name)) {
       return (
-        ((this.currentSong?.artists && this.currentSong?.artists?.join(', ')) ?? '') +
+        ((this.currentSong?.artists && this.currentSong?.artists.map((val) => val.artist_name)?.join(', ')) ?? '') +
         (this.isArtistAlbumNotEmpty() ? ' - ' : '') +
         ((this.currentSong?.album && this.currentSong.album.album_name) ?? '')
       )

@@ -19,6 +19,7 @@ import qs from 'qs'
 import { vxm } from '@/mainWindow/store'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
+import { GenericSearch } from './generics/genericSearch'
 
 /**
  * Spotify API base URL
@@ -27,18 +28,23 @@ const BASE_URL = 'https://api.spotify.com/v1/'
 
 enum ApiResources {
   USER_DETAILS = 'me',
+  LIKED_SONGS = 'me/tracks',
   PLAYLISTS = 'me/playlists',
   PLAYLIST = 'playlists/{playlist_id}',
   PLAYLIST_ITEMS = 'playlists/{playlist_id}/tracks',
   SONG_DETAILS = 'tracks/{song_id}',
   TOP = 'me/top/{type}',
-  RECOMMENDATIONS = 'recommendations'
+  RECOMMENDATIONS = 'recommendations',
+  SEARCH = 'search',
+  ARTIST_TOP = 'artists/{artist_id}/top-tracks',
+  ARTIST_ALBUMS = 'artists/{artist_id}/albums',
+  ALBUM_SONGS = 'albums/{album_id}/tracks'
 }
 
 /**
  * API Handler for Spotify.
  */
-export class SpotifyProvider extends GenericAuth implements GenericProvider, GenericRecommendation {
+export class SpotifyProvider extends GenericAuth implements GenericProvider, GenericRecommendation, GenericSearch {
   private auth!: AuthFlow
   private _config!: ReturnType<SpotifyProvider['getConfig']>
 
@@ -54,7 +60,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       clientId: id,
       clientSecret: secret,
       redirectUri: 'https://moosync.app/spotify',
-      scope: 'playlist-read-private user-top-read',
+      scope: 'playlist-read-private user-top-read user-library-read',
       keytarService: 'MoosyncSpotifyRefreshToken',
       oAuthChannel: oauthChannel
     }
@@ -137,6 +143,14 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       search.params = undefined
     }
 
+    if (resource === ApiResources.ARTIST_TOP || resource === ApiResources.ARTIST_ALBUMS) {
+      url = resource.replace('{artist_id}', (search as SpotifyResponses.ArtistsTopTracks).params.id)
+    }
+
+    if (resource === ApiResources.ALBUM_SONGS) {
+      url = resource.replace('{album_id}', (search as SpotifyResponses.AlbumTracksRequest).params.id)
+    }
+
     const resp = await this.api(url, {
       params: search.params,
       method: 'GET',
@@ -162,7 +176,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     const parsed: Playlist[] = []
     for (const i of items) {
       parsed.push({
-        playlist_id: `spotify-${i.id}`,
+        playlist_id: `spotify-playlist:${i.id}`,
         playlist_name: i.name,
         playlist_coverPath: i.images[0] ? i.images[0].url : '',
         playlist_song_count: i.tracks.total,
@@ -181,6 +195,12 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     const playlists: Playlist[] = []
 
     if (this.auth?.loggedIn() || validRefreshToken) {
+      playlists.push({
+        playlist_id: 'spotify-playlist:saved-tracks',
+        playlist_name: 'Liked Songs',
+        playlist_coverPath: 'https://t.scdn.co/images/3099b3803ad9496896c43f22fe9be8c4.png',
+        isRemote: true
+      })
       while (hasNext) {
         const resp = await this.populateRequest(
           ApiResources.PLAYLISTS,
@@ -204,14 +224,28 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   public async spotifyToYoutube(item: Song) {
-    const term = `${item.artists ? item.artists.join(' ') : ''} ${item.title} Lyrics`
-    const ytItem = await window.SearchUtils.searchYT(term)
+    if (vxm.providers.loggedInYoutube) {
+      const res = await vxm.providers.youtubeProvider.searchSongs(
+        `${item.artists?.map((val) => val.artist_name ?? '').join(', ') ?? ''} ${item.title}`
+      )
+      console.debug('Found', res[0]?.title, '-', res[0]?.url, 'for spotify song', item.artists, item.title)
+      if (res.length > 0) return res[0]
+    }
+
+    const ytItem = await window.SearchUtils.searchYT(
+      item.title,
+      item.artists?.map((val) => val.artist_name ?? ''),
+      false,
+      false,
+      true
+    )
+    console.debug('Found', ytItem[0]?.title, '-', ytItem[0]?.url, 'for spotify song', item.artists, item.title)
     if (ytItem.length > 0) return ytItem[0]
   }
 
   private parseSong(track: SpotifyResponses.PlaylistItems.Track): Song {
     return {
-      _id: track.id,
+      _id: `spotify:${track.id}`,
       title: track.name,
       album: {
         album_name: track.album.name,
@@ -219,7 +253,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       },
       url: track.id,
       song_coverPath_high: track.album.images[0] ? track.album.images[0].url : '',
-      artists: track.artists.map((artist) => artist.name),
+      artists: track.artists.map((artist) => ({ artist_name: artist.name, artist_id: `spotify-author:${artist.id}` })),
       duration: track.duration_ms / 1000,
       date_added: Date.now(),
       type: 'SPOTIFY'
@@ -255,20 +289,35 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       if (this.auth?.loggedIn() || validRefreshToken) {
         let nextOffset = 0
         let isNext = false
-        const limit = 100
+        const limit = id === 'saved-tracks' ? 50 : 100
         const parsed: Song[] = []
         do {
-          const resp = await this.populateRequest(
-            ApiResources.PLAYLIST_ITEMS,
-            {
-              params: {
-                playlist_id: id,
-                limit,
-                offset: nextOffset
-              }
-            },
-            invalidateCache
-          )
+          let resp: SpotifyResponses.PlaylistItems.PlaylistItems
+
+          if (id === 'saved-tracks') {
+            resp = await this.populateRequest(
+              ApiResources.LIKED_SONGS,
+              {
+                params: {
+                  limit,
+                  offset: nextOffset
+                }
+              },
+              invalidateCache
+            )
+          } else {
+            resp = await this.populateRequest(
+              ApiResources.PLAYLIST_ITEMS,
+              {
+                params: {
+                  playlist_id: id,
+                  limit,
+                  offset: nextOffset
+                }
+              },
+              invalidateCache
+            )
+          }
           const items = await this.parsePlaylistItems(resp.items)
           parsed.push(...items)
           isNext = !!resp.next
@@ -285,7 +334,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   public async getPlaybackUrlAndDuration(song: Song) {
     const ytItem = await this.spotifyToYoutube(song)
     if (ytItem) {
-      return { url: ytItem.youtubeId, duration: ytItem.duration?.totalSeconds ?? 0 }
+      return { url: ytItem.url, duration: ytItem.duration ?? 0 }
     }
   }
 
@@ -328,7 +377,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
           const song = this.parseSong(resp)
           const yt = await this.spotifyToYoutube(song)
           if (yt) {
-            song.playbackUrl = yt?.youtubeId
+            song.playbackUrl = yt.url
             return song
           } else {
             console.error("Couldn't find song on youtube")
@@ -343,8 +392,12 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     const songList: Song[] = []
     for (const track of recommendations.tracks) {
       const song: Song = {
-        _id: track.id,
+        _id: `spotify:${track.id}`,
         title: track.name,
+        artists: track.artists.map((val) => ({
+          artist_id: `spotify-author:${val.id}`,
+          artist_name: val.name
+        })),
         album: {
           album_name: track.album.name,
           album_artist: track.album.artists && track.album.artists.length > 0 ? track.album.artists[0].name : undefined
@@ -357,7 +410,11 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       if (track.artists?.length > 0) {
         song.artists = []
         for (const artist of track.artists) {
-          song.artists.push(artist.name)
+          song.artists.push({
+            artist_id: `spotify-author:${artist.id}`,
+            artist_name: artist.name,
+            artist_coverPath: artist.images?.at(0)?.url
+          })
         }
       }
 
@@ -415,6 +472,112 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
         }
       })
       yield this.parseRecommendations(recommendationsResp)
+    }
+  }
+
+  public async searchSongs(term: string): Promise<Song[]> {
+    const songList: Song[] = []
+    const resp = await this.populateRequest(ApiResources.SEARCH, {
+      params: {
+        query: term,
+        type: 'track',
+        limit: 20
+      }
+    })
+
+    if (resp.tracks) {
+      for (const s of resp.tracks.items) {
+        songList.push(this.parseSong(s))
+      }
+    }
+    return songList
+  }
+
+  private parseArtist(artist: SpotifyResponses.RecommendationDetails.SpotifyArtist): Artists {
+    return {
+      artist_id: `spotify-author:${artist.id}`,
+      artist_name: artist.name,
+      artist_coverPath: artist.images?.at(0)?.url
+    }
+  }
+
+  public async searchArtists(term: string): Promise<Artists[]> {
+    const artists: Artists[] = []
+    const resp = await this.populateRequest(ApiResources.SEARCH, {
+      params: {
+        query: term,
+        type: 'artist',
+        limit: 20
+      }
+    })
+
+    if (resp.artists) {
+      for (const a of resp.artists.items) {
+        artists.push(this.parseArtist(a))
+      }
+    }
+
+    return artists
+  }
+
+  private async getArtistAlbums(artist_id: string) {
+    const resp = await this.populateRequest(ApiResources.ARTIST_ALBUMS, {
+      params: {
+        id: artist_id,
+        market: 'ES',
+        limit: 20,
+        offset: 0
+      }
+    })
+
+    return resp.items
+  }
+
+  private async *getAlbumSongs(album: SpotifyResponses.RecommendationDetails.Album) {
+    let nextOffset = 0
+    let isNext = false
+    const limit = 50
+
+    do {
+      const resp = await this.populateRequest(ApiResources.ALBUM_SONGS, {
+        params: {
+          id: album.id,
+          market: 'ES',
+          limit: limit,
+          offset: nextOffset
+        }
+      })
+
+      isNext = !!resp.next
+      if (isNext) {
+        nextOffset += limit
+      }
+
+      for (const s of resp.items) {
+        yield this.parseSong({
+          ...s,
+          album
+        })
+      }
+    } while (isNext)
+  }
+
+  public async *getArtistSongs(artist_id: string): AsyncGenerator<Song[]> {
+    artist_id = artist_id.replace('spotify-author:', '')
+    const resp = await this.populateRequest(ApiResources.ARTIST_TOP, {
+      params: {
+        id: artist_id,
+        market: 'ES'
+      }
+    })
+
+    for (const s of resp.tracks) {
+      yield [this.parseSong(s)]
+    }
+
+    const albums = await this.getArtistAlbums(artist_id)
+    for (const a of albums) {
+      for await (const s of this.getAlbumSongs(a)) yield [s]
     }
   }
 }

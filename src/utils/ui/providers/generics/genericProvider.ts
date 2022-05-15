@@ -77,4 +77,12 @@ export abstract class GenericProvider {
    * @returns {@link Song} details
    */
   public abstract getSongDetails(url: string, invalidateCache?: boolean): Promise<Song | undefined>
+
+  /**
+   * Get songs by artist ID
+   * @param artist_id ID of artists whose tracks are to be fetched
+   */
+  public abstract getArtistSongs(artist_id: string): AsyncGenerator<Song[]>
+
+  public abstract searchSongs(term: string): Promise<Song[]>
 }

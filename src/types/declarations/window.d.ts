@@ -7,8 +7,6 @@
  *  See LICENSE in the project root for license information.
  */
 
-// import { SongAPIOptions, EntityApiOptions } from '@moosync/moosync-types';
-
 /**
  * Utils related to database operations
  */
@@ -26,12 +24,22 @@ interface DBUtils {
   storeSongs: (songs: Song[]) => Promise<void>
 
   /**
+   * Update songs in database
+   * @param songs array of songs which are to be updated. Songs are found using _id.
+   */
+  updateSongs: (songs: Song[]) => Promise<void>
+
+  updatePlaylist: (playlist: Playlist) => Promise<void>
+  updateArtist: (artist: Artists) => Promise<void>
+  updateAlbum: (album: Album) => Promise<void>
+
+  /**
    * Create new playlist
    * @param name name of playlist
    * @param desc description of playlist
    * @param imgSrc cover image path of playlist
    */
-  createPlaylist: (name: string, desc: string, imgSrc: string) => Promise<string>
+  createPlaylist: (playlist: Partial<Playlist>) => Promise<string>
 
   /**
    * Add song to playlist
@@ -51,8 +59,6 @@ interface DBUtils {
   updateLyrics: (id: string, lyrics: string) => Promise<void>
 }
 
-type YTMusicVideo = import('node-youtube-music').MusicVideo
-
 /**
  * Utils related to search operations
  */
@@ -65,7 +71,7 @@ interface searchUtils {
   /**
    * Search entities like album, artists, playlists, genre by options
    */
-  searchEntityByOptions: (options: EntityApiOptions) => Promise<T[]>
+  searchEntityByOptions: <T>(options: EntityApiOptions) => Promise<T[]>
 
   /**
    * Search all by a term
@@ -78,12 +84,18 @@ interface searchUtils {
    * Search youtube music by a term.
    * @param term term to search youtube music by
    */
-  searchYT: (term: string) => Promise<YTMusicVideo[]>
+  searchYT: (
+    title: string,
+    artists?: string[],
+    matchTitle = true,
+    scrapeYTMusic = true,
+    scrapeYoutube = false
+  ) => Promise<Song[]>
 
   /**
    * Get suggestions similar to provided video id
    */
-  getYTSuggestions: (videoID: string) => Promise<YTMusicVideo[]>
+  getYTSuggestions: (videoID: string) => Promise<Song[]>
 
   /**
    * Scrape a webpage and parse it to json
@@ -91,6 +103,13 @@ interface searchUtils {
   scrapeLastFM: (url: string) => Promise<unknown>
 
   searchLyrics: (artists: string[], title: string) => Promise<string>
+
+  requestInvidious: <K extends InvidiousResponses.InvidiousApiResources>(
+    resource: K,
+    search: InvidiousResponses.SearchObject<K>,
+    authorization: string | undefined,
+    invalidateCache = false
+  ) => Promise<InvidiousResponses.ResponseType<K> | undefined>
 }
 
 /**
@@ -102,6 +121,14 @@ interface fileUtils {
    * Scans for audio files in specified paths
    */
   scan: () => Promise<void>
+  scanSinglePlaylist: (playlistPath: string) => Promise<{ songs: Song[]; playlist: Partial<Playlist> | null }>
+
+  getScanProgress: () => Promise<Progress>
+
+  /**
+   * Available only in Preference window
+   */
+  listenScanProgress: (callback: (progress: Progress) => void) => void
 
   /**
    * Save audio blob to file
@@ -146,6 +173,7 @@ interface preferenceUtils {
   saveSelective: (key: string, value: unknown, isExtension?: boolean) => Promise<void>
   loadSelective: <T>(key: string, isExtension?: boolean, defaultValue?: T) => Promise<T>
   notifyPreferenceChanged: (key: string, value: unknown) => Promise<void>
+  listenPreferenceChange: (callback: (key: string, value: unknown) => void) => void
 }
 
 /**
@@ -183,6 +211,7 @@ interface windowUtils {
   dragFile: (path: string) => void
   automateSpotify: () => Promise<{ clientID: string; clientSecret: string } | undefined>
   restartApp: () => Promise<void>
+  updateZoom: () => Promise<void>
 }
 
 /**
@@ -194,6 +223,9 @@ interface loggerUtils {
   warn: (...message: unknown[]) => Promise<void>
   debug: (...message: unknown[]) => Promise<void>
   trace: (...message: unknown[]) => Promise<void>
+  watchLogs: (callback: (data: unknown) => void) => Promise<void>
+  unwatchLogs: () => Promise<void>
+  setLogLevel: (level: import('loglevel').LogLevelDesc) => Promise<void>
 }
 
 /**
@@ -209,11 +241,22 @@ interface notifierUtils {
 interface extensionUtils {
   install: (...path: string[]) => Promise<installMessage>
   uninstall: (packageName: string) => Promise<void>
-  sendEvent: (data: extensionEventMessage) => Promise<void>
+  sendEvent: <T extends ExtraExtensionEventTypes>(
+    event: ExtraExtensionEvents<T>
+  ) => Promise<ExtraExtensionEventCombinedReturnType<T>>
   getAllExtensions: () => Promise<ExtensionDetails[]>
+  getExtensionIcon: (packageName: string) => Promise<string>
   listenRequests: (callback: (request: extensionUIRequestMessage) => void) => void
   replyToRequest: (data: extensionReplyMessage) => void
   toggleExtStatus: (packageName: string, enabled: boolean) => Promise<void>
+  downloadExtension: (ext: FetchedExtensionManifest) => Promise<boolean>
+  listenExtInstallStatus: (callback: (data: ExtInstallStatus) => void) => void
+  getContextMenuItems: (type: ContextMenuTypes) => Promise<ExtendedExtensionContextMenuItems<ContextMenuTypes>[]>
+  fireContextMenuHandler: (
+    id: string,
+    packageName: string,
+    arg: ExtensionContextMenuHandlerArgs<ContextMenuTypes>
+  ) => Promise<void>
 }
 
 /**

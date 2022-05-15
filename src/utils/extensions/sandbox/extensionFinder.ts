@@ -51,7 +51,8 @@ export class ExtensionFinder extends AbstractExtensionFinder {
                 author: manifest.author,
                 version: manifest.version,
                 entry: modulePath,
-                extensionPath: path.join(searchPath, folder.name)
+                extensionPath: path.join(searchPath, folder.name),
+                extensionIcon: manifest.icon ? path.join(searchPath, folder.name, manifest.icon) : undefined
               }
             }
           }

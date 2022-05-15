@@ -21,16 +21,13 @@
           @error="handleCoverError"
         />
         <SongDefault v-else class="coverimg me-auto d-flex align-items-center" />
-        <div class="play-button d-flex justify-content-center">
+        <div class="play-button d-flex justify-content-center" v-if="playable">
           <Play2 class="align-self-center" />
         </div>
       </b-col>
       <b-col class="text-container text-truncate my-auto">
         <b-link class="song-title text-truncate" @click="emitTitleClick">{{ title }}</b-link>
         <div class="song-subtitle text-truncate">{{ subtitle }}</div>
-      </b-col>
-      <b-col cols="2" v-if="showButtons" class="buttons">
-        <div></div>
       </b-col>
     </b-row>
     <b-row v-if="divider" class="divider-row d-flex no-gutters">
@@ -72,8 +69,8 @@ export default class SingleSearchResult extends mixins(PlayerControls, ImgLoader
   @Prop({ default: null })
   id!: string | null
 
-  @Prop({ default: false })
-  showButtons!: boolean
+  @Prop({ default: true })
+  private playable!: boolean
 
   private forceEmptyImg = false
 
@@ -86,7 +83,7 @@ export default class SingleSearchResult extends mixins(PlayerControls, ImgLoader
   }
 
   private emitImgClick() {
-    this.$emit('imgClick', this.id)
+    if (this.playable) this.$emit('imgClick', this.id)
   }
 
   private emitTitleClick() {
