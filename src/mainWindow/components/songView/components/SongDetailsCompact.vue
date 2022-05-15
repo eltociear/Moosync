@@ -30,7 +30,12 @@
                 <SongDefault class="albumart w-100" v-if="!computedImg" />
               </transition>
 
-              <div v-if="cardHoverText" class="hoverText">
+              <div v-if="cardHoverText" :class="`hoverText ${pinHoverText ? 'visible-always' : ''}`">
+                <PinIcon
+                  :filled="pinHoverText"
+                  @click.native="pinHoverText = !pinHoverText"
+                  class="pin-icon button-grow"
+                />
                 <div class="black-overlay"></div>
                 <div v-html="parsedCardHoverText"></div>
               </div>
@@ -78,13 +83,15 @@ import { convertDuration } from '@/utils/common'
 import PlainPlay from '@/icons/PlainPlayIcon.vue'
 import AddToLibrary from '@/icons/AddToLibraryIcon.vue'
 import AddToQueue from '@/icons/AddToQueueIcon.vue'
+import PinIcon from '@/icons/PinIcon.vue'
 
 @Component({
   components: {
     SongDefault,
     PlainPlay,
     AddToLibrary,
-    AddToQueue
+    AddToQueue,
+    PinIcon
   }
 })
 export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
@@ -100,6 +107,8 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   private forceCover!: string
 
   private forceShowDefaultImage = false
+
+  private pinHoverText = false
 
   @Prop({
     default: () => {
@@ -266,4 +275,14 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   &:hover
     opacity: 1
     backdrop-filter: blur(5px)
+
+.hoverText.visible-always
+  opacity: 1
+  backdrop-filter: blur(5px)
+
+.pin-icon
+  position: absolute
+  top: 0
+  right: 30px
+  width: 25px
 </style>
