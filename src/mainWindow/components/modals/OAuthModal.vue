@@ -27,6 +27,11 @@
           </div>
         </b-col>
       </b-row>
+      <b-row>
+        <b-col>
+          <b-input class="ext-input mt-3" @click="copyToClipboard" v-model="url" readonly />
+        </b-col>
+      </b-row>
     </b-container>
     <CrossIcon @click.native="close" class="close-icon button-grow" />
   </b-modal>
@@ -38,11 +43,13 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { bus } from '@/mainWindow/main'
 import SongDefault from '@/icons/SongDefaultIcon.vue'
 import CrossIcon from '@/icons/CrossIcon.vue'
+import InputGroup from '../generic/InputGroup.vue'
 
 @Component({
   components: {
     SongDefault,
-    CrossIcon
+    CrossIcon,
+    InputGroup
   }
 })
 export default class OAuthModal extends Vue {
@@ -61,6 +68,10 @@ export default class OAuthModal extends Vue {
 
   private close() {
     bus.$emit(EventBus.HIDE_OAUTH_MODAL)
+  }
+
+  private copyToClipboard() {
+    navigator.clipboard.writeText(this.url)
   }
 
   mounted() {
@@ -112,4 +123,16 @@ export default class OAuthModal extends Vue {
   border: 1px solid #65CB88
   border-radius: 6px
   font-size: 16px
+
+.ext-input
+  font-size: 16px
+  max-width: 100%
+  color: var(--textSecondary)
+  background-color: var(--tertiary)
+  border: 0
+  border-bottom: 1px solid transparent
+  border-radius: 0
+  padding: 20px 15px 20px  15px
+  &::placeholder
+    color: var(--textSecondary)
 </style>
