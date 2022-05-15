@@ -136,7 +136,7 @@ export default class Logs extends Vue {
 
   private filterCriteria = 'key'
 
-  private fields = [{ key: 'time', sortable: true }, 'level', 'process', 'message']
+  private fields = [{ key: 'time', sortable: true, sortDirection: 'desc' }, 'level', 'process', 'message']
 
   private handleFilter(val: LogLines) {
     const currentLogLevel = this.getLogLevel(this.levelFilter)
