@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <!-- == PACKAGE SPECIFIC SECTION == -->
+    <id>moosync</id>
+    <version>2.1.0</version>
+    <packageSourceUrl>https://github.com/Moosync/Moosync</packageSourceUrl>
+    <owners>Sahil Gupte</owners>
+    <!-- ============================== -->
+
+    <!-- == SOFTWARE SPECIFIC SECTION == -->
+    <title>Moosync</title>
+    <authors>Sahil Gupte</authors>
+    <projectUrl>https://moosync.app</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/Moosync/Moosync/main/build/icons/icon.png</iconUrl>
+    <licenseUrl>https://www.gnu.org/licenses/gpl-3.0.md</licenseUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/Moosync/Moosync</projectSourceUrl>
+    <docsUrl>https://moosync.app/wiki/</docsUrl>
+    <tags>moosync music audio player youtube spotify theme extension plugin</tags>
+    <summary>Moosync is a customizable desktop music player with a clean interface</summary>
+    <description>
+      Moosync is an Electron based simple music player with a primary goal to provide a clean and easy interface.
+      Through Moosync you can easily listen songs from your desktop or through Youtube and Spotify.
+      Some of its features include:
+        - Play audio files on your desktop.
+        - Seamlessly integrate your Spotify and Youtube playlists.
+        - Add Spotify and Youtube tracks and playlists by URLs.
+        - Play songs directly from youtube using youtube embed.
+        - Scrobble your tracks on LastFM.
+        - Get music recommendations directly from Spotify, Youtube and LastFM
+        - Mix and match songs from different providers in a single playlist
+        - Easy to use interface
+        - Customizable theme engine
+        - Develop own apps on top of Moosync Extension API
+        - Available on Windows and Linux and MacOS
+    </description>
+    <!-- =============================== -->
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>

@@ -23,6 +23,7 @@ import {
 import { contextBridge, ipcRenderer } from 'electron'
 
 import { IpcRendererHolder } from '@/utils/preload/ipc/index'
+import { LogLevelDesc } from 'loglevel'
 
 const ipcRendererHolder = new IpcRendererHolder(ipcRenderer)
 
@@ -410,6 +411,19 @@ contextBridge.exposeInMainWorld('LoggerUtils', {
     ipcRendererHolder.send<LoggerRequests.LogEvents>(IpcEvents.LOGGER, {
       type: LoggerEvents.TRACE,
       params: { message: message }
+    }),
+
+  watchLogs: (callback: (data: unknown) => void) => {
+    ipcRendererHolder.on(LoggerEvents.WATCH_LOGS, callback)
+    return ipcRendererHolder.send<void>(IpcEvents.LOGGER, { type: LoggerEvents.WATCH_LOGS, params: undefined })
+  },
+
+  unwatchLogs: () => ipcRendererHolder.send(IpcEvents.LOGGER, { type: LoggerEvents.UNWATCH_LOGS, params: undefined }),
+
+  setLogLevel: (level: LogLevelDesc) =>
+    ipcRendererHolder.send<LoggerRequests.LogLevels>(IpcEvents.LOGGER, {
+      type: LoggerEvents.WATCH_LOGS,
+      params: { level }
     })
 })
 

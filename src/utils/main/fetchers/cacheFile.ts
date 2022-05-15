@@ -22,7 +22,7 @@ export class CacheHandler {
     try {
       await fsP.writeFile(this.cacheFile, JSON.stringify(this.cache), { encoding: 'utf-8' })
     } catch (e) {
-      console.error('Failed to write to LastFM cache at', this.cacheFile, e)
+      console.error('Failed to write to cache at', this.cacheFile, e)
     }
   }
 

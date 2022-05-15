@@ -23,6 +23,7 @@ import { playerControlRequests } from './constants'
 import { v4 } from 'uuid'
 import { oauthHandler } from '@/utils/main/oauth/handler'
 import { getStoreChannel } from '../main/ipc'
+import { LogLevelDesc } from 'loglevel'
 
 export const defaultExtensionPath = path.join(app.getPath('appData'), app.getName(), 'extensions')
 const defaultLogPath = path.join(app.getPath('logs'))
@@ -106,12 +107,20 @@ export class MainHostIPCHandler {
     return data
   }
 
+  public async setExtensionLogLevel(level: LogLevelDesc) {
+    await this.mainRequestGenerator.setLogLevel(level)
+  }
+
   private sendToExtensionHost(data: Serializable) {
     const isKilled = !this.isAlive || !this.sandboxProcess.connected || this.sandboxProcess.killed
     if (isKilled && !this.ignoreRespawn) {
       this.reSpawnProcess()
     }
-    !isKilled && this.sandboxProcess.send(data)
+
+    !isKilled &&
+      this.sandboxProcess.send(data, () => {
+        console.warn('Error communicating with sandbox process. Probably killed')
+      })
   }
 
   public async closeHost() {
@@ -179,6 +188,10 @@ class MainRequestGenerator {
 
   public async getContextMenuItems<T extends ContextMenuTypes>(type: T) {
     return this.sendAsync<ExtendedExtensionContextMenuItems<T>>('get-extension-context-menu', { type })
+  }
+
+  public async setLogLevel(level: LogLevelDesc) {
+    return this.sendAsync<void>('set-log-level', { level })
   }
 
   public async sendContextMenuItemClicked(

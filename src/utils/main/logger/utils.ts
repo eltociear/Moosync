@@ -13,12 +13,26 @@ import { WriteStream, createWriteStream, readdir, unlink } from 'fs'
 import log from 'loglevel'
 import path from 'path'
 import stripAnsi from 'strip-ansi'
+import { Tail } from 'tail'
 
-let fileName: string
+let filePath: string
 let fileStream: WriteStream
 let fileConsole: Console | undefined
 
-const logLevel = process.env.DEBUG_LOGGING ? log.levels.TRACE : log.levels.INFO
+let logLevel: log.LogLevelDesc = process.env.DEBUG_LOGGING ? log.levels.TRACE : log.levels.INFO
+
+const activeLoggers: log.Logger[] = []
+
+export function setLogLevel(level: log.LogLevelDesc) {
+  logLevel = level
+  for (const l of activeLoggers) {
+    l.setLevel(logLevel)
+  }
+}
+
+export function getLoggerLevel() {
+  return logLevel
+}
 
 export function cleanLogs(basePath: string) {
   const lowestDate = new Date(Date.now())
@@ -67,11 +81,12 @@ function createFile(basePath: string) {
   const newFile = `moosync-${new Date().toLocaleDateString('en-GB').replaceAll('/', '-')}${
     isDevelopment ? '-development' : ''
   }.log`
-  if (fileName !== newFile) {
-    fileName = newFile
+  const newPath = path.join(basePath, newFile)
+
+  if (filePath !== newPath) {
+    filePath = newPath
     fileStream && fileStream.end()
 
-    const newPath = path.join(basePath, newFile)
     fileStream = createWriteStream(newPath, { flags: 'a' })
     fileConsole = new Console(fileStream, fileStream)
   }
@@ -107,4 +122,9 @@ export function prefixLogger(basePath: string, logger: log.Logger) {
     }
   }
   logger.setLevel(logLevel)
+  activeLoggers.push(logger)
+}
+
+export function getLogTail() {
+  return new Tail(path.join(filePath), { encoding: 'utf-8', fromBeginning: true, follow: true })
 }

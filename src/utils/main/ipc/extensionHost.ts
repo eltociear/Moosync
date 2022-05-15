@@ -17,6 +17,7 @@ import https from 'https'
 import { v1 } from 'uuid'
 import { WindowHandler } from '../windowManager'
 import { IncomingMessage } from 'http'
+import { LogLevelDesc } from 'loglevel'
 
 export class ExtensionHostChannel implements IpcChannelInterface {
   name = IpcEvents.EXTENSION_HOST
@@ -220,5 +221,9 @@ export class ExtensionHostChannel implements IpcChannelInterface {
 
   public notifyPreferenceWindow(data: ExtInstallStatus) {
     WindowHandler.getWindow(false)?.webContents.send(ExtensionHostEvents.EXT_INSTALL_STATUS, data)
+  }
+
+  public setLogLevel(level: LogLevelDesc) {
+    return this.extensionHost.setExtensionLogLevel(level)
   }
 }

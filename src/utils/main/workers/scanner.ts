@@ -21,7 +21,7 @@ import readline from 'readline'
 import { fileURLToPath } from 'url'
 import { getLogger, levels } from 'loglevel'
 import { prefixLogger } from '../logger/utils'
-import { readFile } from 'fs/promises'
+import { access, readdir, readFile } from 'fs/promises'
 import crypto from 'crypto'
 
 const audioPatterns = new RegExp('.flac|.mp3|.ogg|.m4a|.webm|.wav|.wv|.aac', 'i')
@@ -230,10 +230,39 @@ async function scanPlaylist(filePath: string) {
   }
 }
 
+async function findCoverFile(baseDir: string, fileName: string): Promise<Buffer | undefined> {
+  const files = await readdir(baseDir)
+  const validFiles = files.filter((val) =>
+    val.match(new RegExp(`cover|albumart|album_art|folder|${fileName.replace(path.extname(fileName), '')}`, 'i'))
+  )
+
+  for (const f of validFiles) {
+    if (path.extname(f).match(/png|jpeg|jpg|bmp|tif/i)) {
+      try {
+        const fullPath = path.join(baseDir, f)
+        await access(fullPath)
+
+        const buffer = await readFile(fullPath)
+        console.debug('Found file', f, 'as valid cover')
+
+        return buffer
+      } catch (e) {
+        console.debug('Local cover file', f, 'not found')
+      }
+    }
+  }
+}
+
 async function processFile(stats: stats, buffer: Buffer): Promise<ScannedSong> {
   const metadata = await mm.parseBuffer(buffer)
   const info = await getInfo(metadata, stats)
-  const cover = metadata.common.picture && metadata.common.picture[0].data
+  let cover = metadata.common.picture && metadata.common.picture[0].data
+
+  if (!cover) {
+    console.debug('Trying to find local cover for', stats.path)
+    cover = await findCoverFile(path.dirname(stats.path), path.basename(stats.path))
+  }
+
   return { song: info, cover }
 }
 

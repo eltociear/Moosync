@@ -148,7 +148,10 @@ export enum LoggerEvents {
   ERROR = 'error',
   DEBUG = 'debug',
   WARN = 'warn',
-  TRACE = 'trace'
+  TRACE = 'trace',
+  WATCH_LOGS = 'watchLogs',
+  UNWATCH_LOGS = 'unwatchLogs',
+  TOGGLE_DEBUG = 'toggleDebug'
 }
 
 export enum ExtensionHostEvents {

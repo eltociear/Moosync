@@ -37,7 +37,8 @@ export const mainRequestsKeys = [
   'get-extension-icon',
   'extra-extension-events',
   'get-extension-context-menu',
-  'on-clicked-context-menu'
+  'on-clicked-context-menu',
+  'set-log-level'
 ] as const
 
 export type extensionUIRequests = typeof extensionUIRequestsKeys[number] | typeof playerControlRequests[number]
