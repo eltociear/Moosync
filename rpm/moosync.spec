@@ -10,7 +10,7 @@ Release: 1
 URL: https://github.com/Moosync/Moosync
 License: GPLv3+
 Group: Applications/Multimedia
-Source: %{url}/releases/download/v%{version}/Moosync-linux-%{version}-x86_64.rpm
+Source: %{url}/releases/download/v%{version}/Moosync-%{version}-linux-x86_64.rpm
 ExclusiveArch: x86_64
 
 BuildRequires: desktop-file-utils
