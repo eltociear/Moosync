@@ -31,12 +31,19 @@
 
 You may download the latest release from [Official website](https://moosync.app) or from [GitHub Releases](https://github.com/Moosync/Moosync/releases)
 
-### Flatpak
+### Ubuntu / Debian (3rd party repo)
 
-Moosync can be found on [FlatHub](https://flathub.org/apps/details/app.moosync.moosync) as ```app.moosync.moosync```.
-You may install it by
+You can install Moosync through our hosted [APT repo]([/Moosync/ppa](https://github.com/Moosync/ppa))
 ```bash
-flatpak install flathub app.moosync.moosync
+bash <(wget -O- https://raw.githubusercontent.com/Moosync/Moosync/main/setup_ppa.sh)
+```
+
+### Fedora
+
+Moosync can be found on [Fedora COPR](https://copr.fedorainfracloud.org/coprs/ovenoboyo/Moosync/). You can install it using [dnf](https://docs.fedoraproject.org/en-US/quick-docs/dnf/)
+```bash
+dnf copr enable ovenoboyo/Moosync
+dnf install moosync
 ```
 
 ### Archlinux User Repository (AUR)
@@ -45,6 +52,14 @@ Moosync can be found on [AUR](https://aur.archlinux.org/packages/moosync). You c
 
 ``` bash
 yay -S moosync
+```
+
+### Flatpak
+
+Moosync can be found on [FlatHub](https://flathub.org/apps/details/app.moosync.moosync) as ```app.moosync.moosync```.
+You may install it by
+```bash
+flatpak install flathub app.moosync.moosync
 ```
 
 
