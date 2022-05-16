@@ -13,6 +13,8 @@ Group: Applications/Multimedia
 Source0: %{url}/releases/download/v%{version}/Moosync-%{version}-linux-x86_64.rpm
 ExclusiveArch: x86_64
 
+Requires: vips
+
 BuildRequires: desktop-file-utils
  
 Distribution: Fedora Linux
