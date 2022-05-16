@@ -233,6 +233,7 @@ interface loggerUtils {
  */
 interface notifierUtils {
   registerMainProcessNotifier: (callback: (obj: NotificationObject) => void) => void
+  isLibvipsAvailable: () => Promise<boolean>
 }
 
 /**

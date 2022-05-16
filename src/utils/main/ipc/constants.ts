@@ -154,6 +154,10 @@ export enum LoggerEvents {
   TOGGLE_DEBUG = 'toggleDebug'
 }
 
+export enum NotifierEvents {
+  LIBVIPS_INSTALLED = 'isLibvipsInstalled'
+}
+
 export enum ExtensionHostEvents {
   GET_ALL_EXTENSIONS = 'getAllExtensions',
   INSTALL = 'install',

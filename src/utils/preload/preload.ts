@@ -18,7 +18,8 @@ import {
   SongEvents,
   StoreEvents,
   WindowEvents,
-  UpdateEvents
+  UpdateEvents,
+  NotifierEvents
 } from '@/utils/main/ipc/constants'
 import { contextBridge, ipcRenderer } from 'electron'
 
@@ -429,7 +430,10 @@ contextBridge.exposeInMainWorld('LoggerUtils', {
 
 contextBridge.exposeInMainWorld('NotifierUtils', {
   registerMainProcessNotifier: (callback: (obj: NotificationObject) => void) =>
-    ipcRendererHolder.on(IpcEvents.NOTIFIER, callback)
+    ipcRendererHolder.on(IpcEvents.NOTIFIER, callback),
+
+  isLibvipsAvailable: () =>
+    ipcRendererHolder.send(IpcEvents.NOTIFIER, { type: NotifierEvents.LIBVIPS_INSTALLED, params: undefined })
 })
 
 contextBridge.exposeInMainWorld('ExtensionUtils', {
