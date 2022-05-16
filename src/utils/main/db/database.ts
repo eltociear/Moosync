@@ -224,7 +224,7 @@ export class SongDBInstance extends DBUtils {
   }
 
   private downloadFile(url: string, path: string) {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>((resolve) => {
       const file = fs.createWriteStream(path)
       const parsedURL = new URL(url)
       const method = parsedURL.protocol === 'https:' ? https.get : http.get
@@ -232,14 +232,15 @@ export class SongDBInstance extends DBUtils {
         response.pipe(file)
 
         file.on('finish', () => {
+          console.debug('Downloaded image from', url, 'at', path)
           file.close()
           resolve()
         })
 
-        file.on('error', reject)
+        file.on('error', console.error)
       })
 
-      request.on('error', reject)
+      request.on('error', console.error)
     })
   }
 

@@ -200,7 +200,7 @@ async function parseScrapeUrl(url: string) {
 }
 
 async function downloadImage(url: string): Promise<string | undefined> {
-  logger.debug('Downloading image from', url)
+  logger.debug('Got image at', url)
   const parsed = await parseScrapeUrl(url)
   return parsed
 }
