@@ -11,7 +11,7 @@ import { Observable, SubscriptionObserver } from 'observable-fns'
 import { Transfer, TransferDescriptor } from 'threads'
 import { expose } from 'threads/worker'
 
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import axiosRetry from 'axios-retry'
 import { createHash } from 'crypto'
 import fs from 'fs'
@@ -208,7 +208,7 @@ async function downloadImage(url: string): Promise<ArrayBuffer | undefined> {
       const data = await axios.get(parsed, { responseType: 'arraybuffer' })
       return data.data
     } catch (e) {
-      logger.debug('Failed to fetch from', url, e)
+      logger.debug('Failed to fetch from', url, (e as AxiosError).code)
     }
   }
 }
