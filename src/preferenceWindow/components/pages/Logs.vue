@@ -344,6 +344,19 @@ td
   color: var(--textPrimary) !important
   &:hover
     background-color: var(--primary)
+
+.page-link
+  background-color: var(--primary) !important
+  color: var(--textPrimary) !important
+  border-color: var(--secondary)
+  &:hover
+    border-color: var(--primary)
+
+.page-item.active .page-link
+  border-color: var(--textPrimary)
+
+.page-item.disabled .page-link
+  border-color: var(--secondary)
 </style>
 
 <style lang="sass" scoped>
