@@ -440,12 +440,8 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
 
   public async *getRecommendations(): AsyncGenerator<Song[]> {
     if (this.loggedIn) {
-      const userTracks = await this.populateRequest(ApiResources.TOP, {
-        params: {
-          type: 'tracks',
-          time_range: 'long_term'
-        }
-      })
+      const seedTracks: string[] = []
+      const seedArtists: string[] = []
 
       const userArtists = await this.populateRequest(ApiResources.TOP, {
         params: {
@@ -454,11 +450,31 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
         }
       })
 
-      const seedTracks: string[] = []
-      const seedArtists: string[] = []
+      let libraryTracks = await window.SearchUtils.searchSongsByOptions({
+        song: {
+          type: 'SPOTIFY'
+        }
+      })
 
-      for (const item of userTracks.items) {
-        seedTracks.push(item.id)
+      if (libraryTracks.length > 5) {
+        libraryTracks = libraryTracks.sort(() => 0.5 - Math.random()).slice(0, 5)
+      }
+
+      seedTracks.push(...libraryTracks.map((val) => val._id.replace('spotify:', '')))
+
+      if (seedTracks.length < 5) {
+        const userTracks = await this.populateRequest(ApiResources.TOP, {
+          params: {
+            type: 'tracks',
+            time_range: 'long_term'
+          }
+        })
+
+        for (let i = 0; i < 5 - seedTracks.length; i++) {
+          if (userTracks.items.length > i) {
+            seedTracks.push(userTracks.items[i].id)
+          }
+        }
       }
 
       for (const item of userArtists.items) {
