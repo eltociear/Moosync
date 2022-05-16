@@ -8,17 +8,61 @@
  */
 
 import path from 'path'
-import sharp from 'sharp'
+import { Sharp, SharpOptions } from 'sharp'
+import { promises as fsP } from 'fs'
+
+let sharpInstance: (
+  input?:
+    | Buffer
+    | Uint8Array
+    | Uint8ClampedArray
+    | Int8Array
+    | Uint16Array
+    | Int16Array
+    | Uint32Array
+    | Int32Array
+    | Float32Array
+    | Float64Array
+    | string,
+  options?: SharpOptions
+) => Sharp
+
+let importFailed = false
 
 export async function writeBuffer(bufferDesc: Buffer, basePath: string, id: string, onlyHigh = false) {
+  if (!sharpInstance && !importFailed) {
+    try {
+      sharpInstance = (await import('sharp')).default
+    } catch (e) {
+      importFailed = true
+      console.error(
+        'Failed to import sharp. Probably missing libvips-cpp.so. Read more at https://moosync.app/wiki/#known-bugs'
+      )
+    }
+  }
+
   const highPath = path.join(basePath, id + '-high.jpg')
-  await sharp(Buffer.from(bufferDesc)).resize(800, 800).toFile(highPath)
+
+  if (sharpInstance) {
+    await sharpInstance(Buffer.from(bufferDesc)).resize(800, 800).toFile(highPath)
+  } else {
+    await writeNoResize(bufferDesc, highPath)
+  }
 
   let lowPath
   if (!onlyHigh) {
     lowPath = path.join(basePath, id + '-low.jpg')
-    await sharp(Buffer.from(bufferDesc)).resize(80, 80).toFile(lowPath)
+
+    if (sharpInstance) {
+      await sharpInstance(Buffer.from(bufferDesc)).resize(80, 80).toFile(lowPath)
+    } else {
+      lowPath = highPath
+    }
   }
 
   return { high: highPath, low: lowPath }
+}
+
+async function writeNoResize(buffer: Buffer, path: string) {
+  await fsP.writeFile(path, buffer)
 }
