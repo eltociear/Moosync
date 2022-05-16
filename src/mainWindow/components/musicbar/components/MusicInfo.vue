@@ -156,12 +156,13 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
       if (this.currentSong.lyrics) {
         this.lyrics = this.currentSong.lyrics
       } else {
+        this.lyrics = 'Searching Lyrics...'
         const resp = await window.SearchUtils.searchLyrics(
           this.currentSong.artists?.map((val) => val.artist_name ?? '') ?? [],
           this.currentSong.title
         )
         this.currentSong.lyrics = resp
-        this.lyrics = resp ?? ''
+        this.lyrics = resp || 'No lyrics found...'
         window.DBUtils.updateLyrics(this.currentSong._id, resp)
       }
     }

@@ -118,8 +118,10 @@ export class MainHostIPCHandler {
     }
 
     !isKilled &&
-      this.sandboxProcess.send(data, () => {
-        console.warn('Error communicating with sandbox process. Probably killed')
+      this.sandboxProcess.send(data, (err) => {
+        if (err) {
+          console.warn('Error communicating with sandbox process. Probably killed.', err.message)
+        }
       })
   }
 

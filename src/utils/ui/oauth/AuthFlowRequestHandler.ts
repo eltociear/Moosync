@@ -7,6 +7,8 @@
  *  See LICENSE in the project root for license information.
  */
 
+import { bus } from '@/mainWindow/main'
+import { EventBus } from '@/utils/main/ipc/constants'
 import {
   AuthorizationError,
   AuthorizationRequest,
@@ -39,44 +41,59 @@ export class AuthFlowRequestHandler extends AuthorizationRequestHandler {
     this.channelID = channel
   }
 
+  private performAuth(data: string, request: AuthorizationRequest, emitter: ServerEventsEmitter) {
+    const url = new URL(data)
+
+    const searchParams = url.searchParams
+
+    const state = searchParams.get('state') || undefined
+    const code = searchParams.get('code')
+    const error = searchParams.get('error')
+
+    if (!state && !code && !error) {
+      return
+    }
+
+    let authorizationResponse: AuthorizationResponse | null = null
+    let authorizationError: AuthorizationError | null = null
+    if (error) {
+      // get additional optional info.
+      const errorUri = searchParams.get('error_uri') || undefined
+      const errorDescription = searchParams.get('error_description') || undefined
+      authorizationError = new AuthorizationError({
+        error: error,
+        error_description: errorDescription,
+        error_uri: errorUri,
+        state: state
+      })
+    } else {
+      authorizationResponse = new AuthorizationResponse({ code: code as string, state: state as string })
+    }
+
+    const completeResponse = {
+      request,
+      response: authorizationResponse,
+      error: authorizationError
+    } as AuthorizationRequestResponse
+    emitter.emit(ServerEventsEmitter.ON_AUTHORIZATION_RESPONSE, completeResponse)
+  }
+
   performAuthorizationRequest(configuration: AuthorizationServiceConfiguration, request: AuthorizationRequest): string {
     const emitter = new ServerEventsEmitter()
+    let performedAuth = false
+
+    bus.$on(EventBus.GOT_OAUTH_CODE, (data: string) => {
+      if (!performedAuth) {
+        this.performAuth(data, request, emitter)
+        performedAuth = true
+      }
+    })
 
     window.WindowUtils.listenOAuth(this.channelID, (data) => {
-      const url = new URL(data)
-
-      const searchParams = url.searchParams
-
-      const state = searchParams.get('state') || undefined
-      const code = searchParams.get('code')
-      const error = searchParams.get('error')
-
-      if (!state && !code && !error) {
-        return
+      if (!performedAuth) {
+        this.performAuth(data, request, emitter)
+        performedAuth = true
       }
-
-      let authorizationResponse: AuthorizationResponse | null = null
-      let authorizationError: AuthorizationError | null = null
-      if (error) {
-        // get additional optional info.
-        const errorUri = searchParams.get('error_uri') || undefined
-        const errorDescription = searchParams.get('error_description') || undefined
-        authorizationError = new AuthorizationError({
-          error: error,
-          error_description: errorDescription,
-          error_uri: errorUri,
-          state: state
-        })
-      } else {
-        authorizationResponse = new AuthorizationResponse({ code: code as string, state: state as string })
-      }
-
-      const completeResponse = {
-        request,
-        response: authorizationResponse,
-        error: authorizationError
-      } as AuthorizationRequestResponse
-      emitter.emit(ServerEventsEmitter.ON_AUTHORIZATION_RESPONSE, completeResponse)
     })
 
     this.authorizationPromise = new Promise<AuthorizationRequestResponse>((resolve) => {

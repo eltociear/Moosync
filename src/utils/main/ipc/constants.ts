@@ -192,6 +192,7 @@ export enum EventBus {
   SHOW_ENTITY_INFO_MODAL = 'show-entity-info-modal',
   SHOW_OAUTH_MODAL = 'show-oauth-modal',
   HIDE_OAUTH_MODAL = 'hide-oauth-modal',
+  GOT_OAUTH_CODE = 'got-oauth-code',
   SHOW_FORM_MODAL = 'show-form-modal',
   REFRESH_USERNAMES = 'refresh-usernames',
   REFRESH_PAGE = 'refresh-page'

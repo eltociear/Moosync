@@ -75,8 +75,13 @@ export class LoggerChannel implements IpcChannelInterface {
 
   private listenLogs(event: Electron.IpcMainEvent, request: IpcRequest) {
     this.tail = getLogTail()
+    let lineIndex = 0
     this.tail.on('line', (data) => {
-      WindowHandler.getWindow(false)?.webContents.send(LoggerEvents.WATCH_LOGS, this.parseLogLine(data))
+      WindowHandler.getWindow(false)?.webContents.send(LoggerEvents.WATCH_LOGS, {
+        id: lineIndex,
+        ...this.parseLogLine(data)
+      })
+      lineIndex++
     })
     this.tail.watch()
     event.reply(request.responseChannel)

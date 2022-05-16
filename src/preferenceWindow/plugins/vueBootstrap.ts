@@ -18,7 +18,8 @@ import {
   ButtonPlugin,
   ProgressPlugin,
   TablePlugin,
-  PaginationPlugin
+  PaginationPlugin,
+  InputGroupPlugin
 } from 'bootstrap-vue'
 
 import Vue from 'vue'
@@ -34,3 +35,4 @@ Vue.use(ProgressPlugin)
 Vue.use(TablePlugin)
 Vue.use(DropdownPlugin)
 Vue.use(PaginationPlugin)
+Vue.use(InputGroupPlugin)
