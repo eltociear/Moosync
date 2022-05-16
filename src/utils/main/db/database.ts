@@ -14,6 +14,8 @@ import { sanitizeArtistName } from '../../common'
 
 import { loadPreferences } from './preferences'
 import path from 'path'
+import fs from 'fs'
+import https from 'https'
 
 type KeysOfUnion<T> = T extends T ? keyof T : never
 // AvailableKeys will basically be keyof Foo | keyof Bar
@@ -208,12 +210,34 @@ export class SongDBInstance extends DBUtils {
   private async getCoverPath(oldCoverPath: string, newCoverpath: string, songID: string) {
     if (oldCoverPath !== newCoverpath) {
       if (newCoverpath) {
-        const finalPath = path.join(loadPreferences().thumbnailPath, songID + path.extname(newCoverpath))
+        const finalPath = path.join(loadPreferences().thumbnailPath, songID + (path.extname(newCoverpath) ?? '.png'))
+        if (newCoverpath.startsWith('http')) {
+          await this.downloadFile(newCoverpath, finalPath)
+          return finalPath
+        }
         await fsP.copyFile(newCoverpath, finalPath)
         return finalPath
       }
     }
     return oldCoverPath
+  }
+
+  private downloadFile(url: string, path: string) {
+    return new Promise<void>((resolve, reject) => {
+      const file = fs.createWriteStream(path)
+      const request = https.get(url, function (response) {
+        response.pipe(file)
+
+        file.on('finish', () => {
+          file.close()
+          resolve()
+        })
+
+        file.on('error', reject)
+      })
+
+      request.on('error', reject)
+    })
   }
 
   public async updateSong(song: Song) {
@@ -532,7 +556,12 @@ export class SongDBInstance extends DBUtils {
           loadPreferences().thumbnailPath,
           album.album_id + path.extname(album.album_coverPath_high)
         )
-        await fsP.copyFile(album.album_coverPath_high, coverPath)
+
+        if (!album.album_coverPath_high.startsWith('http')) {
+          await fsP.copyFile(album.album_coverPath_high, coverPath)
+        } else {
+          await this.downloadFile(album.album_coverPath_high, coverPath)
+        }
         album.album_coverPath_high = coverPath
         album.album_coverPath_low = coverPath
       }
@@ -648,7 +677,12 @@ export class SongDBInstance extends DBUtils {
           loadPreferences().thumbnailPath,
           artist.artist_id + path.extname(artist.artist_coverPath)
         )
-        await fsP.copyFile(artist.artist_coverPath, coverPath)
+
+        if (!artist.artist_coverPath.startsWith('http')) {
+          await fsP.copyFile(artist.artist_coverPath, coverPath)
+        } else {
+          await this.downloadFile(artist.artist_coverPath, coverPath)
+        }
         artist.artist_coverPath = coverPath
       }
 
@@ -788,7 +822,12 @@ export class SongDBInstance extends DBUtils {
           loadPreferences().thumbnailPath,
           playlist.playlist_id + path.extname(playlist.playlist_coverPath)
         )
-        await fsP.copyFile(playlist.playlist_coverPath, coverPath)
+
+        if (!playlist.playlist_coverPath.startsWith('http')) {
+          await fsP.copyFile(playlist.playlist_coverPath, coverPath)
+        } else {
+          await this.downloadFile(playlist.playlist_coverPath, coverPath)
+        }
         playlist.playlist_coverPath = coverPath
       }
 
