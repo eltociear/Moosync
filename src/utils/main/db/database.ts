@@ -16,6 +16,7 @@ import { loadPreferences } from './preferences'
 import path from 'path'
 import fs from 'fs'
 import https from 'https'
+import http from 'http'
 
 type KeysOfUnion<T> = T extends T ? keyof T : never
 // AvailableKeys will basically be keyof Foo | keyof Bar
@@ -225,7 +226,9 @@ export class SongDBInstance extends DBUtils {
   private downloadFile(url: string, path: string) {
     return new Promise<void>((resolve, reject) => {
       const file = fs.createWriteStream(path)
-      const request = https.get(url, function (response) {
+      const parsedURL = new URL(url)
+      const method = parsedURL.protocol === 'https:' ? https.get : http.get
+      const request = method(url, function (response) {
         response.pipe(file)
 
         file.on('finish', () => {

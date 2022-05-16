@@ -8,10 +8,9 @@
  */
 
 import { Observable, SubscriptionObserver } from 'observable-fns'
-import { Transfer, TransferDescriptor } from 'threads'
 import { expose } from 'threads/worker'
 
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import { createHash } from 'crypto'
 import fs from 'fs'
@@ -200,17 +199,10 @@ async function parseScrapeUrl(url: string) {
   return url
 }
 
-async function downloadImage(url: string): Promise<ArrayBuffer | undefined> {
+async function downloadImage(url: string): Promise<string | undefined> {
   logger.debug('Downloading image from', url)
   const parsed = await parseScrapeUrl(url)
-  if (parsed) {
-    try {
-      const data = await axios.get(parsed, { responseType: 'arraybuffer' })
-      return data.data
-    } catch (e) {
-      logger.debug('Failed to fetch from', url, (e as AxiosError).code)
-    }
-  }
+  return parsed
 }
 
 async function queryArtwork(a: Artists) {
@@ -235,7 +227,7 @@ async function checkCoverExists(coverPath: string | undefined): Promise<boolean>
 // Even then axios will handle rate limits
 export async function fetchArtworks(
   artists: Artists[],
-  observer: SubscriptionObserver<{ artist: Artists; cover: TransferDescriptor<Buffer> | undefined }>
+  observer: SubscriptionObserver<{ artist: Artists; cover: string | undefined }>
 ) {
   for (const a of artists) {
     const coverExists = await checkCoverExists(a.artist_coverPath)
@@ -243,7 +235,7 @@ export async function fetchArtworks(
       try {
         logger.debug('Fetching artwork for', a.artist_name)
         const result = await queryArtwork(a)
-        observer.next({ artist: a, cover: result && Transfer(result) })
+        observer.next({ artist: a, cover: result })
       } catch (e) {
         logger.debug('Failed to fetch artwork for', a.artist_name, e)
         observer.next({ artist: a, cover: undefined })
