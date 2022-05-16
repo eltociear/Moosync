@@ -9,25 +9,79 @@
 
 <template>
   <div class="w-100 h-100">
-    <div>
+    <div class="mb-3">
       <CheckboxGroup prefKey="logs" title="Log settings" :defaultValue="logSettings" />
     </div>
     <div class="logger-bg">
-      <div class="controls w-100 d-flex" no-gutters>
-        <b-dropdown :text="capitalizeFirstLetter(levelFilter)" variant="success" class="m-2">
-          <b-dropdown-item @click="logLevelChange('ALL')">All</b-dropdown-item>
-          <b-dropdown-item @click="logLevelChange('DEBUG')">Debug</b-dropdown-item>
-          <b-dropdown-item @click="logLevelChange('INFO')">Info</b-dropdown-item>
-          <b-dropdown-item @click="logLevelChange('WARN')">Warn</b-dropdown-item>
-          <b-dropdown-item @click="logLevelChange('ERROR')">Error</b-dropdown-item>
-        </b-dropdown>
-        <b-dropdown :text="processFilter" variant="success" class="m-2">
+      <b-container fluid class="controls w-100 d-flex">
+        <b-row class="mt-2 w-100">
+          <b-col cols="auto">
+            <b-row no-gutters>
+              <b-col class="filter-title">Level</b-col>
+            </b-row>
+            <b-row>
+              <b-col>
+                <b-dropdown
+                  :text="capitalizeFirstLetter(levelFilter)"
+                  variant="success"
+                  class="dropdown-container mb-3"
+                >
+                  <b-dropdown-item @click="logLevelChange('ALL')">All</b-dropdown-item>
+                  <b-dropdown-item @click="logLevelChange('DEBUG')">Debug</b-dropdown-item>
+                  <b-dropdown-item @click="logLevelChange('INFO')">Info</b-dropdown-item>
+                  <b-dropdown-item @click="logLevelChange('WARN')">Warn</b-dropdown-item>
+                  <b-dropdown-item @click="logLevelChange('ERROR')">Error</b-dropdown-item>
+                </b-dropdown>
+              </b-col>
+            </b-row>
+          </b-col>
+          <b-col cols="auto">
+            <b-row no-gutters>
+              <b-col class="filter-title">Process</b-col>
+            </b-row>
+            <b-row>
+              <b-col>
+                <b-dropdown :text="processFilter" variant="success" class="dropdown-container mb-3">
+                  <b-dropdown-item @click="processFilterChange('All')">All</b-dropdown-item>
+                  <b-dropdown-item
+                    v-for="process in processFilters"
+                    :key="process"
+                    @click="processFilterChange(process)"
+                    >{{ process }}</b-dropdown-item
+                  >
+                </b-dropdown>
+              </b-col>
+            </b-row>
+          </b-col>
+          <b-col>
+            <b-row no-gutters>
+              <b-col class="filter-title">Filter message</b-col>
+            </b-row>
+            <b-row>
+              <b-col>
+                <b-input-group class="search-group">
+                  <template #prepend>
+                    <SearchIcon class="align-self-center prepend-icon" />
+                  </template>
+                  <b-input
+                    class="align-self-center search-field"
+                    placeholder="Search..."
+                    debounce="300"
+                    v-model="searchFilter"
+                  ></b-input>
+                </b-input-group>
+              </b-col>
+            </b-row>
+          </b-col>
+        </b-row>
+
+        <!-- <b-dropdown :text="processFilter" variant="success" class="m-2">
           <b-dropdown-item v-for="process in processFilters" :key="process" @click="processFilterChange(process)">{{
             process
           }}</b-dropdown-item>
         </b-dropdown>
-        <b-input class="align-self-center search-field" debounce="300" v-model="searchFilter"></b-input>
-      </div>
+        <b-input class="align-self-center search-field" debounce="300" v-model="searchFilter"></b-input> -->
+      </b-container>
       <div class="log-content w-100" no-gutters>
         <b-table
           :filter-function="handleFilter"
@@ -83,9 +137,11 @@
 import { Component } from 'vue-property-decorator'
 import Vue from 'vue'
 import CheckboxGroup from '../CheckboxGroup.vue'
+import SearchIcon from '@/icons/SearchIcon.vue'
 
 type LogLines = {
   index: number
+  id: number
   time: string
   level: LogLevels
   process: string
@@ -100,7 +156,8 @@ type LogLevels = 'ALL' | 'DEBUG' | 'INFO' | 'WARN' | 'ERROR'
 
 @Component({
   components: {
-    CheckboxGroup
+    CheckboxGroup,
+    SearchIcon
   }
 })
 export default class Logs extends Vue {
@@ -199,8 +256,10 @@ export default class Logs extends Vue {
             }
           } else {
             if ((data as LogLines).message) {
-              tmpData.push({ ...(data as LogLines), index: this.logLines.length })
-              Vue.set(this.possibleProcessFilters, (data as LogLines).process, true)
+              if (!tmpData.find((val) => val.id === (data as LogLines).id)) {
+                tmpData.push({ ...(data as LogLines), index: this.logLines.length })
+                Vue.set(this.possibleProcessFilters, (data as LogLines).process, true)
+              }
             }
           }
           if (timer) {
@@ -257,23 +316,63 @@ td
     font-family: 'Nunito Sans'
     font-size: 16px
     white-space: pre-wrap
+
+.show > .btn-success.dropdown-toggle
+  background-color: var(--secondary) !important
+
+.dropdown-container
+  min-width: 100px
+
+.dropdown-toggle
+  background-color: var(--primary) !important
+  border: none !important
+  padding: 5px 35px 5px 15px
+  border-radius: 13px
+  &:focus
+    box-shadow: none !important
+  &::after
+    position: absolute
+    right: 5px
+    top: 50%
+    transform: translate(-50%, -50%)
+    margin-left: 10px
+
+.dropdown-menu
+  background-color: var(--secondary)
+
+.dropdown-item
+  color: var(--textPrimary) !important
+  &:hover
+    background-color: var(--primary)
 </style>
 
 <style lang="sass" scoped>
 .logger-bg
   background: var(--tertiary)
-  height: calc(100% - 65px)
+  height: calc(100% - 65px - 1rem)
+  border-radius: 4px
 
 .log-content
-  height: calc( 100% - 120px )
+  height: calc( 100% - 160px )
 
 .log-table
   max-height: 100% !important
   color: white !important
 
 .search-field
-  margin-left: 8px
-  width: 300px
+  background: transparent
+  border: none !important
+  padding: 5px 35px 5px 15px
+  height: 34px
+  color: var(--textPrimary)
+
+.search-group
+  background: var(--primary)
+  border-radius: 13px
+
+.prepend-icon
+  margin-left: 15px
+  height: 18px
 
 .pagination
   margin-top: 15px
@@ -290,4 +389,9 @@ td
 
 .error
   color: #F04538
+
+.filter-title
+  text-align: left
+  margin-bottom: 5px
+  font-size: 18px
 </style>
