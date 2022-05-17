@@ -52,14 +52,14 @@ export class PlaylistsChannel implements IpcChannelInterface {
     }
   }
 
-  private updatePlaylist(event: Electron.IpcMainEvent, request: IpcRequest<PlaylistRequests.CreatePlaylist>) {
-    const data = SongDB.updatePlaylist(request.params.playlist)
-    event.reply(request.responseChannel, data)
+  private async updatePlaylist(event: Electron.IpcMainEvent, request: IpcRequest<PlaylistRequests.CreatePlaylist>) {
+    await SongDB.updatePlaylist(request.params.playlist)
+    event.reply(request.responseChannel)
   }
 
   private addToPlaylist(event: Electron.IpcMainEvent, request: IpcRequest<PlaylistRequests.AddToPlaylist>) {
-    const data = SongDB.addToPlaylist(request.params.playlist_id, ...request.params.song_ids)
-    event.reply(request.responseChannel, data)
+    SongDB.addToPlaylist(request.params.playlist_id, ...request.params.song_ids)
+    event.reply(request.responseChannel)
   }
 
   private async saveCoverToFile(event: Electron.IpcMainEvent, request: IpcRequest<PlaylistRequests.SaveCover>) {
