@@ -70,6 +70,18 @@ Checkout the [Official Wiki](https://moosync.app/wiki/) on [moosync.app](https:/
 For any further questions you may join us on [Discord](https://discord.gg/HsbqbRune3)
 
 
+## Screenshots
+
+![Song view](./extras/screenshot_song_view.png)
+![Music info](./extras/screenshot_musicinfo_view.png)
+![Lyrics](./extras/screenshot_musicinfo_view_lyrics.png)
+![Albums](./extras/screenshot_albums.png)
+![Playlists](./extras/screenshot_playlists.png)
+![Explore](./extras/Screenshot_explore.png)
+![Themes](./extras/screenshot_themes.png)
+![Create theme](./extras/screenshot_theme_new.png)
+![Extensions](./extras/screenshot_extensions.png)
+
 ## Building from source
 
 Read more at our [Wiki](https://moosync.app/wiki/building-from-source)
