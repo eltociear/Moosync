@@ -154,8 +154,8 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     }
   }
 
-  private async parsePlaylists(items: YoutubeResponses.UserPlaylists.Item[]): Promise<Playlist[]> {
-    const playlists: Playlist[] = []
+  private async parsePlaylists(items: YoutubeResponses.UserPlaylists.Item[]): Promise<ExtendedPlaylist[]> {
+    const playlists: ExtendedPlaylist[] = []
     if (items.length > 0) {
       for (const p of items) {
         if (p.snippet)

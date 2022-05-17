@@ -186,9 +186,9 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
     return items
   }
 
-  private getPlaylistContextMenu(playlist: Playlist, callback?: () => void) {
+  private getPlaylistContextMenu(playlist: ExtendedPlaylist, callback?: () => void) {
     const items = []
-    if (!playlist.isRemote) {
+    if (!playlist.isRemote && !playlist.extension) {
       items.push({
         label: 'Remove Playlist',
         handler: () => {
@@ -394,9 +394,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
   ): Promise<MenuItem[]> {
     if (this.extensionContextMenuItems.includes(type as ContextMenuTypes)) {
       const items = await window.ExtensionUtils.getContextMenuItems(type as ContextMenuTypes)
-      console.log(items)
       for (const i of items) {
-        console.log(arg)
         i.handler = () => window.ExtensionUtils.fireContextMenuHandler(i.id, i.packageName, arg)
       }
 

@@ -30,7 +30,6 @@ interface Playlist {
   playlist_song_count?: number
   playlist_path?: string
   icon?: string
-  isRemote?: boolean
 }
 
 type PlayerTypes = 'LOCAL' | 'YOUTUBE' | 'SPOTIFY' | 'URL'

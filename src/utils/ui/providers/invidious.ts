@@ -101,8 +101,8 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
     if (this._token) return 'Anonymous'
   }
 
-  private parsePlaylists(items: InvidiousResponses.UserPlaylists.PlaylistResponse[]): Playlist[] {
-    const playlists: Playlist[] = []
+  private parsePlaylists(items: InvidiousResponses.UserPlaylists.PlaylistResponse[]): ExtendedPlaylist[] {
+    const playlists: ExtendedPlaylist[] = []
     for (const p of items) {
       playlists.push({
         playlist_id: `youtube:${p.playlistId}`,

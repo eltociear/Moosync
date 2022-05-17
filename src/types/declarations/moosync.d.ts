@@ -4,6 +4,7 @@ interface InvidiousSong extends Song {
 
 interface ExtendedPlaylist extends Playlist {
   extension?: string
+  isRemote?: boolean
 }
 
 type Progress = { total: number; current: number }
