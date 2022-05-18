@@ -82,7 +82,7 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
   }
 
   private async useInvidious() {
-    const useInvidious = (await window.PreferenceUtils.loadSelective<Checkbox[]>('system'))?.find(
+    const useInvidious = (await window.PreferenceUtils.loadSelective<Checkbox[]>('system', false, []))?.find(
       (val) => val.key === 'use_invidious'
     )?.enabled
     vxm.providers.useInvidious = useInvidious ?? false

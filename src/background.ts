@@ -195,7 +195,7 @@ if (process.defaultApp) {
  * @returns array of string which start with app protocol
  */
 function findOAuthArg(argv: string[]) {
-  return argv.find((arg) => arg.startsWith('moosync'))
+  return argv?.find((arg) => arg.startsWith('moosync'))
 }
 
 function handleSecondInstance(_: Event, argv: string[]) {
