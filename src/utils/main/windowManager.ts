@@ -117,7 +117,8 @@ export class WindowHandler {
     app.exit()
   }
 
-  public registerProtocol(protocolName: string) {
+  public registerMediaProtocol() {
+    const protocolName = 'media'
     protocol.registerFileProtocol(protocolName, (request, callback) => {
       const url = request.url.replace(`${protocolName}://`, '')
       try {
@@ -126,6 +127,28 @@ export class WindowHandler {
         console.error(error)
         app.quit()
       }
+    })
+  }
+
+  public registerExtensionProtocol() {
+    protocol.registerBufferProtocol('extension', async (request, callback) => {
+      const extensionPackageName = new URL(request.url).hostname
+      console.log(extensionPackageName)
+      if (extensionPackageName) {
+        const extensionHost = getExtensionHostChannel()
+        const data = await extensionHost.sendExtraEvent({
+          type: 'customRequest',
+          data: [request.url],
+          packageName: extensionPackageName
+        })
+
+        console.log(data)
+        if (data[extensionPackageName]) {
+          callback(data[extensionPackageName])
+          return
+        }
+      }
+      callback({ data: Buffer.from('') })
     })
   }
 
