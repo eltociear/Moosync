@@ -351,7 +351,9 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
         packageName: song.providerExtension
       })
 
-      return data
+      if (data) {
+        return data
+      }
     }
 
     const data = await new Promise<{ url: string; duration: number } | undefined>((resolve, reject) => {
