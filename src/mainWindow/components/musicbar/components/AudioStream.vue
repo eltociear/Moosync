@@ -192,19 +192,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     this.setupSync()
     this.registerListeners()
 
-    // if (this.currentSong) this.loadAudio(this.currentSong, true)
-
-    this.loadAudio(
-      {
-        _id: 'hjkh',
-        title: 'dash song',
-        type: 'DASH',
-        date_added: Date.now(),
-        duration: 300,
-        playbackUrl: 'http://192.168.0.10:8082/dash.mpd'
-      },
-      true
-    )
+    if (this.currentSong) this.loadAudio(this.currentSong, true)
   }
 
   @Ref('dash-player')
@@ -345,7 +333,9 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
   }
 
-  private getPlaybackUrlAndDuration(song: Song) {
+  private async getPlaybackUrlAndDuration(
+    song: Song
+  ): Promise<{ url: string | undefined; duration: number } | undefined> {
     if (song.type === 'YOUTUBE') {
       return vxm.providers.youtubeProvider.getPlaybackUrlAndDuration(song)
     }
@@ -354,7 +344,17 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       return vxm.providers.spotifyProvider.getPlaybackUrlAndDuration(song)
     }
 
-    return new Promise<{ url: string; duration: number } | void>((resolve, reject) => {
+    if (song.providerExtension) {
+      const data = await window.ExtensionUtils.sendEvent({
+        type: 'playbackDetailsRequested',
+        data: [song],
+        packageName: song.providerExtension
+      })
+
+      return data
+    }
+
+    const data = await new Promise<{ url: string; duration: number } | undefined>((resolve, reject) => {
       if (song.playbackUrl) {
         const audio = new Audio()
         audio.onloadedmetadata = () => {
@@ -364,9 +364,11 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
         audio.src = song.playbackUrl
       } else {
-        resolve()
+        resolve(undefined)
       }
     })
+
+    return data
   }
 
   private metadataInterval: ReturnType<typeof setInterval> | undefined

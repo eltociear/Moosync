@@ -315,6 +315,7 @@ type ExtraExtensionEventTypes =
   | 'playerStateChanged'
   | 'songChanged'
   | 'preferenceChanged'
+  | 'playbackDetailsRequested'
 
 type GetPlaylistReturnType = {
   playlists: Playlist[]
@@ -322,6 +323,11 @@ type GetPlaylistReturnType = {
 
 type GetPlaylistSongsReturnType = {
   songs: Song[]
+}
+
+type GetPlaybackDetailsReturnType = {
+  duration: number
+  url: string
 }
 
 type ExtraExtensionEventData<T extends ExtraExtensionEventTypes> = T extends 'requestedPlaylistSongs'
@@ -340,12 +346,16 @@ type ExtraExtensionEventData<T extends ExtraExtensionEventTypes> = T extends 're
   ? [song: Song]
   : T extends 'preferenceChanged'
   ? [preference: { key: string; value: unknown }]
+  : T extends 'playbackDetailsRequested'
+  ? [song: Song]
   : []
 
 type ExtraExtensionEventReturnType<T extends ExtraExtensionEventTypes> = T extends 'requestedPlaylists'
   ? GetPlaylistReturnType
   : T extends 'requestedPlaylistSongs'
   ? GetPlaylistSongsReturnType
+  : T extends 'playbackDetailsRequested'
+  ? GetPlaybackDetailsReturnType
   : void
 
 type ExtensionContextMenuItem<T extends ContextMenuTypes> = {
