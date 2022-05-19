@@ -244,7 +244,7 @@ interface extensionUtils {
   uninstall: (packageName: string) => Promise<void>
   sendEvent: <T extends ExtraExtensionEventTypes>(
     event: ExtraExtensionEvents<T>
-  ) => Promise<ExtraExtensionEventReturnType<T>>
+  ) => Promise<ExtraExtensionEventCombinedReturnType<T>>
   getAllExtensions: () => Promise<ExtensionDetails[]>
   getExtensionIcon: (packageName: string) => Promise<string>
   listenRequests: (callback: (request: extensionUIRequestMessage) => void) => void
