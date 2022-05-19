@@ -13,6 +13,7 @@
       <div id="yt-player" class="yt-player"></div>
       <audio id="dummy-yt-player" />
       <audio ref="audio" preload="auto" />
+      <video ref="dash-player"></video>
     </div>
   </div>
 </template>
@@ -30,6 +31,7 @@ import ErrorHandler from '@/utils/ui/mixins/errorHandler'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import Vue from 'vue'
 import { InvidiousPlayer } from '../../../../utils/ui/players/invidious'
+import { DashPlayer } from '../../../../utils/ui/players/dash'
 
 @Component({})
 export default class AudioStream extends mixins(SyncMixin, PlayerControls, ErrorHandler) {
@@ -59,6 +61,11 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    * Instance of Local html audio tag player
    */
   private localPlayer!: LocalPlayer
+
+  /**
+   * Instance of Dash player
+   */
+  private dashPlayer!: DashPlayer
 
   /**
    * Holds type of player which is current active
@@ -108,7 +115,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     this.ignoreStateChange = false
   }
 
-  private parsePlayerTypes(type: PlayerTypes): 'LOCAL' | 'YOUTUBE' {
+  private parsePlayerTypes(type: PlayerTypes): 'LOCAL' | 'YOUTUBE' | 'DASH' {
     switch (type) {
       case 'LOCAL':
       case 'URL':
@@ -117,6 +124,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       case 'SPOTIFY':
       case 'YOUTUBE':
         return 'YOUTUBE'
+      case 'DASH':
+        return 'DASH'
     }
   }
 
@@ -125,7 +134,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    * This method is responsible of detaching old player
    * and setting new player as active
    */
-  private onPlayerTypesChanged(newType: PlayerTypes): 'LOCAL' | 'YOUTUBE' {
+  private onPlayerTypesChanged(newType: PlayerTypes): 'LOCAL' | 'YOUTUBE' | 'DASH' {
     const parsedType = this.parsePlayerTypes(newType)
     if (this.activePlayerTypes !== parsedType) {
       console.debug('Changing player type to', newType)
@@ -138,6 +147,9 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
           break
         case 'YOUTUBE':
           this.activePlayer = this.ytPlayer
+          break
+        case 'DASH':
+          this.activePlayer = this.dashPlayer
           break
       }
 
@@ -180,8 +192,23 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     this.setupSync()
     this.registerListeners()
 
-    if (this.currentSong) this.loadAudio(this.currentSong, true)
+    // if (this.currentSong) this.loadAudio(this.currentSong, true)
+
+    this.loadAudio(
+      {
+        _id: 'hjkh',
+        title: 'dash song',
+        type: 'DASH',
+        date_added: Date.now(),
+        duration: 300,
+        playbackUrl: 'http://192.168.0.10:8082/dash.mpd'
+      },
+      true
+    )
   }
+
+  @Ref('dash-player')
+  private dashPlayerDiv!: HTMLVideoElement
 
   /**
    * Initial setup for all players
@@ -199,6 +226,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       { deep: false, immediate: true }
     )
     this.localPlayer = new LocalPlayer(this.audioElement)
+    this.dashPlayer = new DashPlayer(this.dashPlayerDiv)
     this.activePlayer = this.localPlayer
     this.activePlayerTypes = 'LOCAL'
   }
@@ -485,7 +513,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       )
       console.debug('Loaded song at', 'media://' + song.path)
       vxm.player.loading = false
-    } else {
+    } else if (PlayerTypes) {
       console.debug('PlaybackUrl for song', song._id, 'is', song.playbackUrl)
 
       console.debug('Loaded song at', song.playbackUrl)

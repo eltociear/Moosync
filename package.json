@@ -63,6 +63,7 @@
     "copy-webpack-plugin": "^10.2.4",
     "core-js": "^3.22.5",
     "cross-env": "^7.0.3",
+    "dashjs": "^4.4.0",
     "deepmerge": "^4.2.2",
     "dotenv": "^16.0.0",
     "electron": "18.2.0",

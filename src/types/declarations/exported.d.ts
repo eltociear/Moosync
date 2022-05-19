@@ -32,7 +32,7 @@ interface Playlist {
   icon?: string
 }
 
-type PlayerTypes = 'LOCAL' | 'YOUTUBE' | 'SPOTIFY' | 'URL'
+type PlayerTypes = 'LOCAL' | 'YOUTUBE' | 'SPOTIFY' | 'URL' | 'DASH'
 
 interface Song {
   _id: string
