@@ -142,9 +142,11 @@ export class WindowHandler {
           packageName: extensionPackageName
         })
 
-        console.log(data)
         if (data[extensionPackageName]) {
-          callback(data[extensionPackageName])
+          callback({
+            mimeType: data[extensionPackageName].mimeType,
+            data: Buffer.from(data[extensionPackageName].data)
+          })
           return
         }
       }
