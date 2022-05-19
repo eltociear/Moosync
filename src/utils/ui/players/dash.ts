@@ -12,49 +12,53 @@ import dashjs from 'dashjs'
 
 export class DashPlayer extends Player {
   private playerInstance: dashjs.MediaPlayerClass
+  private htmlElement: HTMLVideoElement
+
+  private isAttachedView = false
 
   constructor(element: HTMLVideoElement) {
     super()
+    this.htmlElement = element
     this.playerInstance = dashjs.MediaPlayer().create()
-    this.playerInstance.initialize(element)
   }
 
   load(src?: string, volume?: number, autoplay?: boolean): void {
     if (src) {
-      this.playerInstance.attachSource(src)
-      volume && this.playerInstance.setVolume(volume)
-      autoplay && this.playerInstance.setAutoPlay(autoplay)
+      this.playerInstance.initialize(this.htmlElement, src, autoplay)
+      this.isAttachedView = true
+      if (volume) this.volume = volume
     } else {
-      this.playerInstance.reset()
+      this.stop()
     }
   }
 
   async play(): Promise<void> {
-    this.playerInstance.play()
+    this.isAttachedView && this.playerInstance.play()
   }
 
   pause(): void {
-    this.playerInstance.pause()
+    this.isAttachedView && this.playerInstance.pause()
   }
 
   stop(): void {
+    this.isAttachedView = false
     this.playerInstance.reset()
   }
 
   get currentTime(): number {
-    return this.playerInstance.time()
+    return this.isAttachedView ? this.playerInstance.time() : 0
   }
 
   set currentTime(time: number) {
-    this.playerInstance.seek(time)
+    this.isAttachedView && this.playerInstance.seek(time)
   }
 
   get volume(): number {
-    return this.playerInstance.getVolume()
+    return this.isAttachedView ? this.playerInstance.getVolume() : 0
   }
 
   set volume(volume: number) {
-    this.playerInstance.setVolume(volume / 100)
+    this.isAttachedView && this.playerInstance.setVolume(volume / 100)
   }
 
   protected listenOnEnded(callback: () => void): void {
