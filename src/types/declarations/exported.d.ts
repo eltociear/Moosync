@@ -573,10 +573,16 @@ interface extensionAPI {
    * The user will then be able to perform login / logout operations on this account
    * and also view its details
    *
-   * @param details details of account to be added
+   * @param name name of service provider
+   * @param signinCallback callback fired when user wishes to login
+   * @param signoutCallback callback fired when user wishes to logout
    * @returns generated accountId
    */
-  registerAccount(details: Omit<AccountDetails, 'id'>): Promise<string>
+  registerAccount(
+    name: string,
+    signinCallback: AccountDetails['signinCallback'],
+    signoutCallback: AccountDetails['signoutCallback']
+  ): Promise<string>
 
   /**
    * Change login status and signed in user's account name.

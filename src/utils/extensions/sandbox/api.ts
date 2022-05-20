@@ -101,9 +101,20 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
     return sendAsync<void>(this.packageName, 'open-external', url)
   }
 
-  public async registerAccount(details: Omit<AccountDetails, 'id'>): Promise<string> {
+  public async registerAccount(
+    name: string,
+    signinCallback: AccountDetails['signinCallback'],
+    signoutCallback: AccountDetails['signoutCallback']
+  ): Promise<string> {
     const id = `account:${this.packageName}:${this.accountsMap.length}`
-    const final: AccountDetails = { ...details, id }
+    const final: AccountDetails = {
+      id,
+      packageName: this.packageName,
+      name,
+      signinCallback,
+      signoutCallback,
+      loggedIn: false
+    }
     this.accountsMap.push(final)
     await sendAsync<void>(this.packageName, 'register-account', final)
     return id
