@@ -404,10 +404,12 @@ type AccountDetails = {
   id: string
   packageName: string
   name: string
+  bgColor: string
+  icon: string
   loggedIn: boolean
   signinCallback: () => Promise<void> | void
   signoutCallback: () => Promise<void> | void
-  accountName?: string
+  username?: string
 }
 
 interface extensionAPI {
@@ -574,12 +576,16 @@ interface extensionAPI {
    * and also view its details
    *
    * @param name name of service provider
+   * @param bgColor background color to use for account card (in hex format. Eg. #000000)
+   * @param icon icon of account (preferably service provider's icon)
    * @param signinCallback callback fired when user wishes to login
    * @param signoutCallback callback fired when user wishes to logout
    * @returns generated accountId
    */
   registerAccount(
     name: string,
+    bgColor: string,
+    icon: string,
     signinCallback: AccountDetails['signinCallback'],
     signoutCallback: AccountDetails['signoutCallback']
   ): Promise<string>
@@ -591,7 +597,7 @@ interface extensionAPI {
    * @param loggedIn true if user is logged in otherwise false
    * @param accountName name of user's account if logged in otherwise undefined
    */
-  changeAccountAuthStatus(id: string, loggedIn: boolean, accountName?: string): Promise<void>
+  changeAccountAuthStatus(id: string, loggedIn: boolean, username?: string): Promise<void>
 
   /**
    * Object containing controls for player

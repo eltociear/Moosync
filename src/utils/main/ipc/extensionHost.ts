@@ -242,7 +242,7 @@ export class ExtensionHostChannel implements IpcChannelInterface {
     event: Electron.IpcMainEvent,
     request: IpcRequest<ExtensionHostRequests.AccountLogin>
   ) {
-    if (request.params.login && request.params.packageName) {
+    if (request.params.login !== undefined && request.params.packageName) {
       await this.extensionHost.mainRequestGenerator.performAccountLogin(
         request.params.packageName,
         request.params.accountId,

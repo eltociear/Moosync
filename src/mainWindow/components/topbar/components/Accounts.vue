@@ -24,6 +24,20 @@
             <component :is="p.icon" />
           </template>
         </IconButton>
+
+        <IconButton
+          v-for="a in extraAccounts"
+          :key="a.id"
+          :bgColor="a.bgColor"
+          :hoverText="a.loggedIn ? 'Sign out' : a.name"
+          :title="a.username ? a.username : 'Connect'"
+          @click.native="handleExtensionAccountClick(a.id)"
+        >
+          <template slot="icon">
+            <inline-svg class="provider-icon" v-if="a.icon.endsWith('svg')" :src="a.icon" />
+            <img v-else :src="a.icon" alt="provider icon" class="provider-icon" />
+          </template>
+        </IconButton>
       </div>
     </b-popover>
     <ConfirmationModal keyword="signout from" :itemName="activeSignout" id="signoutModal" @confirm="signout" />

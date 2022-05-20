@@ -17,6 +17,8 @@ import { EventBus } from '@/utils/main/ipc/constants'
 export default class AccountsMixin extends Vue {
   private _signoutProvider?: (provider: Providers) => void
 
+  protected extraAccounts: StrippedAccountDetails[] = []
+
   set signoutMethod(signout: ((provider: Providers) => void) | undefined) {
     this._signoutProvider = signout
   }
@@ -118,6 +120,15 @@ export default class AccountsMixin extends Vue {
     return vxm.providers.lastfmProvider
   }
 
+  protected handleExtensionAccountClick(id: string) {
+    const account = this.extraAccounts.find((val) => val.id === id)
+    if (account) {
+      window.ExtensionUtils.performAccountLogin(account.packageName, account.id, !account.loggedIn).then(() =>
+        console.log('performed login')
+      )
+    }
+  }
+
   async mounted() {
     this.getUserDetails('Youtube')
     this.getUserDetails('Spotify')
@@ -136,9 +147,29 @@ export default class AccountsMixin extends Vue {
     })
 
     const extensionAccounts = await window.ExtensionUtils.getRegisteredAccounts()
-    console.log(extensionAccounts)
+    for (const value of Object.values(extensionAccounts)) {
+      for (const v of value) {
+        if (!this.extraAccounts.find((val) => val.id === v.id)) {
+          if (!v.icon.startsWith('http')) {
+            v.icon = 'media://' + v.icon
+          }
+          this.extraAccounts.push(v)
+        }
+      }
+    }
+
     window.ExtensionUtils.listenAccountRegistered((details) => {
-      console.log(details)
+      if (!details.data.icon.startsWith('http')) {
+        details.data.icon = 'media://' + details.data.icon
+      }
+
+      const existing = this.extraAccounts.findIndex((val) => val.id === details.data.id)
+
+      if (existing === -1) {
+        this.extraAccounts.push(details.data)
+      } else {
+        this.extraAccounts.splice(existing, 1, details.data)
+      }
     })
   }
 }

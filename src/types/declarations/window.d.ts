@@ -259,7 +259,7 @@ interface extensionUtils {
     arg: ExtensionContextMenuHandlerArgs<ContextMenuTypes>
   ) => Promise<void>
   getRegisteredAccounts: () => Promise<{ [key: string]: StrippedAccountDetails[] }>
-  listenAccountRegistered: (callback: (details: StrippedAccountDetails) => void) => void
+  listenAccountRegistered: (callback: (details: { packageName: string; data: StrippedAccountDetails }) => void) => void
   performAccountLogin: (packageName: string, accountId: string, login: boolean) => Promise<void>
 }
 

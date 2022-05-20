@@ -103,6 +103,8 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
 
   public async registerAccount(
     name: string,
+    bgColor: string,
+    icon: string,
     signinCallback: AccountDetails['signinCallback'],
     signoutCallback: AccountDetails['signoutCallback']
   ): Promise<string> {
@@ -111,6 +113,8 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
       id,
       packageName: this.packageName,
       name,
+      bgColor,
+      icon,
       signinCallback,
       signoutCallback,
       loggedIn: false
@@ -120,10 +124,10 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
     return id
   }
 
-  public async changeAccountAuthStatus(id: string, loggedIn: boolean, accountName?: string) {
+  public async changeAccountAuthStatus(id: string, loggedIn: boolean, username?: string) {
     const item = this.accountsMap.find((val) => val.id === id)
     if (item) {
-      item.accountName = accountName
+      item.username = username
       item.loggedIn = loggedIn
       await sendAsync<void>(this.packageName, 'register-account', item)
     }
