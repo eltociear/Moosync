@@ -569,6 +569,25 @@ interface extensionAPI {
   getContextMenuItems(): ExtensionContextMenuItem<ContextMenuTypes>[]
 
   /**
+   * Add an account to show in accounts section in main app.
+   * The user will then be able to perform login / logout operations on this account
+   * and also view its details
+   *
+   * @param details details of account to be added
+   * @returns generated accountId
+   */
+  registerAccount(details: Omit<AccountDetails, 'id'>): Promise<string>
+
+  /**
+   * Change login status and signed in user's account name.
+   *
+   * @param id accountId to change details of. Returned from {@link registerAccount}
+   * @param loggedIn true if user is logged in otherwise false
+   * @param accountName name of user's account if logged in otherwise undefined
+   */
+  changeAccountAuthStatus(id: string, loggedIn: boolean, accountName?: string): Promise<void>
+
+  /**
    * Object containing controls for player
    */
   player: playerControls
