@@ -159,19 +159,38 @@ class MainRequestHandler {
       this.handler.sendExtraEventToExtensions(message.data).then((val) => {
         this.sendToMain(message.channel, val)
       })
+      return
     }
 
     if (message.type === 'get-extension-context-menu') {
       const items = this.handler.getExtensionContextMenu(message.data.type)
       this.sendToMain(message.channel, items)
+      return
     }
 
     if (message.type === 'on-clicked-context-menu') {
       this.handler.fireContextMenuCallback(message.data.id, message.data.packageName, message.data.arg)
+      this.sendToMain(message.channel)
+      return
     }
 
     if (message.type === 'set-log-level') {
       setLogLevel(message.data.level)
+      this.sendToMain(message.channel)
+      return
+    }
+
+    if (message.type === 'get-accounts') {
+      const items = this.handler.getExtensionAccounts()
+      this.sendToMain(message.channel, items)
+    }
+
+    if (message.type === 'perform-account-login') {
+      this.handler
+        .performExtensionAccountLogin(message.data.packageName, message.data.accountId, message.data.loginStatus)
+        .then((val) => this.sendToMain(message.channel, val))
+
+      return
     }
   }
 

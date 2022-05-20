@@ -496,7 +496,23 @@ contextBridge.exposeInMainWorld('ExtensionUtils', {
     }),
 
   listenExtInstallStatus: (callback: (data: ExtInstallStatus) => void) =>
-    ipcRendererHolder.on(ExtensionHostEvents.EXT_INSTALL_STATUS, callback)
+    ipcRendererHolder.on(ExtensionHostEvents.EXT_INSTALL_STATUS, callback),
+
+  getRegisteredAccounts: () =>
+    ipcRendererHolder.send(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.GET_REGISTERED_ACCOUNTS,
+      params: undefined
+    }),
+
+  listenAccountRegistered: (callback: (details: AccountDetails) => void) => {
+    ipcRendererHolder.on(ExtensionHostEvents.ON_ACCOUNT_REGISTERED, callback)
+  },
+
+  performAccountLogin: (packageName: string, accountId: string, login: boolean) =>
+    ipcRendererHolder.send<ExtensionHostRequests.AccountLogin>(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.PERFORM_ACCOUNT_LOGIN,
+      params: { packageName, accountId, login }
+    })
 })
 
 contextBridge.exposeInMainWorld('UpdateUtils', {

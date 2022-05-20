@@ -58,6 +58,12 @@ declare namespace ExtensionHostRequests {
     packageName: string
     arg: ExtensionContextMenuHandlerArgs
   }
+
+  interface AccountLogin {
+    packageName: string
+    accountId: string
+    login: boolean
+  }
 }
 
 declare namespace LoggerRequests {

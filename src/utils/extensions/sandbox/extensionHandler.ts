@@ -92,6 +92,26 @@ export class ExtensionHandler {
     }
   }
 
+  public getExtensionAccounts() {
+    const ext = this.extensionManager.getExtensions()
+    const accountMap: { [key: string]: AccountDetails[] } = {}
+    for (const e of ext) {
+      accountMap[e.packageName] = e.global.api._getAccountDetails()
+    }
+
+    return accountMap
+  }
+
+  public async performExtensionAccountLogin(packageName: string, accountId: string, loginStatus: boolean) {
+    const ext = this.extensionManager.getExtensions({ packageName })
+    for (const e of ext) {
+      const account = e.global.api._getAccountDetails().find((val) => val.id === accountId)
+      if (account) {
+        loginStatus ? await account.signinCallback() : await account.signoutCallback()
+      }
+    }
+  }
+
   public sendEvent(event: extensionEventMessage) {
     const method: keyof MoosyncExtensionTemplate = event.type
     if (this.initialized) {

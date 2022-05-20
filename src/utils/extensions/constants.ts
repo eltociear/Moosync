@@ -18,7 +18,8 @@ export const extensionRequestsKeys = [
   'set-preferences',
   'set-secure-preferences',
   'register-oauth',
-  'open-external'
+  'open-external',
+  'register-account'
 ] as const
 export const extensionUIRequestsKeys = [
   'get-current-song',
@@ -38,7 +39,9 @@ export const mainRequestsKeys = [
   'extra-extension-events',
   'get-extension-context-menu',
   'on-clicked-context-menu',
-  'set-log-level'
+  'set-log-level',
+  'get-accounts',
+  'perform-account-login'
 ] as const
 
 export type extensionUIRequests = typeof extensionUIRequestsKeys[number] | typeof playerControlRequests[number]

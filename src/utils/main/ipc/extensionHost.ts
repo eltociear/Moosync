@@ -52,6 +52,12 @@ export class ExtensionHostChannel implements IpcChannelInterface {
       case ExtensionHostEvents.ON_CONTEXT_MENU_ITEM_CLICKED:
         this.fireContextMenuHandler(event, request as IpcRequest<ExtensionHostRequests.ContextMenuHandler>)
         break
+      case ExtensionHostEvents.GET_REGISTERED_ACCOUNTS:
+        this.getRegisteredAccounts(event, request)
+        break
+      case ExtensionHostEvents.PERFORM_ACCOUNT_LOGIN:
+        this.performAccountLogin(event, request as IpcRequest<ExtensionHostRequests.AccountLogin>)
+        break
     }
   }
 
@@ -225,5 +231,24 @@ export class ExtensionHostChannel implements IpcChannelInterface {
 
   public setLogLevel(level: LogLevelDesc) {
     return this.extensionHost.setExtensionLogLevel(level)
+  }
+
+  public async getRegisteredAccounts(event: Electron.IpcMainEvent, request: IpcRequest) {
+    const items = await this.extensionHost.mainRequestGenerator.getAccounts()
+    event.reply(request.responseChannel, items)
+  }
+
+  public async performAccountLogin(
+    event: Electron.IpcMainEvent,
+    request: IpcRequest<ExtensionHostRequests.AccountLogin>
+  ) {
+    if (request.params.login && request.params.packageName) {
+      await this.extensionHost.mainRequestGenerator.performAccountLogin(
+        request.params.packageName,
+        request.params.accountId,
+        request.params.login
+      )
+      event.reply(request.responseChannel)
+    }
   }
 }

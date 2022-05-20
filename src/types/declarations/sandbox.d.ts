@@ -117,6 +117,7 @@ interface ExtendedExtensionAPI extends extensionAPI {
     event: ExtraExtensionEvents<T>
   ) => Promise<ExtraExtensionEventReturnType<T> | undefined>
   _getContextMenuItems: () => ExtendedExtensionContextMenuItems<ContextMenuTypes>[]
+  _getAccountDetails: () => AccountDetails[]
 }
 
 interface ExtensionItem extends ExtensionDetails {

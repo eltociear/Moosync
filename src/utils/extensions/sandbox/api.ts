@@ -22,6 +22,8 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
 
   private contextMenuMap: ExtendedExtensionContextMenuItems<ContextMenuTypes>[] = []
 
+  private accountsMap: AccountDetails[] = []
+
   constructor(packageName: string) {
     this.packageName = packageName
     this.player = new PlayerControls(this.packageName)
@@ -99,6 +101,23 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
     return sendAsync<void>(this.packageName, 'open-external', url)
   }
 
+  public async registerAccount(details: Omit<AccountDetails, 'id'>): Promise<string> {
+    const id = `account:${this.packageName}:${this.accountsMap.length}`
+    const final: AccountDetails = { ...details, id }
+    this.accountsMap.push(final)
+    await sendAsync<void>(this.packageName, 'register-account', final)
+    return id
+  }
+
+  public async changeAccountAuthStatus(id: string, loggedIn: boolean, accountName?: string) {
+    const item = this.accountsMap.find((val) => val.id === id)
+    if (item) {
+      item.accountName = accountName
+      item.loggedIn = loggedIn
+      await sendAsync<void>(this.packageName, 'register-account', item)
+    }
+  }
+
   public on<T extends ExtraExtensionEventTypes>(
     eventName: T,
     callback: (...args: ExtraExtensionEventData<T>) => Promise<ExtraExtensionEventReturnType<T>>
@@ -161,6 +180,10 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
 
   public _getContextMenuItems(): ExtendedExtensionContextMenuItems<ContextMenuTypes>[] {
     return JSON.parse(JSON.stringify(this.getContextMenuItems()))
+  }
+
+  public _getAccountDetails(): AccountDetails[] {
+    return this.accountsMap
   }
 }
 

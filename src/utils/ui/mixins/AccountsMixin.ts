@@ -118,7 +118,7 @@ export default class AccountsMixin extends Vue {
     return vxm.providers.lastfmProvider
   }
 
-  mounted() {
+  async mounted() {
     this.getUserDetails('Youtube')
     this.getUserDetails('Spotify')
     this.getUserDetails('LastFM')
@@ -133,6 +133,12 @@ export default class AccountsMixin extends Vue {
 
     bus.$on(EventBus.REFRESH_USERNAMES, (provider: Providers) => {
       this.getUserDetails(provider)
+    })
+
+    const extensionAccounts = await window.ExtensionUtils.getRegisteredAccounts()
+    console.log(extensionAccounts)
+    window.ExtensionUtils.listenAccountRegistered((details) => {
+      console.log(details)
     })
   }
 }

@@ -7,6 +7,8 @@ interface ExtendedPlaylist extends Playlist {
   isRemote?: boolean
 }
 
+type StrippedAccountDetails = Omit<Omit<AccountDetails, 'signinCallback'>, 'signoutCallback'>
+
 type Progress = { total: number; current: number }
 
 declare namespace NodeJS {

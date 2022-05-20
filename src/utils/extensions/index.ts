@@ -196,6 +196,14 @@ class MainRequestGenerator {
     return this.sendAsync<void>('set-log-level', { level })
   }
 
+  public async getAccounts() {
+    return this.sendAsync<StrippedAccountDetails[]>('get-accounts')
+  }
+
+  public async performAccountLogin(packageName: string, accountId: string, loginStatus: boolean) {
+    return this.sendAsync<void>('perform-account-login', { packageName, accountId, loginStatus })
+  }
+
   public async sendContextMenuItemClicked(
     id: string,
     packageName: string,
@@ -333,6 +341,13 @@ class ExtensionRequestHandler {
 
     if (message.type === 'open-external') {
       await shell.openExternal(message.data)
+    }
+
+    if (message.type === 'register-account') {
+      WindowHandler.getWindow(true)?.webContents.send(ExtensionHostEvents.ON_ACCOUNT_REGISTERED, {
+        packageName: message.extensionName,
+        data: message.data
+      })
     }
 
     if (

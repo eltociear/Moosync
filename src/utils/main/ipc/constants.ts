@@ -169,7 +169,10 @@ export enum ExtensionHostEvents {
   DOWNLOAD_EXTENSION = 'downloadExtension',
   EXT_INSTALL_STATUS = 'extInstallStatus',
   GET_EXT_CONTEXT_MENU = 'getExtContextMenu',
-  ON_CONTEXT_MENU_ITEM_CLICKED = 'onContextMenuItemClicked'
+  ON_CONTEXT_MENU_ITEM_CLICKED = 'onContextMenuItemClicked',
+  ON_ACCOUNT_REGISTERED = 'onAccountRegistered',
+  GET_REGISTERED_ACCOUNTS = 'getRegisteredAccounts',
+  PERFORM_ACCOUNT_LOGIN = 'performAccountLogin'
 }
 
 export enum ServiceProviderEvents {
