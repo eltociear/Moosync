@@ -412,6 +412,22 @@ type AccountDetails = {
   username?: string
 }
 
+type LoginModalData = {
+  providerName: string
+  providerColor: string
+  text?: string
+  url?: string
+} & (
+  | {
+      manualClick: true
+      oauthPath: string
+    }
+  | {
+      manualClick?: false
+      oauthPath?: string
+    }
+)
+
 interface extensionAPI {
   /**
    * Get songs from database filtered by provided options
@@ -598,6 +614,9 @@ interface extensionAPI {
    * @param accountName name of user's account if logged in otherwise undefined
    */
   changeAccountAuthStatus(id: string, loggedIn: boolean, username?: string): Promise<void>
+
+  openLoginModal(data: LoginModalData): Promise<boolean>
+  closeLoginModal(): Promise<void>
 
   /**
    * Object containing controls for player

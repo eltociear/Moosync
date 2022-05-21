@@ -9,6 +9,10 @@ interface ExtendedPlaylist extends Playlist {
 
 type StrippedAccountDetails = Omit<Omit<AccountDetails, 'signinCallback'>, 'signoutCallback'>
 
+type ExtendedLoginModalData = LoginModalData & {
+  packageName: string
+}
+
 type Progress = { total: number; current: number }
 
 declare namespace NodeJS {

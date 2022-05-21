@@ -360,6 +360,12 @@ contextBridge.exposeInMainWorld('WindowUtils', {
       params: { path }
     }),
 
+  triggerOAuthCallback: (path: string) =>
+    ipcRendererHolder.send<WindowRequests.Path>(IpcEvents.BROWSER_WINDOWS, {
+      type: WindowEvents.TRIGGER_OAUTH_CALLBACK,
+      params: { path }
+    }),
+
   listenOAuth: (channelID: string, callback: (data: URL) => void) => ipcRendererHolder.once(channelID, callback),
 
   listenArgs: (callback: (args: unknown) => void) => ipcRendererHolder.once(WindowEvents.GOT_EXTRA_ARGS, callback),

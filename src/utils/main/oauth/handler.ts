@@ -26,7 +26,6 @@ export class OAuthHandler {
     [key: string]: callbackRegistryItem[]
   } = {}
 
-  // TODO: Handle extension events
   public handleEvents(data: string) {
     const host = new URL(data).host.toLowerCase()
     const registered = this.callbackRegistry[host]

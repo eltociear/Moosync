@@ -145,22 +145,6 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
     return window.Store.getSecure(KeytarService)
   }
 
-  private async handleLogin(data: string) {
-    if (!this._session) {
-      const url = new URL(data)
-      const token = url.searchParams.get('token') as string
-      const resp = await this.populateRequest('GET', ApiResources.GET_SESSION, undefined, token)
-      this._session = resp?.session?.key
-
-      if (this._session) {
-        await window.Store.setSecure(KeytarService, this._session)
-        return true
-      }
-      return false
-    }
-    return true
-  }
-
   public async login() {
     if (!this._session) {
       if (!this.oAuthChannel) {
@@ -168,22 +152,27 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
       }
 
       const resp = await new Promise<boolean>((resolve) => {
-        bus.$on(EventBus.GOT_OAUTH_CODE, async (data: string) => {
-          const resp = await this.handleLogin(data)
-          resolve(resp)
-        })
-
         window.WindowUtils.listenOAuth(this.oAuthChannel as string, async (data) => {
-          const resp = await this.handleLogin(data)
-          resolve(resp)
+          const url = new URL(data)
+          const token = url.searchParams.get('token') as string
+          const resp = await this.populateRequest('GET', ApiResources.GET_SESSION, undefined, token)
+          this._session = resp?.session?.key
+
+          if (this._session) {
+            window.Store.setSecure(KeytarService, this._session).then(() => {
+              resolve(true)
+            })
+            return
+          }
+          resolve(false)
         })
 
-        bus.$emit(
-          EventBus.SHOW_OAUTH_MODAL,
-          'LastFM',
-          AUTH_BASE_URL + `auth/?api_key=${this._config?.key}&cb=https://moosync.app/lastfm`,
-          '#BA0000'
-        )
+        bus.$emit(EventBus.SHOW_OAUTH_MODAL, {
+          providerName: 'LastFM',
+          url: AUTH_BASE_URL + `auth/?api_key=${this._config?.key}&cb=https://moosync.app/lastfm`,
+          providerColor: '#BA0000',
+          oauthPath: 'lastfmcallback'
+        } as LoginModalData)
 
         window.WindowUtils.openExternal(
           AUTH_BASE_URL + `auth/?api_key=${this._config?.key}&cb=https://moosync.app/lastfm`

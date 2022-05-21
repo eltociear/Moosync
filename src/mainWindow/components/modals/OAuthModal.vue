@@ -16,23 +16,35 @@
       </b-row>
       <div v-if="!alternative">
         <b-row>
-          <b-col class="mt-4 waiting">Waiting for response from your browser...</b-col>
+          <b-col class="mt-4 waiting">{{ desc ? desc : 'Waiting for response from your browser...' }}</b-col>
         </b-row>
         <b-row>
           <b-col class="d-flex justify-content-center">
             <div
               @click="openBrowser"
               class="start-button button-grow mt-4 d-flex justify-content-center align-items-center"
+              v-if="url"
             >
               Open browser
             </div>
           </b-col>
         </b-row>
         <b-row>
+          <b-col class="d-flex justify-content-center">
+            <div
+              @click="submitCode"
+              class="start-button button-grow mt-4 d-flex justify-content-center align-items-center"
+              v-if="manualClick"
+            >
+              Submit
+            </div>
+          </b-col>
+        </b-row>
+        <b-row v-if="url">
           <b-col class="not-working-text mt-3" @click="alternative = true"> Browser not opening? </b-col>
         </b-row>
       </div>
-      <div v-if="alternative">
+      <div v-if="alternative && url">
         <b-row>
           <b-col class="mt-4 waiting">Paste this link in your browser...</b-col>
         </b-row>
@@ -88,12 +100,18 @@ export default class OAuthModal extends Vue {
   private title = ''
   private url = ''
   private oauthCode = ''
+  private desc = ''
+  private manualClick = false
+  private oauthPath?: string
 
   private showing = false
 
   private alternative = true
 
   private openBrowser() {
+    if (!this.url.startsWith('http')) {
+      this.url = 'https://' + this.url
+    }
     window.WindowUtils.openExternal(this.url)
   }
 
@@ -105,20 +123,29 @@ export default class OAuthModal extends Vue {
     navigator.clipboard.writeText(this.url)
   }
 
+  private submitEmpty() {
+    window.WindowUtils.triggerOAuthCallback(this.oauthCode)
+  }
+
   private submitCode() {
-    if (this.oauthCode.startsWith('?')) {
-      this.oauthCode = 'moosync://callback' + this.oauthCode
+    if (this.oauthPath) {
+      if (!this.oauthCode.startsWith('moosync://')) {
+        this.oauthCode = 'moosync://' + this.oauthPath + this.oauthCode
+      }
+      window.WindowUtils.triggerOAuthCallback(this.oauthCode)
     }
-    bus.$emit(EventBus.GOT_OAUTH_CODE, this.oauthCode)
   }
 
   mounted() {
-    bus.$on(EventBus.SHOW_OAUTH_MODAL, (title: string, url: string, textColor: string) => {
+    bus.$on(EventBus.SHOW_OAUTH_MODAL, (data: ExtendedLoginModalData) => {
       if (!this.showing) {
         this.alternative = false
-        this.title = title
-        this.textColor = textColor
-        this.url = url
+        this.title = data.providerName
+        this.textColor = data.providerColor
+        this.desc = data.text ?? ''
+        this.url = data.url ?? ''
+        this.manualClick = data.manualClick ?? false
+        this.oauthPath = data.oauthPath
         this.$bvModal.show(this.id)
         this.showing = true
       }
@@ -130,6 +157,10 @@ export default class OAuthModal extends Vue {
         this.title = ''
         this.textColor = ''
         this.url = ''
+        this.desc = ''
+        this.manualClick = false
+        this.oauthPath = undefined
+        this.oauthCode = ''
         this.showing = false
       }
     })

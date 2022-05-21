@@ -7,8 +7,6 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { bus } from '@/mainWindow/main'
-import { EventBus } from '@/utils/main/ipc/constants'
 import {
   AuthorizationError,
   AuthorizationRequest,
@@ -80,20 +78,9 @@ export class AuthFlowRequestHandler extends AuthorizationRequestHandler {
 
   performAuthorizationRequest(configuration: AuthorizationServiceConfiguration, request: AuthorizationRequest): string {
     const emitter = new ServerEventsEmitter()
-    let performedAuth = false
-
-    bus.$on(EventBus.GOT_OAUTH_CODE, (data: string) => {
-      if (!performedAuth) {
-        this.performAuth(data, request, emitter)
-        performedAuth = true
-      }
-    })
 
     window.WindowUtils.listenOAuth(this.channelID, (data) => {
-      if (!performedAuth) {
-        this.performAuth(data, request, emitter)
-        performedAuth = true
-      }
+      this.performAuth(data, request, emitter)
     })
 
     this.authorizationPromise = new Promise<AuthorizationRequestResponse>((resolve) => {

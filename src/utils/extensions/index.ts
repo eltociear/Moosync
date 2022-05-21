@@ -240,7 +240,7 @@ class ExtensionRequestHandler {
     }
   }
 
-  private requestFromMainWindow(message: extensionRequestMessage) {
+  private requestToMainWindow(message: extensionRequestMessage) {
     return new Promise((resolve) => {
       let listener: (event: Electron.IpcMainEvent, data: extensionReplyMessage) => void
       ipcMain.on(
@@ -354,7 +354,7 @@ class ExtensionRequestHandler {
       extensionUIRequestsKeys.includes(message.type as typeof extensionUIRequestsKeys[number]) ||
       playerControlRequests.includes(message.type as typeof playerControlRequests[number])
     ) {
-      const data = await this.requestFromMainWindow(message)
+      const data = await this.requestToMainWindow(message)
       resp.data = data
     }
 

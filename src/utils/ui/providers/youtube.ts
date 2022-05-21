@@ -98,7 +98,12 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
         }
 
         const url = await this.auth.makeAuthorizationRequest()
-        bus.$emit(EventBus.SHOW_OAUTH_MODAL, 'Youtube', url, '#E62017')
+        bus.$emit(EventBus.SHOW_OAUTH_MODAL, {
+          providerName: 'Youtube',
+          url,
+          providerColor: '#E62017',
+          oauthPath: 'ytoauth2callback'
+        } as LoginModalData)
         window.WindowUtils.openExternal(url)
 
         await once(this.auth.authStateEmitter, AuthStateEmitter.ON_TOKEN_RESPONSE)

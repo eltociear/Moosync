@@ -72,12 +72,12 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
             }
           })
 
-          bus.$emit(
-            EventBus.SHOW_OAUTH_MODAL,
-            'Invidious',
-            AUTH_BASE_URL + '/authorize_token?scopes=:*&callback_url=https://moosync.app/invidious&expire=360000',
-            '#E62017'
-          )
+          bus.$emit(EventBus.SHOW_OAUTH_MODAL, {
+            providerName: 'Invidious',
+            url: AUTH_BASE_URL + '/authorize_token?scopes=:*&callback_url=https://moosync.app/invidious&expire=360000',
+            providerColor: '#E62017',
+            oauthPath: 'invidiousCallback'
+          } as LoginModalData)
 
           window.WindowUtils.openExternal(
             AUTH_BASE_URL + '/authorize_token?scopes=:*&callback_url=https://moosync.app/invidious'

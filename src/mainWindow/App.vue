@@ -267,6 +267,16 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
       if (data.type === 'next') {
         window.ExtensionUtils.replyToRequest({ ...data, data: this.nextSong() })
       }
+
+      if (data.type === 'open-login-modal') {
+        bus.$emit(EventBus.SHOW_OAUTH_MODAL, data.data)
+        window.ExtensionUtils.replyToRequest({ ...data, data: true })
+      }
+
+      if (data.type === 'close-login-modal') {
+        bus.$emit(EventBus.HIDE_OAUTH_MODAL)
+        window.ExtensionUtils.replyToRequest({ ...data, data: true })
+      }
     })
   }
 

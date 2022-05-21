@@ -204,6 +204,7 @@ interface windowUtils {
   openExternal: (url: string) => Promise<void>
   registerOAuthCallback: (path: string) => Promise<string>
   deregisterOAuthCallback: (path: string) => Promise<void>
+  triggerOAuthCallback: (data: string) => Promise<void>
   listenOAuth: (channelID: string, callback: (data: string) => void) => void
   listenArgs: (callback: (args: unknown | undefined) => void) => void
   mainWindowHasMounted: () => Promise<void>

@@ -76,6 +76,7 @@ export enum WindowEvents {
   OPEN_URL_EXTERNAL = 'openUrlExternal',
   REGISTER_OAUTH_CALLBACK = 'registerOAuthCallback',
   DEREGISTER_OAUTH_CALLBACK = 'deregisterOAuthCallback',
+  TRIGGER_OAUTH_CALLBACK = 'triggerOauthCallback',
   MAIN_WINDOW_HAS_MOUNTED = 'mainWindowsHasMounted',
 
   DRAG_FILE = 'dragFile',
@@ -199,7 +200,6 @@ export enum EventBus {
   SHOW_ENTITY_INFO_MODAL = 'show-entity-info-modal',
   SHOW_OAUTH_MODAL = 'show-oauth-modal',
   HIDE_OAUTH_MODAL = 'hide-oauth-modal',
-  GOT_OAUTH_CODE = 'got-oauth-code',
   SHOW_FORM_MODAL = 'show-form-modal',
   REFRESH_USERNAMES = 'refresh-usernames',
   REFRESH_PAGE = 'refresh-page'

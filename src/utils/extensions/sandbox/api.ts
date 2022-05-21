@@ -133,6 +133,17 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
     }
   }
 
+  public async openLoginModal(data: LoginModalData) {
+    return (
+      (await sendAsync<boolean>(this.packageName, 'open-login-modal', { packageName: this.packageName, ...data })) ??
+      false
+    )
+  }
+
+  public async closeLoginModal() {
+    return await sendAsync<void>(this.packageName, 'close-login-modal')
+  }
+
   public on<T extends ExtraExtensionEventTypes>(
     eventName: T,
     callback: (...args: ExtraExtensionEventData<T>) => Promise<ExtraExtensionEventReturnType<T>>
