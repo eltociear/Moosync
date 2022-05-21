@@ -30,7 +30,7 @@ export class StoreChannel implements IpcChannelInterface {
   }
 
   private async setKeytar(event: Electron.IpcMainEvent, request: IpcRequest<StoreRequests.Set>) {
-    if (request.params.token && request.params.service) {
+    if (request.params.service) {
       await this.setSecure(request.params.service, request.params.token)
     }
     event.reply(request.responseChannel)
@@ -39,8 +39,12 @@ export class StoreChannel implements IpcChannelInterface {
   public async setSecure(service: string, token: string) {
     try {
       if (safeStorage.isEncryptionAvailable()) {
-        const encrypted = safeStorage.encryptString(token)
-        saveSelectivePreference(`secure.${service}`, encrypted.toString('base64'))
+        if (token) {
+          const encrypted = safeStorage.encryptString(token)
+          saveSelectivePreference(`secure.${service}`, encrypted.toString('base64'))
+        } else {
+          removeSelectivePreference(`secure.${service}`)
+        }
       }
     } catch (e) {
       console.error(e)
