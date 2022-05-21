@@ -55,6 +55,7 @@ export default class IconButton extends mixins(ImageLoader) {
   border-radius: 5px
   width: 187px
   height: 40px
+  cursor: pointer
 
 .title-wrapper
   font-weight: bold
