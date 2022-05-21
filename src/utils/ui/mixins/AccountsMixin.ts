@@ -146,23 +146,14 @@ export default class AccountsMixin extends Vue {
       this.getUserDetails(provider)
     })
 
-    const extensionAccounts = await window.ExtensionUtils.getRegisteredAccounts()
-    for (const value of Object.values(extensionAccounts)) {
-      for (const v of value) {
-        if (!this.extraAccounts.find((val) => val.id === v.id)) {
-          if (!v.icon.startsWith('http')) {
-            v.icon = 'media://' + v.icon
-          }
-          this.extraAccounts.push(v)
-        }
-      }
-    }
+    await this.findAccounts()
+    window.ExtensionUtils.listenExtensionsChanged(() => {
+      this.extraAccounts = []
+      this.findAccounts()
+    })
 
-    window.ExtensionUtils.listenAccountRegistered((details) => {
-      if (!details.data.icon.startsWith('http')) {
-        details.data.icon = 'media://' + details.data.icon
-      }
-
+    window.ExtensionUtils.listenAccountRegistered(async (details) => {
+      details.data.icon = await this.getAccountIcon(details.data)
       const existing = this.extraAccounts.findIndex((val) => val.id === details.data.id)
 
       if (existing === -1) {
@@ -171,5 +162,29 @@ export default class AccountsMixin extends Vue {
         this.extraAccounts.splice(existing, 1, details.data)
       }
     })
+  }
+
+  private async findAccounts() {
+    const extensionAccounts = await window.ExtensionUtils.getRegisteredAccounts()
+    for (const value of Object.values(extensionAccounts)) {
+      for (const v of value) {
+        if (!this.extraAccounts.find((val) => val.id === v.id)) {
+          v.icon = await this.getAccountIcon(v)
+          this.extraAccounts.push(v)
+        }
+      }
+    }
+  }
+
+  private async getAccountIcon(account: StrippedAccountDetails) {
+    let icon = account.icon
+    if (icon) {
+      icon = await window.ExtensionUtils.getExtensionIcon(account.packageName)
+    }
+
+    if (!icon.startsWith('http')) {
+      return 'media://' + icon
+    }
+    return icon
   }
 }

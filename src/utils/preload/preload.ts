@@ -518,7 +518,10 @@ contextBridge.exposeInMainWorld('ExtensionUtils', {
     ipcRendererHolder.send<ExtensionHostRequests.AccountLogin>(IpcEvents.EXTENSION_HOST, {
       type: ExtensionHostEvents.PERFORM_ACCOUNT_LOGIN,
       params: { packageName, accountId, login }
-    })
+    }),
+
+  listenExtensionsChanged: (callback: () => void) =>
+    ipcRendererHolder.on(ExtensionHostEvents.ON_EXTENSIONS_CHANGED, callback)
 })
 
 contextBridge.exposeInMainWorld('UpdateUtils', {

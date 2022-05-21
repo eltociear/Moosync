@@ -101,6 +101,7 @@ export class ExtensionHostChannel implements IpcChannelInterface {
     if (request.params.packageName) {
       await this.extensionHost
         .uninstallExtension(request.params.packageName)
+        .then(this.notifyExtensionChangedMainWindow)
         .then(() => event.reply(request.responseChannel))
 
       // Remove all song added by this extension
@@ -227,6 +228,10 @@ export class ExtensionHostChannel implements IpcChannelInterface {
 
   public notifyPreferenceWindow(data: ExtInstallStatus) {
     WindowHandler.getWindow(false)?.webContents.send(ExtensionHostEvents.EXT_INSTALL_STATUS, data)
+  }
+
+  public notifyExtensionChangedMainWindow() {
+    WindowHandler.getWindow(true)?.webContents.send(ExtensionHostEvents.ON_EXTENSIONS_CHANGED)
   }
 
   public setLogLevel(level: LogLevelDesc) {

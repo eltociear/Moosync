@@ -173,7 +173,8 @@ export enum ExtensionHostEvents {
   ON_CONTEXT_MENU_ITEM_CLICKED = 'onContextMenuItemClicked',
   ON_ACCOUNT_REGISTERED = 'onAccountRegistered',
   GET_REGISTERED_ACCOUNTS = 'getRegisteredAccounts',
-  PERFORM_ACCOUNT_LOGIN = 'performAccountLogin'
+  PERFORM_ACCOUNT_LOGIN = 'performAccountLogin',
+  ON_EXTENSIONS_CHANGED = 'onExtensionsChanged'
 }
 
 export enum ServiceProviderEvents {
