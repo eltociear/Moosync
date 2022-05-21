@@ -132,6 +132,20 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
         for await (const items of generator) {
           this.songList.push(...items)
         }
+        return
+      }
+
+      const res = await window.ExtensionUtils.sendEvent({
+        type: 'requestedPlaylistFromURL',
+        data: [url]
+      })
+
+      for (const val of Object.values(res)) {
+        if (val.playlist) {
+          this.playlist = val.playlist
+          this.songList.push(...val.songs)
+          break
+        }
       }
     } else {
       const data = await window.FileUtils.scanSinglePlaylist(url)
@@ -143,8 +157,6 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
         playlist_desc: data.playlist?.playlist_desc,
         playlist_song_count: data.playlist?.playlist_song_count
       }
-
-      console.log(data)
 
       this.songList.push(...data.songs)
     }

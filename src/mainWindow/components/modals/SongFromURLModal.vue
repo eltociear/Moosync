@@ -102,11 +102,25 @@ export default class SongFromUrlModal extends Vue {
       (await vxm.providers.youtubeProvider.getSongDetails(url)) ??
       (await vxm.providers.spotifyProvider.getSongDetails(url)) ??
       (await this.parseStream(url)) ??
+      (await this.parseFromExtension(url)) ??
       null
 
     if (this.parsedSong) {
       this.songTitle = this.parsedSong.title ?? ''
       this.songArtist = this.parsedSong.artists?.join(', ') ?? ''
+    }
+  }
+
+  private async parseFromExtension(url: string): Promise<Song | undefined> {
+    const res = await window.ExtensionUtils.sendEvent({
+      type: 'requestedSongFromURL',
+      data: [url]
+    })
+
+    for (const value of Object.values(res)) {
+      if (value.song) {
+        return value.song
+      }
     }
   }
 
