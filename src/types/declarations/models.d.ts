@@ -7,7 +7,7 @@
  *  See LICENSE in the project root for license information.
  */
 
-interface SearchResult {
+type SearchResult = {
   songs?: Song[]
   albums?: Album[]
   artists?: Artists[]
@@ -15,7 +15,7 @@ interface SearchResult {
   playlists?: Playlist[]
   youtube?: YTMusicVideo[]
   spotify?: Song[]
-}
+} & Record<string, Song[]>
 
 interface marshaledSong {
   _id: string

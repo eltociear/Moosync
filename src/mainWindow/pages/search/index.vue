@@ -11,7 +11,7 @@
   <div class="w-100 h-100 tab-outer-container">
     <b-tabs content-class="mt-3 tab-inner-container" justified class="h-100">
       <div v-for="i in items" :key="i.key">
-        <b-tab lazy v-if="showTab(i.tab)" :title="i.tab" :id="i.tab">
+        <b-tab lazy v-if="showTab(i.tab)" :title="i.title ? i.title : i.tab" :id="i.tab">
           <RecycleScroller
             class="scroller"
             :items="ComputeTabContent(i.tab)"
@@ -66,15 +66,16 @@ import { vxm } from '@/mainWindow/store'
 export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, ImgLoader) {
   private term = ''
   private result: SearchResult = {}
-  private items = [
-    { tab: 'Songs', count: 0, key: 'Songs-0' },
-    { tab: 'Albums', count: 0, key: 'Albums-0' },
-    { tab: 'Artists', count: 0, key: 'Artists-0' },
-    { tab: 'Genres', count: 0, key: 'Genres-0' },
-    { tab: 'Playlists', count: 0, key: 'Playlists-0' },
-    { tab: 'Youtube', count: 0, key: 'Youtube-0', loading: false },
-    { tab: 'Spotify', count: 0, key: 'Spotify-0', loading: false }
-  ]
+  private items: { tab: string; count: number; key: string; loading?: boolean; extension?: string; title?: string }[] =
+    [
+      { tab: 'Songs', count: 0, key: 'Songs-0' },
+      { tab: 'Albums', count: 0, key: 'Albums-0' },
+      { tab: 'Artists', count: 0, key: 'Artists-0' },
+      { tab: 'Genres', count: 0, key: 'Genres-0' },
+      { tab: 'Playlists', count: 0, key: 'Playlists-0' },
+      { tab: 'Youtube', count: 0, key: 'Youtube-0', loading: false },
+      { tab: 'Spotify', count: 0, key: 'Spotify-0', loading: false }
+    ]
 
   private loadedMore: { [key: string]: boolean } = { artists: false }
 
@@ -125,6 +126,22 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         })
       }
     }
+
+    window.ExtensionUtils.sendEvent({ type: 'requestSearchResult', data: [this.term] }).then((data) => {
+      for (const [key, val] of Object.entries(data)) {
+        this.items.push({
+          tab: key,
+          title: val.providerName,
+          count: 0,
+          key: `${key}-0`,
+          loading: true,
+          extension: key
+        })
+
+        this.result[key] = val.songs
+        this.refreshExtension(key)
+      }
+    })
   }
 
   private refreshLocal() {
@@ -139,6 +156,13 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
 
   private refreshSpotify() {
     this.items[6].key = 'Spotify' + this.items[6].count++
+  }
+
+  private refreshExtension(packageName: string) {
+    const item = this.items.find((val) => val.extension === packageName)
+    if (item) {
+      item.key = `${packageName}-${item.count++}`
+    }
   }
 
   private getLoadMore(tab: string) {
@@ -172,6 +196,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
       case 'Songs':
       case 'Youtube':
       case 'Spotify':
+      default:
         return '_id'
       case 'Albums':
         return 'album_id'
@@ -201,6 +226,8 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
           return this.result.youtube ?? []
         case 'Spotify':
           return this.result.spotify ?? []
+        default:
+          return this.result[tab] ?? []
       }
     }
     return []
@@ -212,6 +239,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Spotify':
         case 'Youtube':
         case 'Songs':
+        default:
           return (item as Song).title
         case 'Albums':
           return (item as Album).album_name
@@ -232,6 +260,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Spotify':
         case 'Youtube':
         case 'Songs':
+        default:
           return (item as Song).artists?.map((val) => val.artist_name).join(', ')
         case 'Albums':
           return `${(item as Album).album_song_count} Songs`
@@ -252,6 +281,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Spotify':
         case 'Youtube':
         case 'Songs':
+        default:
           return this.getValidImageLow(item as Song) ?? this.getValidImageHigh(item as Song)
         case 'Albums':
           return (item as Album).album_coverPath_low ?? (item as Album).album_coverPath_high
@@ -271,6 +301,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
       case 'Songs':
       case 'Spotify':
       case 'Youtube':
+      default:
         // TODO: Redirect to a seperate page with song details
         return
       case 'Albums':
@@ -293,6 +324,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
       case 'Songs':
       case 'Spotify':
       case 'Youtube':
+      default:
         this.playTop([item as Song])
         return
       case 'Albums':
@@ -315,10 +347,16 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
       case 'Youtube':
       case 'Songs':
       case 'Spotify':
+      default:
         this.getContextMenu(event, {
           type: 'SONGS',
-          args: { songs: [item as Song], isRemote: tab === 'Youtube' || tab === 'Spotify' }
+          args: { songs: [item as Song], isRemote: tab !== 'Songs' }
         })
+        break
+      case 'Albums':
+      case 'Artists':
+      case 'Genres':
+      case 'Playlists':
         break
     }
   }
