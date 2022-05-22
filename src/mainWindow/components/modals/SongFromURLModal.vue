@@ -13,16 +13,8 @@
       <b-container fluid class="p-0">
         <b-row no-gutters class="d-flex">
           <b-col cols="auto">
-            <SongDefault
-              v-if="forceEmptyImg || !parsedSong || !parsedSong.song_coverPath_high"
-              class="song-url-cover"
-            />
-            <b-img
-              v-else
-              class="song-url-cover"
-              :src="parsedSong.song_coverPath_high"
-              @error="handleImageError"
-            ></b-img>
+            <SongDefault v-if="forceEmptyImg || !parsedSong || !getValidImageHigh(parsedSong)" class="song-url-cover" />
+            <b-img v-else class="song-url-cover" :src="getValidImageHigh(parsedSong)" @error="handleImageError"></b-img>
           </b-col>
           <b-col cols="9">
             <b-row no-gutters class="song-url-details">
@@ -63,13 +55,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop } from 'vue-property-decorator'
 import SongDefault from '@/icons/SongDefaultIcon.vue'
 import InputGroup from '../generic/InputGroup.vue'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
 import { vxm } from '@/mainWindow/store'
 import { v4 } from 'uuid'
+import { mixins } from 'vue-class-component'
+import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 
 @Component({
   components: {
@@ -77,7 +71,7 @@ import { v4 } from 'uuid'
     InputGroup
   }
 })
-export default class SongFromUrlModal extends Vue {
+export default class SongFromUrlModal extends mixins(ImgLoader) {
   @Prop({ default: 'SongFromURL' })
   private id!: string
 
@@ -101,13 +95,13 @@ export default class SongFromUrlModal extends Vue {
     this.parsedSong =
       (await vxm.providers.youtubeProvider.getSongDetails(url)) ??
       (await vxm.providers.spotifyProvider.getSongDetails(url)) ??
-      (await this.parseStream(url)) ??
       (await this.parseFromExtension(url)) ??
+      (await this.parseStream(url)) ??
       null
 
     if (this.parsedSong) {
       this.songTitle = this.parsedSong.title ?? ''
-      this.songArtist = this.parsedSong.artists?.join(', ') ?? ''
+      this.songArtist = this.parsedSong.artists?.map((val) => val.artist_name).join(', ') ?? ''
     }
   }
 
@@ -117,9 +111,15 @@ export default class SongFromUrlModal extends Vue {
       data: [url]
     })
 
-    for (const value of Object.values(res)) {
-      if (value.song) {
-        return value.song
+    for (const [key, value] of Object.entries(res)) {
+      if (value) {
+        if (value.song) {
+          console.log(value.song)
+          return {
+            ...value.song,
+            providerExtension: key
+          }
+        }
       }
     }
   }

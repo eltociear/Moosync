@@ -141,10 +141,12 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
       })
 
       for (const val of Object.values(res)) {
-        if (val.playlist) {
-          this.playlist = val.playlist
-          this.songList.push(...val.songs)
-          break
+        if (val) {
+          if (val.playlist) {
+            this.playlist = val.playlist
+            this.songList.push(...val.songs)
+            break
+          }
         }
       }
     } else {

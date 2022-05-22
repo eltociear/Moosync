@@ -15,7 +15,8 @@ type SearchResult = {
   playlists?: Playlist[]
   youtube?: YTMusicVideo[]
   spotify?: Song[]
-} & Record<string, Song[]>
+  extension?: Record<string, Song[]>
+}
 
 interface marshaledSong {
   _id: string

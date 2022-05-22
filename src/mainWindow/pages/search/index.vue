@@ -11,7 +11,7 @@
   <div class="w-100 h-100 tab-outer-container">
     <b-tabs content-class="mt-3 tab-inner-container" justified class="h-100">
       <div v-for="i in items" :key="i.key">
-        <b-tab lazy v-if="showTab(i.tab)" :title="i.title ? i.title : i.tab" :id="i.tab">
+        <b-tab lazy v-if="showTab(i.tab)" :title="i.title ? i.title : i.tab" :id="i.key" :key="i.key">
           <RecycleScroller
             class="scroller"
             :items="ComputeTabContent(i.tab)"
@@ -87,7 +87,6 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
   }
 
   private async fetchData() {
-    console.log(this.term)
     window.SearchUtils.searchAll(`%${this.term}%`).then((data) => {
       this.result = {
         ...this.result,
@@ -129,17 +128,25 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
 
     window.ExtensionUtils.sendEvent({ type: 'requestSearchResult', data: [this.term] }).then((data) => {
       for (const [key, val] of Object.entries(data)) {
-        this.items.push({
-          tab: key,
-          title: val.providerName,
-          count: 0,
-          key: `${key}-0`,
-          loading: true,
-          extension: key
-        })
+        if (val) {
+          if (!this.items.find((val) => val.tab === key)) {
+            this.items.push({
+              tab: key,
+              title: val.providerName,
+              count: 0,
+              key: `${key}-0`,
+              loading: true,
+              extension: key
+            })
+          }
 
-        this.result[key] = val.songs
-        this.refreshExtension(key)
+          if (!this.result.extension) {
+            this.result.extension = {}
+          }
+
+          this.result.extension[key] = val.songs
+          this.refreshExtension(key)
+        }
       }
     })
   }
@@ -227,7 +234,7 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
         case 'Spotify':
           return this.result.spotify ?? []
         default:
-          return this.result[tab] ?? []
+          return (this.result.extension && this.result.extension[tab]) ?? []
       }
     }
     return []

@@ -341,12 +341,12 @@ type CustomRequestReturnType = {
 
 type GetSongReturnType = {
   song: Song
-}
+} | void
 
 type GetPlaylistAndSongsReturnType = {
   playlist: Playlist
   songs: Song[]
-}
+} | void
 
 type GetSearchReturnType = {
   providerName: string
