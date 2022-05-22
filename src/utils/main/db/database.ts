@@ -803,7 +803,7 @@ export class SongDBInstance extends DBUtils {
     const id = `${extension ? extension + ':' : ''}${playlist.playlist_id ?? v4()}`
     this.db.insert('playlists', {
       ...playlist,
-      playlist_name: 'New Playlist',
+      playlist_name: playlist.playlist_name ?? 'New Playlist',
       playlist_id: id,
       playlist_song_count: playlist.playlist_song_count ?? 0
     })
