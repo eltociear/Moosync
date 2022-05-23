@@ -144,7 +144,11 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
             this.result.extension = {}
           }
 
-          this.result.extension[key] = val.songs
+          this.result.extension[key] = val.songs.map((val) => ({
+            ...val,
+            _id: `${key}:${val._id}`,
+            providerExtension: key
+          }))
           this.refreshExtension(key)
         }
       }
