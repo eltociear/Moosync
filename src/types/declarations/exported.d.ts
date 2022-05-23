@@ -354,7 +354,9 @@ type GetSearchReturnType = {
 }
 
 type ExtraExtensionEventData<T extends ExtraExtensionEventTypes> = T extends 'requestedPlaylistSongs'
-  ? [playlistID: string]
+  ? [playlistID: string, invalidateCache: boolean]
+  : T extends 'requestedPlaylists'
+  ? [invalidateCache: boolean]
   : T extends 'oauthCallback'
   ? [url: string]
   : T extends 'songQueueChanged'
