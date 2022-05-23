@@ -148,14 +148,15 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
       return
     }
 
-    if (this.playlist?.extension) {
+    const extension = this.playlist?.extension
+    const playlistId = this.playlist?.playlist_id
+    if (extension && playlistId) {
       const data = await window.ExtensionUtils.sendEvent({
         type: 'requestedPlaylistSongs',
-        data: [this.playlist.playlist_id],
-        packageName: this.playlist.extension
+        data: [playlistId],
+        packageName: extension
       })
-
-      this.songList.push(...(data[this.playlist.extension]?.songs ?? []))
+      this.songList.push(...data[extension].songs.map((val) => ({ ...val, providerExtension: extension })))
     }
   }
 
