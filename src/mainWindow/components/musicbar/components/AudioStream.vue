@@ -519,10 +519,12 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       vxm.player.loading = false
     } else if (PlayerTypes) {
       console.debug('PlaybackUrl for song', song._id, 'is', song.playbackUrl)
-
       console.debug('Loaded song at', song.playbackUrl)
+
       this.activePlayer.load(song.playbackUrl, this.volume, vxm.player.playAfterLoad || this.playerState !== 'PAUSED')
     }
+
+    vxm.player.playAfterLoad = false
 
     if (this.handleBroadcasterAudioLoad()) return
 
