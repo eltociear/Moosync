@@ -149,6 +149,17 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
     this.scrollToActive()
   }
 
+  private async getLyricsFromExtension() {
+    if (this.currentSong) {
+      const resp = await window.ExtensionUtils.sendEvent({
+        type: 'requestedLyrics',
+        data: [this.currentSong]
+      })
+
+      return Object.values(resp).find((val) => !!val)
+    }
+  }
+
   @Watch('currentSong', { immediate: true })
   async onSongChange() {
     this.lyrics = ''
@@ -157,10 +168,13 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
         this.lyrics = this.currentSong.lyrics
       } else {
         this.lyrics = 'Searching Lyrics...'
-        const resp = await window.SearchUtils.searchLyrics(
-          this.currentSong.artists?.map((val) => val.artist_name ?? '') ?? [],
-          this.currentSong.title
-        )
+        const resp =
+          (await this.getLyricsFromExtension()) ??
+          (await window.SearchUtils.searchLyrics(
+            this.currentSong.artists?.map((val) => val.artist_name ?? '') ?? [],
+            this.currentSong.title
+          ))
+
         this.currentSong.lyrics = resp
         this.lyrics = resp || 'No lyrics found...'
         window.DBUtils.updateLyrics(this.currentSong._id, resp)
