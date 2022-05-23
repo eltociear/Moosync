@@ -275,9 +275,6 @@ class ExtensionRequestHandler {
     message.type && console.debug('Received message from extension', message.extensionName, message.type)
     const resp: extensionReplyMessage = { ...message, data: undefined }
     if (message.type === 'get-songs') {
-      if (message.data && message.data.song && !!message.data.song?.extension) {
-        message.data['song']['extension'] = message.extensionName
-      }
       const songs = SongDB.getSongByOptions(message.data)
       resp.data = songs
     }
