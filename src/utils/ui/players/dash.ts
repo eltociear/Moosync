@@ -27,6 +27,7 @@ export class DashPlayer extends Player {
       this.playerInstance.initialize(this.htmlElement, src, autoplay)
       this.isAttachedView = true
       if (volume) this.volume = volume
+      if (autoplay) this.playerInstance.play()
     } else {
       this.stop()
     }
@@ -75,7 +76,7 @@ export class DashPlayer extends Player {
   }
 
   protected listenOnError(callback: (err: Error) => void): void {
-    this.playerInstance.on('error', (e) => callback(new Error(e.error.toString())))
+    this.playerInstance.on('error', (e) => callback(new Error(JSON.stringify(e.error))))
     this.playerInstance.on('playbackError', (e) => callback(new Error(e.error.toString())))
   }
 
@@ -88,7 +89,7 @@ export class DashPlayer extends Player {
 
     this.playerInstance.on('playbackStarted', play)
     this.playerInstance.on('playbackPaused', pause)
-    this.playerInstance.on('ended', stop)
+    this.playerInstance.on('playbackEnded', stop)
 
     this.listeners['playbackStarted'] = play
     this.listeners['playbackPaused'] = pause
