@@ -32,6 +32,18 @@ export class SongDBInstance extends DBUtils {
     return !!(song._id && song.title && song.date_added && song.duration && song.type)
   }
 
+  private getSongId(oldId: string, providerExtension?: string) {
+    if (providerExtension) {
+      if (oldId.startsWith(`${providerExtension}:`)) {
+        return oldId
+      } else {
+        return `${providerExtension}:${oldId}`
+      }
+    }
+
+    return oldId
+  }
+
   public store(newDoc: Partial<Song>): boolean {
     if (this.verifySong(newDoc)) {
       const existing = this.getSongByOptions({ song: { _id: newDoc._id } })[0]
@@ -43,7 +55,7 @@ export class SongDBInstance extends DBUtils {
       const albumID = newDoc.album ? this.storeAlbum(newDoc.album) : ''
       const genreID = newDoc.genre ? this.storeGenre(...newDoc.genre) : []
 
-      newDoc._id = `${newDoc.providerExtension ? newDoc.providerExtension + ':' : ''}${newDoc._id ?? v4()}`
+      newDoc._id = this.getSongId(newDoc._id ?? v4(), newDoc.providerExtension)
       const marshaledSong = this.marshalSong(newDoc)
 
       this.db.insert('allsongs', marshaledSong)
