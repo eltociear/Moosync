@@ -23,6 +23,18 @@
           </b-row>
         </b-col>
       </b-row>
+      <b-row v-for="e of extensionResults" :key="e.packageName">
+        <b-col v-if="e.songs.length > 0">
+          <b-row class="mt-3">
+            <b-col class="provider-title">Hot from {{ e.providerName }}</b-col>
+          </b-row>
+          <b-row class="slider-row">
+            <b-col>
+              <CardCarousel :songList="e.songs" />
+            </b-col>
+          </b-row>
+        </b-col>
+      </b-row>
     </b-container>
   </div>
 </template>
@@ -62,9 +74,24 @@ export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
     }
   }
 
+  private extensionResults: { packageName: string; providerName: string; songs: Song[] }[] = []
+
   mounted() {
     for (const val of Object.values(this.providers)) {
       this.getResults(val.provider.getRecommendations(), val.list)
+    }
+
+    this.getExtensionResults()
+  }
+
+  private async getExtensionResults() {
+    const data = await window.ExtensionUtils.sendEvent({
+      type: 'requestedRecommendations',
+      data: []
+    })
+
+    for (const [key, value] of Object.entries(data)) {
+      this.extensionResults.push({ ...value, packageName: key })
     }
   }
 

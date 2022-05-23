@@ -320,6 +320,7 @@ type ExtraExtensionEventTypes =
   | 'requestedSongFromURL'
   | 'requestedPlaylistFromURL'
   | 'requestSearchResult'
+  | 'requestedRecommendations'
 
 type GetPlaylistReturnType = {
   playlists: Playlist[]
@@ -349,6 +350,11 @@ type GetPlaylistAndSongsReturnType = {
 } | void
 
 type GetSearchReturnType = {
+  providerName: string
+  songs: Song[]
+}
+
+type GetRecommendationsReturnType = {
   providerName: string
   songs: Song[]
 }
@@ -397,6 +403,8 @@ type ExtraExtensionEventReturnType<T extends ExtraExtensionEventTypes> = T exten
   ? GetPlaylistAndSongsReturnType
   : T extends 'requestSearchResult'
   ? GetSearchReturnType
+  : T extends 'requestedRecommendations'
+  ? GetRecommendationsReturnType
   : void
 
 type ExtensionContextMenuItem<T extends ContextMenuTypes> = {
