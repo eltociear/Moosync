@@ -31,6 +31,15 @@
 
 You may download the latest release from [Official website](https://moosync.app) or from [GitHub Releases](https://github.com/Moosync/Moosync/releases)
 
+### Windows (Chocolatey)
+
+If you use [Chocolatey](https://community.chocolatey.org/packages/moosync), Moosync at this moment is unlisted on chocolatey but can be installed using 
+```bash
+choco install moosync --version=2.1.0
+```
+
+Otherwise you may download the latest installer from [Releases](https://github.com/Moosync/Moosync/releases)
+
 ### Ubuntu / Debian (3rd party repo)
 
 You can install Moosync through our hosted [APT repo]([/Moosync/ppa](https://github.com/Moosync/ppa))
