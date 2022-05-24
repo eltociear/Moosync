@@ -41,7 +41,7 @@
           </b-col>
         </b-row>
         <b-row v-if="url">
-          <b-col class="not-working-text mt-3" @click="alternative = true"> Browser not opening? </b-col>
+          <b-col class="not-working-text mt-3" @click="alternative = true"> Having trouble? </b-col>
         </b-row>
       </div>
       <div v-if="alternative && url">
@@ -54,7 +54,7 @@
           </b-col>
         </b-row>
         <b-row>
-          <b-col class="mt-4 waiting">Then enter the code shown</b-col>
+          <b-col class="mt-4 waiting">Then enter the code shown after the login process has completed</b-col>
         </b-row>
         <b-row>
           <b-col>
