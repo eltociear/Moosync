@@ -25,7 +25,7 @@ const defaultPreferences: Preferences = {
   thumbnailPath: path.join(app.getPath('appData'), app.getName(), '.thumbnails'),
   artworkPath: path.join(app.getPath('appData'), app.getName(), '.thumbnails'),
   system: [],
-  zoomFactor: '100%',
+  zoomFactor: '100',
   themes: {}
 }
 
@@ -106,7 +106,6 @@ export function removeSelectivePreference(key: string, isExtension = false) {
  */
 export function setInitialPreferences() {
   onPreferenceChanged('system', loadPreferences()?.system)
-
   saveSelectivePreference('logs.0', {
     key: 'debug_logging',
     title: 'Enable debug logging',
