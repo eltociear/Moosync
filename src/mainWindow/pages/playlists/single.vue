@@ -158,8 +158,6 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     const extension = this.playlist?.extension
     const playlistId = this.playlist?.playlist_id
 
-    console.log(extension, playlistId)
-
     if (playlistId && extension) {
       const data = await window.ExtensionUtils.sendEvent({
         type: 'requestedPlaylistSongs',
@@ -174,7 +172,6 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
   }
 
   private async fetchSongListAsync(invalidateCache = false) {
-    console.log(this.playlist, this.isExtension)
     if (this.playlist) {
       if (!this.isRemote) {
         return this.fetchLocalSongList()

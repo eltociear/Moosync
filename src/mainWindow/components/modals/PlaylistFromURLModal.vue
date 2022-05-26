@@ -102,7 +102,6 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
   private playlist: Playlist | null = null
 
   private handleImageError() {
-    console.log('handling error')
     this.forceEmptyImg = true
   }
 

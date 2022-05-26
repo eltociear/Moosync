@@ -133,7 +133,6 @@ export class WindowHandler {
   public registerExtensionProtocol() {
     protocol.registerBufferProtocol('extension', async (request, callback) => {
       const extensionPackageName = new URL(request.url).hostname
-      console.log(extensionPackageName)
       if (extensionPackageName) {
         const extensionHost = getExtensionHostChannel()
         const data = await extensionHost.sendExtraEvent({

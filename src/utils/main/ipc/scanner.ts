@@ -400,7 +400,6 @@ export class ScannerChannel implements IpcChannelInterface {
       ).subscribe(
         (result) => {
           if ((result as ScannedSong).song) {
-            console.log(result)
             songs.push((result as ScannedSong).song)
           }
 
@@ -410,7 +409,8 @@ export class ScannerChannel implements IpcChannelInterface {
               playlist_name: (result as ScannedPlaylist).title,
               playlist_path: (result as ScannedPlaylist).filePath
             }
-            console.log(playlist)
+
+            console.debug('Got playlist', playlist.playlist_name)
           }
         },
         console.error,
