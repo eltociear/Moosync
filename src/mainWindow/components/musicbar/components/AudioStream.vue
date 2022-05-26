@@ -253,6 +253,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       console.error(`${this.currentSong?._id}: ${this.currentSong?.title} unplayable, skipping.`)
       this.removeFromQueue(vxm.player.queueIndex)
       this.nextSong()
+      vxm.player.loading = false
     }
     this.activePlayer.onStateChange = (state) => {
       // Cued event of youtube embed seems to fire only once and is not reliable
