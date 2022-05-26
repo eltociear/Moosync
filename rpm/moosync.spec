@@ -51,7 +51,7 @@ cp -a usr/share/* %{buildroot}%{_datadir}/
 mkdir -p %{buildroot}%{_bindir}/
 ln -sf %{_libdir}/%{name}/moosync %{buildroot}%{_bindir}/moosync
 
-strip -s %{buildroot}%{_libdir}/%{name}/{*.so,swiftshader/*.so}
+strip -s %{buildroot}%{_libdir}/%{name}/{*.so}
 strip -s %{buildroot}%{_libdir}/%{name}/{moosync,chrome-sandbox}
 
 %check
