@@ -106,9 +106,7 @@ export default class Playlists extends mixins(RouterPushes, ContextMenuMixin) {
         for (const p of value.playlists) {
           playlists.push({
             ...p,
-            playlist_id: `${key}:${p.playlist_id}`,
-            icon: (p.icon && 'media://' + p.icon) ?? (icon && 'media://' + icon),
-            extension: key
+            icon: (p.icon && 'media://' + p.icon) ?? (icon && 'media://' + icon)
           })
         }
       }

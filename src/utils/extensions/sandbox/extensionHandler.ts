@@ -12,6 +12,12 @@ import { AbstractExtensionManager, ExtensionManager } from '@/utils/extensions/s
 
 import { getVersion } from '@/utils/common'
 
+type CombinedSongsType =
+  | GetPlaylistSongsReturnType
+  | GetSearchReturnType
+  | GetPlaylistAndSongsReturnType
+  | GetRecommendationsReturnType
+
 export class ExtensionHandler {
   private extensionManager: AbstractExtensionManager
   private extensionFinder: AbstractExtensionFinder
@@ -191,16 +197,38 @@ export class ExtensionHandler {
         if (EventType === 'requestedPlaylists') {
           ;(resp as GetPlaylistReturnType).playlists = (resp as GetPlaylistReturnType).playlists.map((val) => ({
             ...val,
-            playlist_id: `${ext.packageName}:${val.playlist_id}`
+            playlist_id: `${ext.packageName}:${val.playlist_id}`,
+            extension: ext.packageName
           }))
         }
 
-        if (EventType === 'requestedPlaylistSongs') {
-          ;(resp as GetPlaylistSongsReturnType).songs = (resp as GetPlaylistSongsReturnType).songs.map((val) => ({
+        if (EventType === 'requestedPlaylistFromURL') {
+          const playlist: ExtendedPlaylist = (resp as GetPlaylistAndSongsReturnType).playlist
+          playlist.playlist_id = `${ext.packageName}:${playlist.playlist_id}`
+          playlist.extension = ext.packageName
+          ;(resp as GetPlaylistAndSongsReturnType).playlist = playlist
+        }
+
+        if (
+          EventType === 'requestedPlaylistSongs' ||
+          EventType === 'requestSearchResult' ||
+          EventType === 'requestedPlaylistFromURL' ||
+          EventType === 'requestedRecommendations'
+        ) {
+          const songs = (resp as CombinedSongsType).songs
+          songs.map((val) => ({
             ...val,
             _id: `${ext.packageName}:${val._id}`,
             providerExtension: ext.packageName
           }))
+          ;(resp as CombinedSongsType).songs = songs
+        }
+
+        if (EventType === 'requestedSongFromURL') {
+          const song = (resp as GetSongReturnType).song
+          song._id = `${ext.packageName}:${song._id}`
+          song.providerExtension = ext.packageName
+          ;(resp as GetSongReturnType).song = song
         }
       }
 

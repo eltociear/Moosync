@@ -111,15 +111,9 @@ export default class SongFromUrlModal extends mixins(ImgLoader) {
       data: [url]
     })
 
-    for (const [key, value] of Object.entries(res)) {
-      if (value) {
-        if (value.song) {
-          return {
-            ...value.song,
-            _id: `${key}:${value.song._id}`,
-            providerExtension: key
-          }
-        }
+    for (const value of Object.values(res)) {
+      if (value && value.song) {
+        return value.song
       }
     }
   }
