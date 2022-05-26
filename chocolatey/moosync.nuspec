@@ -4,7 +4,7 @@
   <metadata>
     <!-- == PACKAGE SPECIFIC SECTION == -->
     <id>moosync</id>
-    <version>2.1.0</version>
+    <version>3.0.0</version>
     <packageSourceUrl>https://github.com/Moosync/Moosync</packageSourceUrl>
     <owners>Sahil Gupte</owners>
     <!-- ============================== -->
