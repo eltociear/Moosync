@@ -22,6 +22,8 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
 
   private contextMenuMap: ExtendedExtensionContextMenuItems<ContextMenuTypes>[] = []
 
+  private accountsMap: AccountDetails[] = []
+
   constructor(packageName: string) {
     this.packageName = packageName
     this.player = new PlayerControls(this.packageName)
@@ -99,6 +101,49 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
     return sendAsync<void>(this.packageName, 'open-external', url)
   }
 
+  public async registerAccount(
+    name: string,
+    bgColor: string,
+    icon: string,
+    signinCallback: AccountDetails['signinCallback'],
+    signoutCallback: AccountDetails['signoutCallback']
+  ): Promise<string> {
+    const id = `account:${this.packageName}:${this.accountsMap.length}`
+    const final: AccountDetails = {
+      id,
+      packageName: this.packageName,
+      name,
+      bgColor,
+      icon,
+      signinCallback,
+      signoutCallback,
+      loggedIn: false
+    }
+    this.accountsMap.push(final)
+    await sendAsync<void>(this.packageName, 'register-account', final)
+    return id
+  }
+
+  public async changeAccountAuthStatus(id: string, loggedIn: boolean, username?: string) {
+    const item = this.accountsMap.find((val) => val.id === id)
+    if (item) {
+      item.username = username
+      item.loggedIn = loggedIn
+      await sendAsync<void>(this.packageName, 'register-account', item)
+    }
+  }
+
+  public async openLoginModal(data: LoginModalData) {
+    return (
+      (await sendAsync<boolean>(this.packageName, 'open-login-modal', { packageName: this.packageName, ...data })) ??
+      false
+    )
+  }
+
+  public async closeLoginModal() {
+    return await sendAsync<void>(this.packageName, 'close-login-modal')
+  }
+
   public on<T extends ExtraExtensionEventTypes>(
     eventName: T,
     callback: (...args: ExtraExtensionEventData<T>) => Promise<ExtraExtensionEventReturnType<T>>
@@ -161,6 +206,10 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
 
   public _getContextMenuItems(): ExtendedExtensionContextMenuItems<ContextMenuTypes>[] {
     return JSON.parse(JSON.stringify(this.getContextMenuItems()))
+  }
+
+  public _getAccountDetails(): AccountDetails[] {
+    return this.accountsMap
   }
 }
 

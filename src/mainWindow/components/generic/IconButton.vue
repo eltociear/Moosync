@@ -18,7 +18,7 @@
       <div class="icon-wrapper d-flex my-auto">
         <slot name="icon"></slot>
       </div>
-      <div class="title-wrapper flex-grow-1 my-auto">
+      <div class="title-wrapper flex-grow-1 my-auto text-truncate">
         {{ hover && hoverText ? hoverText : title }}
       </div>
     </div>
@@ -55,6 +55,7 @@ export default class IconButton extends mixins(ImageLoader) {
   border-radius: 5px
   width: 187px
   height: 40px
+  cursor: pointer
 
 .title-wrapper
   font-weight: bold
@@ -63,6 +64,7 @@ export default class IconButton extends mixins(ImageLoader) {
   text-align: center
   user-select: none
   margin-right: 25px
+  margin-left: 8px
 
 .icon-wrapper
   width: 26px

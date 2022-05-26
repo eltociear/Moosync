@@ -4,6 +4,13 @@ interface InvidiousSong extends Song {
 
 interface ExtendedPlaylist extends Playlist {
   extension?: string
+  isRemote?: boolean
+}
+
+type StrippedAccountDetails = Omit<Omit<AccountDetails, 'signinCallback'>, 'signoutCallback'>
+
+type ExtendedLoginModalData = LoginModalData & {
+  packageName: string
 }
 
 type Progress = { total: number; current: number }

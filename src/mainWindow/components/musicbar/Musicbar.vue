@@ -35,6 +35,8 @@
                 :title="currentSong ? currentSong.title : '-'"
                 :artists="currentSong ? currentSong.artists : []"
                 :imgSrc="cover"
+                :iconType="iconType"
+                :iconURL="iconURL"
               />
             </b-col>
             <b-col cols="auto" align-self="center" class="no-gutters controls-col">
@@ -69,7 +71,7 @@ import Controls from '@/mainWindow/components/musicbar/components/Controls.vue'
 import Details from '@/mainWindow/components/musicbar/components/Details.vue'
 import ExtraControls from '@/mainWindow/components/musicbar/components/ExtraControls.vue'
 import MusicInfo from '@/mainWindow/components/musicbar/components/MusicInfo.vue'
-import { Component } from 'vue-property-decorator'
+import { Component, Watch } from 'vue-property-decorator'
 import { mixins } from 'vue-class-component'
 import { vxm } from '@/mainWindow/store'
 import { bus } from '@/mainWindow/main'
@@ -91,6 +93,37 @@ export default class MusicBar extends mixins(ImgLoader) {
   private PlayerState: PlayerState = 'PAUSED'
   private sliderPosition = false
   private hasFrame = false
+
+  private iconType = ''
+  private iconURL = ''
+
+  private async getIconType() {
+    this.iconURL = ''
+
+    if (this.currentSong) {
+      if (this.currentSong.icon) {
+        this.iconURL = 'media://' + this.currentSong.icon
+        return 'URL'
+      }
+
+      if (this.currentSong.providerExtension) {
+        const icon = await window.ExtensionUtils.getExtensionIcon(this.currentSong.providerExtension)
+        if (icon) {
+          this.iconURL = 'media://' + icon
+          return 'URL'
+        }
+      }
+
+      return this.currentSong.type
+    }
+
+    return ''
+  }
+
+  @Watch('currentSong')
+  private async onCurrentSongChange() {
+    this.iconType = (await this.getIconType()) ?? ''
+  }
 
   get timestamp() {
     return vxm.player.currentTime
@@ -128,6 +161,7 @@ export default class MusicBar extends mixins(ImgLoader) {
   async mounted() {
     this.hasFrame = await window.WindowUtils.hasFrame()
     bus.$on('onToggleSlider', this.toggleSlider)
+    this.iconType = (await this.getIconType()) ?? ''
   }
 }
 </script>

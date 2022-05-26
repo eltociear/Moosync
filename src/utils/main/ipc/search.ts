@@ -69,8 +69,8 @@ export class SearchChannel implements IpcChannelInterface {
     if (request.params && request.params.title) {
       try {
         const useInvidious =
-          loadSelectivePreference<SystemSettings[]>('system')?.find((val) => val.key === 'use_invidious')?.enabled ??
-          false
+          loadSelectivePreference<SystemSettings[]>('system', false, [])?.find((val) => val.key === 'use_invidious')
+            ?.enabled ?? false
 
         let data
         if (!useInvidious) {

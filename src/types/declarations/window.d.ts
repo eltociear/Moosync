@@ -204,6 +204,7 @@ interface windowUtils {
   openExternal: (url: string) => Promise<void>
   registerOAuthCallback: (path: string) => Promise<string>
   deregisterOAuthCallback: (path: string) => Promise<void>
+  triggerOAuthCallback: (data: string) => Promise<void>
   listenOAuth: (channelID: string, callback: (data: string) => void) => void
   listenArgs: (callback: (args: unknown | undefined) => void) => void
   mainWindowHasMounted: () => Promise<void>
@@ -233,6 +234,7 @@ interface loggerUtils {
  */
 interface notifierUtils {
   registerMainProcessNotifier: (callback: (obj: NotificationObject) => void) => void
+  isLibvipsAvailable: () => Promise<boolean>
 }
 
 /**
@@ -257,6 +259,10 @@ interface extensionUtils {
     packageName: string,
     arg: ExtensionContextMenuHandlerArgs<ContextMenuTypes>
   ) => Promise<void>
+  getRegisteredAccounts: () => Promise<{ [key: string]: StrippedAccountDetails[] }>
+  listenAccountRegistered: (callback: (details: { packageName: string; data: StrippedAccountDetails }) => void) => void
+  performAccountLogin: (packageName: string, accountId: string, login: boolean) => Promise<void>
+  listenExtensionsChanged: (callback: () => void) => void
 }
 
 /**

@@ -98,7 +98,12 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
         }
 
         const url = await this.auth.makeAuthorizationRequest()
-        bus.$emit(EventBus.SHOW_OAUTH_MODAL, 'Youtube', url, '#E62017')
+        bus.$emit(EventBus.SHOW_OAUTH_MODAL, {
+          providerName: 'Youtube',
+          url,
+          providerColor: '#E62017',
+          oauthPath: 'ytoauth2callback'
+        } as LoginModalData)
         window.WindowUtils.openExternal(url)
 
         await once(this.auth.authStateEmitter, AuthStateEmitter.ON_TOKEN_RESPONSE)
@@ -154,8 +159,8 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     }
   }
 
-  private async parsePlaylists(items: YoutubeResponses.UserPlaylists.Item[]): Promise<Playlist[]> {
-    const playlists: Playlist[] = []
+  private async parsePlaylists(items: YoutubeResponses.UserPlaylists.Item[]): Promise<ExtendedPlaylist[]> {
+    const playlists: ExtendedPlaylist[] = []
     if (items.length > 0) {
       for (const p of items) {
         if (p.snippet)

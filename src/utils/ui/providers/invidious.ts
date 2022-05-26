@@ -72,12 +72,12 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
             }
           })
 
-          bus.$emit(
-            EventBus.SHOW_OAUTH_MODAL,
-            'Invidious',
-            AUTH_BASE_URL + '/authorize_token?scopes=:*&callback_url=https://moosync.app/invidious&expire=360000',
-            '#E62017'
-          )
+          bus.$emit(EventBus.SHOW_OAUTH_MODAL, {
+            providerName: 'Invidious',
+            url: AUTH_BASE_URL + '/authorize_token?scopes=:*&callback_url=https://moosync.app/invidious&expire=360000',
+            providerColor: '#E62017',
+            oauthPath: 'invidiousCallback'
+          } as LoginModalData)
 
           window.WindowUtils.openExternal(
             AUTH_BASE_URL + '/authorize_token?scopes=:*&callback_url=https://moosync.app/invidious'
@@ -101,8 +101,8 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
     if (this._token) return 'Anonymous'
   }
 
-  private parsePlaylists(items: InvidiousResponses.UserPlaylists.PlaylistResponse[]): Playlist[] {
-    const playlists: Playlist[] = []
+  private parsePlaylists(items: InvidiousResponses.UserPlaylists.PlaylistResponse[]): ExtendedPlaylist[] {
+    const playlists: ExtendedPlaylist[] = []
     for (const p of items) {
       playlists.push({
         playlist_id: `youtube:${p.playlistId}`,

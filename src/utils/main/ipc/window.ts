@@ -54,6 +54,9 @@ export class BrowserWindowChannel implements IpcChannelInterface {
       case WindowEvents.DEREGISTER_OAUTH_CALLBACK:
         this.deregisterOauth(event, request as IpcRequest<WindowRequests.Path>)
         break
+      case WindowEvents.TRIGGER_OAUTH_CALLBACK:
+        this.triggerOauth(event, request as IpcRequest<WindowRequests.Path>)
+        break
       case WindowEvents.DRAG_FILE:
         this.dragFile(event, request as IpcRequest<WindowRequests.Path>)
         break
@@ -111,7 +114,10 @@ export class BrowserWindowChannel implements IpcChannelInterface {
 
   private openUrl(event: Electron.IpcMainEvent, request: IpcRequest<WindowRequests.URL>) {
     if (request.params.url) {
-      shell.openExternal(request.params.url).then(() => event.reply(request.responseChannel))
+      shell
+        .openExternal(request.params.url)
+        .then(() => event.reply(request.responseChannel))
+        .catch((e) => console.error(e))
       return
     }
     event.reply(request.responseChannel)
@@ -133,6 +139,13 @@ export class BrowserWindowChannel implements IpcChannelInterface {
       channelID = oauthHandler.registerHandler(request.params.path)
     }
     event.reply(request.responseChannel, channelID)
+  }
+
+  private triggerOauth(event: Electron.IpcMainEvent, request: IpcRequest<WindowRequests.Path>) {
+    if (request.params.path) {
+      oauthHandler.handleEvents(request.params.path)
+    }
+    event.reply(request.responseChannel)
   }
 
   private deregisterOauth(event: Electron.IpcMainEvent, request: IpcRequest<WindowRequests.Path>) {

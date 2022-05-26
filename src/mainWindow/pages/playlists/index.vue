@@ -93,21 +93,22 @@ export default class Playlists extends mixins(RouterPushes, ContextMenuMixin) {
     }
   }
 
-  private async fetchPlaylistsFromExtension() {
+  private async fetchPlaylistsFromExtension(invalidateCache: boolean) {
     const playlists: ExtendedPlaylist[] = []
     const data = await window.ExtensionUtils.sendEvent({
       type: 'requestedPlaylists',
-      data: []
+      data: [invalidateCache]
     })
 
     for (const [key, value] of Object.entries(data)) {
-      const icon = await window.ExtensionUtils.getExtensionIcon(key)
-      for (const p of value.playlists) {
-        playlists.push({
-          ...p,
-          icon: (p.icon && 'media://' + p.icon) ?? (icon && 'media://' + icon),
-          extension: key
-        })
+      if (value) {
+        const icon = await window.ExtensionUtils.getExtensionIcon(key)
+        for (const p of value.playlists) {
+          playlists.push({
+            ...p,
+            icon: (p.icon && 'media://' + p.icon) ?? (icon && 'media://' + icon)
+          })
+        }
       }
     }
 
@@ -135,7 +136,7 @@ export default class Playlists extends mixins(RouterPushes, ContextMenuMixin) {
     )
 
     promises.push(
-      this.fetchPlaylistsFromExtension()
+      this.fetchPlaylistsFromExtension(invalidateCache)
         .then((data) => this.allPlaylists.push(...data))
         .then(this.sort)
     )

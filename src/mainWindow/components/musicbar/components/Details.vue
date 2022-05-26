@@ -23,21 +23,54 @@
       <SongDefault v-else class="coverimg" />
     </b-col>
     <b-col class="text-truncate">
-      <div id="musicbar-title" :title="title" class="text song-title w-100 text-truncate" @click="onTitleClick">
-        {{ title }}
-      </div>
-      <div class="d-flex">
-        <div
-          v-for="(artist, index) of artists"
-          :key="index"
-          :title="artist.artist_name"
-          class="text song-subtitle text-truncate"
-          :class="index !== 0 ? 'ml-1' : ''"
-          @click="onSubtitleClick(artist)"
-        >
-          {{ artist.artist_name }}{{ index !== artists.length - 1 ? ',' : '' }}
-        </div>
-      </div>
+      <b-row align-h="start" align-v="center">
+        <b-col cols="auto" class="w-100 d-flex">
+          <div id="musicbar-title" :title="title" class="text song-title text-truncate mr-2" @click="onTitleClick">
+            {{ title }}
+          </div>
+
+          <YoutubeIcon
+            v-if="iconType === 'YOUTUBE'"
+            :color="'#E62017'"
+            :filled="true"
+            :dropShadow="true"
+            class="provider-icon"
+          />
+          <SpotifyIcon
+            v-if="iconType === 'SPOTIFY'"
+            :color="'#1ED760'"
+            :filled="true"
+            :dropShadow="true"
+            class="provider-icon"
+          />
+
+          <inline-svg
+            class="provider-icon"
+            v-if="iconURL && iconType === 'URL' && iconURL.endsWith('svg')"
+            :src="iconURL"
+          />
+          <img
+            v-if="iconURL && iconType === 'URL' && !iconURL.endsWith('svg')"
+            :src="iconURL"
+            alt="provider icon"
+            class="provider-icon"
+          />
+        </b-col>
+      </b-row>
+      <b-row no-gutters>
+        <b-col class="d-flex">
+          <div
+            v-for="(artist, index) of artists"
+            :key="index"
+            :title="artist.artist_name"
+            class="text song-subtitle text-truncate"
+            :class="index !== 0 ? 'ml-1' : ''"
+            @click="onSubtitleClick(artist)"
+          >
+            {{ artist.artist_name }}{{ index !== artists.length - 1 ? ',' : '' }}
+          </div>
+        </b-col>
+      </b-row>
 
       <b-popover
         id="clipboard-popover"
@@ -61,11 +94,15 @@ import ErrorHandler from '@/utils/ui/mixins/errorHandler'
 import Timestamp from '@/mainWindow/components/musicbar/components/Timestamp.vue'
 import FileMixin from '@/utils/ui/mixins/FileMixin'
 import RouterPushes from '@/utils/ui/mixins/RouterPushes'
+import SpotifyIcon from '../../../../icons/SpotifyIcon.vue'
+import YoutubeIcon from '../../../../icons/YoutubeIcon.vue'
 
 @Component({
   components: {
     SongDefault,
-    Timestamp
+    Timestamp,
+    SpotifyIcon,
+    YoutubeIcon
   }
 })
 export default class MusicBar extends mixins(ImageLoader, ErrorHandler, FileMixin, RouterPushes) {
@@ -81,6 +118,12 @@ export default class MusicBar extends mixins(ImageLoader, ErrorHandler, FileMixi
   private showPopover = false
 
   private forceEmptyImg = false
+
+  @Prop({ default: '' })
+  private iconType!: string
+
+  @Prop({ default: '' })
+  private iconURL!: string
 
   private onTitleClick() {
     let str = this.artists.map((val) => val.artist_name).join(', ')

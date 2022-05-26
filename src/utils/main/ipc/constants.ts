@@ -76,6 +76,7 @@ export enum WindowEvents {
   OPEN_URL_EXTERNAL = 'openUrlExternal',
   REGISTER_OAUTH_CALLBACK = 'registerOAuthCallback',
   DEREGISTER_OAUTH_CALLBACK = 'deregisterOAuthCallback',
+  TRIGGER_OAUTH_CALLBACK = 'triggerOauthCallback',
   MAIN_WINDOW_HAS_MOUNTED = 'mainWindowsHasMounted',
 
   DRAG_FILE = 'dragFile',
@@ -154,6 +155,10 @@ export enum LoggerEvents {
   TOGGLE_DEBUG = 'toggleDebug'
 }
 
+export enum NotifierEvents {
+  LIBVIPS_INSTALLED = 'isLibvipsInstalled'
+}
+
 export enum ExtensionHostEvents {
   GET_ALL_EXTENSIONS = 'getAllExtensions',
   INSTALL = 'install',
@@ -165,7 +170,11 @@ export enum ExtensionHostEvents {
   DOWNLOAD_EXTENSION = 'downloadExtension',
   EXT_INSTALL_STATUS = 'extInstallStatus',
   GET_EXT_CONTEXT_MENU = 'getExtContextMenu',
-  ON_CONTEXT_MENU_ITEM_CLICKED = 'onContextMenuItemClicked'
+  ON_CONTEXT_MENU_ITEM_CLICKED = 'onContextMenuItemClicked',
+  ON_ACCOUNT_REGISTERED = 'onAccountRegistered',
+  GET_REGISTERED_ACCOUNTS = 'getRegisteredAccounts',
+  PERFORM_ACCOUNT_LOGIN = 'performAccountLogin',
+  ON_EXTENSIONS_CHANGED = 'onExtensionsChanged'
 }
 
 export enum ServiceProviderEvents {
@@ -192,7 +201,6 @@ export enum EventBus {
   SHOW_ENTITY_INFO_MODAL = 'show-entity-info-modal',
   SHOW_OAUTH_MODAL = 'show-oauth-modal',
   HIDE_OAUTH_MODAL = 'hide-oauth-modal',
-  GOT_OAUTH_CODE = 'got-oauth-code',
   SHOW_FORM_MODAL = 'show-form-modal',
   REFRESH_USERNAMES = 'refresh-usernames',
   REFRESH_PAGE = 'refresh-page'

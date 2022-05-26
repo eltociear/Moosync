@@ -14,6 +14,9 @@ import { sanitizeArtistName } from '../../common'
 
 import { loadPreferences } from './preferences'
 import path from 'path'
+import fs from 'fs'
+import https from 'https'
+import http from 'http'
 
 type KeysOfUnion<T> = T extends T ? keyof T : never
 // AvailableKeys will basically be keyof Foo | keyof Bar
@@ -29,6 +32,18 @@ export class SongDBInstance extends DBUtils {
     return !!(song._id && song.title && song.date_added && song.duration && song.type)
   }
 
+  private getSongId(oldId: string, providerExtension?: string) {
+    if (providerExtension) {
+      if (oldId.startsWith(`${providerExtension}:`)) {
+        return oldId
+      } else {
+        return `${providerExtension}:${oldId}`
+      }
+    }
+
+    return oldId
+  }
+
   public store(newDoc: Partial<Song>): boolean {
     if (this.verifySong(newDoc)) {
       const existing = this.getSongByOptions({ song: { _id: newDoc._id } })[0]
@@ -40,7 +55,7 @@ export class SongDBInstance extends DBUtils {
       const albumID = newDoc.album ? this.storeAlbum(newDoc.album) : ''
       const genreID = newDoc.genre ? this.storeGenre(...newDoc.genre) : []
 
-      newDoc._id = `${newDoc.providerExtension ? newDoc.providerExtension + ':' : ''}${newDoc._id ?? v4()}`
+      newDoc._id = this.getSongId(newDoc._id ?? v4(), newDoc.providerExtension)
       const marshaledSong = this.marshalSong(newDoc)
 
       this.db.insert('allsongs', marshaledSong)
@@ -208,12 +223,37 @@ export class SongDBInstance extends DBUtils {
   private async getCoverPath(oldCoverPath: string, newCoverpath: string, songID: string) {
     if (oldCoverPath !== newCoverpath) {
       if (newCoverpath) {
-        const finalPath = path.join(loadPreferences().thumbnailPath, songID + path.extname(newCoverpath))
+        const finalPath = path.join(loadPreferences().thumbnailPath, songID + (path.extname(newCoverpath) ?? '.png'))
+        if (newCoverpath.startsWith('http')) {
+          await this.downloadFile(newCoverpath, finalPath)
+          return finalPath
+        }
         await fsP.copyFile(newCoverpath, finalPath)
         return finalPath
       }
     }
     return oldCoverPath
+  }
+
+  private downloadFile(url: string, path: string) {
+    return new Promise<void>((resolve) => {
+      const file = fs.createWriteStream(path)
+      const parsedURL = new URL(url)
+      const method = parsedURL.protocol === 'https:' ? https.get : http.get
+      const request = method(url, function (response) {
+        response.pipe(file)
+
+        file.on('finish', () => {
+          console.debug('Downloaded image from', url, 'at', path)
+          file.close()
+          resolve()
+        })
+
+        file.on('error', console.error)
+      })
+
+      request.on('error', console.error)
+    })
   }
 
   public async updateSong(song: Song) {
@@ -532,7 +572,12 @@ export class SongDBInstance extends DBUtils {
           loadPreferences().thumbnailPath,
           album.album_id + path.extname(album.album_coverPath_high)
         )
-        await fsP.copyFile(album.album_coverPath_high, coverPath)
+
+        if (!album.album_coverPath_high.startsWith('http')) {
+          await fsP.copyFile(album.album_coverPath_high, coverPath)
+        } else {
+          await this.downloadFile(album.album_coverPath_high, coverPath)
+        }
         album.album_coverPath_high = coverPath
         album.album_coverPath_low = coverPath
       }
@@ -648,7 +693,12 @@ export class SongDBInstance extends DBUtils {
           loadPreferences().thumbnailPath,
           artist.artist_id + path.extname(artist.artist_coverPath)
         )
-        await fsP.copyFile(artist.artist_coverPath, coverPath)
+
+        if (!artist.artist_coverPath.startsWith('http')) {
+          await fsP.copyFile(artist.artist_coverPath, coverPath)
+        } else {
+          await this.downloadFile(artist.artist_coverPath, coverPath)
+        }
         artist.artist_coverPath = coverPath
       }
 
@@ -765,7 +815,7 @@ export class SongDBInstance extends DBUtils {
     const id = `${extension ? extension + ':' : ''}${playlist.playlist_id ?? v4()}`
     this.db.insert('playlists', {
       ...playlist,
-      playlist_name: 'New Playlist',
+      playlist_name: playlist.playlist_name ?? 'New Playlist',
       playlist_id: id,
       playlist_song_count: playlist.playlist_song_count ?? 0
     })
@@ -788,7 +838,12 @@ export class SongDBInstance extends DBUtils {
           loadPreferences().thumbnailPath,
           playlist.playlist_id + path.extname(playlist.playlist_coverPath)
         )
-        await fsP.copyFile(playlist.playlist_coverPath, coverPath)
+
+        if (!playlist.playlist_coverPath.startsWith('http')) {
+          await fsP.copyFile(playlist.playlist_coverPath, coverPath)
+        } else {
+          await this.downloadFile(playlist.playlist_coverPath, coverPath)
+        }
         playlist.playlist_coverPath = coverPath
       }
 

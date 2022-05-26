@@ -103,7 +103,12 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
         }
 
         const url = await this.auth.makeAuthorizationRequest()
-        bus.$emit(EventBus.SHOW_OAUTH_MODAL, 'Spotify', url, '#1ED760')
+        bus.$emit(EventBus.SHOW_OAUTH_MODAL, {
+          providerName: 'Spotify',
+          url,
+          providerColor: '#1ED760',
+          oauthPath: 'spotifyoauthcallback'
+        } as LoginModalData)
         window.WindowUtils.openExternal(url)
 
         await once(this.auth.authStateEmitter, AuthStateEmitter.ON_TOKEN_RESPONSE)
@@ -173,7 +178,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   private parsePlaylists(items: SpotifyResponses.UserPlaylists.Item[]) {
-    const parsed: Playlist[] = []
+    const parsed: ExtendedPlaylist[] = []
     for (const i of items) {
       parsed.push({
         playlist_id: `spotify-playlist:${i.id}`,
@@ -186,13 +191,13 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     return parsed
   }
 
-  public async getUserPlaylists(invalidateCache = false): Promise<Playlist[]> {
+  public async getUserPlaylists(invalidateCache = false): Promise<ExtendedPlaylist[]> {
     const limit = 20
     let offset = 0
     let hasNext = true
 
     const validRefreshToken = await this.auth?.hasValidRefreshToken()
-    const playlists: Playlist[] = []
+    const playlists: ExtendedPlaylist[] = []
 
     if (this.auth?.loggedIn() || validRefreshToken) {
       playlists.push({

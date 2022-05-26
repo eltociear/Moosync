@@ -8,7 +8,7 @@
  */
 
 import NodeEnvironment from 'jest-environment-node'
-import { Config, Global } from '@jest/types'
+import { Global } from '@jest/types'
 import path from 'path'
 import { SongDBInstance } from '../../src/utils/main/db/database'
 import { tmpdir } from 'os'
@@ -22,10 +22,6 @@ export interface CustomGlobal extends Global.Global {
 
 export default class DatabaseEnvironment extends NodeEnvironment {
   declare global: CustomGlobal
-
-  constructor(config: Config.ProjectConfig) {
-    super(config)
-  }
 
   async setup() {
     await super.setup()

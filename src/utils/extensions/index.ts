@@ -196,6 +196,14 @@ class MainRequestGenerator {
     return this.sendAsync<void>('set-log-level', { level })
   }
 
+  public async getAccounts() {
+    return this.sendAsync<StrippedAccountDetails[]>('get-accounts')
+  }
+
+  public async performAccountLogin(packageName: string, accountId: string, loginStatus: boolean) {
+    return this.sendAsync<void>('perform-account-login', { packageName, accountId, loginStatus })
+  }
+
   public async sendContextMenuItemClicked(
     id: string,
     packageName: string,
@@ -232,7 +240,7 @@ class ExtensionRequestHandler {
     }
   }
 
-  private requestFromMainWindow(message: extensionRequestMessage) {
+  private requestToMainWindow(message: extensionRequestMessage) {
     return new Promise((resolve) => {
       let listener: (event: Electron.IpcMainEvent, data: extensionReplyMessage) => void
       ipcMain.on(
@@ -267,9 +275,6 @@ class ExtensionRequestHandler {
     message.type && console.debug('Received message from extension', message.extensionName, message.type)
     const resp: extensionReplyMessage = { ...message, data: undefined }
     if (message.type === 'get-songs') {
-      if (message.data && message.data.song && !!message.data.song?.extension) {
-        message.data['song']['extension'] = message.extensionName
-      }
       const songs = SongDB.getSongByOptions(message.data)
       resp.data = songs
     }
@@ -335,11 +340,18 @@ class ExtensionRequestHandler {
       await shell.openExternal(message.data)
     }
 
+    if (message.type === 'register-account') {
+      WindowHandler.getWindow(true)?.webContents.send(ExtensionHostEvents.ON_ACCOUNT_REGISTERED, {
+        packageName: message.extensionName,
+        data: message.data
+      })
+    }
+
     if (
       extensionUIRequestsKeys.includes(message.type as typeof extensionUIRequestsKeys[number]) ||
       playerControlRequests.includes(message.type as typeof playerControlRequests[number])
     ) {
-      const data = await this.requestFromMainWindow(message)
+      const data = await this.requestToMainWindow(message)
       resp.data = data
     }
 

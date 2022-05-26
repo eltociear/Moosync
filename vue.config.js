@@ -103,6 +103,9 @@ module.exports = {
         snap: {
           stagePackages: ['default', 'libvips-dev', 'libhogweed5', 'libnettle7', 'libgtk2.0-0', 'libffi7']
         },
+        deb: {
+          depends: ['libnotify4', 'libxtst6', 'libnss3', 'libvips-dev']
+        },
         fileAssociations: [
           {
             ext: 'mp3',

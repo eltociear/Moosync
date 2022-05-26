@@ -12,6 +12,12 @@ import { AbstractExtensionManager, ExtensionManager } from '@/utils/extensions/s
 
 import { getVersion } from '@/utils/common'
 
+type CombinedSongsType =
+  | GetPlaylistSongsReturnType
+  | GetSearchReturnType
+  | GetPlaylistAndSongsReturnType
+  | GetRecommendationsReturnType
+
 export class ExtensionHandler {
   private extensionManager: AbstractExtensionManager
   private extensionFinder: AbstractExtensionFinder
@@ -92,6 +98,26 @@ export class ExtensionHandler {
     }
   }
 
+  public getExtensionAccounts() {
+    const ext = this.extensionManager.getExtensions()
+    const accountMap: { [key: string]: AccountDetails[] } = {}
+    for (const e of ext) {
+      accountMap[e.packageName] = e.global.api._getAccountDetails()
+    }
+
+    return accountMap
+  }
+
+  public async performExtensionAccountLogin(packageName: string, accountId: string, loginStatus: boolean) {
+    const ext = this.extensionManager.getExtensions({ packageName })
+    for (const e of ext) {
+      const account = e.global.api._getAccountDetails().find((val) => val.id === accountId)
+      if (account) {
+        loginStatus ? await account.signinCallback() : await account.signoutCallback()
+      }
+    }
+  }
+
   public sendEvent(event: extensionEventMessage) {
     const method: keyof MoosyncExtensionTemplate = event.type
     if (this.initialized) {
@@ -169,15 +195,40 @@ export class ExtensionHandler {
 
       if (resp) {
         if (EventType === 'requestedPlaylists') {
-          ;(resp as ExtraExtensionEventReturnType<'requestedPlaylists'>).playlists = (
-            resp as ExtraExtensionEventReturnType<'requestedPlaylists'>
-          ).playlists.map((val) => ({ ...val, playlist_id: `${ext.packageName}:${val.playlist_id}` }))
+          ;(resp as GetPlaylistReturnType).playlists = (resp as GetPlaylistReturnType).playlists.map((val) => ({
+            ...val,
+            playlist_id: `${ext.packageName}:${val.playlist_id}`,
+            extension: ext.packageName
+          }))
         }
 
-        if (EventType === 'requestedPlaylistSongs') {
-          ;(resp as ExtraExtensionEventReturnType<'requestedPlaylistSongs'>).songs = (
-            resp as ExtraExtensionEventReturnType<'requestedPlaylistSongs'>
-          ).songs.map((val) => ({ ...val, _id: `${ext.packageName}:${val._id}`, providerExtension: ext.packageName }))
+        if (EventType === 'requestedPlaylistFromURL') {
+          const playlist: ExtendedPlaylist = (resp as GetPlaylistAndSongsReturnType).playlist
+          playlist.playlist_id = `${ext.packageName}:${playlist.playlist_id}`
+          playlist.extension = ext.packageName
+          ;(resp as GetPlaylistAndSongsReturnType).playlist = playlist
+        }
+
+        if (
+          EventType === 'requestedPlaylistSongs' ||
+          EventType === 'requestSearchResult' ||
+          EventType === 'requestedPlaylistFromURL' ||
+          EventType === 'requestedRecommendations'
+        ) {
+          const songs = (resp as CombinedSongsType).songs
+          songs.map((val) => ({
+            ...val,
+            _id: `${ext.packageName}:${val._id}`,
+            providerExtension: ext.packageName
+          }))
+          ;(resp as CombinedSongsType).songs = songs
+        }
+
+        if (EventType === 'requestedSongFromURL') {
+          const song = (resp as GetSongReturnType).song
+          song._id = `${ext.packageName}:${song._id}`
+          song.providerExtension = ext.packageName
+          ;(resp as GetSongReturnType).song = song
         }
       }
 

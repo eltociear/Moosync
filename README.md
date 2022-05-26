@@ -31,12 +31,28 @@
 
 You may download the latest release from [Official website](https://moosync.app) or from [GitHub Releases](https://github.com/Moosync/Moosync/releases)
 
-### Flatpak
+### Windows (Chocolatey)
 
-Moosync can be found on [FlatHub](https://flathub.org/apps/details/app.moosync.moosync) as ```app.moosync.moosync```.
-You may install it by
+If you use [Chocolatey](https://community.chocolatey.org/packages/moosync), Moosync at this moment is unlisted on chocolatey but can be installed using 
 ```bash
-flatpak install flathub app.moosync.moosync
+choco install moosync --version=2.1.0
+```
+
+Otherwise you may download the latest installer from [Releases](https://github.com/Moosync/Moosync/releases)
+
+### Ubuntu / Debian (3rd party repo)
+
+You can install Moosync through our hosted [APT repo]([/Moosync/ppa](https://github.com/Moosync/ppa))
+```bash
+bash <(wget -O- https://raw.githubusercontent.com/Moosync/Moosync/main/setup_ppa.sh)
+```
+
+### Fedora
+
+Moosync can be found on [Fedora COPR](https://copr.fedorainfracloud.org/coprs/ovenoboyo/Moosync/). You can install it using [dnf](https://docs.fedoraproject.org/en-US/quick-docs/dnf/)
+```bash
+dnf copr enable ovenoboyo/Moosync
+dnf install moosync
 ```
 
 ### Archlinux User Repository (AUR)
@@ -47,6 +63,14 @@ Moosync can be found on [AUR](https://aur.archlinux.org/packages/moosync). You c
 yay -S moosync
 ```
 
+### Flatpak
+
+Moosync can be found on [FlatHub](https://flathub.org/apps/details/app.moosync.moosync) as ```app.moosync.moosync```.
+You may install it by
+```bash
+flatpak install flathub app.moosync.moosync
+```
+
 
 ## Any questions?
 
@@ -54,6 +78,18 @@ Checkout the [Official Wiki](https://moosync.app/wiki/) on [moosync.app](https:/
   
 For any further questions you may join us on [Discord](https://discord.gg/HsbqbRune3)
 
+
+## Screenshots
+
+![Song view](./extras/screenshot_song_view.png)
+![Music info](./extras/screenshot_musicinfo_view.png)
+![Lyrics](./extras/screenshot_musicinfo_view_lyrics.png)
+![Albums](./extras/screenshot_albums.png)
+![Playlists](./extras/screenshot_playlists.png)
+![Explore](./extras/Screenshot_explore.png)
+![Themes](./extras/screenshot_themes.png)
+![Create theme](./extras/screenshot_theme_new.png)
+![Extensions](./extras/screenshot_extensions.png)
 
 ## Building from source
 

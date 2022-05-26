@@ -18,7 +18,8 @@ import {
   SongEvents,
   StoreEvents,
   WindowEvents,
-  UpdateEvents
+  UpdateEvents,
+  NotifierEvents
 } from '@/utils/main/ipc/constants'
 import { contextBridge, ipcRenderer } from 'electron'
 
@@ -359,6 +360,12 @@ contextBridge.exposeInMainWorld('WindowUtils', {
       params: { path }
     }),
 
+  triggerOAuthCallback: (path: string) =>
+    ipcRendererHolder.send<WindowRequests.Path>(IpcEvents.BROWSER_WINDOWS, {
+      type: WindowEvents.TRIGGER_OAUTH_CALLBACK,
+      params: { path }
+    }),
+
   listenOAuth: (channelID: string, callback: (data: URL) => void) => ipcRendererHolder.once(channelID, callback),
 
   listenArgs: (callback: (args: unknown) => void) => ipcRendererHolder.once(WindowEvents.GOT_EXTRA_ARGS, callback),
@@ -429,7 +436,10 @@ contextBridge.exposeInMainWorld('LoggerUtils', {
 
 contextBridge.exposeInMainWorld('NotifierUtils', {
   registerMainProcessNotifier: (callback: (obj: NotificationObject) => void) =>
-    ipcRendererHolder.on(IpcEvents.NOTIFIER, callback)
+    ipcRendererHolder.on(IpcEvents.NOTIFIER, callback),
+
+  isLibvipsAvailable: () =>
+    ipcRendererHolder.send(IpcEvents.NOTIFIER, { type: NotifierEvents.LIBVIPS_INSTALLED, params: undefined })
 })
 
 contextBridge.exposeInMainWorld('ExtensionUtils', {
@@ -492,7 +502,26 @@ contextBridge.exposeInMainWorld('ExtensionUtils', {
     }),
 
   listenExtInstallStatus: (callback: (data: ExtInstallStatus) => void) =>
-    ipcRendererHolder.on(ExtensionHostEvents.EXT_INSTALL_STATUS, callback)
+    ipcRendererHolder.on(ExtensionHostEvents.EXT_INSTALL_STATUS, callback),
+
+  getRegisteredAccounts: () =>
+    ipcRendererHolder.send(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.GET_REGISTERED_ACCOUNTS,
+      params: undefined
+    }),
+
+  listenAccountRegistered: (callback: (details: AccountDetails) => void) => {
+    ipcRendererHolder.on(ExtensionHostEvents.ON_ACCOUNT_REGISTERED, callback)
+  },
+
+  performAccountLogin: (packageName: string, accountId: string, login: boolean) =>
+    ipcRendererHolder.send<ExtensionHostRequests.AccountLogin>(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.PERFORM_ACCOUNT_LOGIN,
+      params: { packageName, accountId, login }
+    }),
+
+  listenExtensionsChanged: (callback: () => void) =>
+    ipcRendererHolder.on(ExtensionHostEvents.ON_EXTENSIONS_CHANGED, callback)
 })
 
 contextBridge.exposeInMainWorld('UpdateUtils', {

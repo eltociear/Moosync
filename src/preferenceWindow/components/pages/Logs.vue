@@ -74,13 +74,6 @@
             </b-row>
           </b-col>
         </b-row>
-
-        <!-- <b-dropdown :text="processFilter" variant="success" class="m-2">
-          <b-dropdown-item v-for="process in processFilters" :key="process" @click="processFilterChange(process)">{{
-            process
-          }}</b-dropdown-item>
-        </b-dropdown>
-        <b-input class="align-self-center search-field" debounce="300" v-model="searchFilter"></b-input> -->
       </b-container>
       <div class="log-content w-100" no-gutters>
         <b-table
@@ -344,6 +337,19 @@ td
   color: var(--textPrimary) !important
   &:hover
     background-color: var(--primary)
+
+.page-link
+  background-color: var(--primary) !important
+  color: var(--textPrimary) !important
+  border-color: var(--secondary)
+  &:hover
+    border-color: var(--primary)
+
+.page-item.active .page-link
+  border-color: var(--textPrimary)
+
+.page-item.disabled .page-link
+  border-color: var(--secondary)
 </style>
 
 <style lang="sass" scoped>

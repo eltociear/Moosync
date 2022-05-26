@@ -117,7 +117,8 @@ export class WindowHandler {
     app.exit()
   }
 
-  public registerProtocol(protocolName: string) {
+  public registerMediaProtocol() {
+    const protocolName = 'media'
     protocol.registerFileProtocol(protocolName, (request, callback) => {
       const url = request.url.replace(`${protocolName}://`, '')
       try {
@@ -126,6 +127,29 @@ export class WindowHandler {
         console.error(error)
         app.quit()
       }
+    })
+  }
+
+  public registerExtensionProtocol() {
+    protocol.registerBufferProtocol('extension', async (request, callback) => {
+      const extensionPackageName = new URL(request.url).hostname
+      if (extensionPackageName) {
+        const extensionHost = getExtensionHostChannel()
+        const data = await extensionHost.sendExtraEvent({
+          type: 'customRequest',
+          data: [request.url],
+          packageName: extensionPackageName
+        })
+
+        if (data[extensionPackageName]) {
+          callback({
+            mimeType: (data[extensionPackageName] as CustomRequestReturnType).mimeType,
+            data: Buffer.from((data[extensionPackageName] as CustomRequestReturnType).data)
+          })
+          return
+        }
+      }
+      callback({ data: Buffer.from('') })
     })
   }
 
@@ -420,10 +444,12 @@ class TrayHandler {
   }
 
   public destroy() {
-    console.debug('Destroying tray icon')
-    this._tray && this._tray.destroy()
-    console.debug('Tray destroy status:', this._tray?.isDestroyed())
-    this._tray = null
+    if (this._tray) {
+      console.debug('Destroying tray icon')
+      this._tray.destroy()
+      console.debug('Tray destroy status:', this._tray.isDestroyed())
+      this._tray = null
+    }
   }
 }
 

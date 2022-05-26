@@ -20,6 +20,7 @@ import { StoreChannel } from './store'
 import { WindowHandler } from '../windowManager'
 import { ipcMain } from 'electron'
 import { UpdateChannel } from './update'
+import { NotifierChannel } from './notifier'
 
 let scannerChannel: ScannerChannel | undefined
 let updateChannel: UpdateChannel | undefined
@@ -38,7 +39,8 @@ export function registerIpcChannels() {
     getStoreChannel(),
     new LoggerChannel(),
     getExtensionHostChannel(),
-    getUpdateChannel()
+    getUpdateChannel(),
+    new NotifierChannel()
   ]
   ipcChannels.forEach((channel) => ipcMain.on(channel.name, (event, request) => channel.handle(event, request)))
 }

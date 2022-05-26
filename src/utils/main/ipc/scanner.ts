@@ -140,23 +140,6 @@ export class ScannerChannel implements IpcChannelInterface {
     }
   }
 
-  private async storeArtwork(id: string, cover: TransferDescriptor<Buffer> | undefined) {
-    if (cover) {
-      const artworkPath = loadPreferences().artworkPath
-      try {
-        await access(artworkPath)
-      } catch (e) {
-        await mkdir(artworkPath, { recursive: true })
-      }
-
-      try {
-        return writeBuffer(cover.send, artworkPath, id, true)
-      } catch (e) {
-        console.error('Error writing cover', e)
-      }
-    }
-  }
-
   private storePlaylist(playlist: ScannedPlaylist) {
     const existing = SongDB.getPlaylistByPath(playlist.filePath)[0]
     const songs: Song[] = []
@@ -238,11 +221,11 @@ export class ScannerChannel implements IpcChannelInterface {
     })
   }
 
-  private async updateArtwork(artist: Artists, cover: TransferDescriptor<Buffer> | undefined) {
+  private async updateArtwork(artist: Artists, cover: string | undefined) {
     const ret: Artists = artist
     notifyRenderer({ id: 'artwork-status', message: `Found artwork for ${artist.artist_name}`, type: 'info' })
     if (cover) {
-      ret.artist_coverPath = (await this.storeArtwork(artist.artist_id, cover))?.high
+      ret.artist_coverPath = cover
     } else {
       console.debug('Getting default cover for', artist.artist_name)
       ret.artist_coverPath = await SongDB.getDefaultCoverByArtist(artist.artist_id)
@@ -254,8 +237,7 @@ export class ScannerChannel implements IpcChannelInterface {
   private async fetchArtworks(allArtists: Artists[]) {
     return new Promise((resolve) => {
       this.scraperWorker.fetchArtworks(allArtists, loggerPath).subscribe(
-        (result: { artist: Artists; cover: TransferDescriptor<Buffer> }) =>
-          this.updateArtwork(result.artist, result.cover),
+        (result: { artist: Artists; cover: string | undefined }) => this.updateArtwork(result.artist, result.cover),
         console.error,
         () => resolve(undefined)
       )
@@ -418,7 +400,6 @@ export class ScannerChannel implements IpcChannelInterface {
       ).subscribe(
         (result) => {
           if ((result as ScannedSong).song) {
-            console.log(result)
             songs.push((result as ScannedSong).song)
           }
 
@@ -428,7 +409,8 @@ export class ScannerChannel implements IpcChannelInterface {
               playlist_name: (result as ScannedPlaylist).title,
               playlist_path: (result as ScannedPlaylist).filePath
             }
-            console.log(playlist)
+
+            console.debug('Got playlist', playlist.playlist_name)
           }
         },
         console.error,

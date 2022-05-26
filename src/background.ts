@@ -134,7 +134,8 @@ async function onReady() {
   setInitialPreferences()
 
   await _windowHandler.installExtensions()
-  _windowHandler.registerProtocol('media')
+  _windowHandler.registerMediaProtocol()
+  _windowHandler.registerExtensionProtocol()
   createProtocol('moosync')
 
   interceptHttp()
@@ -155,8 +156,11 @@ async function onReady() {
 
 function registerProtocols() {
   // Scheme must be registered before the app is ready
-  protocol.registerSchemesAsPrivileged([{ scheme: 'moosync', privileges: { secure: true, standard: true } }])
-  protocol.registerSchemesAsPrivileged([{ scheme: 'media', privileges: { corsEnabled: true, supportFetchAPI: true } }])
+  protocol.registerSchemesAsPrivileged([
+    { scheme: 'moosync', privileges: { secure: true, standard: true } },
+    { scheme: 'media', privileges: { corsEnabled: true, supportFetchAPI: true } },
+    { scheme: 'extension', privileges: { supportFetchAPI: true } }
+  ])
 }
 
 if (process.platform === 'win32') {
@@ -195,7 +199,7 @@ if (process.defaultApp) {
  * @returns array of string which start with app protocol
  */
 function findOAuthArg(argv: string[]) {
-  return argv.find((arg) => arg.startsWith('moosync'))
+  return argv?.find((arg) => arg.startsWith('moosync'))
 }
 
 function handleSecondInstance(_: Event, argv: string[]) {

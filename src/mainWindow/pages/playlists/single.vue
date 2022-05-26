@@ -88,8 +88,6 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     this.fetchPlaylist()
 
     this.songList = []
-    if (!this.isYoutube && !this.isSpotify) await this.fetchLocalSongList()
-
     await this.fetchSongListAsync(invalidateCache)
   }
 
@@ -108,7 +106,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     })
   }
 
-  private async fetchPlaylist() {
+  private fetchPlaylist() {
     this.playlist = {
       playlist_id: this.$route.query.playlist_id as string,
       playlist_name: this.$route.query.playlist_name as string,
@@ -120,42 +118,71 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
   }
 
   private async fetchLocalSongList() {
-    this.songList = await window.SearchUtils.searchSongsByOptions({
-      playlist: {
-        playlist_id: this.$route.query.id as string
-      },
-      sortBy: vxm.themes.songSortBy
-    })
+    if (this.playlist) {
+      this.songList = await window.SearchUtils.searchSongsByOptions({
+        playlist: {
+          playlist_id: this.playlist.playlist_id as string
+        },
+        sortBy: vxm.themes.songSortBy
+      })
+    }
   }
 
-  private async fetchSongListAsync(invalidateCache = false) {
-    let generator
-    if (this.isYoutube)
-      generator = vxm.providers.youtubeProvider.getPlaylistContent(
-        (this.$route.query.id as string)?.replace('youtube-playlist:', ''),
-        invalidateCache
-      )
-    else if (this.isSpotify)
-      generator = vxm.providers.spotifyProvider.getPlaylistContent(
-        (this.$route.query.id as string)?.replace('spotify-playlist:', ''),
-        invalidateCache
-      )
+  private async fetchYoutube(invalidateCache = false) {
+    const generator = vxm.providers.youtubeProvider.getPlaylistContent(
+      (this.$route.query.id as string)?.replace('youtube-playlist:', ''),
+      invalidateCache
+    )
 
     if (generator) {
       for await (const items of generator) {
         this.songList.push(...items)
       }
-      return
     }
+  }
 
-    if (this.playlist?.extension) {
+  private async fetchSpotify(invalidateCache = false) {
+    const generator = vxm.providers.spotifyProvider.getPlaylistContent(
+      (this.$route.query.id as string)?.replace('spotify-playlist:', ''),
+      invalidateCache
+    )
+
+    if (generator) {
+      for await (const items of generator) {
+        this.songList.push(...items)
+      }
+    }
+  }
+
+  private async fetchExtension(invalidateCache = false) {
+    const extension = this.playlist?.extension
+    const playlistId = this.playlist?.playlist_id
+
+    if (playlistId && extension) {
       const data = await window.ExtensionUtils.sendEvent({
         type: 'requestedPlaylistSongs',
-        data: [this.playlist.playlist_id],
-        packageName: this.playlist.extension
+        data: [playlistId, invalidateCache],
+        packageName: extension
       })
 
-      this.songList.push(...(data[this.playlist.extension]?.songs ?? []))
+      if (data[extension]) {
+        this.songList.push(...(data[extension] as GetPlaylistSongsReturnType).songs)
+      }
+    }
+  }
+
+  private async fetchSongListAsync(invalidateCache = false) {
+    if (this.playlist) {
+      if (!this.isRemote) {
+        return this.fetchLocalSongList()
+      }
+
+      if (!this.isExtension) {
+        if (this.isYoutube) return this.fetchYoutube(invalidateCache)
+        else if (this.isSpotify) return this.fetchSpotify(invalidateCache)
+      } else {
+        return this.fetchExtension(invalidateCache)
+      }
     }
   }
 
