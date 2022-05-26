@@ -101,14 +101,16 @@ export default class Playlists extends mixins(RouterPushes, ContextMenuMixin) {
     })
 
     for (const [key, value] of Object.entries(data)) {
-      const icon = await window.ExtensionUtils.getExtensionIcon(key)
-      for (const p of value.playlists) {
-        playlists.push({
-          ...p,
-          playlist_id: `${key}:${p.playlist_id}`,
-          icon: (p.icon && 'media://' + p.icon) ?? (icon && 'media://' + icon),
-          extension: key
-        })
+      if (value) {
+        const icon = await window.ExtensionUtils.getExtensionIcon(key)
+        for (const p of value.playlists) {
+          playlists.push({
+            ...p,
+            playlist_id: `${key}:${p.playlist_id}`,
+            icon: (p.icon && 'media://' + p.icon) ?? (icon && 'media://' + icon),
+            extension: key
+          })
+        }
       }
     }
 

@@ -164,7 +164,14 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
         data: [playlistId, invalidateCache],
         packageName: extension
       })
-      this.songList.push(...data[extension].songs.map((val) => ({ ...val, providerExtension: extension })))
+
+      if (data[extension]) {
+        const songs = (data[extension] as GetPlaylistSongsReturnType).songs.map((val) => ({
+          ...val,
+          providerExtension: extension
+        }))
+        this.songList.push(...songs)
+      }
     }
   }
 

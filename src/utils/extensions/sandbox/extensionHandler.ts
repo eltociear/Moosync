@@ -189,15 +189,18 @@ export class ExtensionHandler {
 
       if (resp) {
         if (EventType === 'requestedPlaylists') {
-          ;(resp as ExtraExtensionEventReturnType<'requestedPlaylists'>).playlists = (
-            resp as ExtraExtensionEventReturnType<'requestedPlaylists'>
-          ).playlists.map((val) => ({ ...val, playlist_id: `${ext.packageName}:${val.playlist_id}` }))
+          ;(resp as GetPlaylistReturnType).playlists = (resp as GetPlaylistReturnType).playlists.map((val) => ({
+            ...val,
+            playlist_id: `${ext.packageName}:${val.playlist_id}`
+          }))
         }
 
         if (EventType === 'requestedPlaylistSongs') {
-          ;(resp as ExtraExtensionEventReturnType<'requestedPlaylistSongs'>).songs = (
-            resp as ExtraExtensionEventReturnType<'requestedPlaylistSongs'>
-          ).songs.map((val) => ({ ...val, _id: `${ext.packageName}:${val._id}`, providerExtension: ext.packageName }))
+          ;(resp as GetPlaylistSongsReturnType).songs = (resp as GetPlaylistSongsReturnType).songs.map((val) => ({
+            ...val,
+            _id: `${ext.packageName}:${val._id}`,
+            providerExtension: ext.packageName
+          }))
         }
       }
 

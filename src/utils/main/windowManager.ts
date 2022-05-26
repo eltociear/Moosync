@@ -144,8 +144,8 @@ export class WindowHandler {
 
         if (data[extensionPackageName]) {
           callback({
-            mimeType: data[extensionPackageName].mimeType,
-            data: Buffer.from(data[extensionPackageName].data)
+            mimeType: (data[extensionPackageName] as CustomRequestReturnType).mimeType,
+            data: Buffer.from((data[extensionPackageName] as CustomRequestReturnType).data)
           })
           return
         }

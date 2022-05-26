@@ -91,7 +91,9 @@ export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
     })
 
     for (const [key, value] of Object.entries(data)) {
-      this.extensionResults.push({ ...value, packageName: key })
+      if (value) {
+        this.extensionResults.push({ ...value, packageName: key })
+      }
     }
   }
 

@@ -352,7 +352,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       })
 
       if (data) {
-        return data[song.providerExtension]
+        return data[song.providerExtension] ?? undefined
       }
     }
 
