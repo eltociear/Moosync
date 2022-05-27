@@ -51,7 +51,7 @@ cp -a usr/share/* %{buildroot}%{_datadir}/
 mkdir -p %{buildroot}%{_bindir}/
 ln -sf %{_libdir}/%{name}/moosync %{buildroot}%{_bindir}/moosync
 
-strip -s %{buildroot}%{_libdir}/%{name}/{*.so}
+strip -s %{buildroot}%{_libdir}/%{name}/*.so
 strip -s %{buildroot}%{_libdir}/%{name}/{moosync,chrome-sandbox}
 
 %check
@@ -63,5 +63,3 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/*.desktop
 %{_libdir}/%{name}/
 %{_datadir}/icons/hicolor/*/apps/*.png
 %attr(4755,root,root) %{_libdir}/%{name}/chrome-sandbox
-
-
