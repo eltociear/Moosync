@@ -323,6 +323,58 @@ type ExtraExtensionEventTypes =
   | 'requestedRecommendations'
   | 'requestedLyrics'
 
+type ExtraExtensionEventReturnType<T extends ExtraExtensionEventTypes> = T extends 'requestedPlaylists'
+  ? GetPlaylistReturnType | void
+  : T extends 'requestedPlaylistSongs'
+  ? GetPlaylistSongsReturnType | void
+  : T extends 'playbackDetailsRequested'
+  ? GetPlaybackDetailsReturnType | void
+  : T extends 'customRequest'
+  ? CustomRequestReturnType | void
+  : T extends 'requestedSongFromURL'
+  ? GetSongReturnType | void
+  : T extends 'requestedPlaylistFromURL'
+  ? GetPlaylistAndSongsReturnType | void
+  : T extends 'requestSearchResult'
+  ? GetSearchReturnType | void
+  : T extends 'requestedRecommendations'
+  ? GetRecommendationsReturnType | void
+  : T extends 'requestedLyrics'
+  ? string | void
+  : void
+
+type ExtraExtensionEventData<T extends ExtraExtensionEventTypes> = T extends 'requestedPlaylistSongs'
+  ? [playlistID: string, invalidateCache: boolean]
+  : T extends 'requestedPlaylists'
+  ? [invalidateCache: boolean]
+  : T extends 'oauthCallback'
+  ? [url: string]
+  : T extends 'songQueueChanged'
+  ? [songQueue: SongQueue]
+  : T extends 'seeked'
+  ? [newTime: number]
+  : T extends 'volumeChanged'
+  ? [newVolume: number]
+  : T extends 'playerStateChanged'
+  ? [newState: PlayerState]
+  : T extends 'songChanged'
+  ? [song: Song]
+  : T extends 'preferenceChanged'
+  ? [preference: { key: string; value: unknown }]
+  : T extends 'playbackDetailsRequested'
+  ? [song: Song]
+  : T extends 'customRequest'
+  ? [url: string]
+  : T extends 'requestedSongFromURL'
+  ? [url: string]
+  : T extends 'requestedPlaylistFromURL'
+  ? [url: string]
+  : T extends 'requestSearchResult'
+  ? [term: string]
+  : T extends 'requestedLyrics'
+  ? [song: Song]
+  : []
+
 type GetPlaylistReturnType = {
   playlists: Playlist[]
 }
@@ -359,58 +411,6 @@ type GetRecommendationsReturnType = {
   providerName: string
   songs: Song[]
 }
-
-type ExtraExtensionEventData<T extends ExtraExtensionEventTypes> = T extends 'requestedPlaylistSongs'
-  ? [playlistID: string, invalidateCache: boolean]
-  : T extends 'requestedPlaylists'
-  ? [invalidateCache: boolean]
-  : T extends 'oauthCallback'
-  ? [url: string]
-  : T extends 'songQueueChanged'
-  ? [songQueue: SongQueue]
-  : T extends 'seeked'
-  ? [newTime: number]
-  : T extends 'volumeChanged'
-  ? [newVolume: number]
-  : T extends 'playerStateChanged'
-  ? [newState: PlayerState]
-  : T extends 'songChanged'
-  ? [song: Song]
-  : T extends 'preferenceChanged'
-  ? [preference: { key: string; value: unknown }]
-  : T extends 'playbackDetailsRequested'
-  ? [song: Song]
-  : T extends 'customRequest'
-  ? [url: string]
-  : T extends 'requestedSongFromURL'
-  ? [url: string]
-  : T extends 'requestedPlaylistFromURL'
-  ? [url: string]
-  : T extends 'requestSearchResult'
-  ? [term: string]
-  : T extends 'requestedLyrics'
-  ? [song: Song]
-  : []
-
-type ExtraExtensionEventReturnType<T extends ExtraExtensionEventTypes> = T extends 'requestedPlaylists'
-  ? GetPlaylistReturnType | void
-  : T extends 'requestedPlaylistSongs'
-  ? GetPlaylistSongsReturnType | void
-  : T extends 'playbackDetailsRequested'
-  ? GetPlaybackDetailsReturnType | void
-  : T extends 'customRequest'
-  ? CustomRequestReturnType | void
-  : T extends 'requestedSongFromURL'
-  ? GetSongReturnType | void
-  : T extends 'requestedPlaylistFromURL'
-  ? GetPlaylistAndSongsReturnType | void
-  : T extends 'requestSearchResult'
-  ? GetSearchReturnType | void
-  : T extends 'requestedRecommendations'
-  ? GetRecommendationsReturnType | void
-  : T extends 'requestedLyrics'
-  ? string | void
-  : void
 
 type ExtensionContextMenuItem<T extends ContextMenuTypes> = {
   type: T
@@ -576,36 +576,128 @@ interface extensionAPI {
   openExternalURL(url: string): Promise<void>
 
   /**
+   * Event fired when playlists are requested by the user
+   * The callback should return and result playlists or undefined
+   */
+  on(
+    eventName: 'requestedPlaylists',
+    callback: (invalidateCache: boolean) => Promise<GetPlaylistReturnType | void>
+  ): void
+
+  /**
+   * Event fired when songs of a single playlist are requested by the user
+   * The callback should return result songs or undefined
+   */
+  on(
+    eventName: 'requestedPlaylistSongs',
+    callback: (playlistID: string, invalidateCache: boolean) => Promise<GetPlaylistSongsReturnType | void>
+  ): void
+
+  /**
+   * Event fired when moosync is passed url containing registered oauth channel name
+   * Oauth channel should be registered using {@link registerOAuth}
+   */
+  on(eventName: 'oauthCallback', callback: (url: string) => Promise<void>): void
+
+  /**
+   * Event fired when song queue changes order or new song is added or removed
+   */
+  on(eventName: 'songQueueChanged', callback: (songQueue: SongQueue) => Promise<void>): void
+
+  /**
+   * Event fired when user seeks player manually
+   */
+  on(eventName: 'seeked', callback: (newTime: number) => Promise<void>): void
+
+  /**
+   * Event fired when user changes volume
+   */
+  on(eventName: 'volumeChanged', callback: (newVolume: number) => Promise<void>): void
+
+  /**
+   * Event fired when player changes state to / from paused, stopped, playing, loading
+   */
+  on(eventName: 'playerStateChanged', callback: (newState: PlayerState) => Promise<void>): void
+
+  /**
+   * Event fired when new song is loaded into player
+   */
+  on(eventName: 'songChanged', callback: (song: Song) => Promise<void>): void
+
+  /**
+   * Event fired when preferences corresponding to the extension are changed
+   */
+  on(eventName: 'preferenceChanged', callback: (preference: { key: string; value: unknown }) => Promise<void>): void
+
+  /**
+   * Event fired when song provided by the extension lacks {@link Song.playbackUrl} or {@link Song.duration}
+   * Callback should return both playbackUrl and duration even if only either is missing or undefined.
+   *
+   * Can be used to dynamically provide playbackUrl and/or duration
+   */
+  on(
+    eventName: 'playbackDetailsRequested',
+    callback: (song: Song) => Promise<GetPlaybackDetailsReturnType | void>
+  ): void
+
+  /**
+   * Event fired when custom url corresponding to the extension is called
+   * Callback should return data as buffer and mimetype for the same  or undefined
+   *
+   * if an url ```extension://moosync.extension.packageName/testData``` is provided to Moosync. When the url is fetched,
+   * this event will be triggered and custom data can be provided at runtime
+   *
+   * @example
+   * const song: Song = {
+   *  ...,
+   *  song_coverPath_high: 'extension://moosync.extension.packageName/coverPathUrl',
+   *  ...
+   *  playbackUrl: 'extension://moosync.extension.packageName/testData'
+   * }
+   */
+  on(eventName: 'customRequest', callback: (url: string) => Promise<CustomRequestReturnType | void>): void
+
+  /**
+   * Event fired when user enters url in 'Add song from URL' modal
+   * Callback should return parsed song or undefined
+   */
+  on(eventName: 'requestedSongFromURL', callback: (url: string) => Promise<GetSongReturnType | void>): void
+
+  /**
+   * Event fired when user enters url in 'Add playlist from URL' modal
+   * Callback should return a playlist and parsed songs in that playlist or undefined
+   */
+  on(
+    eventName: 'requestedPlaylistFromURL',
+    callback: (url: string) => Promise<GetPlaylistAndSongsReturnType | void>
+  ): void
+
+  /**
+   * Event fired when user searches a term in search page
+   * Callback should return a providerName and result songs or undefined
+   */
+  on(eventName: 'requestSearchResult', callback: (term: string) => Promise<GetSearchReturnType | void>): void
+
+  /**
+   * Event fired when user opens Explore page
+   * Callback should return a providerName and result songs or undefined
+   */
+  on(eventName: 'requestedRecommendations', callback: () => Promise<GetRecommendationsReturnType | void>): void
+
+  /**
+   * Event fired when lyrics are requested for a song
+   * Callback should return a string (HTML formatting) with lyrics or undefined
+   */
+  on(eventName: 'requestedLyrics', callback: (song: Song) => Promise<string | void>): void
+
+  /**
    * Register extra events callbacks. At any time only one callback can be assigned to one event
-   *
-   * Event-callback map:
-   *
-   * "requestedPlaylists": () => Promise<{@link GetPlaylistReturnType}>
-   *
-   * "requestedPlaylistSongs": (playlist_id: string) => Promise<{@link GetPlaylistSongsReturnType}>
-   *
-   * "oauthCallback": (url: string}) => void
-   *
-   * "songQueueChanged": (queue: {@link SongQueue}) => void
-   *
-   * "seeked": (time: number) => void
-   *
-   * "volumeChanged": (volume: number) => void
-   *
-   * "playerStateChanged": (state: {@link PlayerState}) => void
-   *
-   * "songChanged": (song: {@link Song}) => void
-   *
-   * "preferenceChanged": (preference: {key: string, value: unknown}) => void
-   *
    *
    * @param eventName Name of event
    * @param callback Callback fired when event is emitted
    */
-  on<T extends ExtraExtensionEventTypes>(
-    eventName: T,
-    callback: (...args: ExtraExtensionEventData<T>) => Promise<ExtraExtensionEventReturnType<T>>
-  ): void
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  on(eventName: string, callback: Function): void
 
   /**
    * Remove callbacks from extra events
