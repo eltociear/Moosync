@@ -2,8 +2,10 @@ name: Build/release
 
 on:
   push:
-    tags-ignore:
+    branches:
       - "**"
+    tags-ignore:
+      - "*.*"
 
 jobs:
   release:
