@@ -101,7 +101,7 @@ module.exports = {
           perMachine: true
         },
         snap: {
-          stagePackages: ['default', 'libvips-dev', 'libhogweed5', 'libnettle7', 'libgtk2.0-0', 'libffi7']
+          stagePackages: ['default', 'libvips-dev']
         },
         deb: {
           depends: ['default', 'libvips-dev']
