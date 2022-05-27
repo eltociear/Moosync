@@ -44,7 +44,7 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - uses: microsoft/playwright-github-action@v1
+      # - uses: microsoft/playwright-github-action@v1
 
       - if: ${{ runner.os == 'Linux' }}
         run: sudo apt-get update -y && sudo apt-get install -y libarchive-tools rpm libcrypt1
