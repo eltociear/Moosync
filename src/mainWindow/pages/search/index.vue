@@ -451,6 +451,4 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
 .load-more
   background-color: var(--accent)
   color: var(--textInverse)
-
-.spinner
 </style>

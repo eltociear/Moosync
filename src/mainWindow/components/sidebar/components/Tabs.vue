@@ -176,6 +176,4 @@ export default class Sidebar extends Vue {
 .text-delay-enter-active
   display: none
   transition-delay: 0.08s
-
-.text-delay-leave-to
 </style>
