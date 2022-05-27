@@ -47,7 +47,7 @@ jobs:
       # - uses: microsoft/playwright-github-action@v1
 
       - if: ${{ runner.os == 'Linux' }}
-        run: sudo apt-get update -y && sudo apt-get install -y libarchive-tools rpm libcrypt1
+        run: sudo apt-get update -y && sudo apt-get install -y libarchive-tools rpm
 
       - name: yarn install
         run: yarn install
