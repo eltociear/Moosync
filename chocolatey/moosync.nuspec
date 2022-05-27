@@ -36,6 +36,7 @@
         - Develop own apps on top of Moosync Extension API
         - Available on Windows and Linux and MacOS
     </description>
+    <releaseNotes>https://github.com/Moosync/Moosync/releases/tag/v3.0.0</releaseNotes>
     <!-- =============================== -->
   </metadata>
   <files>
