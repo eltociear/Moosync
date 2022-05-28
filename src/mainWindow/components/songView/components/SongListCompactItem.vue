@@ -44,17 +44,16 @@
             />
           </b-col>
         </b-row>
-        <b-row no-gutters>
-          <b-col
-            cols="auto"
+        <b-row no-gutters class="flex-nowrap">
+          <div
             v-for="(artist, index) in item.artists"
             :key="index"
             class="subtitle text-truncate"
             :class="index !== 0 ? 'ml-1' : ''"
             @click="onSubtitleClicked(artist)"
           >
-            {{ artist.artist_name }}{{ index !== item.artists.length - 1 ? ',' : '' }}</b-col
-          >
+            <span> {{ artist.artist_name }}{{ index !== item.artists.length - 1 ? ',' : '' }}</span>
+          </div>
         </b-row>
       </b-col>
       <b-col cols="auto" align-self="center" offset="1" class="ml-auto timestamp">
