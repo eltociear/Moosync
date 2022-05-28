@@ -163,7 +163,8 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
   @action
   async pushInQueue(payload: { item: Song[]; top: boolean }) {
     if (payload.item.length > 0) {
-      if (!this.currentSong) {
+      const currentSongExists = !!this.currentSong
+      if (!currentSongExists) {
         // Add first item immediately to start playing
         this.addSong([payload.item[0]])
         payload.top ? this.addInQueueTop([payload.item[0]]) : this.addInSongQueue([payload.item[0]])
@@ -173,8 +174,7 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
 
       this.addSong(payload.item)
       payload.top ? this.addInQueueTop(payload.item) : this.addInSongQueue(payload.item)
-
-      payload.top && (await this.nextSong())
+      if (payload.top && currentSongExists) await this.nextSong()
     }
   }
 
