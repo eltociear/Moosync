@@ -221,7 +221,7 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
 
       this.populateRequest('POST', ApiResources.UPDATE_NOW_PLAYING, {
         ...parsedSong,
-        artist: song.artists && song.artists[0]
+        artist: song.artists && song.artists[0].artist_name
       })
 
       if (this.scrobbleTimeout) {
@@ -231,7 +231,7 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
       this.scrobbleTimeout = setTimeout(async () => {
         await this.populateRequest('POST', ApiResources.SCROBBLE, {
           ...parsedSong,
-          artist: song.artists && song.artists,
+          artist: song.artists && song.artists[0].artist_name,
           timestamp: (Date.now() / 1000).toFixed(0)
         })
       }, 20 * 1e3)
