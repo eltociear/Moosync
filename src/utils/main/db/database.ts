@@ -644,12 +644,14 @@ export class SongDBInstance extends DBUtils {
     const genreID: string[] = []
     if (genre) {
       for (const a of genre) {
-        const id = this.db.queryFirstCell(`SELECT genre_id FROM genre WHERE genre_name = ? COLLATE NOCASE`, a)
-        if (id) genreID.push(id)
-        else {
-          const id = v4()
-          this.db.insert('genre', { genre_id: id, genre_name: a.trim() })
-          genreID.push(id)
+        if (a) {
+          const id = this.db.queryFirstCell(`SELECT genre_id FROM genre WHERE genre_name = ? COLLATE NOCASE`, a)
+          if (id) genreID.push(id)
+          else {
+            const id = v4()
+            this.db.insert('genre', { genre_id: id, genre_name: a.trim() })
+            genreID.push(id)
+          }
         }
       }
     }
