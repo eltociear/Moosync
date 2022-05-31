@@ -77,7 +77,7 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
             url: AUTH_BASE_URL + '/authorize_token?scopes=:*&callback_url=https://moosync.app/invidious&expire=360000',
             providerColor: '#E62017',
             oauthPath: 'invidiousCallback'
-          } as LoginModalData)
+          } as LoginModalOptions)
 
           window.WindowUtils.openExternal(
             AUTH_BASE_URL + '/authorize_token?scopes=:*&callback_url=https://moosync.app/invidious'

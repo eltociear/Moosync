@@ -108,7 +108,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
           url,
           providerColor: '#1ED760',
           oauthPath: 'spotifyoauthcallback'
-        } as LoginModalData)
+        } as LoginModalOptions)
         window.WindowUtils.openExternal(url)
 
         await once(this.auth.authStateEmitter, AuthStateEmitter.ON_TOKEN_RESPONSE)

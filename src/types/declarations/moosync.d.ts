@@ -9,7 +9,7 @@ interface ExtendedPlaylist extends Playlist {
 
 type StrippedAccountDetails = Omit<Omit<AccountDetails, 'signinCallback'>, 'signoutCallback'>
 
-type ExtendedLoginModalData = LoginModalData & {
+type ExtendedLoginModalData = LoginModalOptions & {
   packageName: string
 }
 

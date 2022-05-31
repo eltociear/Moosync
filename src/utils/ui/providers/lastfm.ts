@@ -172,7 +172,7 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
           url: AUTH_BASE_URL + `auth/?api_key=${this._config?.key}&cb=https://moosync.app/lastfm`,
           providerColor: '#BA0000',
           oauthPath: 'lastfmcallback'
-        } as LoginModalData)
+        } as LoginModalOptions)
 
         window.WindowUtils.openExternal(
           AUTH_BASE_URL + `auth/?api_key=${this._config?.key}&cb=https://moosync.app/lastfm`

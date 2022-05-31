@@ -98,6 +98,10 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
     return sendAsync<void>(this.packageName, 'open-external', url)
   }
 
+  public async showToast(message: string, duration?: number, type?: 'success' | 'info' | 'error' | 'default') {
+    return sendAsync<void>(this.packageName, 'show-toast', { type, duration, message })
+  }
+
   public async registerAccount(
     name: string,
     bgColor: string,
@@ -130,7 +134,7 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
     }
   }
 
-  public async openLoginModal(data: LoginModalData) {
+  public async openLoginModal(data: LoginModalOptions) {
     return (
       (await sendAsync<boolean>(this.packageName, 'open-login-modal', { packageName: this.packageName, ...data })) ??
       false

@@ -277,6 +277,14 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
         bus.$emit(EventBus.HIDE_OAUTH_MODAL)
         window.ExtensionUtils.replyToRequest({ ...data, data: true })
       }
+
+      if (data.type === 'show-toast') {
+        this.$toasted.show(data.data.message, {
+          duration: Math.max(data.data.duration, 5000),
+          type: data.data.type
+        })
+        window.ExtensionUtils.replyToRequest({ ...data, data: true })
+      }
     })
   }
 

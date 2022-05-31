@@ -28,7 +28,8 @@ export const extensionUIRequestsKeys = [
   'get-queue',
   'get-player-state',
   'open-login-modal',
-  'close-login-modal'
+  'close-login-modal',
+  'show-toast'
 ] as const
 export const playerControlRequests = ['play', 'pause', 'stop', 'next', 'prev'] as const
 export const mainRequestsKeys = [

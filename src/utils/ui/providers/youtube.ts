@@ -103,7 +103,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
           url,
           providerColor: '#E62017',
           oauthPath: 'ytoauth2callback'
-        } as LoginModalData)
+        } as LoginModalOptions)
         window.WindowUtils.openExternal(url)
 
         await once(this.auth.authStateEmitter, AuthStateEmitter.ON_TOKEN_RESPONSE)
