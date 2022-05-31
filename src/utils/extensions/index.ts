@@ -282,13 +282,15 @@ class ExtensionRequestHandler {
     if (message.type === 'add-songs') {
       resp.data = []
       for (const s of message.data) {
-        resp.data.push(
-          SongDB.store({
-            ...s,
-            _id: `${message.extensionName}-${s._id}`,
-            providerExtension: message.extensionName
-          })
-        )
+        if (s) {
+          resp.data.push(
+            SongDB.store({
+              ...s,
+              _id: `${message.extensionName}-${s._id}`,
+              providerExtension: message.extensionName
+            })
+          )
+        }
       }
     }
 
