@@ -216,12 +216,11 @@ export class ExtensionHandler {
           EventType === 'requestedRecommendations'
         ) {
           const songs = (resp as CombinedSongsType).songs
-          songs.map((val) => ({
+          ;(resp as CombinedSongsType).songs = songs.map((val) => ({
             ...val,
             _id: `${ext.packageName}:${val._id}`,
             providerExtension: ext.packageName
           }))
-          ;(resp as CombinedSongsType).songs = songs
         }
 
         if (EventType === 'requestedSongFromURL') {
