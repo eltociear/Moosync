@@ -108,6 +108,8 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
   private refreshCallback?: () => void
 
   private close() {
+    this.songList = []
+    this.playlist = null
     this.$bvModal.hide(this.id)
   }
 

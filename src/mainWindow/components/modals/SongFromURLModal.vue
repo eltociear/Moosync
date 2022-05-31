@@ -102,6 +102,9 @@ export default class SongFromUrlModal extends mixins(ImgLoader) {
     if (this.parsedSong) {
       this.songTitle = this.parsedSong.title ?? ''
       this.songArtist = this.parsedSong.artists?.map((val) => val.artist_name).join(', ') ?? ''
+    } else {
+      this.songTitle = ''
+      this.songArtist = ''
     }
   }
 
@@ -164,6 +167,9 @@ export default class SongFromUrlModal extends mixins(ImgLoader) {
   }
 
   private close() {
+    this.parsedSong = null
+    this.songTitle = ''
+    this.songArtist = ''
     this.$bvModal.hide(this.id)
   }
 
