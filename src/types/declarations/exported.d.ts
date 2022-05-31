@@ -691,15 +691,6 @@ interface extensionAPI {
   on(eventName: 'requestedLyrics', callback: (song: Song) => Promise<string | void>): void
 
   /**
-   * Register extra events callbacks. At any time only one callback can be assigned to one event
-   *
-   * @param eventName Name of event
-   * @param callback Callback fired when event is emitted
-   */
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  on(eventName: string, callback: Function): void
-
-  /**
    * Remove callbacks from extra events
    * @param eventName name of event whose callback is to be removed
    */

@@ -144,7 +144,7 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
   // eslint-disable-next-line @typescript-eslint/ban-types
   public on(eventName: string, callback: Function) {
     console.debug('Registering listener for', eventName, 'in package', this.packageName)
-    this.eventCallbackMap[eventName] = callback as never
+    this.eventCallbackMap[eventName] = callback
     return callback
   }
 
