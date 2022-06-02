@@ -35,7 +35,7 @@ You may download the latest release from [Official website](https://moosync.app)
 
 If you use [Chocolatey](https://community.chocolatey.org/packages/moosync), Moosync at this moment is unlisted on chocolatey but can be installed using 
 ```bash
-choco install moosync --version=3.0.0
+choco install moosync --version=3.0.1
 ```
 
 Otherwise you may download the latest installer from [Releases](https://github.com/Moosync/Moosync/releases)

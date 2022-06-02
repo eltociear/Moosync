@@ -1,7 +1,7 @@
 ﻿$ErrorActionPreference = 'Stop';
 $toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $url = ''
-$url64 = 'https://github.com/Moosync/Moosync/releases/download/v3.0.0/Moosync-3.0.0-win-x64.exe'
+$url64 = 'https://github.com/Moosync/Moosync/releases/download/v3.0.1/Moosync-3.0.1-win-x64.exe'
 
 $packageArgs = @{
   packageName    = $env:ChocolateyPackageName
