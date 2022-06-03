@@ -15,7 +15,8 @@
           <b-container fluid>
             <b-row v-if="!isLibvipsAvailable">
               <b-col class="lib-missing"
-                >*Sharp was unable to load (Missing libvips-cpp.so probably). Images will not be optimised. Read more at
+                >*Sharp was unable to load (Missing libvips-cpp.so or libffi.so.7 probably). Images will not be
+                optimised. Read more at
                 <span class="lib-missing-link" @click="openWiki">https://moosync.app/wiki/#known-bugs</span></b-col
               >
             </b-row>

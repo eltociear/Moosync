@@ -22,7 +22,7 @@ export async function writeBuffer(bufferDesc: Buffer, basePath: string, id: stri
     } catch (e) {
       importFailed = true
       console.error(
-        'Failed to import sharp. Probably missing libvips-cpp.so. Read more at https://moosync.app/wiki/#known-bugs'
+        'Failed to import sharp. Probably missing libvips-cpp.so or libffi.so.7. Read more at https://moosync.app/wiki/#known-bugs'
       )
     }
   }
