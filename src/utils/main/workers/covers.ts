@@ -11,21 +11,7 @@ import path from 'path'
 import { Sharp, SharpOptions } from 'sharp'
 import { promises as fsP } from 'fs'
 
-let sharpInstance: (
-  input?:
-    | Buffer
-    | Uint8Array
-    | Uint8ClampedArray
-    | Int8Array
-    | Uint16Array
-    | Int16Array
-    | Uint32Array
-    | Int32Array
-    | Float32Array
-    | Float64Array
-    | string,
-  options?: SharpOptions
-) => Sharp
+let sharpInstance: (input?: Buffer | string, options?: SharpOptions) => Sharp
 
 let importFailed = false
 

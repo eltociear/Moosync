@@ -30,6 +30,7 @@ export class NotifierChannel implements IpcChannelInterface {
       } catch (e) {
         this.importTried = true
         event.reply(request.responseChannel, false)
+        console.debug(e)
       }
     }
 
