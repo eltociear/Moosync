@@ -101,10 +101,10 @@ module.exports = {
           perMachine: true
         },
         snap: {
-          stagePackages: ['default', 'libvips-dev']
+          stagePackages: ['libnspr4', 'libnss3', 'libxss1', 'libappindicator3-1', 'libsecret-1-0', 'libvips-dev']
         },
         deb: {
-          depends: ['default', 'libvips-dev']
+          depends: ['libnotify4', 'libxtst6', 'libnss3', 'libvips-dev']
         },
         fileAssociations: [
           {
