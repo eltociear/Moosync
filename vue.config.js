@@ -100,12 +100,6 @@ module.exports = {
           oneClick: false,
           perMachine: true
         },
-        snap: {
-          stagePackages: ['libnspr4', 'libnss3', 'libxss1', 'libappindicator3-1', 'libsecret-1-0', 'libvips-dev']
-        },
-        deb: {
-          depends: ['libnotify4', 'libxtst6', 'libnss3', 'libvips-dev']
-        },
         fileAssociations: [
           {
             ext: 'mp3',
