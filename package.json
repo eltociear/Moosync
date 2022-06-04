@@ -151,5 +151,12 @@
   },
   "whiteListedModules": [
     "threads"
+  ],
+  "sideEffects": [
+    "*.css",
+    "*.sass",
+    "*.vue",
+    "./src/mainWindow/plugins/*",
+    "./src/preferenceWindow/plugins/*"
   ]
 }
