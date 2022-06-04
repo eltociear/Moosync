@@ -150,7 +150,7 @@ export class PreferenceChannel implements IpcChannelInterface {
         await sharp(buffer).png().resize(size, size).toFile(iconPath)
       } catch (e) {
         console.error(
-          'Failed to import sharp. Probably missing libvips-cpp.so. Read more at https://moosync.app/wiki/#known-bugs'
+          'Failed to import sharp. Probably missing libvips-cpp.so or libffi.so.7. Read more at https://moosync.app/wiki/#known-bugs'
         )
       }
     } else {
