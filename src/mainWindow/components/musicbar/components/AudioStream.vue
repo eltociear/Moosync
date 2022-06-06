@@ -239,6 +239,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
   }
 
+  private analyserNode: AnalyserNode | undefined
+
   /**
    * Register all listeners related to players
    */
@@ -247,7 +249,28 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       vxm.player.loading = false
     }
 
-    this.activePlayer.onTimeUpdate = (time) => this.$emit('onTimeUpdate', time)
+    this.activePlayer.onTimeUpdate = (time) => {
+      this.$emit('onTimeUpdate', time)
+
+      if (this.currentSong) {
+        if (time >= this.currentSong.duration - 5) {
+          if (this.analyserNode) {
+            const pcmData = new Float32Array(this.analyserNode.fftSize)
+
+            this.analyserNode.getFloatTimeDomainData(pcmData)
+            let sumSquares = 0.0
+            for (const amplitude of pcmData) {
+              sumSquares += amplitude * amplitude
+            }
+            const amplitude = parseFloat(Math.sqrt(sumSquares / pcmData.length).toFixed(3))
+            if (amplitude === 0) {
+              this.nextSong()
+            }
+          }
+        }
+      }
+    }
+
     this.activePlayer.onError = (err) => {
       console.error('Player error', err.message, 'while playing', this.currentSong?.playbackUrl)
       console.error(`${this.currentSong?._id}: ${this.currentSong?.title} unplayable, skipping.`)
@@ -273,6 +296,14 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
 
     this.activePlayer.onLoad = () => {
+      if (!this.analyserNode) {
+        const context = this.activePlayer.createAudioContext()
+        if (context) {
+          this.analyserNode = context.createAnalyser()
+          this.activePlayer.connectAudioContextNode(this.analyserNode)
+        }
+      }
+
       vxm.player.loading = false
       this.cancelBufferTrap()
     }

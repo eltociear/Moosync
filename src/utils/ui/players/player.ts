@@ -56,4 +56,7 @@ export abstract class Player {
   protected abstract listenOnStateChange(callback: (state: PlayerState) => void): void
   protected abstract listenOnBuffer(callback: () => void): void
   abstract removeAllListeners(): void
+
+  abstract createAudioContext(): AudioContext | undefined
+  abstract connectAudioContextNode(node: AudioNode): void
 }

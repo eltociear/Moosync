@@ -11,6 +11,8 @@ import { Player } from './player'
 
 export class LocalPlayer extends Player {
   playerInstance: HTMLAudioElement
+  private track: MediaElementAudioSourceNode | undefined
+  private context: AudioContext | undefined
 
   constructor(playerInstance: HTMLAudioElement) {
     super()
@@ -97,6 +99,22 @@ export class LocalPlayer extends Player {
     this.playerInstance.ontimeupdate = null
     for (const [key, value] of Object.entries(this.listeners)) {
       this.playerInstance.removeEventListener(key as keyof HTMLMediaElementEventMap, value)
+    }
+  }
+
+  createAudioContext(): AudioContext {
+    if (!this.context) {
+      this.context = new AudioContext()
+      this.track = this.context.createMediaElementSource(this.playerInstance)
+      this.track.connect(this.context.destination)
+    }
+
+    return this.context
+  }
+
+  connectAudioContextNode(node: AudioNode): void {
+    if (this.context && this.track) {
+      this.track.connect(node).connect(this.context.destination)
     }
   }
 }
