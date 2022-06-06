@@ -100,6 +100,7 @@
     "sharp": "^0.30.5",
     "shvl": "2.0.3",
     "socket.io-client": "^4.5.1",
+    "sponsorblock-api": "^0.2.2",
     "stream-browserify": "^3.0.0",
     "strip-ansi": "^7.0.1",
     "tail": "^2.2.4",

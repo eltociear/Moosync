@@ -3936,7 +3936,7 @@ cross-env@^7.0.3:
   dependencies:
     cross-spawn "^7.0.1"
 
-cross-fetch@3.1.5:
+cross-fetch@3.1.5, cross-fetch@^3.0.6:
   version "3.1.5"
   resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.1.5.tgz#e1389f44d9e7ba767907f7af8454787952ab534f"
   integrity sha512-lvb1SBsI0Z7GDwmuid+mU3kWVBwTVUbe7S0H52yaaAdQOXq2YktTCZdlAcNKFzE6QtRz0snpw9bNiPeOIkkQvw==
@@ -9234,6 +9234,13 @@ spdy@^4.0.2:
     http-deceiver "^1.2.7"
     select-hose "^2.0.0"
     spdy-transport "^3.0.0"
+
+sponsorblock-api@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/sponsorblock-api/-/sponsorblock-api-0.2.2.tgz#688f9efd494e6c4632fa72044d48e47fc266d040"
+  integrity sha512-CDl4cCmBqDzYa28NE2O8QJt+QRNUWBBRXwcJX/8AmmV6XhJZLxFQz4muvMbNHX2CUDX6p92/u5228WjNWyS6ig==
+  dependencies:
+    cross-fetch "^3.0.6"
 
 sprintf-js@^1.1.2:
   version "1.1.2"

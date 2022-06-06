@@ -9,6 +9,8 @@
 
 import { Player } from './player'
 import YTPlayer from 'yt-player'
+import { Segment, SponsorBlock } from 'sponsorblock-api'
+import { v4 } from 'uuid'
 
 type YouTubePlayerQuality = 'small' | 'medium' | 'large' | 'hd720' | 'hd1080' | 'highres' | 'default'
 
@@ -16,9 +18,26 @@ export class YoutubePlayer extends Player {
   playerInstance: YTPlayer
   private supposedVolume = 100
 
+  private sponsorBlock = new SponsorBlock(v4())
+
+  private currentSegments: Segment[] = []
+
   constructor(playerInstance: YTPlayer) {
     super()
     this.playerInstance = playerInstance
+  }
+
+  private async getSponsorblock(videoID: string) {
+    const segments = await this.sponsorBlock.getSegments(videoID, [
+      'sponsor',
+      'intro',
+      'music_offtopic',
+      'selfpromo',
+      'interaction',
+      'preview'
+    ])
+
+    this.currentSegments = segments
   }
 
   private extractVideoID(url: string) {
@@ -33,7 +52,10 @@ export class YoutubePlayer extends Player {
   load(src?: string, volume?: number, autoplay?: boolean): void {
     if (src) {
       src = this.extractVideoID(src)
-      src && this.playerInstance.load(src, autoplay)
+      if (src) {
+        this.getSponsorblock(src)
+        src && this.playerInstance.load(src, autoplay)
+      }
     }
     volume && (this.volume = volume)
   }
@@ -73,7 +95,21 @@ export class YoutubePlayer extends Player {
   }
 
   protected listenOnTimeUpdate(callback: (time: number) => void): void {
-    this.playerInstance.addListener('timeupdate', callback)
+    let lastTime = 0
+    this.playerInstance.addListener('timeupdate', (time: number) => {
+      if (time !== lastTime) {
+        const segs = this.currentSegments.filter((val) => val.startTime === Math.floor(time))
+
+        if (segs.length > 0) {
+          const seg = segs.sort((a, b) => b.endTime - a.endTime).at(0)
+          if (seg) {
+            this.currentTime = seg.endTime
+          }
+        }
+        callback(time)
+        lastTime = time
+      }
+    })
   }
 
   protected listenOnLoad(callback: () => void): void {
@@ -104,5 +140,13 @@ export class YoutubePlayer extends Player {
 
   public setPlaybackQuality(quality: YouTubePlayerQuality) {
     this.playerInstance.setPlaybackQuality(quality)
+  }
+
+  createAudioContext(): AudioContext | undefined {
+    return
+  }
+
+  connectAudioContextNode(): void {
+    return
   }
 }
