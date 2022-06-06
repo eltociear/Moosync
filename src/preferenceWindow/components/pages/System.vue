@@ -22,6 +22,15 @@
             prefKey="system"
           />
 
+          <CheckboxGroup
+            title="Audio Settings"
+            class="mt-4"
+            tooltip="Settings which are related audio playback"
+            :isExtension="false"
+            :defaultValue="audioCheckboxValues"
+            prefKey="audio"
+          />
+
           <AutoFillEditText
             v-if="showInvidiousField"
             class="mt-4"
@@ -209,6 +218,21 @@ export default class System extends Vue {
   }
 
   private defaultSystemSettings: SystemSettings[] = []
+
+  get audioCheckboxValues(): Checkbox[] {
+    return [
+      {
+        key: 'gapless_playback',
+        title: 'Use gapless playback for wherever possible',
+        enabled: false
+      },
+      {
+        key: 'sponsorblock',
+        title: 'Use SponsorBlock to automatically skip to highlighted part of Youtube song',
+        enabled: false
+      }
+    ]
+  }
 
   get systemCheckboxValues(): SystemSettings[] {
     return [

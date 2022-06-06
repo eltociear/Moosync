@@ -241,6 +241,22 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
   private analyserNode: AnalyserNode | undefined
 
+  // https://jameshfisher.com/2021/01/18/measuring-audio-volume-in-javascript
+  private isSilent() {
+    if (this.analyserNode) {
+      const pcmData = new Float32Array(this.analyserNode.fftSize)
+
+      this.analyserNode.getFloatTimeDomainData(pcmData)
+      let sumSquares = 0.0
+      for (const amplitude of pcmData) {
+        sumSquares += amplitude * amplitude
+      }
+      const amplitude = parseFloat(Math.sqrt(sumSquares / pcmData.length).toFixed(3))
+      return amplitude === 0
+    }
+    return false
+  }
+
   /**
    * Register all listeners related to players
    */
@@ -254,18 +270,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
       if (this.currentSong) {
         if (time >= this.currentSong.duration - 5) {
-          if (this.analyserNode) {
-            const pcmData = new Float32Array(this.analyserNode.fftSize)
-
-            this.analyserNode.getFloatTimeDomainData(pcmData)
-            let sumSquares = 0.0
-            for (const amplitude of pcmData) {
-              sumSquares += amplitude * amplitude
-            }
-            const amplitude = parseFloat(Math.sqrt(sumSquares / pcmData.length).toFixed(3))
-            if (amplitude === 0) {
-              this.nextSong()
-            }
+          if (this.isSilent()) {
+            this.nextSong()
           }
         }
       }
@@ -278,6 +284,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.nextSong()
       vxm.player.loading = false
     }
+
     this.activePlayer.onStateChange = (state) => {
       // Cued event of youtube embed seems to fire only once and is not reliable
       // Stop loading when state of player changes
@@ -295,12 +302,20 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       }
     }
 
-    this.activePlayer.onLoad = () => {
-      if (!this.analyserNode) {
-        const context = this.activePlayer.createAudioContext()
-        if (context) {
-          this.analyserNode = context.createAnalyser()
-          this.activePlayer.connectAudioContextNode(this.analyserNode)
+    this.activePlayer.onLoad = async () => {
+      const preferences = await window.PreferenceUtils.loadSelective<Checkbox[]>('audio')
+      if (preferences) {
+        const gapless = preferences.find((val) => val.key === 'gapless_playback')
+        if (gapless && gapless.enabled) {
+          if (!this.analyserNode) {
+            const context = this.activePlayer.createAudioContext()
+            if (context) {
+              this.analyserNode = context.createAnalyser()
+              this.activePlayer.connectAudioContextNode(this.analyserNode)
+            }
+          }
+        } else {
+          this.analyserNode = undefined
         }
       }
 
