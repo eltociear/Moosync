@@ -28,16 +28,22 @@ export class YoutubePlayer extends Player {
   }
 
   private async getSponsorblock(videoID: string) {
-    const segments = await this.sponsorBlock.getSegments(videoID, [
-      'sponsor',
-      'intro',
-      'music_offtopic',
-      'selfpromo',
-      'interaction',
-      'preview'
-    ])
+    const preferences = await window.PreferenceUtils.loadSelective<Checkbox[]>('audio')
+    if (preferences) {
+      const sponsorblock = preferences.find((val) => val.key === 'sponsorblock')
+      if (sponsorblock && sponsorblock.enabled) {
+        const segments = await this.sponsorBlock.getSegments(videoID, [
+          'sponsor',
+          'intro',
+          'music_offtopic',
+          'selfpromo',
+          'interaction',
+          'preview'
+        ])
 
-    this.currentSegments = segments
+        this.currentSegments = segments
+      }
+    }
   }
 
   private extractVideoID(url: string) {
@@ -117,8 +123,13 @@ export class YoutubePlayer extends Player {
   }
 
   protected listenOnError(callback: (err: Error) => void): void {
-    this.playerInstance.addListener('error', callback)
-    this.playerInstance.addListener('unplayable', callback)
+    const handleError = (err: Error) => {
+      callback(err)
+      this.currentSegments = []
+    }
+
+    this.playerInstance.addListener('error', handleError.bind(this))
+    this.playerInstance.addListener('unplayable', handleError.bind(this))
   }
 
   protected listenOnStateChange(callback: (state: PlayerState) => void): void {
@@ -127,7 +138,10 @@ export class YoutubePlayer extends Player {
       callback('PLAYING')
     })
     this.playerInstance.addListener('paused', () => callback('PAUSED'))
-    this.playerInstance.addListener('ended', () => callback('STOPPED'))
+    this.playerInstance.addListener('ended', () => {
+      this.currentSegments = []
+      callback('STOPPED')
+    })
   }
 
   protected listenOnBuffer(callback: () => void): void {
