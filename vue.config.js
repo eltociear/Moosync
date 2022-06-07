@@ -6,7 +6,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const { resolve } = require('path')
 const manifest = require('./package.json')
 
-// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 const archElectronConfig = {}
 
@@ -213,6 +213,8 @@ module.exports = {
         config.plugin('thread').use(ThreadsPlugin, [{ target: 'electron-node-worker' }])
 
         config.plugin('copy').use(CopyWebpackPlugin, [{ patterns: [{ from: resolve('dev-app-update.yml') }] }])
+
+        // config.plugin('copy').use(BundleAnalyzerPlugin)
       }
     },
     autoRouting: {
