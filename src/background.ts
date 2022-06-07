@@ -68,7 +68,6 @@ function interceptHttp() {
 
   const useEmbeds =
     loadSelectivePreference<Checkbox[]>('audio')?.find((val) => val.key === 'youtube_embeds')?.enabled ?? true
-  console.log(useEmbeds)
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     let headers: { [key: string]: string | string[] } = { ...details.responseHeaders }
 
