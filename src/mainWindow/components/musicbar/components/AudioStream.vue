@@ -258,7 +258,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       for (const amplitude of pcmData) {
         sumSquares += amplitude * amplitude
       }
-      const amplitude = parseFloat(Math.sqrt(sumSquares / pcmData.length).toFixed(3))
+      const amplitude = parseFloat(Math.sqrt(sumSquares / pcmData.length).toFixed(4))
       return amplitude === 0
     }
     return false
@@ -276,7 +276,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.$emit('onTimeUpdate', time)
 
       if (this.currentSong) {
-        if (time >= this.currentSong.duration - 5) {
+        if (time >= this.currentSong.duration - 10) {
           if (this.isSilent()) {
             this.nextSong()
           }
