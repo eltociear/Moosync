@@ -57,35 +57,35 @@ export class YTPlayerWrapper implements CustomAudioInstance {
     return
   }
 
-  onended(callback: any) {
+  set onended(callback: never) {
     this.instance.addListener('ended', callback)
   }
 
-  set ontimeupdate(callback: any) {
+  set ontimeupdate(callback: never) {
     this.instance.addListener('timeupdate', callback)
   }
 
-  set onload(callback: any) {
+  set onload(callback: never) {
     this.instance.addListener('cued', callback)
   }
 
-  set onloadeddata(callback: any) {
+  set onloadeddata(callback: never) {
     // this.instance.on('ended', callback)
   }
 
-  set onerror(callback: any) {
+  set onerror(callback: never) {
     this.instance.addListener('error', callback)
     this.instance.addListener('unplayable', callback)
   }
 
-  set onloadstart(callback: any) {
+  set onloadstart(callback: never) {
     this.instance.addListener('buffering', callback)
   }
 
-  removeAttribute(str: string): void {
+  removeAttribute(): void {
     return
   }
-  addEventListener(ev: string, callback: (...args: any[]) => void) {
+  addEventListener(ev: string, callback: (...args: unknown[]) => void) {
     if (ev === 'play') {
       ev = 'playing'
       this.volume = this.supposedVolume
@@ -98,7 +98,7 @@ export class YTPlayerWrapper implements CustomAudioInstance {
     this.instance.addListener(ev, callback)
   }
 
-  removeEventListener(ev: string, callback: (...args: any[]) => void) {
+  removeEventListener(ev: string, callback: (...args: unknown[]) => void) {
     this.instance.removeListener(ev, callback)
   }
 
