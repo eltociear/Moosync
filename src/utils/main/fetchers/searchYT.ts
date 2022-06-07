@@ -216,6 +216,11 @@ export class YTScraper extends CacheHandler {
   }
 
   public async getWatchURL(id: string) {
+    const cache = this.getCache(`watchURL:${id}`)
+    if (cache) {
+      return cache
+    }
+
     const data = await ytdl.getInfo(id)
 
     let format
@@ -227,6 +232,12 @@ export class YTScraper extends CacheHandler {
       format = ytdl.chooseFormat(data.formats, {})
     }
 
+    try {
+      const expiry = parseInt(new URL(format.url).searchParams.get('expire') ?? '0') * 1000
+      expiry > 0 && this.addToCache(`watchURL:${id}`, format.url, expiry)
+    } catch (e) {
+      console.warn('Failed to add watch URL to cache', format.url)
+    }
     return format.url
   }
 }

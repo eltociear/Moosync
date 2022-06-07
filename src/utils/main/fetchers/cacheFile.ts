@@ -42,10 +42,10 @@ export class CacheHandler {
     }
   }
 
-  protected async addToCache(url: string, data: string) {
+  protected async addToCache(url: string, data: string, exp?: number) {
     try {
       if (this.tryJson && JSON.parse(data)) {
-        const expiry = Date.now() + 2 * 60 * 60 * 1000
+        const expiry = exp ?? Date.now() + 2 * 60 * 60 * 1000
         this.cache[url] = { expiry, data }
         await this.dumpCache()
       }
