@@ -100,6 +100,7 @@ export class SongDBInstance extends DBUtils {
       .transaction((song_id: string) => {
         const album_ids = this.getCountBySong('album_bridge', 'album', song_id)
         const artist_ids = this.getCountBySong('artists_bridge', 'artist', song_id)
+        const genre_ids = this.getCountBySong('genre_bridge', 'genre', song_id)
 
         const songCoverPath_low = this.db.queryFirstCell(
           `SELECT song_coverPath_low from allsongs WHERE _id = ?`,
@@ -145,6 +146,12 @@ export class SongDBInstance extends DBUtils {
             )[0]
             this.db.delete('artists', { artist_id: id.artist })
             if (artist?.artist_coverPath) pathsToRemove.push(artist.artist_coverPath)
+          }
+        }
+
+        for (const id of genre_ids) {
+          if (id.count === 1) {
+            this.db.delete('genre', { genre_id: id.genre })
           }
         }
       })
