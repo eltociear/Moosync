@@ -219,6 +219,12 @@ contextBridge.exposeInMainWorld('SearchUtils', {
       params: { videoID }
     }),
 
+  getYTAudioURL: (videoID: string) =>
+    ipcRendererHolder.send<SearchRequests.YTSuggestions>(IpcEvents.SEARCH, {
+      type: SearchEvents.GET_YT_AUDIO_URL,
+      params: { videoID }
+    }),
+
   scrapeLastFM: (url: string) =>
     ipcRendererHolder.send<SearchRequests.LastFMSuggestions>(IpcEvents.SEARCH, {
       type: SearchEvents.SCRAPE_LASTFM,

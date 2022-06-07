@@ -40,6 +40,7 @@ export enum SearchEvents {
   SEARCH_ALL = 'searchAll',
   SEARCH_YT = 'searchYT',
   YT_SUGGESTIONS = 'YTSuggestions',
+  GET_YT_AUDIO_URL = 'getYTAudioURL',
   SCRAPE_LASTFM = 'scrapeLastFM',
   SCRAPE_LYRICS = 'scrapeLyrics',
   REQUEST_INVIDIOUS = 'requestInvidious'

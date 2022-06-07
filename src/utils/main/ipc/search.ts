@@ -39,6 +39,9 @@ export class SearchChannel implements IpcChannelInterface {
       case SearchEvents.YT_SUGGESTIONS:
         this.getYTSuggestions(event, request as IpcRequest<SearchRequests.YTSuggestions>)
         break
+      case SearchEvents.GET_YT_AUDIO_URL:
+        this.getYTAudioURL(event, request as IpcRequest<SearchRequests.YTSuggestions>)
+        break
       case SearchEvents.SEARCH_ENTITY_BY_OPTIONS:
         this.searchEntityByOptions(event, request as IpcRequest<SearchRequests.EntityOptions>)
         break
@@ -61,6 +64,14 @@ export class SearchChannel implements IpcChannelInterface {
         request.responseChannel,
         SongDB.searchAll(request.params.searchTerm, getDisabledPaths(preferences.musicPaths))
       )
+    }
+    event.reply(request.responseChannel)
+  }
+
+  private async getYTAudioURL(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.YTSuggestions>) {
+    if (request.params.videoID) {
+      const data = await this.ytScraper.getWatchURL(request.params.videoID)
+      event.reply(request.responseChannel, data)
     }
     event.reply(request.responseChannel)
   }

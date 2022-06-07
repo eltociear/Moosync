@@ -19,8 +19,12 @@ export class YoutubePlayer extends LocalPlayer {
 
   private currentSegments: Segment[] = []
 
-  constructor(playerInstance: HTMLAudioElement) {
-    super(new YTPlayerWrapper(playerInstance))
+  constructor(playerInstance: HTMLDivElement) {
+    // super(new YTPlayerWrapper(playerInstance))
+    const audio = document.createElement('audio')
+    audio.crossOrigin = 'anonymous'
+    playerInstance.append(audio)
+    super(audio)
     // this.playerInstance = new YTPlayerWrapper(new YTPlayer(playerInstance))
     // this.playerInstance = playerInstance
   }
@@ -39,7 +43,6 @@ export class YoutubePlayer extends LocalPlayer {
           'preview'
         ])
 
-        console.log(segments)
         this.currentSegments = segments
       }
     }
@@ -54,15 +57,21 @@ export class YoutubePlayer extends LocalPlayer {
     return url
   }
 
-  load(src?: string, volume?: number, autoplay?: boolean): void {
+  async load(src?: string, volume?: number, autoplay?: boolean) {
     if (src) {
       src = this.extractVideoID(src)
       if (src) {
         this.getSponsorblock(src)
-        src && (this.playerInstance.src = src)
-        volume && (this.volume = volume)
-        autoplay && this.play()
+        if (this.playerInstance instanceof HTMLAudioElement) src = await window.SearchUtils.getYTAudioURL(src)
       }
+    }
+
+    console.log(src)
+
+    if (src) {
+      src && (this.playerInstance.src = src)
+      volume && (this.volume = volume)
+      autoplay && this.play()
     }
     volume && (this.volume = volume)
   }

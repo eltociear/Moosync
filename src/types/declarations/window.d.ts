@@ -98,6 +98,11 @@ interface searchUtils {
   getYTSuggestions: (videoID: string) => Promise<Song[]>
 
   /**
+   * Get direct stream URL from youtube
+   */
+  getYTAudioURL: (videoID: string) => Promise<string>
+
+  /**
    * Scrape a webpage and parse it to json
    */
   scrapeLastFM: (url: string) => Promise<unknown>

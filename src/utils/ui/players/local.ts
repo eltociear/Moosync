@@ -17,6 +17,7 @@ export class LocalPlayer extends Player {
   constructor(playerInstance: CustomAudioInstance) {
     super()
     this.playerInstance = playerInstance
+    console.log(playerInstance)
     this.playerInstance.load()
   }
 

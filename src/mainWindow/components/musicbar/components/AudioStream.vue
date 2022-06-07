@@ -10,7 +10,7 @@
 <template>
   <div>
     <div ref="audioHolder">
-      <div id="yt-player" class="yt-player"></div>
+      <div ref="yt-player" id="yt-player" class="yt-player"></div>
       <audio id="dummy-yt-player" />
       <audio ref="audio" preload="auto" />
       <video ref="dash-player"></video>
@@ -20,7 +20,6 @@
 
 <script lang="ts">
 import { Component, Prop, Ref, Watch } from 'vue-property-decorator'
-import YTPlayer from 'yt-player'
 import { mixins } from 'vue-class-component'
 import { Player } from '@/utils/ui/players/player'
 import { YoutubePlayer } from '@/utils/ui/players/youtube'
@@ -36,6 +35,7 @@ import { DashPlayer } from '../../../../utils/ui/players/dash'
 @Component({})
 export default class AudioStream extends mixins(SyncMixin, PlayerControls, ErrorHandler) {
   @Ref('audio') audioElement!: HTMLAudioElement
+  @Ref('yt-player') ytAudioElement!: HTMLDivElement
 
   @Prop({ default: '' })
   roomID!: string
@@ -208,7 +208,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
         if (val) {
           this.ytPlayer = new InvidiousPlayer(this.audioElement)
         } else {
-          this.ytPlayer = new YoutubePlayer(new YTPlayer('#yt-player'))
+          this.ytPlayer = new YoutubePlayer(this.ytAudioElement)
         }
       },
       { deep: false, immediate: true }
@@ -344,7 +344,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     if (!this._bufferTrap) {
       this._bufferTrap = setTimeout(() => {
         if (this.activePlayerTypes === 'YOUTUBE' && this.activePlayer instanceof YoutubePlayer) {
-          this.activePlayer.setPlaybackQuality('small')
+          // this.activePlayer.setPlaybackQuality('small')
           this.pause()
           Vue.nextTick(() => this.play())
 

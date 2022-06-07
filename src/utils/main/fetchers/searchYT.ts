@@ -12,6 +12,7 @@ import { app } from 'electron'
 import path from 'path'
 import { CacheHandler } from './cacheFile'
 import ytsr from 'ytsr'
+import ytdl from 'ytdl-core'
 
 interface YTMusicWMatchIndex extends ytMusic.MusicVideo {
   matchIndex: number
@@ -212,5 +213,20 @@ export class YTScraper extends CacheHandler {
       if (i > 0) costs[s2.length] = lastValue
     }
     return costs[s2.length]
+  }
+
+  public async getWatchURL(id: string) {
+    const data = await ytdl.getInfo(id)
+
+    let format
+    try {
+      format = ytdl.chooseFormat(data.formats, {
+        quality: 'highestaudio'
+      })
+    } catch (e) {
+      format = ytdl.chooseFormat(data.formats, {})
+    }
+
+    return format.url
   }
 }

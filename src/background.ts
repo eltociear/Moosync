@@ -63,7 +63,11 @@ function interceptHttp() {
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     let headers: { [key: string]: string | string[] } = { ...details.responseHeaders }
 
-    if (details.url.startsWith('https://i.ytimg.com')) {
+    if (
+      details.url.startsWith('https') &&
+      (details.url.startsWith('https://i.ytimg.com') || details.url.includes('.googlevideo.com'))
+    ) {
+      console.log('Adding cors header for', details.url)
       headers = {
         ...headers,
         'Access-Control-Allow-Origin': '*'
