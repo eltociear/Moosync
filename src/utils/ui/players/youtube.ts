@@ -19,14 +19,17 @@ export class YoutubePlayer extends LocalPlayer {
 
   private currentSegments: Segment[] = []
 
-  constructor(playerInstance: HTMLDivElement) {
-    // super(new YTPlayerWrapper(playerInstance))
-    const audio = document.createElement('audio')
-    audio.crossOrigin = 'anonymous'
-    playerInstance.append(audio)
-    super(audio)
-    // this.playerInstance = new YTPlayerWrapper(new YTPlayer(playerInstance))
-    // this.playerInstance = playerInstance
+  constructor(playerInstance: HTMLDivElement, useEmbed = true) {
+    console.log(useEmbed)
+    if (useEmbed) {
+      super(new YTPlayerWrapper(playerInstance))
+    } else {
+      const audio = document.createElement('audio')
+      audio.crossOrigin = 'anonymous'
+      audio.preload = 'auto'
+      playerInstance.append(audio)
+      super(audio)
+    }
   }
 
   private async getSponsorblock(videoID: string) {

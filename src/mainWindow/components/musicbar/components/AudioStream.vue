@@ -187,8 +187,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     if (this.isSyncing) this.remoteSeek(newValue)
   }
 
-  mounted() {
-    this.setupPlayers()
+  async mounted() {
+    await this.setupPlayers()
     this.setupSync()
     this.registerListeners()
 
@@ -201,22 +201,29 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   /**
    * Initial setup for all players
    */
-  private setupPlayers() {
-    vxm.providers.$watch(
-      'useInvidious',
-      (val) => {
-        if (val) {
-          this.ytPlayer = new InvidiousPlayer(this.audioElement)
-        } else {
-          this.ytPlayer = new YoutubePlayer(this.ytAudioElement)
-        }
-      },
-      { deep: false, immediate: true }
-    )
-    this.localPlayer = new LocalPlayer(this.audioElement)
-    this.dashPlayer = new DashPlayer(this.dashPlayerDiv)
-    this.activePlayer = this.localPlayer
-    this.activePlayerTypes = 'LOCAL'
+  private setupPlayers(): Promise<void> {
+    return new Promise<void>((resolve) => {
+      this.localPlayer = new LocalPlayer(this.audioElement)
+      this.dashPlayer = new DashPlayer(this.dashPlayerDiv)
+      this.activePlayer = this.localPlayer
+      this.activePlayerTypes = 'LOCAL'
+      vxm.providers.$watch(
+        'useInvidious',
+        async (val) => {
+          if (val) {
+            this.ytPlayer = new InvidiousPlayer(this.audioElement)
+          } else {
+            const useEmbed = (await window.PreferenceUtils.loadSelective<Checkbox[]>('audio'))?.find(
+              (val) => val.key === 'youtube_embeds'
+            )
+            this.ytPlayer = new YoutubePlayer(this.ytAudioElement, useEmbed?.enabled)
+          }
+
+          resolve()
+        },
+        { deep: false, immediate: true }
+      )
+    })
   }
 
   private setupSync() {
