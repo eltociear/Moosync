@@ -17,7 +17,6 @@ export class LocalPlayer extends Player {
   constructor(playerInstance: CustomAudioInstance) {
     super()
     this.playerInstance = playerInstance
-    console.log(playerInstance)
     this.playerInstance.load()
   }
 
@@ -29,7 +28,6 @@ export class LocalPlayer extends Player {
   }
 
   async play(): Promise<void> {
-    console.log(this.playerInstance.paused)
     if (this.playerInstance.paused) await this.playerInstance.play()
   }
 

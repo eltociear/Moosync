@@ -31,11 +31,9 @@ export class YTPlayerWrapper implements CustomAudioInstance {
 
   set currentTime(time: number) {
     this.instance.seek(time)
-    console.log(this.instance.getCurrentTime())
   }
 
   public async play() {
-    console.log('playing')
     this.instance.play()
   }
 
@@ -64,7 +62,6 @@ export class YTPlayerWrapper implements CustomAudioInstance {
   }
 
   set ontimeupdate(callback: any) {
-    console.log('adding time upate')
     this.instance.addListener('timeupdate', callback)
   }
 

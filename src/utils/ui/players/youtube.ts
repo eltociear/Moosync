@@ -66,8 +66,6 @@ export class YoutubePlayer extends LocalPlayer {
       }
     }
 
-    console.log(src)
-
     if (src) {
       src && (this.playerInstance.src = src)
       volume && (this.volume = volume)
