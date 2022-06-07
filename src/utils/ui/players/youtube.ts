@@ -20,7 +20,6 @@ export class YoutubePlayer extends LocalPlayer {
   private currentSegments: Segment[] = []
 
   constructor(playerInstance: HTMLDivElement, useEmbed = true) {
-    console.log(useEmbed)
     if (useEmbed) {
       super(new YTPlayerWrapper(playerInstance))
     } else {
@@ -37,16 +36,19 @@ export class YoutubePlayer extends LocalPlayer {
     if (preferences) {
       const sponsorblock = preferences.find((val) => val.key === 'sponsorblock')
       if (sponsorblock && sponsorblock.enabled) {
-        const segments = await this.sponsorBlock.getSegments(videoID, [
-          'sponsor',
-          'intro',
-          'music_offtopic',
-          'selfpromo',
-          'interaction',
-          'preview'
-        ])
-
-        this.currentSegments = segments
+        try {
+          const segments = await this.sponsorBlock.getSegments(videoID, [
+            'sponsor',
+            'intro',
+            'music_offtopic',
+            'selfpromo',
+            'interaction',
+            'preview'
+          ])
+          this.currentSegments = segments
+        } catch (e) {
+          console.warn(e)
+        }
       }
     }
   }
