@@ -27,7 +27,7 @@ interface GenericQueue<T> {
   index: number
 }
 
-class CustomAudioInstance {
+interface CustomAudioInstance {
   currentTime: number
   volume: number
   src: string
@@ -38,12 +38,12 @@ class CustomAudioInstance {
   public pause(): void
   public play(): Promise<void>
 
-  onended: ((this: GlobalEventHandlers, ev: Event) => any) | null
-  ontimeupdate: ((this: GlobalEventHandlers, ev: Event) => any) | null
-  onload: ((this: GlobalEventHandlers, ev: Event) => any) | null
-  onloadeddata: ((this: GlobalEventHandlers, ev: Event) => any) | null
+  onended: ((this: GlobalEventHandlers, ev: Event) => void) | null
+  ontimeupdate: ((this: GlobalEventHandlers, ev: Event) => void) | null
+  onload: ((this: GlobalEventHandlers, ev: Event) => void) | null
+  onloadeddata: ((this: GlobalEventHandlers, ev: Event) => void) | null
   onerror: OnErrorEventHandler
-  onloadstart: ((this: GlobalEventHandlers, ev: Event) => any) | null
+  onloadstart: ((this: GlobalEventHandlers, ev: Event) => void) | null
 
   removeAttribute(str: string): void
   addEventListener(ev: string, callback: unknown)
