@@ -10,11 +10,11 @@
 import { Player } from './player'
 
 export class LocalPlayer extends Player {
-  playerInstance: HTMLAudioElement
+  playerInstance: CustomAudioInstance
   private track: MediaElementAudioSourceNode | undefined
   private context: AudioContext | undefined
 
-  constructor(playerInstance: HTMLAudioElement) {
+  constructor(playerInstance: CustomAudioInstance) {
     super()
     this.playerInstance = playerInstance
     this.playerInstance.load()
@@ -28,6 +28,7 @@ export class LocalPlayer extends Player {
   }
 
   async play(): Promise<void> {
+    console.log(this.playerInstance.paused)
     if (this.playerInstance.paused) await this.playerInstance.play()
   }
 
@@ -58,11 +59,11 @@ export class LocalPlayer extends Player {
   }
 
   protected listenOnEnded(callback: () => void): void {
-    this.playerInstance.addEventListener('ended', callback)
+    this.playerInstance.onended = callback
   }
 
   protected listenOnTimeUpdate(callback: (time: number) => void): void {
-    this.playerInstance.ontimeupdate = (e) => callback((e.currentTarget as HTMLAudioElement).currentTime)
+    this.playerInstance.ontimeupdate = () => callback(this.currentTime)
   }
 
   protected listenOnLoad(callback: () => void): void {
@@ -91,7 +92,7 @@ export class LocalPlayer extends Player {
   }
 
   protected listenOnBuffer(callback: () => void): void {
-    this.playerInstance.onloadstart = () => callback
+    this.playerInstance.onloadstart = callback
   }
 
   removeAllListeners(): void {
@@ -102,8 +103,8 @@ export class LocalPlayer extends Player {
     }
   }
 
-  createAudioContext(): AudioContext {
-    if (!this.context) {
+  createAudioContext() {
+    if (!this.context && this.playerInstance instanceof HTMLAudioElement) {
       this.context = new AudioContext()
       this.track = this.context.createMediaElementSource(this.playerInstance)
       this.track.connect(this.context.destination)

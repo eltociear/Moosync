@@ -7,24 +7,22 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { Player } from './player'
-import YTPlayer from 'yt-player'
 import { Segment, SponsorBlock } from 'sponsorblock-api'
 import { v4 } from 'uuid'
+import { YTPlayerWrapper } from './wrapper/ytPlayer'
+import { LocalPlayer } from './local'
 
 type YouTubePlayerQuality = 'small' | 'medium' | 'large' | 'hd720' | 'hd1080' | 'highres' | 'default'
 
-export class YoutubePlayer extends Player {
-  playerInstance: YTPlayer
-  private supposedVolume = 100
-
+export class YoutubePlayer extends LocalPlayer {
   private sponsorBlock = new SponsorBlock(v4())
 
   private currentSegments: Segment[] = []
 
-  constructor(playerInstance: YTPlayer) {
-    super()
-    this.playerInstance = playerInstance
+  constructor(playerInstance: HTMLAudioElement) {
+    super(new YTPlayerWrapper(playerInstance))
+    // this.playerInstance = new YTPlayerWrapper(new YTPlayer(playerInstance))
+    // this.playerInstance = playerInstance
   }
 
   private async getSponsorblock(videoID: string) {
@@ -41,6 +39,7 @@ export class YoutubePlayer extends Player {
           'preview'
         ])
 
+        console.log(segments)
         this.currentSegments = segments
       }
     }
@@ -60,107 +59,36 @@ export class YoutubePlayer extends Player {
       src = this.extractVideoID(src)
       if (src) {
         this.getSponsorblock(src)
-        src && this.playerInstance.load(src, autoplay)
+        src && (this.playerInstance.src = src)
+        volume && (this.volume = volume)
+        autoplay && this.play()
       }
     }
     volume && (this.volume = volume)
   }
 
-  async play(): Promise<void> {
-    this.playerInstance.play()
-    this.playerInstance.setVolume(this.volume)
-  }
-
-  pause(): void {
-    return this.playerInstance.pause()
-  }
-
-  stop(): void {
-    return this.playerInstance.stop()
-  }
-
-  get currentTime(): number {
-    return this.playerInstance.getCurrentTime()
-  }
-
-  set currentTime(time: number) {
-    this.playerInstance.seek(time)
-  }
-
-  get volume(): number {
-    return this.playerInstance.getVolume()
-  }
-
-  set volume(volume: number) {
-    this.supposedVolume = volume
-    this.playerInstance.setVolume(volume)
-  }
-
-  protected listenOnEnded(callback: () => void): void {
-    this.playerInstance.addListener('ended', callback)
-  }
-
   protected listenOnTimeUpdate(callback: (time: number) => void): void {
     let lastTime = 0
-    this.playerInstance.addListener('timeupdate', (time: number) => {
+    this.playerInstance.ontimeupdate = () => {
+      const time = this.currentTime
       if (time !== lastTime) {
         const segs = this.currentSegments.filter((val) => val.startTime === Math.floor(time))
-
         if (segs.length > 0) {
           const seg = segs.sort((a, b) => b.endTime - a.endTime).at(0)
           if (seg) {
             this.currentTime = seg.endTime
           }
         }
+
         callback(time)
         lastTime = time
       }
-    })
-  }
-
-  protected listenOnLoad(callback: () => void): void {
-    this.playerInstance.addListener('cued', callback)
-  }
-
-  protected listenOnError(callback: (err: Error) => void): void {
-    const handleError = (err: Error) => {
-      callback(err)
-      this.currentSegments = []
     }
-
-    this.playerInstance.addListener('error', handleError.bind(this))
-    this.playerInstance.addListener('unplayable', handleError.bind(this))
-  }
-
-  protected listenOnStateChange(callback: (state: PlayerState) => void): void {
-    this.playerInstance.addListener('playing', () => {
-      this.volume = this.supposedVolume
-      callback('PLAYING')
-    })
-    this.playerInstance.addListener('paused', () => callback('PAUSED'))
-    this.playerInstance.addListener('ended', () => {
-      this.currentSegments = []
-      callback('STOPPED')
-    })
-  }
-
-  protected listenOnBuffer(callback: () => void): void {
-    this.playerInstance.addListener('buffering', callback)
-  }
-
-  removeAllListeners(): void {
-    this.playerInstance.removeAllListeners()
   }
 
   public setPlaybackQuality(quality: YouTubePlayerQuality) {
-    this.playerInstance.setPlaybackQuality(quality)
-  }
-
-  createAudioContext(): AudioContext | undefined {
-    return
-  }
-
-  connectAudioContextNode(): void {
-    return
+    if (this.playerInstance instanceof YTPlayerWrapper) {
+      this.playerInstance.setPlaybackQuality(quality)
+    }
   }
 }

@@ -26,3 +26,26 @@ interface GenericQueue<T> {
   order: QueueOrder
   index: number
 }
+
+class CustomAudioInstance {
+  currentTime: number
+  volume: number
+  src: string
+  paused: boolean
+  srcObject: unknown
+
+  public load(): void
+  public pause(): void
+  public play(): Promise<void>
+
+  onended: ((this: GlobalEventHandlers, ev: Event) => any) | null
+  ontimeupdate: ((this: GlobalEventHandlers, ev: Event) => any) | null
+  onload: ((this: GlobalEventHandlers, ev: Event) => any) | null
+  onloadeddata: ((this: GlobalEventHandlers, ev: Event) => any) | null
+  onerror: OnErrorEventHandler
+  onloadstart: ((this: GlobalEventHandlers, ev: Event) => any) | null
+
+  removeAttribute(str: string): void
+  addEventListener(ev: string, callback: unknown)
+  removeEventListener(ev: string, callback: unknown)
+}
