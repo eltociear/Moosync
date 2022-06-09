@@ -47,7 +47,7 @@ export class YoutubePlayer extends LocalPlayer {
           ])
           this.currentSegments = segments
         } catch (e) {
-          console.warn(e)
+          console.warn('Sponsorblock error for id:', videoID, e)
         }
       }
     }
