@@ -90,6 +90,7 @@ export class YoutubePlayer extends LocalPlayer {
             const seg = segs.sort((a, b) => b.endTime - a.endTime).at(0)
             if (seg) {
               this.currentTime = seg.endTime
+              this.currentSegments.splice(this.currentSegments.indexOf(seg), 1)
             }
           }
         }
