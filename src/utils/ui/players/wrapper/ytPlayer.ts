@@ -1,11 +1,15 @@
 import YTPlayer from 'yt-player'
 
 export class YTPlayerWrapper implements CustomAudioInstance {
-  private supposedVolume = 100
+  private supposedVolume
   private instance: YTPlayer
 
   constructor(element: string | HTMLElement) {
     this.instance = new YTPlayer(element)
+    this.supposedVolume = this.volume
+    this.instance.on('playing', () => {
+      this.volume = this.supposedVolume
+    })
   }
 
   public load() {
@@ -17,7 +21,7 @@ export class YTPlayerWrapper implements CustomAudioInstance {
   }
 
   set volume(volume: number) {
-    this.supposedVolume = volume * 100
+    this.supposedVolume = volume
     this.instance.setVolume(volume * 100)
   }
 
@@ -88,7 +92,6 @@ export class YTPlayerWrapper implements CustomAudioInstance {
   addEventListener(ev: string, callback: (...args: unknown[]) => void) {
     if (ev === 'play') {
       ev = 'playing'
-      this.volume = this.supposedVolume
     }
 
     if (ev === 'pause') {
