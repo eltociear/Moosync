@@ -84,11 +84,13 @@ export class YoutubePlayer extends LocalPlayer {
     this.playerInstance.ontimeupdate = () => {
       const time = this.currentTime
       if (time !== lastTime) {
-        const segs = this.currentSegments.filter((val) => val.startTime === Math.floor(time))
-        if (segs.length > 0) {
-          const seg = segs.sort((a, b) => b.endTime - a.endTime).at(0)
-          if (seg) {
-            this.currentTime = seg.endTime
+        if (this.currentSegments.length > 0) {
+          const segs = this.currentSegments.filter((val) => val.endTime > 1 && val.startTime === Math.floor(time))
+          if (segs.length > 0) {
+            const seg = segs.sort((a, b) => b.endTime - a.endTime).at(0)
+            if (seg) {
+              this.currentTime = seg.endTime
+            }
           }
         }
 
