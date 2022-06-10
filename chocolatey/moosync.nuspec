@@ -4,7 +4,7 @@
   <metadata>
     <!-- == PACKAGE SPECIFIC SECTION == -->
     <id>moosync</id>
-    <version>3.0.1</version>
+    <version>2.1.0</version>
     <packageSourceUrl>https://github.com/Moosync/Moosync</packageSourceUrl>
     <owners>Sahil Gupte</owners>
     <!-- ============================== -->
@@ -13,7 +13,7 @@
     <title>Moosync</title>
     <authors>Sahil Gupte</authors>
     <projectUrl>https://moosync.app</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/Moosync/Moosync/main/build/icons/icon.png</iconUrl>
+    <iconUrl>https://rawcdn.githack.com/Moosync/Moosync/8dbce2217f2df7ac3007698ffbc3006613ddbae8/build/icons/icon.png</iconUrl>
     <licenseUrl>https://www.gnu.org/licenses/gpl-3.0.md</licenseUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <projectSourceUrl>https://github.com/Moosync/Moosync</projectSourceUrl>
@@ -36,7 +36,7 @@
         - Develop own apps on top of Moosync Extension API
         - Available on Windows and Linux and MacOS
     </description>
-    <releaseNotes>https://github.com/Moosync/Moosync/releases/tag/v3.0.1</releaseNotes>
+    <releaseNotes>https://github.com/Moosync/Moosync/releases/tag/v2.1.0</releaseNotes>
     <!-- =============================== -->
   </metadata>
   <files>
