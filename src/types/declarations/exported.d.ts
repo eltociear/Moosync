@@ -14,6 +14,15 @@ interface Artists {
   artist_mbid?: string
   artist_coverPath?: string
   artist_song_count?: number
+  artist_extra_info?: {
+    youtube?: {
+      channel_id?: string
+    }
+    spotify?: {
+      artist_id?: string
+    }
+    extensions?: Record<string, Record<string, string>>
+  }
 }
 
 interface Genre {
@@ -246,7 +255,7 @@ interface SongAPIOptions {
  * Options for searching entities like Albums, Artists, Playlists or Genre
  *
  */
-type EntityApiOptions = {
+type EntityApiOptions<T extends Artists | Album | Genre | Playlist> = {
   /**
    * If false, then the exact match of all options will be provided.
    * If true, then even if an entity matches one of the options, it will be returned.
@@ -260,20 +269,23 @@ type EntityApiOptions = {
    * If inclusive is false then albums having album_name as 'aaa' OR album_id as 'bbb' will be returned
    */
   inclusive?: boolean
-} & (
-  | {
-      album: Partial<Album> | boolean
-    }
-  | {
+} & (T extends Artists
+  ? {
       artist: Partial<Artists> | boolean
     }
-  | {
+  : T extends Album
+  ? {
+      album: Partial<Album> | boolean
+    }
+  : T extends Genre
+  ? {
       genre: Partial<Genre> | boolean
     }
-  | {
+  : T extends Playlist
+  ? {
       playlist: Partial<Playlist> | boolean
     }
-)
+  : Record<string, never>)
 
 /**
  * Methods to control the audio player in Moosync

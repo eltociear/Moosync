@@ -272,7 +272,12 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
           artists: [
             {
               artist_id: `youtube-author:${v.snippet.channelId}`,
-              artist_name: v.snippet.channelTitle.replace('-', '').replace('Topic', '').trim()
+              artist_name: v.snippet.channelTitle.replace('-', '').replace('Topic', '').trim(),
+              artist_extra_info: {
+                youtube: {
+                  channel_id: v.snippet.channelId
+                }
+              }
             }
           ],
           song_coverPath_high: (
@@ -426,7 +431,25 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     }
   }
 
-  public async *getArtistSongs(): AsyncGenerator<Song[]> {
-    yield []
+  public async *getArtistSongs(artist: Artists): AsyncGenerator<Song[]> {
+    const channelId = artist.artist_extra_info?.youtube?.channel_id
+    if (channelId) {
+      const resp = await this.populateRequest(ApiResources.SEARCH, {
+        params: {
+          part: ['id', 'snippet'],
+          type: 'video',
+          maxResults: 30,
+          order: 'relevance',
+          videoEmbeddable: true,
+          channelId
+        }
+      })
+
+      const finalIDs: string[] = []
+      if (resp.items) {
+        resp.items.forEach((val) => finalIDs.push(val.id.videoId))
+        yield this.getSongDetailsFromID(false, ...finalIDs)
+      }
+    }
   }
 }

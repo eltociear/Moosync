@@ -195,7 +195,7 @@ contextBridge.exposeInMainWorld('SearchUtils', {
       params: { options }
     }),
 
-  searchEntityByOptions: (options: EntityApiOptions) =>
+  searchEntityByOptions: <T extends Artists | Album | Genre | Playlist>(options: EntityApiOptions<T>) =>
     ipcRendererHolder.send<SearchRequests.EntityOptions>(IpcEvents.SEARCH, {
       type: SearchEvents.SEARCH_ENTITY_BY_OPTIONS,
       params: { options }

@@ -83,7 +83,8 @@ export class DBUtils {
           artist_name: split[1],
           artist_coverPath: split[2],
           artist_mbid: split[3],
-          artist_song_count: parseInt(split[4])
+          artist_song_count: parseInt(split[4]),
+          artist_extra_info: JSON.parse(split[5] ?? '')
         })
       }
     }
@@ -200,7 +201,7 @@ export class DBUtils {
   }
 
   protected addGroupConcatClause() {
-    return `group_concat(artist_id||','||artist_name||','||COALESCE(artist_coverPath, '')||','||COALESCE(artist_mbid, '')||','||artist_song_count, ';') as artists, group_concat(genre_name) as genre_name`
+    return `group_concat(artist_id||','||artist_name||','||COALESCE(artist_coverPath, '')||','||COALESCE(artist_mbid, '')||','||artist_song_count||','||COALESCE(artist_extra_info, ''), ';') as artists, group_concat(genre_name) as genre_name`
   }
 
   protected getSelectClause() {

@@ -55,7 +55,12 @@ export class YTScraper extends CacheHandler {
         artists:
           s.artists?.map((val) => ({
             artist_id: `youtube-author:${val.id}`,
-            artist_name: val.name
+            artist_name: val.name,
+            artist_extra_info: {
+              youtube: {
+                channel_id: val.id
+              }
+            }
           })) ?? [],
         duration: s.duration?.totalSeconds ?? 0,
         url: s.youtubeId,

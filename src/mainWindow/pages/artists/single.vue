@@ -33,6 +33,7 @@ import { mixins } from 'vue-class-component'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import { arrayDiff } from '@/utils/common'
 import { vxm } from '@/mainWindow/store'
+import { GenericProvider } from '@/utils/ui/providers/generics/genericProvider'
 
 @Component({
   components: {
@@ -42,8 +43,6 @@ import { vxm } from '@/mainWindow/store'
 export default class SingleArtistView extends mixins(ContextMenuMixin) {
   private songList: Song[] = []
   private artist: Artists | null = null
-
-  private lateSongCount = 0
 
   get buttonGroups(): SongDetailButtons {
     return {
@@ -55,18 +54,18 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
   get defaultDetails(): SongDetailDefaults {
     return {
       defaultTitle: this.artist?.artist_name,
-      defaultSubSubtitle: `${this.artist?.artist_song_count ?? this.lateSongCount} Songs`,
+      defaultSubSubtitle: `${this.songList.length} Songs`,
       defaultCover: this.artist?.artist_coverPath
     }
   }
 
   @Watch('$route.query.id')
-  private onArtistChange() {
+  private async onArtistChange() {
     if (typeof this.$route.query.id === 'string') {
       this.artist = null
       this.songList = []
-      this.fetchArtists()
-      this.fetchSongList()
+      await this.fetchArtists()
+      await this.fetchSongList()
     }
   }
 
@@ -87,18 +86,18 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
       this.artist = {
         artist_id: this.$route.query.id as string,
         artist_name: this.$route.query.name as string,
-        artist_coverPath: this.$route.query.cover as string
+        artist_coverPath: this.$route.query.cover as string,
+        artist_extra_info: JSON.parse((this.$route.query.extra_info as string) ?? '')
       }
     }
   }
 
-  private async fetchSpotifySonglist() {
-    if (vxm.providers.loggedInSpotify) {
-      for await (const songs of vxm.providers.spotifyProvider.getArtistSongs(this.$route.query.id as string)) {
+  private async fetchProviderSonglist(provider: GenericProvider) {
+    if (this.artist) {
+      for await (const songs of provider.getArtistSongs(this.artist)) {
         for (const s of songs) {
           if (!this.songList.find((val) => val._id === s._id)) {
             this.songList.push(s)
-            this.lateSongCount++
           }
         }
       }
@@ -106,17 +105,20 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
   }
 
   private async fetchSongList() {
-    if ((this.$route.query.id as string).startsWith('spotify')) {
-      await this.fetchSpotifySonglist()
-      this.lateSongCount = this.songList.length
-    } else {
-      this.songList = await window.SearchUtils.searchSongsByOptions({
-        artist: {
-          artist_id: this.$route.query.id as string
-        },
-        sortBy: vxm.themes.songSortBy
-      })
+    if (this.artist?.artist_extra_info?.spotify && vxm.providers.loggedInSpotify) {
+      this.fetchProviderSonglist(vxm.providers.spotifyProvider)
     }
+
+    if (this.artist?.artist_extra_info?.youtube && vxm.providers.loggedInYoutube) {
+      this.fetchProviderSonglist(vxm.providers.youtubeProvider)
+    }
+
+    this.songList = await window.SearchUtils.searchSongsByOptions({
+      artist: {
+        artist_id: this.$route.query.id as string
+      },
+      sortBy: vxm.themes.songSortBy
+    })
   }
 
   private sort(options: SongSortOptions) {

@@ -21,7 +21,7 @@ import http from 'http'
 type KeysOfUnion<T> = T extends T ? keyof T : never
 // AvailableKeys will basically be keyof Foo | keyof Bar
 // so it will be  "foo" | "bar"
-type EntityKeys = KeysOfUnion<EntityApiOptions>
+type EntityKeys<T extends Artists | Album | Genre | Playlist> = KeysOfUnion<EntityApiOptions<T>>
 
 export class SongDBInstance extends DBUtils {
   /* ============================= 
@@ -429,7 +429,7 @@ export class SongDBInstance extends DBUtils {
    * @param options EntityApiOptions to search by
    * @returns
    */
-  public getEntityByOptions<T>(options: EntityApiOptions): T[] {
+  public getEntityByOptions<T extends Artists | Album | Genre | Playlist>(options: EntityApiOptions<T>): T[] {
     let isFirst = true
     const addANDorOR = () => {
       const str = !isFirst ? (options.inclusive ? 'AND' : 'OR') : ''
@@ -442,17 +442,17 @@ export class SongDBInstance extends DBUtils {
     const args = []
     let orderBy
     for (const [key, value] of Object.entries(options)) {
-      const tableName = this.getTableByProperty(key as EntityKeys)
+      const tableName = this.getTableByProperty(key as EntityKeys<T>)
       if (tableName) {
         query += `${tableName} `
-        orderBy = `${tableName}.${this.getTitleColByProperty(key as EntityKeys)}`
+        orderBy = `${tableName}.${this.getTitleColByProperty(key as EntityKeys<T>)}`
 
         if (typeof value === 'boolean' && value === true) {
           break
         }
 
         if (typeof value === 'object') {
-          const data = options[key as keyof EntityApiOptions]
+          const data = options[key as never]
           if (data) {
             for (const [innerKey, innerValue] of Object.entries(data)) {
               where += `${addANDorOR()} ${innerKey} LIKE ?`
@@ -463,9 +463,20 @@ export class SongDBInstance extends DBUtils {
         }
       }
     }
-    return (
-      (this.db.query(`${query} ${args.length > 0 ? where : ''} ORDER BY ${orderBy} ASC`, ...args) as T[]) ?? []
-    ).filter((val) => val)
+    let ret = this.db.query<T>(`${query} ${args.length > 0 ? where : ''} ORDER BY ${orderBy} ASC`, ...args) ?? []
+    if ('artist' in options) {
+      ret = ret.map((val) => {
+        if ('artist_extra_info' in val && typeof val.artist_extra_info === 'string') {
+          return {
+            ...val,
+            artist_extra_info: JSON.parse(val.artist_extra_info)
+          }
+        }
+        return val
+      })
+    }
+
+    return ret
   }
 
   /**
@@ -716,6 +727,8 @@ export class SongDBInstance extends DBUtils {
       }
     }
     this.db.updateWithBlackList('artists', artist, ['artist_id = ?', artist.artist_id], ['artist_id'])
+
+    this.updateArtistExtraInfo(artist.artist_id, artist.artist_extra_info)
   }
 
   private storeArtists(...artists: Artists[]): string[] {
@@ -753,6 +766,28 @@ export class SongDBInstance extends DBUtils {
       }
     }
     return artistID
+  }
+
+  public updateArtistExtraInfo(id: string, info: Artists['artist_extra_info'], extension?: string) {
+    let toUpdateInfo: Artists['artist_extra_info'] = info
+
+    if (extension) {
+      toUpdateInfo = JSON.parse(
+        this.db.queryFirstCell<string>('SELECT artist_extra_info from artists WHERE artist_id = ?', id) ?? ''
+      )
+
+      if (!toUpdateInfo || !toUpdateInfo.extensions) {
+        toUpdateInfo = {
+          extensions: {}
+        }
+      }
+
+      if (toUpdateInfo && toUpdateInfo.extensions && info && info['extensions']) {
+        toUpdateInfo['extensions'][extension] = info['extensions'][extension]
+      }
+    }
+
+    this.db.update('artists', { artist_extra_info: toUpdateInfo }, ['artist_id = ?', id])
   }
 
   private storeArtistBridge(artistID: string[], songID: string) {

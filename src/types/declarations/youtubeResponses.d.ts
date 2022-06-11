@@ -27,6 +27,7 @@ declare namespace YoutubeResponses {
       maxResults?: number
       videoEmbeddable?: true
       order?: 'date' | 'relevance'
+      channelId?: string
       q?: string
     }
   }

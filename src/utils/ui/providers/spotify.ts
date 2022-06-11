@@ -583,22 +583,24 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     } while (isNext)
   }
 
-  public async *getArtistSongs(artist_id: string): AsyncGenerator<Song[]> {
-    artist_id = artist_id.replace('spotify-author:', '')
-    const resp = await this.populateRequest(ApiResources.ARTIST_TOP, {
-      params: {
-        id: artist_id,
-        market: 'ES'
+  public async *getArtistSongs(artist: Artists): AsyncGenerator<Song[]> {
+    const artist_id = artist.artist_extra_info?.spotify?.artist_id
+    if (artist_id) {
+      const resp = await this.populateRequest(ApiResources.ARTIST_TOP, {
+        params: {
+          id: artist_id,
+          market: 'ES'
+        }
+      })
+
+      for (const s of resp.tracks) {
+        yield [this.parseSong(s)]
       }
-    })
 
-    for (const s of resp.tracks) {
-      yield [this.parseSong(s)]
-    }
-
-    const albums = await this.getArtistAlbums(artist_id)
-    for (const a of albums) {
-      for await (const s of this.getAlbumSongs(a)) yield [s]
+      const albums = await this.getArtistAlbums(artist_id)
+      for (const a of albums) {
+        for await (const s of this.getAlbumSongs(a)) yield [s]
+      }
     }
   }
 }
