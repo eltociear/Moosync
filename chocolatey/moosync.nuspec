@@ -4,7 +4,7 @@
   <metadata>
     <!-- == PACKAGE SPECIFIC SECTION == -->
     <id>moosync</id>
-    <version>2.1.0</version>
+    <version>3.0.1</version>
     <packageSourceUrl>https://github.com/Moosync/Moosync</packageSourceUrl>
     <owners>Sahil Gupte</owners>
     <!-- ============================== -->
@@ -36,7 +36,7 @@
         - Develop own apps on top of Moosync Extension API
         - Available on Windows and Linux and MacOS
     </description>
-    <releaseNotes>https://github.com/Moosync/Moosync/releases/tag/v2.1.0</releaseNotes>
+    <releaseNotes>https://github.com/Moosync/Moosync/releases/tag/v3.0.1</releaseNotes>
     <!-- =============================== -->
   </metadata>
   <files>
