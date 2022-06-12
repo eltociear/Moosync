@@ -87,7 +87,7 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
         artist_id: this.$route.query.id as string,
         artist_name: this.$route.query.name as string,
         artist_coverPath: this.$route.query.cover as string,
-        artist_extra_info: JSON.parse((this.$route.query.extra_info as string) ?? '')
+        artist_extra_info: JSON.parse((this.$route.query.extra_info as string) || '{}')
       }
     }
   }
