@@ -77,7 +77,6 @@ export class DBUtils {
     const ret: Artists[] = []
     for (const a of artists) {
       const split = a.split(',')
-      console.log('extra_info', split[5])
       if (split[0] && split[1] && ret.findIndex((val) => val.artist_id === split[0]) === -1) {
         ret.push({
           artist_id: split[0],
@@ -85,7 +84,7 @@ export class DBUtils {
           artist_coverPath: split[2],
           artist_mbid: split[3],
           artist_song_count: parseInt(split[4]),
-          artist_extra_info: JSON.parse(split[5] || '{}')
+          artist_extra_info: JSON.parse(split.slice(5).join(',') || '{}')
         })
       }
     }
