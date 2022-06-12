@@ -34,10 +34,10 @@
                     <component
                       class="text-truncate field-value w-100 editable"
                       :is="isEditable(key) ? 'b-input' : 'div'"
-                      :value="entity[key]"
+                      :value="getValue(key)"
                       @input="changeEntityField(key, arguments[0])"
                     >
-                      <span class="text-truncate" v-if="!isEditable(key)">{{ entity[key] }}</span>
+                      <span class="text-truncate" v-if="!isEditable(key)">{{ getValue(key) }}</span>
                     </component>
                   </b-col>
                 </b-row>
@@ -60,6 +60,7 @@ import SongDefault from '@/icons/SongDefaultIcon.vue'
 import EditIcon from '@/icons/EditIcon.vue'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
+import { dotIndex } from '@/utils/common'
 
 @Component({
   components: {
@@ -93,11 +94,19 @@ export default class EntityInfoModal extends Vue {
     return src
   }
 
-  private isEditable(field: keyof (Artists & Album & Playlist)) {
+  private getValue(key: string) {
+    if (this.entity) {
+      return dotIndex(this.entity, key)
+    }
+  }
+
+  private isEditable(field: string) {
     switch (field) {
       case 'album_artist':
       case 'artist_mbid':
       case 'playlist_desc':
+      case 'artist_extra_info.youtube.channel_id':
+      case 'artist_extra_info.spotify.artist_id':
         return true
     }
 
@@ -116,6 +125,19 @@ export default class EntityInfoModal extends Vue {
     const fields = []
     if (this.tmpEntity) {
       for (const key of Object.keys(this.tmpEntity)) {
+        if (
+          key === 'artist_extra_info' &&
+          'artist_extra_info' in this.tmpEntity &&
+          this.tmpEntity['artist_extra_info']
+        ) {
+          for (const [extraInfoKey, val] of Object.entries(this.tmpEntity['artist_extra_info'])) {
+            if (extraInfoKey === 'youtube' || extraInfoKey === 'spotify') {
+              fields.push(...Object.keys(val).map((val) => `${key}.${extraInfoKey}.${val}`))
+            }
+          }
+          continue
+        }
+
         switch (key as keyof (Album & Artists & Playlist)) {
           case 'album_name':
           case 'artist_name':
@@ -198,7 +220,7 @@ export default class EntityInfoModal extends Vue {
 
   private changeEntityField(field: never, value: never) {
     if (this.tmpEntity) {
-      this.tmpEntity[field] = value
+      dotIndex(this.tmpEntity, field, value)
     }
   }
 

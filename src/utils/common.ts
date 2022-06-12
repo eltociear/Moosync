@@ -171,3 +171,11 @@ export function sanitizeArtistName(name: string, capitalize = false) {
 
   return sanitized
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function dotIndex(obj: any, is: string | string[], value?: unknown): unknown {
+  if (typeof is == 'string') return dotIndex(obj, is.split('.'), value)
+  else if (is.length == 1 && value !== undefined) return (obj[is[0]] = value)
+  else if (is.length == 0) return obj
+  else return dotIndex(obj[is[0]], is.slice(1), value)
+}
