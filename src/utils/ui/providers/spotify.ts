@@ -405,7 +405,12 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
         title: track.name,
         artists: track.artists.map((val) => ({
           artist_id: `spotify-author:${val.id}`,
-          artist_name: val.name
+          artist_name: val.name,
+          artist_extra_info: {
+            spotify: {
+              artist_id: val.id
+            }
+          }
         })),
         album: {
           album_name: track.album.name,
@@ -422,7 +427,12 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
           song.artists.push({
             artist_id: `spotify-author:${artist.id}`,
             artist_name: artist.name,
-            artist_coverPath: artist.images?.at(0)?.url
+            artist_coverPath: artist.images?.at(0)?.url,
+            artist_extra_info: {
+              spotify: {
+                artist_id: artist.id
+              }
+            }
           })
         }
       }
@@ -522,7 +532,12 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     return {
       artist_id: `spotify-author:${artist.id}`,
       artist_name: artist.name,
-      artist_coverPath: artist.images?.at(0)?.url
+      artist_coverPath: artist.images?.at(0)?.url,
+      artist_extra_info: {
+        spotify: {
+          artist_id: artist.id
+        }
+      }
     }
   }
 
@@ -587,8 +602,36 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     } while (isNext)
   }
 
+  private async correctArtist(artist: Artists) {
+    if (artist.artist_name) {
+      const sanitizedName = artist.artist_name
+        .toLowerCase()
+        .replaceAll(/vevo|official|videos|topic|music|youtube|-|,|/g, '')
+
+      const resp = await this.searchArtists(sanitizedName)
+      if (resp.length > 0) {
+        window.DBUtils.updateArtist({
+          artist_id: artist.artist_id,
+          artist_coverPath: artist.artist_coverPath ?? resp[0].artist_coverPath,
+          artist_extra_info: {
+            spotify: resp[0].artist_extra_info?.spotify
+          }
+        })
+        return resp[0]
+      }
+    }
+  }
+
   public async *getArtistSongs(artist: Artists): AsyncGenerator<Song[]> {
-    const artist_id = artist.artist_extra_info?.spotify?.artist_id
+    let artist_id = artist.artist_extra_info?.spotify?.artist_id
+
+    if (!artist_id && artist.artist_name) {
+      const resp = await this.correctArtist(artist)
+      if (resp) {
+        artist_id = resp.artist_extra_info?.spotify?.artist_id
+      }
+    }
+
     if (artist_id) {
       const resp = await this.populateRequest(ApiResources.ARTIST_TOP, {
         params: {
