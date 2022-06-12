@@ -29,6 +29,7 @@ declare namespace YoutubeResponses {
       order?: 'date' | 'relevance'
       channelId?: string
       q?: string
+      pageToken?: string | undefined
     }
   }
 
@@ -284,6 +285,7 @@ declare namespace YoutubeResponses {
     }
     interface SearchDetails {
       items: Item[]
+      nextPageToken: string
     }
   }
 

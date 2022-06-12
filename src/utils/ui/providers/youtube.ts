@@ -438,21 +438,31 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
   public async *getArtistSongs(artist: Artists): AsyncGenerator<Song[]> {
     const channelId = artist.artist_extra_info?.youtube?.channel_id
     if (channelId) {
-      const resp = await this.populateRequest(ApiResources.SEARCH, {
-        params: {
-          part: ['id', 'snippet'],
-          type: 'video',
-          maxResults: 30,
-          order: 'relevance',
-          videoEmbeddable: true,
-          channelId
-        }
-      })
-
+      let pageToken: string | undefined
       const finalIDs: string[] = []
-      if (resp.items) {
-        resp.items.forEach((val) => finalIDs.push(val.id.videoId))
-        yield this.getSongDetailsFromID(false, ...finalIDs)
+
+      do {
+        const resp = await this.populateRequest(ApiResources.SEARCH, {
+          params: {
+            part: ['id'],
+            type: 'video',
+            maxResults: 50,
+            order: 'relevance',
+            videoEmbeddable: true,
+            pageToken,
+            channelId
+          }
+        })
+
+        if (resp.items) {
+          resp.items.forEach((val) => finalIDs.push(val.id.videoId))
+        }
+
+        pageToken = resp.nextPageToken
+      } while (pageToken)
+
+      while (finalIDs.length > 0) {
+        yield this.getSongDetailsFromID(false, ...finalIDs.splice(0, 50))
       }
     }
   }
