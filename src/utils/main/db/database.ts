@@ -726,7 +726,12 @@ export class SongDBInstance extends DBUtils {
         await fsP.rm(oldArtist.artist_coverPath, { force: true })
       }
     }
-    this.db.updateWithBlackList('artists', artist, ['artist_id = ?', artist.artist_id], ['artist_id'])
+    this.db.updateWithBlackList(
+      'artists',
+      artist,
+      ['artist_id = ?', artist.artist_id],
+      ['artist_id', 'artist_extra_info']
+    )
 
     this.updateArtistExtraInfo(artist.artist_id, artist.artist_extra_info)
   }
@@ -736,33 +741,35 @@ export class SongDBInstance extends DBUtils {
     for (const a of artists) {
       if (a.artist_name) {
         const sanitizedName = sanitizeArtistName(a.artist_name, true)
-        const id = this.db.queryFirstCell(
+        let id = this.db.queryFirstCell(
           `SELECT artist_id FROM artists WHERE artist_name = ? COLLATE NOCASE`,
           sanitizedName
         )
-        if (id) artistID.push(id)
-        else {
-          const id = v4()
+        if (id) {
+          artistID.push(id)
+          const existingArtist = this.db.queryFirstRow<Artists>(
+            `SELECT * FROM artists WHERE artist_id = ? COLLATE NOCASE`,
+            id
+          )
+
+          if (existingArtist) {
+            if (a.artist_mbid) {
+              if (!existingArtist.artist_mbid) {
+                this.db.update('artists', a.artist_mbid, ['artist_id = ?', id])
+              }
+
+              if (!existingArtist.artist_coverPath && a.artist_coverPath) {
+                this.db.update('artists', a.artist_coverPath, ['artist_id = ?', id])
+              }
+            }
+          }
+        } else {
+          id = v4()
           this.db.insert('artists', { artist_id: id, artist_name: sanitizedName })
           artistID.push(id)
         }
 
-        const existingArtist = this.db.queryFirstRow<Artists>(
-          `SELECT * FROM artists WHERE artist_id = ? COLLATE NOCASE`,
-          id
-        )
-
-        if (existingArtist) {
-          if (a.artist_mbid) {
-            if (!existingArtist.artist_mbid) {
-              this.db.update('artists', a.artist_mbid, ['artist_id = ?', id])
-            }
-
-            if (!existingArtist.artist_coverPath && a.artist_coverPath) {
-              this.db.update('artists', a.artist_coverPath, ['artist_id = ?', id])
-            }
-          }
-        }
+        this.updateArtistExtraInfo(id, a.artist_extra_info ?? {})
       }
     }
     return artistID
@@ -787,7 +794,7 @@ export class SongDBInstance extends DBUtils {
       }
     }
 
-    this.db.update('artists', { artist_extra_info: toUpdateInfo }, ['artist_id = ?', id])
+    this.db.update('artists', { artist_extra_info: JSON.stringify(toUpdateInfo) }, ['artist_id = ?', id])
   }
 
   private storeArtistBridge(artistID: string[], songID: string) {
