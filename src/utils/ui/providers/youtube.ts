@@ -437,9 +437,10 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
 
   public async *getArtistSongs(artist: Artists): AsyncGenerator<Song[]> {
     const channelId = artist.artist_extra_info?.youtube?.channel_id
+    const finalIDs: string[] = []
+
     if (channelId) {
       let pageToken: string | undefined
-      const finalIDs: string[] = []
 
       do {
         const resp = await this.populateRequest(ApiResources.SEARCH, {
@@ -463,6 +464,22 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
 
       while (finalIDs.length > 0) {
         yield this.getSongDetailsFromID(false, ...finalIDs.splice(0, 50))
+      }
+    } else {
+      const resp = await this.populateRequest(ApiResources.SEARCH, {
+        params: {
+          part: ['id'],
+          type: 'video',
+          maxResults: 50,
+          order: 'relevance',
+          videoEmbeddable: true,
+          q: artist.artist_name
+        }
+      })
+
+      if (resp.items) {
+        resp.items.forEach((val) => finalIDs.push(val.id.videoId))
+        yield this.getSongDetailsFromID(false, ...finalIDs)
       }
     }
   }
