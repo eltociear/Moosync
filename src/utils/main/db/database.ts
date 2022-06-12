@@ -776,13 +776,11 @@ export class SongDBInstance extends DBUtils {
   }
 
   public updateArtistExtraInfo(id: string, info: Artists['artist_extra_info'], extension?: string) {
-    let toUpdateInfo: Artists['artist_extra_info'] = info
+    let toUpdateInfo: Artists['artist_extra_info'] = JSON.parse(
+      this.db.queryFirstCell<string>('SELECT artist_extra_info from artists WHERE artist_id = ?', id) ?? '{}'
+    )
 
     if (extension) {
-      toUpdateInfo = JSON.parse(
-        this.db.queryFirstCell<string>('SELECT artist_extra_info from artists WHERE artist_id = ?', id) ?? ''
-      )
-
       if (!toUpdateInfo || !toUpdateInfo.extensions) {
         toUpdateInfo = {
           extensions: {}
@@ -792,6 +790,8 @@ export class SongDBInstance extends DBUtils {
       if (toUpdateInfo && toUpdateInfo.extensions && info && info['extensions']) {
         toUpdateInfo['extensions'][extension] = info['extensions'][extension]
       }
+    } else {
+      toUpdateInfo = { ...toUpdateInfo, ...info }
     }
 
     this.db.update('artists', { artist_extra_info: JSON.stringify(toUpdateInfo) }, ['artist_id = ?', id])
