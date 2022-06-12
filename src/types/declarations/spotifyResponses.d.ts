@@ -21,6 +21,7 @@ declare namespace SpotifyResponses {
     SEARCH = 'search',
     ARTIST_TOP = 'artists/{artist_id}/top-tracks',
     ARTIST_ALBUMS = 'artists/{artist_id}/albums',
+    ARTIST = 'artists/{artist_id}',
     ALBUM_SONGS = 'albums/{album_id}/tracks'
   }
 
@@ -128,6 +129,8 @@ declare namespace SpotifyResponses {
     : T extends ApiResources.SEARCH
     ? SearchRequest
     : T extends ApiResources.ARTIST_TOP
+    ? ArtistsTopTracks
+    : T extends ApiResources.ARTIST
     ? ArtistsTopTracks
     : T extends ApiResources.ARTIST_ALBUMS
     ? ArtistAlbumsRequest
@@ -450,5 +453,7 @@ declare namespace SpotifyResponses {
     ? AlbumTracksResponse
     : T extends ApiResources.LIKED_SONGS
     ? PlaylistItems.PlaylistItems
+    : T extends ApiResources.ARTIST
+    ? SpotifyResponses.RecommendationDetails.SpotifyArtist
     : undefined
 }

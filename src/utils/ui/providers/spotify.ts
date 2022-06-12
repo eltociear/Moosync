@@ -38,6 +38,7 @@ enum ApiResources {
   SEARCH = 'search',
   ARTIST_TOP = 'artists/{artist_id}/top-tracks',
   ARTIST_ALBUMS = 'artists/{artist_id}/albums',
+  ARTIST = 'artists/{artist_id}',
   ALBUM_SONGS = 'albums/{album_id}/tracks'
 }
 
@@ -152,7 +153,11 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       search.params = undefined
     }
 
-    if (resource === ApiResources.ARTIST_TOP || resource === ApiResources.ARTIST_ALBUMS) {
+    if (
+      resource === ApiResources.ARTIST_TOP ||
+      resource === ApiResources.ARTIST_ALBUMS ||
+      resource === ApiResources.ARTIST
+    ) {
       url = resource.replace('{artist_id}', (search as SpotifyResponses.ArtistsTopTracks).params.id)
     }
 
@@ -262,7 +267,15 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       },
       url: track.id,
       song_coverPath_high: track.album.images[0] ? track.album.images[0].url : '',
-      artists: track.artists.map((artist) => ({ artist_name: artist.name, artist_id: `spotify-author:${artist.id}` })),
+      artists: track.artists.map((artist) => ({
+        artist_name: artist.name,
+        artist_id: `spotify-author:${artist.id}`,
+        artist_extra_info: {
+          spotify: {
+            artist_id: artist.id
+          }
+        }
+      })),
       duration: track.duration_ms / 1000,
       date_added: Date.now(),
       type: 'SPOTIFY'
@@ -648,6 +661,19 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       for (const a of albums) {
         for await (const s of this.getAlbumSongs(a)) yield [s]
       }
+    }
+  }
+
+  public async getArtistDetails(artist: Artists) {
+    if (artist.artist_extra_info?.spotify?.artist_id) {
+      const artistDetails = await this.populateRequest(ApiResources.ARTIST, {
+        params: {
+          id: artist.artist_extra_info?.spotify?.artist_id,
+          market: 'ES'
+        }
+      })
+
+      return this.parseArtist(artistDetails)
     }
   }
 }

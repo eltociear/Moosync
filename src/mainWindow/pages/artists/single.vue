@@ -106,6 +106,16 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
         artist_extra_info: JSON.parse((this.$route.query.extra_info as string) || '{}')
       }
     }
+
+    let fetchedArtist = await vxm.providers.spotifyProvider.getArtistDetails(this.artist)
+    if (!fetchedArtist) {
+      fetchedArtist = await vxm.providers.spotifyProvider.getArtistDetails(this.artist)
+    }
+
+    this.artist = {
+      ...this.artist,
+      artist_coverPath: fetchedArtist?.artist_coverPath
+    }
   }
 
   private async fetchProviderSonglist(provider: GenericProvider) {

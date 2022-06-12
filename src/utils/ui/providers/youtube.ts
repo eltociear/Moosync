@@ -483,4 +483,35 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
       }
     }
   }
+
+  private parseArtist(artist: YoutubeResponses.ChannelInfo.ChannelInfo): Artists | undefined {
+    if (artist.items.length > 0) {
+      return {
+        artist_id: `youtube-author:${artist.items[0].id}`,
+        artist_coverPath:
+          artist.items[0].snippet?.thumbnails.maxres.url ??
+          artist.items[0].snippet?.thumbnails.high.url ??
+          artist.items[0].snippet?.thumbnails.default.url,
+        artist_extra_info: {
+          youtube: {
+            channel_id: artist.items[0].id
+          }
+        },
+        artist_name: artist.items[0].snippet?.title
+      }
+    }
+  }
+
+  public async getArtistDetails(artist: Artists) {
+    if (artist.artist_extra_info?.youtube?.channel_id) {
+      const artistDetails = await this.populateRequest(ApiResources.CHANNELS, {
+        params: {
+          id: artist.artist_extra_info?.youtube?.channel_id,
+          part: ['id', 'snippet']
+        }
+      })
+
+      return this.parseArtist(artistDetails)
+    }
+  }
 }

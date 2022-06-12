@@ -87,4 +87,6 @@ export abstract class GenericProvider {
   public abstract getArtistSongs(artist: Artists): AsyncGenerator<Song[]>
 
   public abstract searchSongs(term: string): Promise<Song[]>
+
+  public abstract getArtistDetails(artist: Artists): Promise<Artists | undefined>
 }

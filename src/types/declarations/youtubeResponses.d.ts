@@ -36,7 +36,8 @@ declare namespace YoutubeResponses {
   type ChannelRequest = {
     params: {
       part: ['id', 'snippet'?]
-      mine: true
+      mine?: true
+      id?: string
     }
   }
 

@@ -239,4 +239,9 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
     if (resp) return this.parsePlaylistItems([resp])
     return []
   }
+
+  // TODO: Fetch artist details from invidious
+  public async getArtistDetails(artist: Artists): Promise<Artists | undefined> {
+    return
+  }
 }
