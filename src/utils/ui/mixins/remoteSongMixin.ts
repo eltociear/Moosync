@@ -11,11 +11,6 @@ import { Component, Vue } from 'vue-property-decorator'
 
 @Component
 export default class RemoteSong extends Vue {
-  public addYTItemsToLibrary(...songs: Song[]) {
-    window.DBUtils.storeSongs(songs)
-    this.$toasted.show(`Added ${songs.length} songs to library`)
-  }
-
   public addSongsToLibrary(...songs: Song[]) {
     window.DBUtils.storeSongs(songs)
     this.$toasted.show(`Added ${songs.length} songs to library`)

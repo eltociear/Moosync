@@ -51,6 +51,10 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
 
   private _config: { key: string; secret: string } | undefined
 
+  public get key() {
+    return 'lastfm'
+  }
+
   private setLoggedInStatus() {
     vxm.providers.loggedInLastFM = !!this._session
   }

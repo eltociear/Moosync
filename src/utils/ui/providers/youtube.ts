@@ -35,6 +35,10 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
   private auth!: AuthFlow
   private _config!: ReturnType<YoutubeProvider['getConfig']>
 
+  public get key() {
+    return 'youtube'
+  }
+
   private getConfig(oauthChannel: string, id: string, secret: string) {
     return {
       openIdConnectUrl: 'https://accounts.google.com',

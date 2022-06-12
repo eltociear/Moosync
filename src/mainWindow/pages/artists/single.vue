@@ -20,7 +20,9 @@
       @onRowContext="getSongMenu(arguments[0], arguments[1], undefined)"
       @playAll="playArtist"
       @addToQueue="addArtistToQueue"
+      @onOptionalProviderChanged="onArtistProviderChanged"
       :detailsButtonGroup="buttonGroups"
+      :optionalProviders="artistProviders"
     />
   </div>
 </template>
@@ -42,7 +44,21 @@ import { GenericProvider } from '@/utils/ui/providers/generics/genericProvider'
 })
 export default class SingleArtistView extends mixins(ContextMenuMixin) {
   private songList: Song[] = []
+  private optionalSongList: Record<string, string[]> = {}
   private artist: Artists | null = null
+
+  private get artistProviders(): ProviderHeaderOptions[] {
+    return [
+      {
+        title: 'Youtube',
+        key: vxm.providers.youtubeProvider.key
+      },
+      {
+        title: 'Spotify',
+        key: vxm.providers.spotifyProvider.key
+      }
+    ]
+  }
 
   get buttonGroups(): SongDetailButtons {
     return {
@@ -98,6 +114,11 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
         for (const s of songs) {
           if (!this.songList.find((val) => val._id === s._id)) {
             this.songList.push(s)
+
+            if (!this.optionalSongList[provider.key]) {
+              this.optionalSongList[provider.key] = []
+            }
+            this.optionalSongList[provider.key].push(s._id)
           }
         }
       }
@@ -105,14 +126,6 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
   }
 
   private async fetchSongList() {
-    if (this.artist?.artist_extra_info?.spotify && vxm.providers.loggedInSpotify) {
-      this.fetchProviderSonglist(vxm.providers.spotifyProvider)
-    }
-
-    if (this.artist?.artist_extra_info?.youtube && vxm.providers.loggedInYoutube) {
-      this.fetchProviderSonglist(vxm.providers.youtubeProvider)
-    }
-
     this.songList = await window.SearchUtils.searchSongsByOptions({
       artist: {
         artist_id: this.$route.query.id as string
@@ -127,7 +140,7 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
 
   private getIsRemote(songs: Song[]) {
     for (const s of songs) {
-      if (s._id.startsWith('youtube') || s._id.startsWith('spotify')) {
+      if (s._id.startsWith('youtube') || s._id.startsWith('spotify') || s.providerExtension) {
         return true
       }
     }
@@ -153,6 +166,26 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
 
   private addArtistToQueue() {
     this.queueSong(this.songList)
+  }
+
+  private onArtistProviderChanged({ key, checked }: { key: string; checked: boolean }) {
+    if (checked) {
+      if (key === vxm.providers.youtubeProvider.key) {
+        if (vxm.providers.loggedInYoutube) {
+          this.fetchProviderSonglist(vxm.providers.youtubeProvider)
+        }
+      }
+
+      if (key === vxm.providers.spotifyProvider.key) {
+        if (vxm.providers.loggedInSpotify) {
+          this.fetchProviderSonglist(vxm.providers.spotifyProvider)
+        }
+      }
+    } else {
+      this.songList = this.songList.filter(
+        (val) => this.optionalSongList[key] && !this.optionalSongList[key].includes(val._id)
+      )
+    }
   }
 }
 </script>

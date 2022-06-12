@@ -48,6 +48,10 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   private auth!: AuthFlow
   private _config!: ReturnType<SpotifyProvider['getConfig']>
 
+  public get key() {
+    return 'spotify'
+  }
+
   private api = axios.create({
     adapter: cache.adapter,
     baseURL: BASE_URL,

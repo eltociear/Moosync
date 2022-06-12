@@ -19,4 +19,9 @@ interface SongDetailButtons {
   enableLibraryStore: boolean
 }
 
+interface ProviderHeaderOptions {
+  title: string
+  key: string
+}
+
 type TableFields = 'index' | 'title' | 'album_name' | 'artist_name'

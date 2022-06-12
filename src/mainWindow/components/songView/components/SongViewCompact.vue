@@ -18,7 +18,7 @@
       />
     </b-col>
     <b-col cols="8" xl="9" class="h-100 song-list-compact">
-      <SongListCompact :songList="songList" v-on="$listeners" />
+      <SongListCompact :optionalProviders="optionalProviders" :songList="songList" v-on="$listeners" />
     </b-col>
   </b-row>
 </template>
@@ -47,6 +47,9 @@ export default class SongViewCompact extends mixins(PlayerControls, RemoteSong, 
 
   @Prop({ default: false })
   private tableBusy!: boolean
+
+  @Prop({ default: () => [] })
+  private optionalProviders!: ProviderHeaderOptions[]
 
   @Prop({
     default: () => {

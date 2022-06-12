@@ -20,6 +20,8 @@
         :currentSong="currentSong"
         :defaultDetails="defaultDetails"
         :detailsButtonGroup="detailsButtonGroup"
+        :optionalProviders="optionalProviders"
+        @onOptionalProviderChanged="onOptionalProviderChanged"
         @onRowDoubleClicked="queueSong([arguments[0]])"
         @onRowContext="getSongContextMenu"
         @onRowSelected="updateCoverDetails"
@@ -62,6 +64,9 @@ export default class AllSongs extends mixins(PlayerControls, ModelHelper, Remote
 
   @Prop({ default: false })
   private tableBusy!: boolean
+
+  @Prop({ default: () => [] })
+  private optionalProviders!: ProviderHeaderOptions[]
 
   private sort(SongSortOptions: SongSortOptions) {
     if (!this.ignoreSort) {
@@ -146,6 +151,10 @@ export default class AllSongs extends mixins(PlayerControls, ModelHelper, Remote
   private addToLibrary() {
     this.addSongsToLibrary(...(this.selected ?? this.songList))
     this.selected = this.selectedCopy
+  }
+
+  private onOptionalProviderChanged(...args: unknown[]) {
+    this.$emit('onOptionalProviderChanged', ...args)
   }
 }
 </script>

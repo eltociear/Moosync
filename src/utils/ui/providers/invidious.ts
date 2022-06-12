@@ -22,6 +22,10 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
   private _token: string | undefined
   private oAuthChannel: string | undefined
 
+  public get key() {
+    return 'youtube'
+  }
+
   public async updateConfig(): Promise<boolean> {
     const AUTH_BASE_URL = await window.PreferenceUtils.loadSelective('invidious_instance')
     this._token = (await this.fetchStoredToken()) ?? undefined
