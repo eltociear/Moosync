@@ -4,6 +4,8 @@ export class YTPlayerWrapper implements CustomAudioInstance {
   private supposedVolume
   private instance: YTPlayer
 
+  private listeners: Record<string, never> = {}
+
   constructor(element: string | HTMLElement) {
     this.instance = new YTPlayer(element)
     this.supposedVolume = this.volume
@@ -17,6 +19,10 @@ export class YTPlayerWrapper implements CustomAudioInstance {
   }
 
   set src(src: string) {
+    if (!src) {
+      this.stop()
+      return
+    }
     this.instance.load(src, true)
   }
 
@@ -58,19 +64,44 @@ export class YTPlayerWrapper implements CustomAudioInstance {
   }
 
   set srcObject(o: unknown) {
+    if (!o) {
+      this.stop()
+    }
     return
   }
 
+  private removeListener(key: string) {
+    if (this.listeners[key]) {
+      this.removeEventListener(key, this.listeners[key])
+    }
+  }
+
   set onended(callback: never) {
+    if (!callback) {
+      this.removeListener('ended')
+      return
+    }
+
     this.instance.addListener('ended', callback)
+    this.listeners['ended'] = callback
   }
 
   set ontimeupdate(callback: never) {
+    if (!callback) {
+      this.removeListener('timeupdate')
+      return
+    }
     this.instance.addListener('timeupdate', callback)
+    this.listeners['timeupdate'] = callback
   }
 
   set onload(callback: never) {
+    if (!callback) {
+      this.removeListener('cued')
+      return
+    }
     this.instance.addListener('cued', callback)
+    this.listeners['cued'] = callback
   }
 
   set onloadeddata(callback: never) {
@@ -78,12 +109,24 @@ export class YTPlayerWrapper implements CustomAudioInstance {
   }
 
   set onerror(callback: never) {
+    if (!callback) {
+      this.removeListener('error')
+      this.removeListener('unplayable')
+      return
+    }
     this.instance.addListener('error', callback)
     this.instance.addListener('unplayable', callback)
+    this.listeners['error'] = callback
+    this.listeners['unplayable'] = callback
   }
 
   set onloadstart(callback: never) {
+    if (!callback) {
+      this.removeListener('buffering')
+      return
+    }
     this.instance.addListener('buffering', callback)
+    this.listeners['buffering'] = callback
   }
 
   removeAttribute(): void {
