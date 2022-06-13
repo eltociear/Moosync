@@ -15,7 +15,13 @@
       enter-active-class="animate__animated animate__fadeIn"
       leave-active-class="animate__animated animate__fadeOut animate__faster"
     >
-      <b-img class="bg-img" v-if="computedImg" :src="computedImg" :key="computedImg"></b-img>
+      <b-img
+        class="bg-img"
+        v-if="computedImg"
+        :src="computedImg"
+        :key="computedImg"
+        referrerPolicy="no-referrer"
+      ></b-img>
     </transition>
     <b-container fluid class="w-100 h-100 main-container">
       <b-row no-gutters align-h="end">

@@ -18,6 +18,7 @@
             class="image h-100"
             :src="computedImg"
             @error="handlerImageError(arguments[0], handleError)"
+            referrerPolicy="no-referrer"
           />
           <SongDefault v-else class="h-100 image" />
         </div>

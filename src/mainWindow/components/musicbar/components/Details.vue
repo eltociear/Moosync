@@ -19,6 +19,7 @@
         alt="cover art"
         @error="handlerImageError(arguments[0], handleError)"
         @dragstart="dragFile"
+        referrerPolicy="no-referrer"
       />
       <SongDefault v-else class="coverimg" />
     </b-col>
@@ -50,6 +51,7 @@
             :src="iconURL"
           />
           <img
+            referrerPolicy="no-referrer"
             v-if="iconURL && iconType === 'URL' && !iconURL.endsWith('svg')"
             :src="iconURL"
             alt="provider icon"

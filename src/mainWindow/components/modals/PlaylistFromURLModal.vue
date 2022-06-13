@@ -19,6 +19,7 @@
               class="playlist-url-cover"
               :src="playlist.playlist_coverPath"
               @error="handleImageError"
+              referrerPolicy="no-referrer"
             ></b-img>
           </b-col>
           <b-col cols="9">

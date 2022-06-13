@@ -19,6 +19,7 @@
               class="song-url-cover"
               :src="getImgSrc(getValidImageHigh(tmpSong))"
               @error="handleImageError"
+              referrerPolicy="no-referrer"
             ></b-img>
             <div @click="changeSongCover" class="edit-button d-flex justify-content-center">
               <EditIcon class="align-self-center" />

@@ -124,9 +124,10 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
 
     let fetchedArtist = await vxm.providers.spotifyProvider.getArtistDetails(this.artist)
     if (!fetchedArtist) {
-      fetchedArtist = await vxm.providers.spotifyProvider.getArtistDetails(this.artist)
+      fetchedArtist = await vxm.providers.youtubeProvider.getArtistDetails(this.artist)
     }
 
+    console.log(fetchedArtist?.artist_coverPath)
     this.artist = {
       ...this.artist,
       artist_coverPath: fetchedArtist?.artist_coverPath

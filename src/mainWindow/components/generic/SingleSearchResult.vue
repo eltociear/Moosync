@@ -12,11 +12,11 @@
     <b-row align-h="around">
       <b-col cols="1" class="img-container justify-content-around ms-auto" @click="emitImgClick">
         <img
+          referrerPolicy="no-referrer"
           v-if="!forceEmptyImg"
           ref="cover"
           class="coverimg me-auto d-flex align-items-center"
           alt="cover img"
-          referrerpolicy="no-referrer"
           :src="getImgSrc(coverImg)"
           @error="handleCoverError"
         />

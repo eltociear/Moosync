@@ -16,6 +16,7 @@
           v-if="!forceEmptyImg && image"
           :src="image"
           @error="handlerImageError(arguments[0], handlerError)"
+          referrerPolicy="no-referrer"
         />
         <SongDefault v-else class="h-100 image" />
         <div @click="playSong" class="play-button d-flex justify-content-center">
@@ -49,6 +50,7 @@
             :src="iconURL"
           />
           <img
+            referrerPolicy="no-referrer"
             v-if="iconURL && iconType === 'URL' && !iconURL.endsWith('svg')"
             :src="iconURL"
             alt="provider icon"

@@ -21,7 +21,7 @@
         >
           <b-col cols="auto">
             <div class="img-container">
-              <img :src="ext.logo" :alt="ext.name + ' logo'" />
+              <img :src="ext.logo" :alt="ext.name + ' logo'" referrerPolicy="no-referrer" />
             </div>
           </b-col>
           <b-col class="ml-3 text-truncate">

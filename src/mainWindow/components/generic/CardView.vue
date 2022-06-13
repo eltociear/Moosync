@@ -17,6 +17,7 @@
         <div class="embed-responsive embed-responsive-1by1">
           <div class="embed-responsive-item img-container">
             <img
+              referrerPolicy="no-referrer"
               v-if="imgSrc && !forceEmptyImg"
               :src="getImgSrc(imgSrc)"
               alt="Album Art"

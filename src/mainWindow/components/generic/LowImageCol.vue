@@ -14,6 +14,7 @@
       :style="{ height, width }"
     ></div>
     <img
+      referrerPolicy="no-referrer"
       v-if="!forceEmptyImg"
       ref="cover"
       class="coverimg me-auto d-flex align-items-center"

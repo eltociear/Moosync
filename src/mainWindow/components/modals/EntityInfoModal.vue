@@ -14,7 +14,13 @@
         <b-row no-gutters class="d-flex">
           <b-col cols="auto">
             <SongDefault v-if="forceEmptyImg || !imgSrc" class="song-url-cover" />
-            <b-img v-else class="song-url-cover" :src="imgSrc" @error="handleImageError"></b-img>
+            <b-img
+              v-else
+              class="song-url-cover"
+              :src="imgSrc"
+              @error="handleImageError"
+              referrerPolicy="no-referrer"
+            ></b-img>
             <div @click="changeEntityCover" class="edit-button d-flex justify-content-center">
               <EditIcon class="align-self-center" />
             </div>

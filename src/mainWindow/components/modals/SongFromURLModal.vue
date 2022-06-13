@@ -14,7 +14,13 @@
         <b-row no-gutters class="d-flex">
           <b-col cols="auto">
             <SongDefault v-if="forceEmptyImg || !parsedSong || !getValidImageHigh(parsedSong)" class="song-url-cover" />
-            <b-img v-else class="song-url-cover" :src="getValidImageHigh(parsedSong)" @error="handleImageError"></b-img>
+            <b-img
+              v-else
+              class="song-url-cover"
+              :src="getValidImageHigh(parsedSong)"
+              @error="handleImageError"
+              referrerPolicy="no-referrer"
+            ></b-img>
           </b-col>
           <b-col cols="9">
             <b-row no-gutters class="song-url-details">

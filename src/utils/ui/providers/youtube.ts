@@ -489,9 +489,9 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
       return {
         artist_id: `youtube-author:${artist.items[0].id}`,
         artist_coverPath:
-          artist.items[0].snippet?.thumbnails.maxres.url ??
-          artist.items[0].snippet?.thumbnails.high.url ??
-          artist.items[0].snippet?.thumbnails.default.url,
+          artist.items[0].snippet?.thumbnails?.maxres?.url ??
+          artist.items[0].snippet?.thumbnails?.high?.url ??
+          artist.items[0].snippet?.thumbnails?.default?.url,
         artist_extra_info: {
           youtube: {
             channel_id: artist.items[0].id
@@ -510,6 +510,8 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
           part: ['id', 'snippet']
         }
       })
+
+      console.log(artistDetails)
 
       return this.parseArtist(artistDetails)
     }

@@ -35,7 +35,7 @@
         >
           <template slot="icon">
             <inline-svg class="provider-icon" v-if="a.icon.endsWith('svg')" :src="a.icon" />
-            <img v-else :src="a.icon" alt="provider icon" class="provider-icon" />
+            <img v-else referrerPolicy="no-referrer" :src="a.icon" alt="provider icon" class="provider-icon" />
           </template>
         </IconButton>
       </div>

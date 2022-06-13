@@ -26,6 +26,7 @@
                   :src="computedImg"
                   :key="computedImg"
                   @error="handleImageError"
+                  referrerPolicy="no-referrer"
                 />
                 <SongDefault class="albumart w-100" v-if="!computedImg" />
               </transition>

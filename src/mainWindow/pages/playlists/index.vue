@@ -36,7 +36,12 @@
                 :filled="true"
               />
               <inline-svg v-if="playlist.icon && playlist.icon.endsWith('svg')" :src="playlist.icon" />
-              <img v-if="playlist.icon && !playlist.icon.endsWith('svg')" :src="playlist.icon" alt="provider logo" />
+              <img
+                v-if="playlist.icon && !playlist.icon.endsWith('svg')"
+                :src="playlist.icon"
+                alt="provider logo"
+                referrerPolicy="no-referrer"
+              />
             </template>
 
             <template #defaultCover>

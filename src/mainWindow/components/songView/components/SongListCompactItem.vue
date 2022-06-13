@@ -37,6 +37,7 @@
               :src="iconURL"
             />
             <img
+              referrerPolicy="no-referrer"
               v-if="iconURL && iconType === 'URL' && !iconURL.endsWith('svg')"
               :src="iconURL"
               alt="provider icon"
