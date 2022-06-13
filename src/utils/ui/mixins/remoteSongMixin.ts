@@ -23,11 +23,7 @@ export default class RemoteSong extends Vue {
       if (s && s.artists) {
         for (const a of s.artists) {
           if (!a.artist_coverPath) {
-            const fetchedArtist =
-              (await vxm.providers.spotifyProvider.getArtistDetails(a)) ??
-              (await vxm.providers.youtubeProvider.getArtistDetails(a))
-
-            console.log(fetchedArtist)
+            const fetchedArtist = await this.fetchRemoteArtistDetails(a)
             await window.DBUtils.updateArtist({
               ...a,
               artist_coverPath: fetchedArtist?.artist_coverPath
@@ -36,5 +32,13 @@ export default class RemoteSong extends Vue {
         }
       }
     }
+  }
+
+  public async fetchRemoteArtistDetails(a: Artists) {
+    const fetchedArtist =
+      (await vxm.providers.spotifyProvider.getArtistDetails(a)) ??
+      (await vxm.providers.youtubeProvider.getArtistDetails(a))
+
+    return fetchedArtist
   }
 }

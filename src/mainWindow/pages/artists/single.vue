@@ -36,13 +36,14 @@ import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import { arrayDiff } from '@/utils/common'
 import { vxm } from '@/mainWindow/store'
 import { GenericProvider } from '@/utils/ui/providers/generics/genericProvider'
+import RemoteSong from '@/utils/ui/mixins/remoteSongMixin'
 
 @Component({
   components: {
     SongView
   }
 })
-export default class SingleArtistView extends mixins(ContextMenuMixin) {
+export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSong) {
   private songList: Song[] = []
   private optionalSongList: Record<string, string[]> = {}
   private artist: Artists | null = null
@@ -123,11 +124,7 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
     }
 
     if (!this.artist.artist_coverPath) {
-      let fetchedArtist = await vxm.providers.spotifyProvider.getArtistDetails(this.artist)
-      if (!fetchedArtist) {
-        fetchedArtist = await vxm.providers.youtubeProvider.getArtistDetails(this.artist)
-      }
-
+      let fetchedArtist = await this.fetchRemoteArtistDetails(this.artist)
       this.artist = {
         ...this.artist,
         artist_coverPath: fetchedArtist?.artist_coverPath
