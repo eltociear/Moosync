@@ -511,8 +511,6 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
         }
       })
 
-      console.log(artistDetails)
-
       return this.parseArtist(artistDetails)
     }
   }
