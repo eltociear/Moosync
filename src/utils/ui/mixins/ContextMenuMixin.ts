@@ -350,6 +350,8 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
       case 'GENERIC_SORT':
         items = this.getGenericSortByMenu(options.args.sortOptions)
         break
+      case 'SONG_SORT':
+        items = this.getSongSortByMenu(options.args.sortOptions)[0].children ?? []
     }
 
     this.getExtensionItems(options.type, this.getExtensionArgs(options)).then((res) => items.push(...res))
@@ -405,6 +407,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
   }
 
   private emitMenu(event: Event, items: { label: string; handler?: () => void }[]) {
+    console.log('emitting')
     bus.$emit(EventBus.SHOW_CONTEXT, event, items)
   }
 }

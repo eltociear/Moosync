@@ -23,7 +23,7 @@
         :optionalProviders="optionalProviders"
         @onOptionalProviderChanged="onOptionalProviderChanged"
         @onRowDoubleClicked="queueSong([arguments[0]])"
-        @onRowContext="getSongContextMenu"
+        @onRowContext="emitSongContextMenu"
         @onRowSelected="updateCoverDetails"
         @onRowSelectionClear="clearSelection"
         @onRowPlayNowClicked="playTop([arguments[0]])"
@@ -32,6 +32,7 @@
         @playAll="playAll"
         @addToQueue="addToQueue"
         @addToLibrary="addToLibrary"
+        @onSortClicked="showSortMenu"
       ></component>
     </transition>
   </b-container>
@@ -49,6 +50,7 @@ import SongViewClassic from '@/mainWindow/components/songView/components/SongVie
 import SongViewCompact from '@/mainWindow/components/songView/components/SongViewCompact.vue'
 import { sortSongList } from '@/utils/common'
 import RouterPushes from '@/utils/ui/mixins/RouterPushes'
+import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 
 @Component({
   components: {
@@ -56,7 +58,14 @@ import RouterPushes from '@/utils/ui/mixins/RouterPushes'
     SongViewCompact
   }
 })
-export default class AllSongs extends mixins(PlayerControls, ModelHelper, RemoteSong, ImgLoader, RouterPushes) {
+export default class AllSongs extends mixins(
+  PlayerControls,
+  ModelHelper,
+  RemoteSong,
+  ImgLoader,
+  RouterPushes,
+  ContextMenuMixin
+) {
   @Prop({ default: () => [] })
   private songList!: Song[]
 
@@ -133,9 +142,22 @@ export default class AllSongs extends mixins(PlayerControls, ModelHelper, Remote
     this.selectedCopy = items
   }
 
-  private getSongContextMenu(event: Event, item: Song) {
+  private emitSongContextMenu(event: Event, item: Song) {
     event.stopPropagation()
     this.$emit('onRowContext', event, item)
+  }
+
+  private showSortMenu(event: Event) {
+    event.stopPropagation()
+    this.getContextMenu(event, {
+      type: 'SONG_SORT',
+      args: {
+        sortOptions: {
+          callback: (options) => (vxm.themes.songSortBy = options),
+          current: vxm.themes.songSortBy
+        }
+      }
+    })
   }
 
   private playAll() {

@@ -30,7 +30,7 @@
               </div>
             </b-col>
             <b-col cols="auto" class="ml-auto">
-              <SortIcon />
+              <SortIcon @click.native="showSortMenu" />
             </b-col>
           </b-row>
         </b-col>
@@ -105,6 +105,10 @@ export default class SongListCompact extends mixins(ImgLoader, SongListMixin) {
 
   private onArtistClicked(item: Artists) {
     this.$emit('onArtistClicked', item)
+  }
+
+  private showSortMenu(event: MouseEvent) {
+    this.$emit('onSortClicked', event)
   }
 }
 </script>
