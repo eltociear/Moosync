@@ -410,21 +410,24 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       }
     }
 
-    const data = await new Promise<{ url: string; duration: number } | undefined>((resolve, reject) => {
-      if (song.playbackUrl) {
-        const audio = new Audio()
-        audio.onloadedmetadata = () => {
-          if (song.playbackUrl) resolve({ url: song.playbackUrl, duration: audio.duration })
+    try {
+      const data = await new Promise<{ url: string; duration: number } | undefined>((resolve, reject) => {
+        if (song.playbackUrl) {
+          const audio = new Audio()
+          audio.onloadedmetadata = () => {
+            if (song.playbackUrl) resolve({ url: song.playbackUrl, duration: audio.duration })
+          }
+          audio.onerror = reject
+
+          audio.src = song.playbackUrl
+        } else {
+          resolve(undefined)
         }
-        audio.onerror = reject
-
-        audio.src = song.playbackUrl
-      } else {
-        resolve(undefined)
-      }
-    })
-
-    return data
+      })
+      return data
+    } catch (e) {
+      console.error('Failed to get duration for url', song.playbackUrl)
+    }
   }
 
   private metadataInterval: ReturnType<typeof setInterval> | undefined
@@ -561,6 +564,13 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
           }
         }
       }
+    }
+
+    if (!song.playbackUrl || !song.duration) {
+      this.removeFromQueue(vxm.player.queueIndex)
+      this.nextSong()
+      vxm.player.loading = false
+      return
     }
 
     if (PlayerTypes === 'LOCAL') {
