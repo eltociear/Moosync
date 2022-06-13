@@ -183,6 +183,7 @@ class MainRequestHandler {
     if (message.type === 'get-accounts') {
       const items = this.handler.getExtensionAccounts()
       this.sendToMain(message.channel, items)
+      return
     }
 
     if (message.type === 'perform-account-login') {
@@ -190,6 +191,12 @@ class MainRequestHandler {
         .performExtensionAccountLogin(message.data.packageName, message.data.accountId, message.data.loginStatus)
         .then((val) => this.sendToMain(message.channel, val))
 
+      return
+    }
+
+    if (message.type === 'get-search-providers') {
+      const items = this.handler.getExtensionSearchProviders()
+      this.sendToMain(message.channel, items)
       return
     }
   }

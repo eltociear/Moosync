@@ -126,29 +126,36 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
       }
     }
 
-    window.ExtensionUtils.sendEvent({ type: 'requestSearchResult', data: [this.term] }).then((data) => {
-      for (const [key, val] of Object.entries(data)) {
-        if (val) {
-          if (!this.items.find((val) => val.tab === key)) {
-            this.items.push({
-              tab: key,
-              title: val.providerName,
-              count: 0,
-              key: `${key}-0`,
-              loading: true,
-              extension: key
-            })
-          }
+    const providers = await window.ExtensionUtils.getRegisteredSearchProviders()
+    for (const [key, val] of Object.entries(providers)) {
+      if (val && !this.items.find((val) => val.tab === key)) {
+        this.items.push({
+          tab: key,
+          title: val,
+          count: 0,
+          key: `${key}-0`,
+          loading: true,
+          extension: key
+        })
 
-          if (!this.result.extension) {
-            this.result.extension = {}
-          }
-
-          this.result.extension[key] = val.songs
-          this.refreshExtension(key)
+        if (!this.result.extension) {
+          this.result.extension = {}
         }
+
+        window.ExtensionUtils.sendEvent({ type: 'requestSearchResult', data: [this.term], packageName: key }).then(
+          (data) => {
+            for (const [key, val] of Object.entries(data)) {
+              if (this.result.extension) {
+                if (val && val.songs) {
+                  this.result.extension[key] = val.songs
+                  this.refreshExtension(key)
+                }
+              }
+            }
+          }
+        )
       }
-    })
+    }
   }
 
   private refreshLocal() {

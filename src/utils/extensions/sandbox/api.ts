@@ -20,6 +20,7 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
   private contextMenuMap: ExtendedExtensionContextMenuItems<ContextMenuTypes>[] = []
 
   private accountsMap: AccountDetails[] = []
+  private searchProvider: string | undefined
 
   constructor(packageName: string) {
     this.packageName = packageName
@@ -209,6 +210,14 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
 
   public _getAccountDetails(): AccountDetails[] {
     return this.accountsMap
+  }
+
+  public registerSearchProvider(title: string) {
+    this.searchProvider = title
+  }
+
+  public _getSearchProvider() {
+    return this.searchProvider
   }
 }
 

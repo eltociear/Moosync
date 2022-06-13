@@ -197,11 +197,15 @@ class MainRequestGenerator {
   }
 
   public async getAccounts() {
-    return this.sendAsync<StrippedAccountDetails[]>('get-accounts')
+    return this.sendAsync<Record<string, StrippedAccountDetails[]>>('get-accounts')
   }
 
   public async performAccountLogin(packageName: string, accountId: string, loginStatus: boolean) {
     return this.sendAsync<void>('perform-account-login', { packageName, accountId, loginStatus })
+  }
+
+  public async getSearchProviders() {
+    return this.sendAsync<Record<string, string>>('get-accounts')
   }
 
   public async sendContextMenuItemClicked(

@@ -108,6 +108,15 @@ export class ExtensionHandler {
     return accountMap
   }
 
+  public getExtensionSearchProviders() {
+    const ext = this.extensionManager.getExtensions()
+    const searchMap: { [key: string]: string } = {}
+    for (const e of ext) {
+      const provider = e.global.api._getSearchProvider()
+      if (provider) searchMap[e.packageName] = provider
+    }
+  }
+
   public async performExtensionAccountLogin(packageName: string, accountId: string, loginStatus: boolean) {
     const ext = this.extensionManager.getExtensions({ packageName })
     for (const e of ext) {

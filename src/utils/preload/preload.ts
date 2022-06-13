@@ -527,7 +527,13 @@ contextBridge.exposeInMainWorld('ExtensionUtils', {
     }),
 
   listenExtensionsChanged: (callback: () => void) =>
-    ipcRendererHolder.on(ExtensionHostEvents.ON_EXTENSIONS_CHANGED, callback)
+    ipcRendererHolder.on(ExtensionHostEvents.ON_EXTENSIONS_CHANGED, callback),
+
+  getRegisteredSearchProviders: () =>
+    ipcRendererHolder.send(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.GET_REGISTERED_SEARCH_PROVIDERS,
+      params: undefined
+    })
 })
 
 contextBridge.exposeInMainWorld('UpdateUtils', {

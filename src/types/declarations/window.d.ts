@@ -268,6 +268,7 @@ interface extensionUtils {
   listenAccountRegistered: (callback: (details: { packageName: string; data: StrippedAccountDetails }) => void) => void
   performAccountLogin: (packageName: string, accountId: string, login: boolean) => Promise<void>
   listenExtensionsChanged: (callback: () => void) => void
+  getRegisteredSearchProviders: () => Promise<Record<string, string>>
 }
 
 /**

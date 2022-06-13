@@ -44,7 +44,8 @@ export const mainRequestsKeys = [
   'on-clicked-context-menu',
   'set-log-level',
   'get-accounts',
-  'perform-account-login'
+  'perform-account-login',
+  'get-search-providers'
 ] as const
 
 export type extensionUIRequests = typeof extensionUIRequestsKeys[number] | typeof playerControlRequests[number]
