@@ -77,7 +77,7 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
   }
 
   public async addSongs(...songs: Song[]) {
-    return sendAsync<boolean[]>(this.packageName, 'add-songs', songs)
+    return sendAsync<(Song | undefined)[]>(this.packageName, 'add-songs', songs)
   }
 
   public async removeSong(song_id: string) {

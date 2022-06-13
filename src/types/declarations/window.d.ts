@@ -21,7 +21,7 @@ interface DBUtils {
    * Store songs in database
    * @param songs array of songs to remove
    */
-  storeSongs: (songs: Song[]) => Promise<void>
+  storeSongs: (songs: Song[]) => Promise<(Song | undefined)[]>
 
   /**
    * Update songs in database

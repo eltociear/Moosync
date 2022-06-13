@@ -70,14 +70,15 @@ export class SongsChannel implements IpcChannelInterface {
   }
 
   private storeSongs(event: Electron.IpcMainEvent, request: IpcRequest<SongRequests.Songs>) {
+    const results: (Song | undefined)[] = []
     if (request.params.songs) {
       const songs = request.params.songs
       for (const s of songs) {
-        SongDB.store(s)
+        results.push(SongDB.store(s))
       }
     }
 
-    event.reply(request.responseChannel)
+    event.reply(request.responseChannel, results)
   }
 
   private async updateSong(event: Electron.IpcMainEvent, request: IpcRequest<SongRequests.Songs>) {

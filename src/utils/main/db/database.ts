@@ -44,11 +44,11 @@ export class SongDBInstance extends DBUtils {
     return oldId
   }
 
-  public store(newDoc: Partial<Song>): boolean {
+  public store(newDoc: Song): Song | undefined {
     if (this.verifySong(newDoc)) {
       const existing = this.getSongByOptions({ song: { _id: newDoc._id } })[0]
       if (existing) {
-        return false
+        return existing
       }
 
       const artistID = newDoc.artists ? this.storeArtists(...newDoc.artists) : []
@@ -65,10 +65,18 @@ export class SongDBInstance extends DBUtils {
 
       this.updateAllSongCounts()
 
-      return true
-    }
+      if (newDoc.artists && artistID.length > 0) {
+        for (const i in newDoc.artists) {
+          newDoc.artists[i].artist_id = artistID[i]
+        }
+      }
 
-    return false
+      if (newDoc.album && albumID) {
+        newDoc.album.album_id = albumID
+      }
+
+      return newDoc
+    }
   }
 
   private updateAllSongCounts() {
