@@ -22,7 +22,7 @@
       @addToQueue="addArtistToQueue"
       @onOptionalProviderChanged="onArtistProviderChanged"
       :detailsButtonGroup="buttonGroups"
-      :optionalProviders="artistProviders"
+      :optionalProviders="artistSongProviders"
     />
   </div>
 </template>
@@ -47,7 +47,9 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
   private optionalSongList: Record<string, string[]> = {}
   private artist: Artists | null = null
 
-  private get artistProviders(): ProviderHeaderOptions[] {
+  private extensionArtistSongProviders: ProviderHeaderOptions[] = []
+
+  private get artistSongProviders(): ProviderHeaderOptions[] {
     return [
       {
         title: 'Youtube',
@@ -56,7 +58,8 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
       {
         title: 'Spotify',
         key: vxm.providers.spotifyProvider.key
-      }
+      },
+      ...this.extensionArtistSongProviders
     ]
   }
 
@@ -85,7 +88,17 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
     }
   }
 
+  private async fetchExtensionArtistSongProviders() {
+    const exts = await window.ExtensionUtils.getRegisteredArtistSongProviders()
+    for (const [key, title] of Object.entries(exts)) {
+      if (title) {
+        this.extensionArtistSongProviders.push({ key, title })
+      }
+    }
+  }
+
   created() {
+    this.fetchExtensionArtistSongProviders()
     this.onArtistChange()
   }
 
@@ -178,19 +191,44 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
     this.queueSong(this.songList)
   }
 
+  private async fetchExtensionSongs(key: string) {
+    if (this.artist) {
+      const data = await window.ExtensionUtils.sendEvent({
+        type: 'requestedArtistSongs',
+        data: [this.artist],
+        packageName: key
+      })
+
+      for (const s of data[key].songs) {
+        if (!this.songList.find((val) => val._id === s._id)) {
+          this.songList.push(s)
+
+          if (!this.optionalSongList[key]) {
+            this.optionalSongList[key] = []
+          }
+          this.optionalSongList[key].push(s._id)
+        }
+      }
+    }
+  }
+
   private onArtistProviderChanged({ key, checked }: { key: string; checked: boolean }) {
     if (checked) {
       if (key === vxm.providers.youtubeProvider.key) {
         if (vxm.providers.loggedInYoutube) {
           this.fetchProviderSonglist(vxm.providers.youtubeProvider)
         }
+        return
       }
 
       if (key === vxm.providers.spotifyProvider.key) {
         if (vxm.providers.loggedInSpotify) {
           this.fetchProviderSonglist(vxm.providers.spotifyProvider)
         }
+        return
       }
+
+      this.fetchExtensionSongs(key)
     } else {
       this.songList = this.songList.filter(
         (val) => this.optionalSongList[key] && !this.optionalSongList[key].includes(val._id)

@@ -205,7 +205,11 @@ class MainRequestGenerator {
   }
 
   public async getSearchProviders() {
-    return this.sendAsync<Record<string, string>>('get-accounts')
+    return this.sendAsync<Record<string, string>>('get-search-providers')
+  }
+
+  public async getArtistSongProviders() {
+    return this.sendAsync<Record<string, string>>('get-artist-songs-providers')
   }
 
   public async sendContextMenuItemClicked(

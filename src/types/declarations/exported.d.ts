@@ -334,6 +334,7 @@ type ExtraExtensionEventTypes =
   | 'requestSearchResult'
   | 'requestedRecommendations'
   | 'requestedLyrics'
+  | 'requestedArtistSongs'
 
 type ExtraExtensionEventReturnType<T extends ExtraExtensionEventTypes> = T extends 'requestedPlaylists'
   ? GetPlaylistReturnType | void
@@ -353,6 +354,8 @@ type ExtraExtensionEventReturnType<T extends ExtraExtensionEventTypes> = T exten
   ? GetRecommendationsReturnType | void
   : T extends 'requestedLyrics'
   ? string | void
+  : T extends 'requestedArtistSongs'
+  ? GetPlaylistSongsReturnType
   : void
 
 type ExtraExtensionEventData<T extends ExtraExtensionEventTypes> = T extends 'requestedPlaylistSongs'
@@ -385,6 +388,8 @@ type ExtraExtensionEventData<T extends ExtraExtensionEventTypes> = T extends 're
   ? [term: string]
   : T extends 'requestedLyrics'
   ? [song: Song]
+  : T extends 'requestedArtistSongs'
+  ? [artist: Artists]
   : []
 
 type GetPlaylistReturnType = {
@@ -415,7 +420,6 @@ type GetPlaylistAndSongsReturnType = {
 }
 
 type GetSearchReturnType = {
-  providerName: string
   songs: Song[]
 }
 

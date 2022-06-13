@@ -119,6 +119,7 @@ interface ExtendedExtensionAPI extends extensionAPI {
   _getContextMenuItems: () => ExtendedExtensionContextMenuItems<ContextMenuTypes>[]
   _getAccountDetails: () => AccountDetails[]
   _getSearchProvider: () => string | undefined
+  _getArtistSongProvider: () => string | undefined
 }
 
 interface ExtensionItem extends ExtensionDetails {

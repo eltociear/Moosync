@@ -61,6 +61,9 @@ export class ExtensionHostChannel implements IpcChannelInterface {
       case ExtensionHostEvents.GET_REGISTERED_SEARCH_PROVIDERS:
         this.getRegisteredSearchProviders(event, request)
         break
+      case ExtensionHostEvents.GET_REGISTERED_ARTIST_SONG_PROVIDERS:
+        this.getRegisteredArtistSongProviders(event, request)
+        break
     }
   }
 
@@ -262,6 +265,11 @@ export class ExtensionHostChannel implements IpcChannelInterface {
 
   public async getRegisteredSearchProviders(event: Electron.IpcMainEvent, request: IpcRequest) {
     const items = await this.extensionHost.mainRequestGenerator.getSearchProviders()
+    event.reply(request.responseChannel, items)
+  }
+
+  public async getRegisteredArtistSongProviders(event: Electron.IpcMainEvent, request: IpcRequest) {
+    const items = await this.extensionHost.mainRequestGenerator.getArtistSongProviders()
     event.reply(request.responseChannel, items)
   }
 }

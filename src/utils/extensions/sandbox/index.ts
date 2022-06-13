@@ -199,6 +199,12 @@ class MainRequestHandler {
       this.sendToMain(message.channel, items)
       return
     }
+
+    if (message.type === 'get-artist-songs-providers') {
+      const items = this.handler.getExtensionArtistSongProviders()
+      this.sendToMain(message.channel, items)
+      return
+    }
   }
 
   private sendToMain(channel: string, data?: unknown) {

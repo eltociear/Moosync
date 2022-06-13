@@ -269,6 +269,7 @@ interface extensionUtils {
   performAccountLogin: (packageName: string, accountId: string, login: boolean) => Promise<void>
   listenExtensionsChanged: (callback: () => void) => void
   getRegisteredSearchProviders: () => Promise<Record<string, string>>
+  getRegisteredArtistSongProviders: () => Promise<Record<string, string>>
 }
 
 /**
