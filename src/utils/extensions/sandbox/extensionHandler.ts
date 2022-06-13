@@ -111,15 +111,18 @@ export class ExtensionHandler {
       const provider = e.global.api._getSearchProvider()
       if (provider) searchMap[e.packageName] = provider
     }
+    return searchMap
   }
 
   public getExtensionArtistSongProviders() {
     const ext = this.extensionManager.getExtensions()
-    const searchMap: { [key: string]: string } = {}
+    const artistMap: { [key: string]: string } = {}
     for (const e of ext) {
       const provider = e.global.api._getArtistSongProvider()
-      if (provider) searchMap[e.packageName] = provider
+      if (provider) artistMap[e.packageName] = provider
     }
+
+    return artistMap
   }
 
   public async performExtensionAccountLogin(packageName: string, accountId: string, loginStatus: boolean) {
