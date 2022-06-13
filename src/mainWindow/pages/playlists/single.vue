@@ -166,7 +166,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
       })
 
       if (data[extension]) {
-        this.songList.push(...(data[extension] as GetPlaylistSongsReturnType).songs)
+        this.songList.push(...(data[extension] as SongsReturnType).songs)
       }
     }
   }

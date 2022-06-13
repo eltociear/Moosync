@@ -12,11 +12,7 @@ import { AbstractExtensionManager, ExtensionManager } from '@/utils/extensions/s
 
 import { getVersion } from '@/utils/common'
 
-type CombinedSongsType =
-  | GetPlaylistSongsReturnType
-  | GetSearchReturnType
-  | GetPlaylistAndSongsReturnType
-  | GetRecommendationsReturnType
+type CombinedSongsType = SongsReturnType | PlaylistAndSongsReturnType | RecommendationsReturnType
 
 export class ExtensionHandler {
   private extensionManager: AbstractExtensionManager
@@ -213,7 +209,7 @@ export class ExtensionHandler {
 
       if (resp) {
         if (EventType === 'requestedPlaylists') {
-          ;(resp as GetPlaylistReturnType).playlists = (resp as GetPlaylistReturnType).playlists.map((val) => ({
+          ;(resp as PlaylistReturnType).playlists = (resp as PlaylistReturnType).playlists.map((val) => ({
             ...val,
             playlist_id: `${ext.packageName}:${val.playlist_id}`,
             extension: ext.packageName
@@ -221,10 +217,10 @@ export class ExtensionHandler {
         }
 
         if (EventType === 'requestedPlaylistFromURL') {
-          const playlist: ExtendedPlaylist = (resp as GetPlaylistAndSongsReturnType).playlist
+          const playlist: ExtendedPlaylist = (resp as PlaylistAndSongsReturnType).playlist
           playlist.playlist_id = `${ext.packageName}:${playlist.playlist_id}`
           playlist.extension = ext.packageName
-          ;(resp as GetPlaylistAndSongsReturnType).playlist = playlist
+          ;(resp as PlaylistAndSongsReturnType).playlist = playlist
         }
 
         if (
@@ -242,10 +238,10 @@ export class ExtensionHandler {
         }
 
         if (EventType === 'requestedSongFromURL') {
-          const song = (resp as GetSongReturnType).song
+          const song = (resp as SongReturnType).song
           song._id = `${ext.packageName}:${song._id}`
           song.providerExtension = ext.packageName
-          ;(resp as GetSongReturnType).song = song
+          ;(resp as SongReturnType).song = song
         }
       }
 

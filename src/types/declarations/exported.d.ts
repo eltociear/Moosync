@@ -337,25 +337,25 @@ type ExtraExtensionEventTypes =
   | 'requestedArtistSongs'
 
 type ExtraExtensionEventReturnType<T extends ExtraExtensionEventTypes> = T extends 'requestedPlaylists'
-  ? GetPlaylistReturnType | void
+  ? PlaylistReturnType | void
   : T extends 'requestedPlaylistSongs'
-  ? GetPlaylistSongsReturnType | void
+  ? SongsReturnType | void
   : T extends 'playbackDetailsRequested'
-  ? GetPlaybackDetailsReturnType | void
+  ? PlaybackDetailsReturnType | void
   : T extends 'customRequest'
   ? CustomRequestReturnType | void
   : T extends 'requestedSongFromURL'
-  ? GetSongReturnType | void
+  ? SongReturnType | void
   : T extends 'requestedPlaylistFromURL'
-  ? GetPlaylistAndSongsReturnType | void
+  ? PlaylistAndSongsReturnType | void
   : T extends 'requestSearchResult'
-  ? GetSearchReturnType | void
+  ? SongsReturnType | void
   : T extends 'requestedRecommendations'
   ? GetRecommendationsReturnType | void
   : T extends 'requestedLyrics'
   ? string | void
   : T extends 'requestedArtistSongs'
-  ? GetPlaylistSongsReturnType
+  ? SongsReturnType
   : void
 
 type ExtraExtensionEventData<T extends ExtraExtensionEventTypes> = T extends 'requestedPlaylistSongs'
@@ -392,15 +392,15 @@ type ExtraExtensionEventData<T extends ExtraExtensionEventTypes> = T extends 're
   ? [artist: Artists]
   : []
 
-type GetPlaylistReturnType = {
+type PlaylistReturnType = {
   playlists: Playlist[]
 }
 
-type GetPlaylistSongsReturnType = {
+type SongsReturnType = {
   songs: Song[]
 }
 
-type GetPlaybackDetailsReturnType = {
+type PlaybackDetailsReturnType = {
   duration: number
   url: string
 }
@@ -410,20 +410,16 @@ type CustomRequestReturnType = {
   data: Buffer
 }
 
-type GetSongReturnType = {
+type SongReturnType = {
   song: Song
 }
 
-type GetPlaylistAndSongsReturnType = {
+type PlaylistAndSongsReturnType = {
   playlist: Playlist
   songs: Song[]
 }
 
-type GetSearchReturnType = {
-  songs: Song[]
-}
-
-type GetRecommendationsReturnType = {
+type RecommendationsReturnType = {
   providerName: string
   songs: Song[]
 }
@@ -595,10 +591,7 @@ interface extensionAPI {
    * Event fired when playlists are requested by the user
    * The callback should return and result playlists or undefined
    */
-  on(
-    eventName: 'requestedPlaylists',
-    callback: (invalidateCache: boolean) => Promise<GetPlaylistReturnType | void>
-  ): void
+  on(eventName: 'requestedPlaylists', callback: (invalidateCache: boolean) => Promise<PlaylistReturnType | void>): void
 
   /**
    * Event fired when songs of a single playlist are requested by the user
@@ -606,7 +599,7 @@ interface extensionAPI {
    */
   on(
     eventName: 'requestedPlaylistSongs',
-    callback: (playlistID: string, invalidateCache: boolean) => Promise<GetPlaylistSongsReturnType | void>
+    callback: (playlistID: string, invalidateCache: boolean) => Promise<SongsReturnType | void>
   ): void
 
   /**
@@ -651,10 +644,7 @@ interface extensionAPI {
    *
    * Can be used to dynamically provide playbackUrl and/or duration
    */
-  on(
-    eventName: 'playbackDetailsRequested',
-    callback: (song: Song) => Promise<GetPlaybackDetailsReturnType | void>
-  ): void
+  on(eventName: 'playbackDetailsRequested', callback: (song: Song) => Promise<PlaybackDetailsReturnType | void>): void
 
   /**
    * Event fired when custom url corresponding to the extension is called
@@ -677,34 +667,42 @@ interface extensionAPI {
    * Event fired when user enters url in 'Add song from URL' modal
    * Callback should return parsed song or undefined
    */
-  on(eventName: 'requestedSongFromURL', callback: (url: string) => Promise<GetSongReturnType | void>): void
+  on(eventName: 'requestedSongFromURL', callback: (url: string) => Promise<SongReturnType | void>): void
 
   /**
    * Event fired when user enters url in 'Add playlist from URL' modal
    * Callback should return a playlist and parsed songs in that playlist or undefined
    */
-  on(
-    eventName: 'requestedPlaylistFromURL',
-    callback: (url: string) => Promise<GetPlaylistAndSongsReturnType | void>
-  ): void
+  on(eventName: 'requestedPlaylistFromURL', callback: (url: string) => Promise<PlaylistAndSongsReturnType | void>): void
 
   /**
    * Event fired when user searches a term in search page
    * Callback should return a providerName and result songs or undefined
+   * 
+   * Requires extension to be registered as a provider using {@link registerSearchProvider}
+
    */
-  on(eventName: 'requestSearchResult', callback: (term: string) => Promise<GetSearchReturnType | void>): void
+  on(eventName: 'requestSearchResult', callback: (term: string) => Promise<SongsReturnType | void>): void
 
   /**
    * Event fired when user opens Explore page
    * Callback should return a providerName and result songs or undefined
    */
-  on(eventName: 'requestedRecommendations', callback: () => Promise<GetRecommendationsReturnType | void>): void
+  on(eventName: 'requestedRecommendations', callback: () => Promise<RecommendationsReturnType | void>): void
 
   /**
    * Event fired when lyrics are requested for a song
    * Callback should return a string (HTML formatting) with lyrics or undefined
    */
   on(eventName: 'requestedLyrics', callback: (song: Song) => Promise<string | void>): void
+
+  /**
+   * Event fired when songs by a particular artist are requested
+   * Callback should return parsed songs or undefined
+   *
+   * Requires extension to be registered as a provider using {@link registerArtistSongProvider}
+   */
+  on(eventName: 'requestedArtistSongs', callback: (artist: Artists) => Promise<SongsReturnType | void>)
 
   /**
    * Remove callbacks from extra events
@@ -781,6 +779,22 @@ interface extensionAPI {
    * @param type type of toast. Usually denotes color
    */
   showToast(message: string, duration?: number, type?: 'success' | 'info' | 'error' | 'default')
+
+  /**
+   * Register extension as provider of search results. 'requestSearchResult' can be
+   * listened after calling this method.
+   *
+   * @param title Title to show in search page
+   */
+  registerSearchProvider(title: string): void
+
+  /**
+   * Register extension as provider of artist songs. 'requestedArtistSongs' can be
+   * listened after calling this method
+   *
+   * @param title Title to show in artists page
+   */
+  registerArtistSongProvider(title: string): void
 
   /**
    * Object containing controls for player
