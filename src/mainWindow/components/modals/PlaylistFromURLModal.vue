@@ -85,6 +85,7 @@ import SingleSearchResult from '@/mainWindow/components/generic/SingleSearchResu
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import InputGroup from '../generic/InputGroup.vue'
 import { v4 } from 'uuid'
+import RemoteSong from '@/utils/ui/mixins/remoteSongMixin'
 
 @Component({
   components: {
@@ -93,7 +94,7 @@ import { v4 } from 'uuid'
     SingleSearchResult
   }
 })
-export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoader) {
+export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoader, RemoteSong) {
   @Prop({ default: 'PlaylistFromURL' })
   private id!: string
 
@@ -174,7 +175,7 @@ export default class PlaylistFromUrlModal extends mixins(PlayerControls, ImgLoad
     if (this.playlist) {
       const playlistId = await window.DBUtils.createPlaylist(this.playlist)
 
-      await window.DBUtils.storeSongs(this.songList)
+      await this.addSongsToLibrary(...this.songList)
       await window.DBUtils.addToPlaylist(playlistId, ...this.songList)
 
       this.$toasted.show(`Added ${this.playlist.playlist_name} to library`)

@@ -23,7 +23,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
   }
 
   private async addToPlaylist(playlist_id: string, songs: Song[]) {
-    await window.DBUtils.storeSongs(songs.filter((val) => val.type !== 'LOCAL'))
+    await this.addSongsToLibrary(...songs.filter((val) => val.type !== 'LOCAL'))
     await window.DBUtils.addToPlaylist(playlist_id, ...songs)
   }
 

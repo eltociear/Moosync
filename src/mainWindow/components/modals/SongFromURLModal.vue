@@ -70,6 +70,7 @@ import { vxm } from '@/mainWindow/store'
 import { v4 } from 'uuid'
 import { mixins } from 'vue-class-component'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
+import RemoteSong from '@/utils/ui/mixins/remoteSongMixin'
 
 @Component({
   components: {
@@ -77,7 +78,7 @@ import ImgLoader from '@/utils/ui/mixins/ImageLoader'
     InputGroup
   }
 })
-export default class SongFromUrlModal extends mixins(ImgLoader) {
+export default class SongFromUrlModal extends mixins(ImgLoader, RemoteSong) {
   @Prop({ default: 'SongFromURL' })
   private id!: string
 
@@ -159,13 +160,11 @@ export default class SongFromUrlModal extends mixins(ImgLoader) {
 
   private addToLibrary() {
     if (this.parsedSong) {
-      window.DBUtils.storeSongs([
-        {
-          ...this.parsedSong,
-          title: this.songTitle,
-          artists: this.getArtists(this.songArtist)
-        }
-      ])
+      this.addSongsToLibrary({
+        ...this.parsedSong,
+        title: this.songTitle,
+        artists: this.getArtists(this.songArtist)
+      })
 
       this.refreshCallback && this.refreshCallback()
       this.close()

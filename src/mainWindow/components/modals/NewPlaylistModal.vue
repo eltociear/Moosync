@@ -59,13 +59,14 @@ import { bus } from '@/mainWindow/main'
 import { vxm } from '@/mainWindow/store'
 import SongDefault from '@/icons/SongDefaultIcon.vue'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
+import RemoteSong from '@/utils/ui/mixins/remoteSongMixin'
 
 @Component({
   components: {
     SongDefault
   }
 })
-export default class NewPlaylistModal extends mixins(ImgLoader) {
+export default class NewPlaylistModal extends mixins(ImgLoader, RemoteSong) {
   @Prop({ default: 'NewPlaylistModal' })
   private id!: string
 
@@ -195,7 +196,7 @@ export default class NewPlaylistModal extends mixins(ImgLoader) {
   }
 
   private async addToPlaylist(playlist_id: string, songs: Song[]) {
-    await window.DBUtils.storeSongs(songs.filter((val) => val.type !== 'LOCAL'))
+    await this.addSongsToLibrary(...songs.filter((val) => val.type !== 'LOCAL'))
     await window.DBUtils.addToPlaylist(playlist_id, ...songs)
   }
 
