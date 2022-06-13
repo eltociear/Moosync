@@ -83,8 +83,8 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
     if (typeof this.$route.query.id === 'string') {
       this.artist = null
       this.songList = []
-      await this.fetchArtists()
-      await this.fetchSongList()
+      this.fetchArtists()
+      this.fetchSongList()
     }
   }
 
