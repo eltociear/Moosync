@@ -90,9 +90,11 @@ export default class SingleArtistView extends mixins(ContextMenuMixin) {
 
   private async fetchExtensionArtistSongProviders() {
     const exts = await window.ExtensionUtils.getRegisteredArtistSongProviders()
-    for (const [key, title] of Object.entries(exts)) {
-      if (title) {
-        this.extensionArtistSongProviders.push({ key, title })
+    if (exts) {
+      for (const [key, title] of Object.entries(exts)) {
+        if (title) {
+          this.extensionArtistSongProviders.push({ key, title })
+        }
       }
     }
   }
