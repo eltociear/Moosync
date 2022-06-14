@@ -125,16 +125,5 @@
         "commentEnd": "-->"
       }
     ],
-  },
-  "extensions": {
-    "recommendations": [
-      "dbaeumer.vscode-eslint",
-      "digitalbrainstem.ejs-vue",
-      "waderyan.nodejs-extension-pack",
-      "octref.vetur",
-      "lauren.vue-pack",
-      "ms-vscode.vscode-typescript-next",
-      "rbbit.typescript-hero"
-    ]
   }
 }
