@@ -89,6 +89,7 @@ export class YoutubePlayer extends LocalPlayer {
           if (segs.length > 0) {
             const seg = segs.sort((a, b) => b.endTime - a.endTime).at(0)
             if (seg) {
+              console.debug('Skipping segment', seg.endTime)
               this.currentTime = seg.endTime
               this.currentSegments.splice(this.currentSegments.indexOf(seg), 1)
             }

@@ -59,4 +59,6 @@ export abstract class Player {
 
   abstract createAudioContext(): AudioContext | undefined
   abstract connectAudioContextNode(node: AudioNode): void
+
+  abstract preload(src: string): void
 }

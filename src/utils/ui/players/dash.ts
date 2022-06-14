@@ -121,4 +121,8 @@ export class DashPlayer extends Player {
       this.track.connect(node).connect(this.context.destination)
     }
   }
+
+  preload(src: string): void {
+    return
+  }
 }

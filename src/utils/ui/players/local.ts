@@ -117,4 +117,19 @@ export class LocalPlayer extends Player {
       this.track.connect(node).connect(this.context.destination)
     }
   }
+
+  // Hoping electron will cache the audio
+  preload(src: string) {
+    try {
+      new URL(src)
+      const audio = new Audio()
+      audio.preload = 'auto'
+      audio.volume = 0
+      audio.src = src
+      audio.load()
+      audio.play()
+    } catch (e) {
+      console.debug('Not a valid URL, not preloading')
+    }
+  }
 }

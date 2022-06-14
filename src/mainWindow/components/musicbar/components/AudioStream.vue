@@ -525,7 +525,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
   private async preloadNextSong() {
     if (this.preloadStatus === 'PRELOADING' || this.preloadStatus === 'PRELOADED') {
-      console.debug('Audio already preloaded')
       return
     }
 
@@ -534,16 +533,16 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     this.preloadStatus = 'PRELOADING'
 
     const nextSong = vxm.player.queueData[vxm.player.queueOrder[vxm.player.queueIndex + 1].songID]
-    if (nextSong) {
-      await this.setPlaybackURLAndDuration(nextSong)
+    if (nextSong && !nextSong.path) {
+      if (!nextSong.playbackUrl || !nextSong.duration) await this.setPlaybackURLAndDuration(nextSong)
 
       if (!nextSong.playbackUrl || !nextSong.duration) {
         this.removeFromQueue(vxm.player.queueIndex + 1)
         return
       }
 
-      // TODO: Find a way to start buffering audio file
-      // const audioPlayer = this.getAudioPlayer(this.parsePlayerTypes(nextSong.type))
+      const audioPlayer = this.getAudioPlayer(this.parsePlayerTypes(nextSong.type))
+      audioPlayer.preload(nextSong.playbackUrl)
     }
 
     this.preloadStatus = 'PRELOADED'
@@ -558,7 +557,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
       // song is a reference to vxm.player.currentSong or vxm.sync.currentSong.
       // Mutating those properties should also mutate song
-      if (vxm.player.currentSong) {
+      if (vxm.player.currentSong && song) {
         song.duration = res.duration
         Vue.set(song, 'playbackUrl', res.url)
       }
@@ -596,7 +595,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       await this.setPlaybackURLAndDuration(song)
     }
 
-    if (!song.playbackUrl || !song.duration) {
+    if (!song.path && (!song.playbackUrl || !song.duration)) {
       this.removeFromQueue(vxm.player.queueIndex)
       this.nextSong()
       vxm.player.loading = false
@@ -646,6 +645,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
           return this.unloadAudio()
       }
     } catch (e) {
+      console.debug(e)
       this.nextSong()
     }
   }
