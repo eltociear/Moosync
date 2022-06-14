@@ -11,8 +11,8 @@ type AudioType = 'STREAMING' | 'LOCAL'
 
 type PlayerState = 'PLAYING' | 'PAUSED' | 'STOPPED'
 interface SongQueue {
-  data: { [id: string]: Song }
-  order: { id: string; songID: string }[]
+  data: QueueData<Song>
+  order: QueueOrder
   index: number
 }
 
