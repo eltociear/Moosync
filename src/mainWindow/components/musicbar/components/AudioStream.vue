@@ -542,7 +542,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
         return
       }
 
-      const audioPlayer = this.getAudioPlayer(this.parsePlayerTypes(nextSong.type))
+      // TODO: Find a way to start buffering audio file
+      // const audioPlayer = this.getAudioPlayer(this.parsePlayerTypes(nextSong.type))
     }
 
     this.preloadStatus = 'PRELOADED'
