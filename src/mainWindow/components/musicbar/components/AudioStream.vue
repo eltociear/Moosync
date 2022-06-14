@@ -129,6 +129,17 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
   }
 
+  private getAudioPlayer(parsedType: 'LOCAL' | 'YOUTUBE' | 'DASH'): Player {
+    switch (parsedType) {
+      case 'LOCAL':
+        return this.localPlayer
+      case 'YOUTUBE':
+        return this.ytPlayer
+      case 'DASH':
+        return this.dashPlayer
+    }
+  }
+
   /**
    * Method called when player type changes
    * This method is responsible of detaching old player
@@ -141,17 +152,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.unloadAudio()
       this.activePlayer.removeAllListeners()
 
-      switch (parsedType) {
-        case 'LOCAL':
-          this.activePlayer = this.localPlayer
-          break
-        case 'YOUTUBE':
-          this.activePlayer = this.ytPlayer
-          break
-        case 'DASH':
-          this.activePlayer = this.dashPlayer
-          break
-      }
+      this.activePlayer = this.getAudioPlayer(parsedType)
 
       this.activePlayer.volume = vxm.player.volume
       this.registerPlayerListeners()
@@ -272,11 +273,12 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       vxm.player.loading = false
     }
 
-    this.activePlayer.onTimeUpdate = (time) => {
+    this.activePlayer.onTimeUpdate = async (time) => {
       this.$emit('onTimeUpdate', time)
 
       if (this.currentSong) {
         if (time >= this.currentSong.duration - 10) {
+          await this.preloadNextSong()
           if (this.isSilent()) {
             this.nextSong()
           }
@@ -519,6 +521,49 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
   }
 
+  private preloadStatus: 'PRELOADING' | 'PRELOADED' | undefined
+
+  private async preloadNextSong() {
+    if (this.preloadStatus === 'PRELOADING' || this.preloadStatus === 'PRELOADED') {
+      console.debug('Audio already preloaded')
+      return
+    }
+
+    console.debug('Preloading next track')
+
+    this.preloadStatus = 'PRELOADING'
+
+    const nextSong = vxm.player.queueData[vxm.player.queueOrder[vxm.player.queueIndex + 1].songID]
+    if (nextSong) {
+      await this.setPlaybackURLAndDuration(nextSong)
+
+      if (!nextSong.playbackUrl || !nextSong.duration) {
+        this.removeFromQueue(vxm.player.queueIndex + 1)
+        return
+      }
+
+      const audioPlayer = this.getAudioPlayer(this.parsePlayerTypes(nextSong.type))
+    }
+
+    this.preloadStatus = 'PRELOADED'
+  }
+
+  private async setPlaybackURLAndDuration(song: Song) {
+    const res = await this.getPlaybackUrlAndDuration(song)
+    console.debug('Got playback url and duration', res)
+
+    if (res) {
+      this.duplicateSongChangeRequest = song
+
+      // song is a reference to vxm.player.currentSong or vxm.sync.currentSong.
+      // Mutating those properties should also mutate song
+      if (vxm.player.currentSong) {
+        song.duration = res.duration
+        Vue.set(song, 'playbackUrl', res.url)
+      }
+    }
+  }
+
   private duplicateSongChangeRequest: Song | undefined
 
   private async loadAudio(song: Song, loadedState: boolean) {
@@ -528,7 +573,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       return
     }
 
-    this.unloadAudio()
     vxm.player.loading = true
 
     console.debug('Loading new song', song.title, song.type)
@@ -543,27 +587,12 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     const PlayerTypes = this.onPlayerTypesChanged(song.type)
 
     if (!song.playbackUrl || !song.duration) {
+      // Since fetching playbackURL or duration can be a long running operation
+      // Unload previous song
+      this.unloadAudio()
+
       console.debug('PlaybackUrl or Duration empty for', song._id)
-
-      const res = await this.getPlaybackUrlAndDuration(song)
-      console.debug('Got playback url and duration', res)
-
-      if (res) {
-        this.duplicateSongChangeRequest = song
-        // song is a reference to vxm.player.currentSong or vxm.sync.currentSong.
-        // Mutating those properties should also mutate song
-        if (!this.isSyncing) {
-          if (vxm.player.currentSong) {
-            vxm.player.currentSong.duration = res.duration
-            Vue.set(vxm.player.currentSong, 'playbackUrl', res.url)
-          }
-        } else {
-          if (vxm.sync.currentSong) {
-            vxm.sync.currentSong.duration = res.duration
-            Vue.set(vxm.sync.currentSong, 'playbackUrl', res.url)
-          }
-        }
-      }
+      await this.setPlaybackURLAndDuration(song)
     }
 
     if (!song.playbackUrl || !song.duration) {
@@ -595,11 +624,13 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     this.handleFirstPlayback(loadedState)
 
     this.setMediaInfo(song)
+
+    // Clear preload status after song has changed
+    this.preloadStatus = undefined
   }
 
   private unloadAudio() {
     console.debug('Unloading audio')
-
     this.activePlayer.stop()
   }
 
