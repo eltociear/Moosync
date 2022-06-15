@@ -26,7 +26,16 @@ export default class RemoteSong extends Vue {
             const fetchedArtist = await this.fetchRemoteArtistDetails(a)
             await window.DBUtils.updateArtist({
               ...a,
-              artist_coverPath: fetchedArtist?.artist_coverPath
+              artist_coverPath: fetchedArtist?.artist_coverPath,
+              artist_extra_info: {
+                youtube: {
+                  channel_id: fetchedArtist?.artist_extra_info?.youtube?.channel_id
+                },
+                spotify: {
+                  artist_id: fetchedArtist?.artist_extra_info?.spotify?.artist_id
+                },
+                ...a.artist_extra_info
+              }
             })
           }
         }
