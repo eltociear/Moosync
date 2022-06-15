@@ -788,14 +788,20 @@ export class SongDBInstance extends DBUtils {
       this.db.queryFirstCell<string>('SELECT artist_extra_info from artists WHERE artist_id = ?', id) ?? '{}'
     )
 
-    if (extension) {
-      if (!toUpdateInfo || !toUpdateInfo.extensions) {
-        toUpdateInfo = {
-          extensions: {}
-        }
+    if (!toUpdateInfo || Object.keys(toUpdateInfo).length === 0) {
+      toUpdateInfo = {
+        youtube: {
+          channel_id: ''
+        },
+        spotify: {
+          artist_id: ''
+        },
+        extensions: {}
       }
+    }
 
-      if (toUpdateInfo && toUpdateInfo.extensions && info && info['extensions']) {
+    if (extension) {
+      if (toUpdateInfo.extensions && info && info['extensions']) {
         toUpdateInfo['extensions'][extension] = info['extensions'][extension]
       }
     } else {
