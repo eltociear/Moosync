@@ -88,5 +88,5 @@ export abstract class GenericProvider {
 
   public abstract searchSongs(term: string): Promise<Song[]>
 
-  public abstract getArtistDetails(artist: Artists): Promise<Artists | undefined>
+  public abstract getArtistDetails(artist: Artists, forceFetch?: boolean): Promise<Artists | undefined>
 }

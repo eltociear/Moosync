@@ -664,7 +664,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     }
   }
 
-  public async getArtistDetails(artist: Artists) {
+  public async getArtistDetails(artist: Artists, forceFetch = false) {
     if (artist.artist_extra_info?.spotify?.artist_id) {
       const artistDetails = await this.populateRequest(ApiResources.ARTIST, {
         params: {
@@ -674,6 +674,13 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       })
 
       return this.parseArtist(artistDetails)
+    }
+
+    if (forceFetch && artist.artist_name) {
+      const artistDetails = await this.searchArtists(artist.artist_name)
+      if (artistDetails.length > 0) {
+        return artistDetails[0]
+      }
     }
   }
 }

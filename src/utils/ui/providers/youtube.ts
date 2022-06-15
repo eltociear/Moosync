@@ -502,7 +502,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     }
   }
 
-  public async getArtistDetails(artist: Artists) {
+  public async getArtistDetails(artist: Artists, forceFetch = false) {
     if (artist.artist_extra_info?.youtube?.channel_id) {
       const artistDetails = await this.populateRequest(ApiResources.CHANNELS, {
         params: {
