@@ -124,7 +124,7 @@ export default class AccountsMixin extends Vue {
     const account = this.extraAccounts.find((val) => val.id === id)
     if (account) {
       window.ExtensionUtils.performAccountLogin(account.packageName, account.id, !account.loggedIn).then(() =>
-        console.log('performed login')
+        console.debug('performed login for', account.packageName)
       )
     }
   }

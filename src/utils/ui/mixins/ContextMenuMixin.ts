@@ -407,7 +407,6 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
   }
 
   private emitMenu(event: Event, items: { label: string; handler?: () => void }[]) {
-    console.log('emitting')
     bus.$emit(EventBus.SHOW_CONTEXT, event, items)
   }
 }
