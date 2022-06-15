@@ -152,6 +152,10 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
   public on(eventName: string, callback: Function) {
     console.debug('Registering listener for', eventName, 'in package', this.packageName)
     this.eventCallbackMap[eventName] = callback
+
+    if (eventName === 'requestedPlaylists') {
+      this.registerPlaylistProvider()
+    }
     return callback
   }
 
@@ -230,7 +234,7 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
     return this.artistSongProvider
   }
 
-  public registerPlaylistProvider() {
+  private registerPlaylistProvider() {
     this.playlistProvider = this.packageName
   }
 
