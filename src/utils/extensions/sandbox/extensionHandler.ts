@@ -11,6 +11,7 @@ import { AbstractExtensionFinder, ExtensionFinder } from './extensionFinder'
 import { AbstractExtensionManager, ExtensionManager } from '@/utils/extensions/sandbox/extensionManager'
 
 import { getVersion } from '@/utils/common'
+import { providerFetchRequests } from '../constants'
 
 type CombinedSongsType = SongsReturnType | PlaylistAndSongsReturnType | RecommendationsReturnType
 
@@ -104,36 +105,31 @@ export class ExtensionHandler {
     return accountMap
   }
 
-  public getExtensionSearchProviders() {
-    const ext = this.extensionManager.getExtensions()
-    const searchMap: { [key: string]: string } = {}
-    for (const e of ext) {
-      const provider = e.global.api._getSearchProvider()
-      if (provider) searchMap[e.packageName] = provider
+  private getFetchMethod(type: providerFetchRequests): keyof ExtendedExtensionAPI {
+    switch (type) {
+      case 'get-artist-songs-providers':
+        return '_getArtistSongProvider'
+      case 'get-playlist-providers':
+        return '_getPlaylistProvider'
+      case 'get-search-providers':
+        return '_getSearchProvider'
     }
-    return searchMap
   }
 
-  public getExtensionArtistSongProviders() {
-    const ext = this.extensionManager.getExtensions()
-    const artistMap: { [key: string]: string } = {}
-    for (const e of ext) {
-      const provider = e.global.api._getArtistSongProvider()
-      if (provider) artistMap[e.packageName] = provider
+  public getProviderExtensions(type: providerFetchRequests) {
+    const method = this.getFetchMethod(type)
+    const map: { [key: string]: string } = {}
+
+    if (method) {
+      const ext = this.extensionManager.getExtensions()
+      for (const e of ext) {
+        if (typeof e.global.api[method] === 'function') {
+          const provider = (e.global.api[method] as () => string)()
+          if (provider) map[e.packageName] = provider
+        }
+      }
     }
-
-    return artistMap
-  }
-
-  public getExtensionPlaylistProviders() {
-    const ext = this.extensionManager.getExtensions()
-    const playlistMap: { [key: string]: string } = {}
-    for (const e of ext) {
-      const provider = e.global.api._getPlaylistProvider()
-      if (provider) playlistMap[e.packageName] = provider
-    }
-
-    return playlistMap
+    return map
   }
 
   public async performExtensionAccountLogin(packageName: string, accountId: string, loginStatus: boolean) {

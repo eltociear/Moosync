@@ -62,10 +62,16 @@ type extensionUIRequestMessage = {
 
 type extensionReplyMessage = extensionRequestMessage
 
-type extensionHostMessage = extensionEventMessage | mainRequestMessage
+type extensionHostMessage = extensionEventMessage | mainRequestMessage | providerFetchRequestMessage
 
 type mainRequestMessage = {
   type: import('@/utils/extensions/constants').mainRequests
+  channel: string
+  data: any
+}
+
+type providerFetchRequestMessage = {
+  type: import('@/utils/extensions/constants').providerFetchRequests
   channel: string
   data: any
 }

@@ -9,7 +9,7 @@
 
 import { ChildProcess, fork, Serializable } from 'child_process'
 import { app, ipcMain, shell } from 'electron'
-import { extensionUIRequestsKeys, mainRequests } from '@/utils/extensions/constants'
+import { extensionUIRequestsKeys, mainRequests, providerFetchRequests } from '@/utils/extensions/constants'
 import { loadSelectivePreference, saveSelectivePreference } from '../main/db/preferences'
 
 import { ExtensionHostEvents } from '@/utils/main/ipc/constants'
@@ -224,7 +224,7 @@ class MainRequestGenerator {
     return this.sendAsync<void>('on-clicked-context-menu', { id, packageName, arg })
   }
 
-  private sendAsync<T>(type: mainRequests, data?: unknown): Promise<T> {
+  private sendAsync<T>(type: mainRequests | providerFetchRequests, data?: unknown): Promise<T> {
     const channel = v4()
 
     return new Promise<T>((resolve) => {

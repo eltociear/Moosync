@@ -7,12 +7,16 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { mainRequestsKeys } from '@/utils/extensions/constants'
+import {
+  mainRequests,
+  mainRequestsKeys,
+  providerExtensionKeys,
+  providerFetchRequests
+} from '@/utils/extensions/constants'
 
 import { ExtensionHandler } from '@/utils/extensions/sandbox/extensionHandler'
 import { prefixLogger, setLogLevel } from '@/utils/main/logger/utils'
 import log from 'loglevel'
-import { mainRequests } from '../constants'
 
 class ExtensionHostIPCHandler {
   private extensionHandler: ExtensionHandler
@@ -75,8 +79,12 @@ class ExtensionHostIPCHandler {
     return key === 'onStarted' || key === 'onStopped'
   }
 
-  private isMainReply(key: string) {
+  private isMainRequest(key: string) {
     return mainRequestsKeys.includes(key as mainRequests)
+  }
+
+  private isProviderFetchRequest(key: string) {
+    return providerExtensionKeys.includes(key as providerFetchRequests)
   }
 
   private registerListeners() {
@@ -104,9 +112,13 @@ class ExtensionHostIPCHandler {
       return
     }
 
-    if (this.isMainReply(message.type)) {
+    if (this.isMainRequest(message.type)) {
       this.mainRequestHandler.parseRequest(message as mainRequestMessage)
       return
+    }
+
+    if (this.isProviderFetchRequest(message.type)) {
+      this.mainRequestHandler.parseProviderRequest(message as providerFetchRequestMessage)
     }
   }
 }
@@ -116,6 +128,10 @@ class MainRequestHandler {
 
   constructor(handler: ExtensionHandler) {
     this.handler = handler
+  }
+
+  public parseProviderRequest(message: providerFetchRequestMessage) {
+    this.sendToMain(message.channel, this.handler.getProviderExtensions(message.type))
   }
 
   public parseRequest(message: mainRequestMessage) {
@@ -191,24 +207,6 @@ class MainRequestHandler {
         .performExtensionAccountLogin(message.data.packageName, message.data.accountId, message.data.loginStatus)
         .then((val) => this.sendToMain(message.channel, val))
 
-      return
-    }
-
-    if (message.type === 'get-search-providers') {
-      const items = this.handler.getExtensionSearchProviders()
-      this.sendToMain(message.channel, items)
-      return
-    }
-
-    if (message.type === 'get-artist-songs-providers') {
-      const items = this.handler.getExtensionArtistSongProviders()
-      this.sendToMain(message.channel, items)
-      return
-    }
-
-    if (message.type === 'get-playlist-providers') {
-      const items = this.handler.getExtensionPlaylistProviders()
-      this.sendToMain(message.channel, items)
       return
     }
   }

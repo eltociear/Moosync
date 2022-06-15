@@ -44,7 +44,10 @@ export const mainRequestsKeys = [
   'on-clicked-context-menu',
   'set-log-level',
   'get-accounts',
-  'perform-account-login',
+  'perform-account-login'
+] as const
+
+export const providerExtensionKeys = [
   'get-search-providers',
   'get-artist-songs-providers',
   'get-playlist-providers'
@@ -53,3 +56,4 @@ export const mainRequestsKeys = [
 export type extensionUIRequests = typeof extensionUIRequestsKeys[number] | typeof playerControlRequests[number]
 export type extensionRequests = typeof extensionRequestsKeys[number] | extensionUIRequests
 export type mainRequests = typeof mainRequestsKeys[number]
+export type providerFetchRequests = typeof providerExtensionKeys[number]
