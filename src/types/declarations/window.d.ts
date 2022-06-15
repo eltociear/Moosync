@@ -270,6 +270,7 @@ interface extensionUtils {
   listenExtensionsChanged: (callback: () => void) => void
   getRegisteredSearchProviders: () => Promise<Record<string, string>>
   getRegisteredArtistSongProviders: () => Promise<Record<string, string>>
+  getRegisteredPlaylistProviders: () => Promise<Record<string, string>>
 }
 
 /**

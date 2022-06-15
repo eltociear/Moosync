@@ -22,6 +22,7 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
   private accountsMap: AccountDetails[] = []
   private searchProvider: string | undefined
   private artistSongProvider: string | undefined
+  private playlistProvider: string | undefined
 
   constructor(packageName: string) {
     this.packageName = packageName
@@ -227,6 +228,14 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
 
   public _getArtistSongProvider() {
     return this.artistSongProvider
+  }
+
+  public registerPlaylistProvider() {
+    this.playlistProvider = this.packageName
+  }
+
+  public _getPlaylistProvider() {
+    return this.playlistProvider
   }
 }
 

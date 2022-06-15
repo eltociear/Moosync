@@ -212,6 +212,10 @@ class MainRequestGenerator {
     return this.sendAsync<Record<string, string>>('get-artist-songs-providers')
   }
 
+  public async getPlaylistProviders() {
+    return this.sendAsync<Record<string, string>>('get-playlist-providers')
+  }
+
   public async sendContextMenuItemClicked(
     id: string,
     packageName: string,

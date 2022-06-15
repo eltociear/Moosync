@@ -177,7 +177,8 @@ export enum ExtensionHostEvents {
   PERFORM_ACCOUNT_LOGIN = 'performAccountLogin',
   ON_EXTENSIONS_CHANGED = 'onExtensionsChanged',
   GET_REGISTERED_SEARCH_PROVIDERS = 'getRegisteredSearchProviders',
-  GET_REGISTERED_ARTIST_SONG_PROVIDERS = 'getRegisteredArtistSongProviders'
+  GET_REGISTERED_ARTIST_SONG_PROVIDERS = 'getRegisteredArtistSongProviders',
+  GET_REGISTERED_PLAYLIST_PROVIDERS = 'getRegisteredPlaylistProviders'
 }
 
 export enum ServiceProviderEvents {

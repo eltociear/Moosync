@@ -100,21 +100,26 @@ export default class Playlists extends mixins(RouterPushes, ContextMenuMixin) {
 
   private async fetchPlaylistsFromExtension(invalidateCache: boolean) {
     const playlists: ExtendedPlaylist[] = []
-    const data = await window.ExtensionUtils.sendEvent({
-      type: 'requestedPlaylists',
-      data: [invalidateCache]
-    })
 
-    for (const [key, value] of Object.entries(data)) {
-      if (value) {
-        const icon = await window.ExtensionUtils.getExtensionIcon(key)
-        for (const p of value.playlists) {
-          playlists.push({
-            ...p,
-            icon: (p.icon && 'media://' + p.icon) ?? (icon && 'media://' + icon)
-          })
+    const providers = await window.ExtensionUtils.getRegisteredPlaylistProviders()
+    for (const key of Object.keys(providers)) {
+      ;(async () => {
+        const data = await window.ExtensionUtils.sendEvent({
+          type: 'requestedPlaylists',
+          data: [invalidateCache],
+          packageName: key
+        })
+
+        if (data && data[key]) {
+          const icon = await window.ExtensionUtils.getExtensionIcon(key)
+          for (const p of (data[key] as PlaylistReturnType).playlists) {
+            playlists.push({
+              ...p,
+              icon: (p.icon && 'media://' + p.icon) ?? (icon && 'media://' + icon)
+            })
+          }
         }
-      }
+      })()
     }
 
     return playlists

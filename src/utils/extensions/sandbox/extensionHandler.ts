@@ -125,6 +125,17 @@ export class ExtensionHandler {
     return artistMap
   }
 
+  public getExtensionPlaylistProviders() {
+    const ext = this.extensionManager.getExtensions()
+    const playlistMap: { [key: string]: string } = {}
+    for (const e of ext) {
+      const provider = e.global.api._getPlaylistProvider()
+      if (provider) playlistMap[e.packageName] = provider
+    }
+
+    return playlistMap
+  }
+
   public async performExtensionAccountLogin(packageName: string, accountId: string, loginStatus: boolean) {
     const ext = this.extensionManager.getExtensions({ packageName })
     for (const e of ext) {

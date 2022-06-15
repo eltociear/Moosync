@@ -205,6 +205,12 @@ class MainRequestHandler {
       this.sendToMain(message.channel, items)
       return
     }
+
+    if (message.type === 'get-playlist-providers') {
+      const items = this.handler.getExtensionPlaylistProviders()
+      this.sendToMain(message.channel, items)
+      return
+    }
   }
 
   private sendToMain(channel: string, data?: unknown) {

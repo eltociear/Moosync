@@ -46,7 +46,8 @@ export const mainRequestsKeys = [
   'get-accounts',
   'perform-account-login',
   'get-search-providers',
-  'get-artist-songs-providers'
+  'get-artist-songs-providers',
+  'get-playlist-providers'
 ] as const
 
 export type extensionUIRequests = typeof extensionUIRequestsKeys[number] | typeof playerControlRequests[number]
