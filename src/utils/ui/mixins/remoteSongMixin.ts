@@ -9,6 +9,7 @@
 
 import { Component, Vue } from 'vue-property-decorator'
 import { vxm } from '@/mainWindow/store'
+import { mergeDeep } from '@/utils/common'
 
 @Component
 export default class RemoteSong extends Vue {
@@ -24,18 +25,11 @@ export default class RemoteSong extends Vue {
         for (const a of s.artists) {
           if (!a.artist_coverPath) {
             const fetchedArtist = await this.fetchRemoteArtistDetails(a)
+            console.log(fetchedArtist)
             await window.DBUtils.updateArtist({
               ...a,
               artist_coverPath: fetchedArtist?.artist_coverPath,
-              artist_extra_info: {
-                youtube: {
-                  channel_id: fetchedArtist?.artist_extra_info?.youtube?.channel_id
-                },
-                spotify: {
-                  artist_id: fetchedArtist?.artist_extra_info?.spotify?.artist_id
-                },
-                ...a.artist_extra_info
-              }
+              artist_extra_info: mergeDeep(fetchedArtist?.artist_extra_info ?? {}, a.artist_extra_info)
             })
           }
         }
