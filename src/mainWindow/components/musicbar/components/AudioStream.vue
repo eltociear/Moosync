@@ -157,6 +157,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.activePlayer.volume = vxm.player.volume
       this.registerPlayerListeners()
       this.activePlayerTypes = parsedType
+
+      this.analyserNode = undefined
     }
 
     return parsedType
@@ -260,6 +262,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
         sumSquares += amplitude * amplitude
       }
       const amplitude = parseFloat(Math.sqrt(sumSquares / pcmData.length).toFixed(4))
+      console.debug('Got silence')
       return amplitude === 0
     }
     return false
