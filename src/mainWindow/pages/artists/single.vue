@@ -60,30 +60,6 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
         title: 'Spotify',
         key: vxm.providers.spotifyProvider.key
       },
-      {
-        title: 'Spotify',
-        key: '1'
-      },
-      {
-        title: 'Spotify',
-        key: '2'
-      },
-      {
-        title: 'Spotify',
-        key: '3'
-      },
-      {
-        title: 'Spotify',
-        key: '4'
-      },
-      {
-        title: 'Spotify',
-        key: '5'
-      },
-      {
-        title: 'Spotify',
-        key: '6'
-      },
       ...this.extensionArtistSongProviders
     ]
   }
