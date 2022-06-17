@@ -83,8 +83,6 @@ export default class AllSongs extends mixins(
   private get filteredSongList(): Song[] {
     let songList = this.songList.filter((val) => !!val.title.match(new RegExp(this.searchText, 'i')))
     songList = vxm.themes.songSortBy && sortSongList(this.songList, vxm.themes.songSortBy)
-
-    console.log(songList.map((val) => val.title))
     return songList
   }
 

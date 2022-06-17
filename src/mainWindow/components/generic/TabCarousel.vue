@@ -11,7 +11,10 @@
   <b-row no-gutters v-if="optionalProviders.length > 0">
     <b-col class="song-header-options w-100">
       <b-row no-gutters align-v="center" class="h-100">
-        <b-col class="provider-outer-container mr-3">
+        <b-col cols="auto" class="mr-3" v-if="showPrevIcon">
+          <PrevIcon @click.native="onPrevClick" />
+        </b-col>
+        <b-col class="provider-outer-container">
           <div ref="gradientContainer" class="gradient-overlay" :style="{ background: computedGradient }"></div>
           <div ref="providersContainer" class="provider-container d-flex">
             <div
@@ -33,6 +36,9 @@
               </div>
             </div>
           </div>
+        </b-col>
+        <b-col cols="auto" class="ml-3 mr-3">
+          <NextIcon @click.native="onNextClick" v-if="showNextIcon" />
         </b-col>
         <b-col cols="auto" class="ml-auto d-flex" ref="buttonGroupContainer">
           <div v-if="showSearchbar" class="searchbar-container mr-3">
@@ -58,11 +64,15 @@ import { Component, Prop, Ref } from 'vue-property-decorator'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import SortIcon from '@/icons/SortIcon.vue'
 import SearchIcon from '@/icons/SearchIcon.vue'
+import NextIcon from '@/icons/NavForwardIcon.vue'
+import PrevIcon from '@/icons/NavBackIcon.vue'
 
 @Component({
   components: {
     SortIcon,
-    SearchIcon
+    SearchIcon,
+    NextIcon,
+    PrevIcon
   }
 })
 export default class TabCarousel extends mixins(ContextMenuMixin) {
@@ -86,6 +96,14 @@ export default class TabCarousel extends mixins(ContextMenuMixin) {
   private showSearchbar = false
   private searchText = ''
 
+  private get showNextIcon() {
+    return this.scrollLeft + this.containerSize < this.providerContainer?.scrollWidth
+  }
+
+  private get showPrevIcon() {
+    return this.providerContainer?.scrollWidth > this.containerSize && this.scrollLeft > 0
+  }
+
   private onProviderSelected(key: string) {
     const isSelected = this.selectedProviders.findIndex((val) => val === key)
     if (isSelected === -1) {
@@ -98,8 +116,6 @@ export default class TabCarousel extends mixins(ContextMenuMixin) {
   }
 
   private showSortMenu(event: PointerEvent) {
-    // console.log(event, this.buttonGroupContainer.getBoundingClientRect().top + this.buttonGroupContainer.clientHeight)
-    // event.pageY = this.buttonGroupContainer.getBoundingClientRect().top + this.buttonGroupContainer.clientHeight
     event.preventDefault()
     event.stopPropagation()
     this.$emit(
@@ -120,23 +136,37 @@ export default class TabCarousel extends mixins(ContextMenuMixin) {
   }
 
   mounted() {
-    const scrollProviders = (e: WheelEvent) => {
-      if (e.deltaY > 0) this.providerContainer.scrollTo({ left: this.providerContainer.scrollLeft + 20 })
-      else this.providerContainer.scrollTo({ left: this.providerContainer.scrollLeft - 20 })
-      this.scrollLeft = this.providerContainer.scrollLeft
-    }
-    this.providerContainer.onwheel = scrollProviders.bind(this)
-    this.gradientContainer.onwheel = scrollProviders.bind(this)
+    if (this.providerContainer && this.gradientContainer) {
+      const scrollProviders = (e: WheelEvent) => {
+        if (e.deltaY > 0) this.providerContainer.scrollTo({ left: this.providerContainer.scrollLeft + 20 })
+        else this.providerContainer.scrollTo({ left: this.providerContainer.scrollLeft - 20 })
+        this.scrollLeft = this.providerContainer.scrollLeft
+      }
 
-    new ResizeObserver((e) => (this.containerSize = e[0].target.clientWidth)).observe(this.providerContainer)
+      this.providerContainer.onwheel = scrollProviders.bind(this)
+      this.gradientContainer.onwheel = scrollProviders.bind(this)
+
+      new ResizeObserver((e) => (this.containerSize = e[0].target.clientWidth)).observe(this.providerContainer)
+    }
   }
 
   private get computedGradient() {
     return `linear-gradient(90deg, var(--primary) 0% , rgba(255,255,255,0) ${
-      this.scrollLeft > 0 ? '10%' : '0%'
-    }, rgba(255,255,255,0) ${
-      this.scrollLeft + this.containerSize < (this.providerContainer?.scrollWidth ?? 0) ? '90%' : '100%'
-    }, var(--primary) 100%)`
+      this.showPrevIcon ? '10%' : '0%'
+    }, rgba(255,255,255,0) ${this.showNextIcon ? '90%' : '100%'}, var(--primary) 100%)`
+  }
+
+  private onNextClick() {
+    const scrollLeft = this.providerContainer.scrollLeft + 100
+    this.providerContainer.scrollTo({ left: scrollLeft, behavior: 'smooth' })
+    this.scrollLeft = scrollLeft
+    console.log(this.scrollLeft)
+  }
+
+  private onPrevClick() {
+    const scrollLeft = this.providerContainer.scrollLeft - 100
+    this.providerContainer.scrollTo({ left: scrollLeft, behavior: 'smooth' })
+    this.scrollLeft = scrollLeft
   }
 }
 </script>
