@@ -51,7 +51,8 @@
             />
           </div>
           <SearchIcon @click.native="toggleSearch" :accent="false" class="mr-3 align-self-center" />
-          <SortIcon @click.native="showSortMenu" class="align-self-center" />
+          <SortIcon v-if="isSortAsc" @click.native="showSortMenu" class="align-self-center" />
+          <SortIconAlt v-else @click.native="showSortMenu" class="align-self-center" />
         </b-col>
       </b-row>
     </b-col>
@@ -63,13 +64,17 @@ import { mixins } from 'vue-class-component'
 import { Component, Prop, Ref } from 'vue-property-decorator'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import SortIcon from '@/icons/SortIcon.vue'
+import SortIconAlt from '@/icons/SortIconAlt.vue'
+
 import SearchIcon from '@/icons/SearchIcon.vue'
 import NextIcon from '@/icons/NavForwardIcon.vue'
 import PrevIcon from '@/icons/NavBackIcon.vue'
+import { vxm } from '@/mainWindow/store'
 
 @Component({
   components: {
     SortIcon,
+    SortIconAlt,
     SearchIcon,
     NextIcon,
     PrevIcon
@@ -102,6 +107,10 @@ export default class TabCarousel extends mixins(ContextMenuMixin) {
 
   private get showPrevIcon() {
     return this.providerContainer?.scrollWidth > this.containerSize && this.scrollLeft > 0
+  }
+
+  private get isSortAsc() {
+    return vxm.themes.songSortBy.asc
   }
 
   private onProviderSelected(key: string) {
