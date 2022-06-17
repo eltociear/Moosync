@@ -144,11 +144,13 @@ export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, I
 
         window.ExtensionUtils.sendEvent({ type: 'requestSearchResult', data: [this.term], packageName: key }).then(
           (data) => {
-            for (const [key, val] of Object.entries(data)) {
-              if (this.result.extension) {
-                if (val && val.songs) {
-                  this.result.extension[key] = val.songs
-                  this.refreshExtension(key)
+            if (data) {
+              for (const [key, val] of Object.entries(data)) {
+                if (this.result.extension) {
+                  if (val && val.songs) {
+                    this.result.extension[key] = val.songs
+                    this.refreshExtension(key)
+                  }
                 }
               }
             }

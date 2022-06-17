@@ -162,7 +162,7 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
         data: [this.currentSong]
       })
 
-      return Object.values(resp).find((val) => !!val)
+      return resp && Object.values(resp).find((val) => !!val)
     }
   }
 

@@ -60,6 +60,30 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
         title: 'Spotify',
         key: vxm.providers.spotifyProvider.key
       },
+      {
+        title: 'Spotify',
+        key: '1'
+      },
+      {
+        title: 'Spotify',
+        key: '2'
+      },
+      {
+        title: 'Spotify',
+        key: '3'
+      },
+      {
+        title: 'Spotify',
+        key: '4'
+      },
+      {
+        title: 'Spotify',
+        key: '5'
+      },
+      {
+        title: 'Spotify',
+        key: '6'
+      },
       ...this.extensionArtistSongProviders
     ]
   }
@@ -200,14 +224,16 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
         packageName: key
       })
 
-      for (const s of data[key].songs) {
-        if (!this.songList.find((val) => val._id === s._id)) {
-          this.songList.push(s)
+      if (data && data[key]) {
+        for (const s of data[key].songs) {
+          if (!this.songList.find((val) => val._id === s._id)) {
+            this.songList.push(s)
 
-          if (!this.optionalSongList[key]) {
-            this.optionalSongList[key] = []
+            if (!this.optionalSongList[key]) {
+              this.optionalSongList[key] = []
+            }
+            this.optionalSongList[key].push(s._id)
           }
-          this.optionalSongList[key].push(s._id)
         }
       }
     }
@@ -231,8 +257,8 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
 
       this.fetchExtensionSongs(key)
     } else {
-      this.songList = this.songList.filter(
-        (val) => this.optionalSongList[key] && !this.optionalSongList[key].includes(val._id)
+      this.songList = this.songList.filter((val) =>
+        this.optionalSongList[key] ? !this.optionalSongList[key].includes(val._id) : true
       )
     }
   }

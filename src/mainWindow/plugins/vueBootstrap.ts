@@ -20,7 +20,8 @@ import {
   LinkPlugin,
   SpinnerPlugin,
   FormTagsPlugin,
-  FormCheckboxPlugin
+  FormCheckboxPlugin,
+  DropdownPlugin
 } from 'bootstrap-vue'
 import Vue from 'vue'
 
@@ -37,3 +38,4 @@ Vue.use(LinkPlugin)
 Vue.use(SpinnerPlugin)
 Vue.use(FormTagsPlugin)
 Vue.use(FormCheckboxPlugin)
+Vue.use(DropdownPlugin)

@@ -16,7 +16,7 @@
     >
       <component
         v-bind:is="songView"
-        :songList="songList"
+        :songList="filteredSongList"
         :currentSong="currentSong"
         :defaultDetails="defaultDetails"
         :detailsButtonGroup="detailsButtonGroup"
@@ -33,13 +33,14 @@
         @addToQueue="addToQueue"
         @addToLibrary="addToLibrary"
         @onSortClicked="showSortMenu"
+        @onSearchChange="onSearchChange"
       ></component>
     </transition>
   </b-container>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Watch } from 'vue-property-decorator'
+import { Component, Prop } from 'vue-property-decorator'
 import { mixins } from 'vue-class-component'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import ModelHelper from '@/utils/ui/mixins/ModelHelper'
@@ -77,31 +78,14 @@ export default class AllSongs extends mixins(
   @Prop({ default: () => [] })
   private optionalProviders!: ProviderHeaderOptions[]
 
-  private sort(SongSortOptions: SongSortOptions) {
-    if (!this.ignoreSort) {
-      sortSongList(this.songList, SongSortOptions)
-      this.ignoreSort = true
-    } else {
-      this.ignoreSort = false
-    }
-  }
+  private searchText = ''
 
-  onSortChange() {
-    vxm.themes.$watch(
-      'sortBy',
-      (SongSortOptions: SongSortOptions) => {
-        this.sort(SongSortOptions)
-      },
-      { deep: true, immediate: true }
-    )
-  }
+  private get filteredSongList(): Song[] {
+    let songList = this.songList.filter((val) => !!val.title.match(new RegExp(this.searchText, 'i')))
+    songList = vxm.themes.songSortBy && sortSongList(this.songList, vxm.themes.songSortBy)
 
-  @Watch('songList') onSongListChange() {
-    this.sort(vxm.themes.songSortBy)
-  }
-
-  mounted() {
-    this.onSortChange()
+    console.log(songList.map((val) => val.title))
+    return songList
   }
 
   private get songView() {
@@ -143,12 +127,10 @@ export default class AllSongs extends mixins(
   }
 
   private emitSongContextMenu(event: Event, item: Song) {
-    event.stopPropagation()
     this.$emit('onRowContext', event, item)
   }
 
   private showSortMenu(event: Event) {
-    event.stopPropagation()
     this.getContextMenu(event, {
       type: 'SONG_SORT',
       args: {
@@ -177,6 +159,10 @@ export default class AllSongs extends mixins(
 
   private onOptionalProviderChanged(...args: unknown[]) {
     this.$emit('onOptionalProviderChanged', ...args)
+  }
+
+  private onSearchChange(text: string) {
+    this.searchText = text
   }
 }
 </script>
