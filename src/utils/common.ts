@@ -34,8 +34,8 @@ export function getVersion(verS: string) {
   return 0
 }
 
-export function sortSongList(songList: Song[], options: SongSortOptions) {
-  songList.sort((a, b) => {
+export function sortSongList(songList: Song[], options: SongSortOptions): Song[] {
+  return songList.sort((a, b) => {
     const field: keyof Song = options.type as keyof Song
     const first = a[field]
     const second = b[field]
@@ -44,7 +44,7 @@ export function sortSongList(songList: Song[], options: SongSortOptions) {
       if (!options.asc) {
         return first.toString().localeCompare(second.toString())
       } else {
-        return first.toString().localeCompare(second.toString())
+        return second.toString().localeCompare(first.toString())
       }
     }
 
