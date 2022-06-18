@@ -260,6 +260,14 @@ export class WindowHandler {
     window.on('show', () => {
       this.handleWindowShow(window)
     })
+
+    // TODO: Hopefully expand the blocklist in future
+    window.webContents.session.webRequest.onBeforeRequest(
+      { urls: ['*://googleads.g.doubleclick.net/*'] },
+      (details, callback) => {
+        callback({ cancel: true })
+      }
+    )
   }
 
   public minimizeWindow(isMainWindow = true) {
