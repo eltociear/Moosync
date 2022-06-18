@@ -48,19 +48,20 @@
           </b-row>
         </b-container>
       </div>
-      <AudioStream
-        :playerState="playerState"
-        :currentSong="currentSong"
-        @onTimeUpdate="updateTimestamp"
-        :forceSeek="forceSeek"
-      />
     </div>
     <div
       class="slider"
       :class="{ open: sliderPosition, close: !sliderPosition }"
       :style="{ height: `calc(100% - ${!hasFrame ? '7.5rem' : '6rem'})` }"
     >
-      <MusicInfo :currentSong="currentSong" />
+      <MusicInfo :currentSong="currentSong">
+        <AudioStream
+          :playerState="playerState"
+          :currentSong="currentSong"
+          @onTimeUpdate="updateTimestamp"
+          :forceSeek="forceSeek"
+        />
+      </MusicInfo>
     </div>
   </div>
 </template>

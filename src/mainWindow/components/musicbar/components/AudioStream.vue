@@ -8,12 +8,14 @@
 -->
 
 <template>
-  <div>
-    <div ref="audioHolder">
-      <div ref="yt-player" id="yt-player" class="yt-player"></div>
+  <div class="h-100 w-100">
+    <div ref="audioHolder" class="h-100 w-100">
+      <div class="w-100 h-100" v-show="showYTPlayer">
+        <div class="yt-player" ref="yt-player" id="yt-player"></div>
+      </div>
       <audio id="dummy-yt-player" />
       <audio ref="audio" preload="auto" />
-      <video ref="dash-player"></video>
+      <video ref="dash-player" class="dash-player"></video>
     </div>
   </div>
 </template>
@@ -90,6 +92,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
   private _bufferTrap: ReturnType<typeof setTimeout> | undefined
 
+  private showYTPlayer = false
+
   get songRepeat() {
     return vxm.player.Repeat
   }
@@ -159,6 +163,9 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.activePlayerTypes = parsedType
 
       this.analyserNode = undefined
+
+      this.showYTPlayer = parsedType === 'YOUTUBE'
+      console.log(this.showYTPlayer)
     }
 
     return parsedType
@@ -675,5 +682,10 @@ a {
 
 <style lang="sass">
 .yt-player
-  width: 0
+  border-radius: 16px
+  height: 100%
+  width: 100%
+
+.dash-player
+  width: 0 !important
 </style>

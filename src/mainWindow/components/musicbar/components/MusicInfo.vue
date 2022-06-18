@@ -23,6 +23,7 @@
         referrerPolicy="no-referrer"
       ></b-img>
     </transition>
+
     <b-container fluid class="w-100 h-100 main-container">
       <b-row no-gutters align-h="end">
         <b-col cols="auto">
@@ -37,6 +38,21 @@
             :currentSong="currentSong"
             :forceCover="computedImg"
           />
+          <div class="audioStream-slot">
+            <b-container fluid class="h-100 scrollable">
+              <b-row no-gutters>
+                <b-col class="position-relative">
+                  <div class="video-container w-100">
+                    <div class="embed-responsive embed-responsive-1by1">
+                      <div class="embed-responsive-item">
+                        <slot></slot>
+                      </div>
+                    </div>
+                  </div>
+                </b-col>
+              </b-row>
+            </b-container>
+          </div>
         </b-col>
         <b-col offset="1" cols="7" class="right-container h-100">
           <div class="h-100" v-if="queueOrder.length > 0">
@@ -348,4 +364,16 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
 .cross-icon
   width: 18px
   margin-right: 1.5rem
+
+.audioStream-slot
+  position: absolute
+  left: 0
+  top: 0
+  height: 100%
+  width: 100%
+  padding-right: 25px
+
+.video-container
+  position: relative
+  text-shadow: 0 0 white
 </style>
