@@ -9,12 +9,18 @@
 
 <template>
   <b-row align-h="end" align-v="center" no-gutters>
-    <b-col cols="auto" class="slider-container d-flex">
+    <b-col
+      cols="auto"
+      class="slider-container d-flex"
+      :style="{ opacity: `${showVolume ? '1' : ''}` }"
+      @mouseenter="handleSliderMouseEnter"
+      @mouseleave="handleSliderMouseLeave"
+    >
       <input
         type="range"
         min="0"
         max="100"
-        class="slider w-100 align-self-center test"
+        class="slider w-100 align-self-center"
         v-bind:style="{
           background: ComputedGradient
         }"
@@ -23,7 +29,13 @@
         v-model="volume"
       />
     </b-col>
-    <VolumeIcon class="volume-icon" @click.native="volumeIconClick" :cut="volume == 0" />
+    <VolumeIcon
+      class="volume-icon"
+      @click.native="volumeIconClick"
+      :cut="volume == 0"
+      @mouseenter.native="handleVolumeIconMouseEnter"
+      @mouseleave.native="handleVolumeIconMouseLeave"
+    />
     <b-col cols="auto" class="expand-icon ml-3" :class="{ open: sliderOpen }" @click="emitToggleSlider">
       <ExpandIcon />
     </b-col>
@@ -48,6 +60,9 @@ import { bus } from '@/mainWindow/main'
 export default class MusicBar extends Vue {
   private sliderOpen = false
   private oldVolume = 50
+
+  private volumeIconHover = false
+  private showVolume = false
 
   get volume() {
     return vxm.player.volume
@@ -84,14 +99,47 @@ export default class MusicBar extends Vue {
   get ComputedGradient(): string {
     return `linear-gradient(90deg, var(--accent) 0%, var(--accent) ${this.volume}%, var(--textSecondary) 0%)`
   }
+
+  private handleVolumeIconMouseEnter() {
+    this.volumeIconHover = true
+    this.showVolume = true
+  }
+
+  private leaveTimeout: ReturnType<typeof setTimeout> | undefined
+
+  private handleVolumeIconMouseLeave() {
+    this.volumeIconHover = false
+
+    this.leaveTimeout = setTimeout(() => {
+      this.showVolume = false
+    }, 150)
+  }
+
+  private handleSliderMouseEnter() {
+    if (this.volumeIconHover) {
+      this.showVolume = true
+    }
+    this.leaveTimeout && clearTimeout(this.leaveTimeout)
+  }
+
+  private handleSliderMouseLeave() {
+    this.showVolume = false
+    this.leaveTimeout && clearTimeout(this.leaveTimeout)
+  }
 }
 </script>
 
 <style lang="sass" scoped>
 .slider-container
   padding-right: 20px
+  // @media(max-width: $grid-breakpoints[md])
+  //   right: 0
+  //   bottom: 60px
+  //   position: absolute
+
 
 .slider
+  right: 0
   -webkit-appearance: none
   height: 2px
   outline: none
@@ -109,6 +157,10 @@ export default class MusicBar extends Vue {
 
 .volume-icon
   width: 22px
+  &:hover
+    .slider-container
+      opacity: 1
+      display: block
 
 .expand-icon
   height: 27px
