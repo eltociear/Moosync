@@ -13,7 +13,7 @@
       <TabCarousel v-on="$listeners" :optionalProviders="optionalProviders" />
       <b-row no-gutters class="h-100">
         <RecycleScroller
-          :class="`scroller w-100 ${optionalProviders.length > 0 ? 'low-height' : 'full-height'}`"
+          class="scroller w-100 low-height"
           :items="songList"
           :item-size="94"
           key-field="_id"
@@ -87,7 +87,4 @@ export default class SongListCompact extends mixins(ImgLoader, SongListMixin) {
 
 .low-height
   height: calc(100% - 40px - 13px)
-
-.full-height
-  height: 100%
 </style>
