@@ -169,7 +169,6 @@ export default class TabCarousel extends mixins(ContextMenuMixin) {
     const scrollLeft = this.providerContainer.scrollLeft + 100
     this.providerContainer.scrollTo({ left: scrollLeft, behavior: 'smooth' })
     this.scrollLeft = scrollLeft
-    console.log(this.scrollLeft)
   }
 
   private onPrevClick() {
