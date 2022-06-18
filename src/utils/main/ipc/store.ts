@@ -38,13 +38,15 @@ export class StoreChannel implements IpcChannelInterface {
 
   public async setSecure(service: string, token: string) {
     try {
-      if (safeStorage.isEncryptionAvailable()) {
-        if (token) {
+      if (token) {
+        if (safeStorage.isEncryptionAvailable()) {
           const encrypted = safeStorage.encryptString(token)
           saveSelectivePreference(`secure.${service}`, encrypted.toString('base64'))
         } else {
-          removeSelectivePreference(`secure.${service}`)
+          saveSelectivePreference(`secure.${service}`, Buffer.from(token).toString('base64'))
         }
+      } else {
+        removeSelectivePreference(`secure.${service}`)
       }
     } catch (e) {
       console.error(e)
@@ -75,8 +77,13 @@ export class StoreChannel implements IpcChannelInterface {
       if (safeStorage.isEncryptionAvailable()) {
         const encrypted = loadSelectivePreference<string>(`secure.${service}`)
         if (encrypted) {
-          const decrypted = safeStorage.decryptString(Buffer.from(encrypted, 'base64'))
-          return decrypted
+          try {
+            const decrypted = safeStorage.decryptString(Buffer.from(encrypted, 'base64'))
+            return decrypted
+          } catch (e) {
+            console.warn('Failed to decrypt token', service, e)
+            return encrypted
+          }
         }
       }
     } catch (e) {
