@@ -96,6 +96,10 @@ declare namespace PlaylistRequests {
 }
 
 declare namespace ScannerRequests {
+  interface ScanSongs {
+    forceScan: boolean
+  }
+
   interface ScanSinglePlaylist {
     playlistPath: string
   }

@@ -139,8 +139,11 @@ contextBridge.exposeInMainWorld('Store', {
 })
 
 contextBridge.exposeInMainWorld('FileUtils', {
-  scan: () =>
-    ipcRendererHolder.send<undefined>(IpcEvents.SCANNER, { type: ScannerEvents.SCAN_MUSIC, params: undefined }),
+  scan: (forceScan = false) =>
+    ipcRendererHolder.send<ScannerRequests.ScanSongs>(IpcEvents.SCANNER, {
+      type: ScannerEvents.SCAN_MUSIC,
+      params: { forceScan }
+    }),
 
   getScanProgress: () =>
     ipcRendererHolder.send<void>(IpcEvents.SCANNER, { type: ScannerEvents.GET_PROGRESS, params: undefined }),

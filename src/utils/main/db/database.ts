@@ -243,8 +243,13 @@ export class SongDBInstance extends DBUtils {
           await this.downloadFile(newCoverpath, finalPath)
           return finalPath
         }
-        await fsP.copyFile(newCoverpath, finalPath)
-        return finalPath
+
+        if (path.dirname(newCoverpath) !== path.dirname(finalPath)) {
+          await fsP.copyFile(newCoverpath, finalPath)
+          return finalPath
+        }
+
+        return newCoverpath
       }
     }
     return oldCoverPath
@@ -569,17 +574,10 @@ export class SongDBInstance extends DBUtils {
         songid
       ) as { album_id: string }
       if (album_id) {
-        const { high, low } = this.db.queryFirstRowObject(
-          `SELECT album_coverPath_high as high, album_coverPath_low as low from albums WHERE album_id = ?`,
+        this.db.update('albums', { album_coverPath_high: newHigh, album_coverPath_low: newLow }, [
+          'album_id = ?',
           album_id
-        ) as { high: string; low: string }
-        if (!high) {
-          this.db.update('albums', { album_coverPath_high: newHigh }, ['album_id = ?', album_id])
-        }
-
-        if (!low) {
-          this.db.update('albums', { album_coverPath_low: newLow }, ['album_id = ?', album_id])
-        }
+        ])
       }
     })(songid, coverHigh, coverLow)
   }
@@ -591,21 +589,11 @@ export class SongDBInstance extends DBUtils {
       }
     })[0]
 
-    if (oldAlbum?.album_coverPath_high !== album.album_coverPath_high) {
-      if (album.album_coverPath_high) {
-        const coverPath = path.join(
-          loadPreferences().thumbnailPath,
-          album.album_id + path.extname(album.album_coverPath_high)
-        )
+    const coverPath = await this.getCoverPath(oldAlbum?.album_coverPath_high ?? '', album.album_coverPath_high ?? '')
 
-        if (!album.album_coverPath_high.startsWith('http')) {
-          await fsP.copyFile(album.album_coverPath_high, coverPath)
-        } else {
-          await this.downloadFile(album.album_coverPath_high, coverPath)
-        }
-        album.album_coverPath_high = coverPath
-        album.album_coverPath_low = coverPath
-      }
+    if (oldAlbum?.album_coverPath_high !== coverPath) {
+      album.album_coverPath_high = coverPath
+      album.album_coverPath_low = coverPath
 
       if (oldAlbum?.album_coverPath_high) {
         await fsP.rm(oldAlbum?.album_coverPath_high, { force: true })
@@ -714,22 +702,16 @@ export class SongDBInstance extends DBUtils {
         artist_id: artist.artist_id
       }
     })[0]
-    if (artist.artist_coverPath !== oldArtist?.artist_coverPath) {
-      if (artist.artist_coverPath) {
-        const coverPath = path.join(loadPreferences().thumbnailPath, v4() + path.extname(artist.artist_coverPath))
 
-        if (!artist.artist_coverPath.startsWith('http')) {
-          await fsP.copyFile(artist.artist_coverPath, coverPath)
-        } else {
-          await this.downloadFile(artist.artist_coverPath, coverPath)
-        }
-        artist.artist_coverPath = coverPath
-      }
+    const coverPath = await this.getCoverPath(oldArtist.artist_coverPath ?? '', artist.artist_coverPath ?? '')
+    if (coverPath !== oldArtist?.artist_coverPath) {
+      artist.artist_coverPath = coverPath
 
       if (oldArtist?.artist_coverPath) {
         await fsP.rm(oldArtist.artist_coverPath, { force: true })
       }
     }
+
     this.db.updateWithBlackList(
       'artists',
       artist,
@@ -894,17 +876,11 @@ export class SongDBInstance extends DBUtils {
 
   public async updatePlaylist(playlist: Partial<Playlist>) {
     const oldPlaylist = this.getEntityByOptions<Playlist>({ playlist: { playlist_id: playlist.playlist_id } })[0]
-    if (oldPlaylist?.playlist_coverPath !== playlist.playlist_coverPath) {
-      if (playlist.playlist_coverPath) {
-        const coverPath = path.join(loadPreferences().thumbnailPath, v4() + path.extname(playlist.playlist_coverPath))
 
-        if (!playlist.playlist_coverPath.startsWith('http')) {
-          await fsP.copyFile(playlist.playlist_coverPath, coverPath)
-        } else {
-          await this.downloadFile(playlist.playlist_coverPath, coverPath)
-        }
-        playlist.playlist_coverPath = coverPath
-      }
+    const coverPath = await this.getCoverPath(oldPlaylist.playlist_coverPath ?? '', playlist.playlist_coverPath ?? '')
+
+    if (oldPlaylist?.playlist_coverPath !== coverPath) {
+      playlist.playlist_coverPath = coverPath
 
       if (oldPlaylist?.playlist_coverPath) {
         await fsP.rm(oldPlaylist.playlist_coverPath, { force: true })

@@ -125,7 +125,7 @@ interface fileUtils {
    * Start scan operation
    * Scans for audio files in specified paths
    */
-  scan: () => Promise<void>
+  scan: (forceScan?: boolean) => Promise<void>
   scanSinglePlaylist: (playlistPath: string) => Promise<{ songs: Song[]; playlist: Partial<Playlist> | null }>
 
   getScanProgress: () => Promise<Progress>

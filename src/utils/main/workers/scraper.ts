@@ -216,7 +216,6 @@ async function checkCoverExists(coverPath: string | undefined): Promise<boolean>
       return true
     } catch (e) {
       logger.warn(`${coverPath} not accessible`)
-      return false
     }
   }
   return false

@@ -25,6 +25,7 @@ import scraperWorker from 'threads-plugin/dist/loader?name=1!/src/utils/main/wor
 import { Observable } from 'observable-fns'
 import { WindowHandler } from '../windowManager'
 import { v4 } from 'uuid'
+import path from 'path'
 
 const loggerPath = app.getPath('logs')
 
@@ -55,7 +56,7 @@ export class ScannerChannel implements IpcChannelInterface {
   handle(event: IpcMainEvent, request: IpcRequest) {
     switch (request.type) {
       case ScannerEvents.SCAN_MUSIC:
-        this.scanAll(event, request)
+        this.scanAll(event, request as IpcRequest<ScannerRequests.ScanSongs>)
         break
       case ScannerEvents.GET_PROGRESS:
         this.getScanProgress(event, request)
@@ -115,7 +116,6 @@ export class ScannerChannel implements IpcChannelInterface {
           const res = cover && (await this.storeCover(song._id, cover))
           if (res) {
             if (!songCoverExists) SongDB.updateSongCover(s._id, res.high, res.low)
-
             if (!albumCoverExists) SongDB.updateAlbumCovers(s._id, res.high, res.low)
           }
         }
@@ -175,12 +175,14 @@ export class ScannerChannel implements IpcChannelInterface {
     } as Progress)
   }
 
-  private scanSongs(preferences: Preferences) {
+  private scanSongs(preferences: Preferences, forceScan = false) {
     return new Promise<void>((resolve, reject) => {
       ;(
-        this.scannerWorker.start(preferences.musicPaths, SongDB.getAllPaths(), loggerPath) as Observable<
-          ScannedSong | ScannedPlaylist | Progress
-        >
+        this.scannerWorker.start(
+          preferences.musicPaths,
+          forceScan ? [] : SongDB.getAllPaths(),
+          loggerPath
+        ) as Observable<ScannedSong | ScannedPlaylist | Progress>
       ).subscribe(
         (result) => {
           if ((result as Progress).total) {
@@ -251,7 +253,7 @@ export class ScannerChannel implements IpcChannelInterface {
         return true
       } catch (e) {
         console.warn(`${coverPath} not accessible`)
-        await fs.promises.mkdir(coverPath, { recursive: true })
+        await fs.promises.mkdir(path.dirname(coverPath), { recursive: true })
       }
     }
     return false
@@ -323,7 +325,7 @@ export class ScannerChannel implements IpcChannelInterface {
     this.scanStatus = scanning.QUEUED
   }
 
-  public async scanAll(event?: IpcMainEvent, request?: IpcRequest) {
+  public async scanAll(event?: IpcMainEvent, request?: IpcRequest<ScannerRequests.ScanSongs>) {
     if (this.isScanning) {
       this.setQueued()
       return
@@ -349,7 +351,7 @@ export class ScannerChannel implements IpcChannelInterface {
     await this.destructiveScan(preferences.musicPaths)
 
     try {
-      await this.scanSongs(preferences)
+      await this.scanSongs(preferences, request?.params.forceScan)
     } catch (e) {
       console.error(e)
     }
