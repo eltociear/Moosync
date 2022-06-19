@@ -42,9 +42,9 @@ export function sortSongList(songList: Song[], options: SongSortOptions): Song[]
 
     if (first && second) {
       if (!options.asc) {
-        return first.toString().localeCompare(second.toString())
-      } else {
         return second.toString().localeCompare(first.toString())
+      } else {
+        return first.toString().localeCompare(second.toString())
       }
     }
 

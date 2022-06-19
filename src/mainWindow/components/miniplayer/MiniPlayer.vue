@@ -138,7 +138,6 @@ export default class App extends mixins(ImgLoader) {
   @Watch('currentSong')
   private async onCurrentSongChange() {
     this.iconType = (await this.getIconType()) ?? ''
-    console.log(this.iconType)
   }
 }
 </script>

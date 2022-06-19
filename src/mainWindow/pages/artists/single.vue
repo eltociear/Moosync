@@ -17,7 +17,6 @@
     <SongView
       :defaultDetails="defaultDetails"
       :songList="songList"
-      @onRowContext="getSongMenu(arguments[0], arguments[1], undefined)"
       @playAll="playArtist"
       @addToQueue="addArtistToQueue"
       @onOptionalProviderChanged="onArtistProviderChanged"
@@ -33,7 +32,6 @@ import SongView from '@/mainWindow/components/songView/SongView.vue'
 
 import { mixins } from 'vue-class-component'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
-import { arrayDiff } from '@/utils/common'
 import { vxm } from '@/mainWindow/store'
 import { GenericProvider } from '@/utils/ui/providers/generics/genericProvider'
 import RemoteSong from '@/utils/ui/mixins/remoteSongMixin'
@@ -158,10 +156,6 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
     })
   }
 
-  private sort(options: SongSortOptions) {
-    vxm.themes.songSortBy = options
-  }
-
   private getIsRemote(songs: Song[]) {
     for (const s of songs) {
       if (s._id.startsWith('youtube') || s._id.startsWith('spotify') || s.providerExtension) {
@@ -169,19 +163,6 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
       }
     }
     return false
-  }
-
-  private getSongMenu(event: Event, songs: Song[], exclude: string | undefined) {
-    this.getContextMenu(event, {
-      type: 'SONGS',
-      args: {
-        songs: songs,
-        exclude: exclude,
-        isRemote: this.getIsRemote(songs),
-        sortOptions: { callback: this.sort, current: vxm.themes.songSortBy },
-        refreshCallback: () => (this.songList = arrayDiff(this.songList, songs))
-      }
-    })
   }
 
   private playArtist() {

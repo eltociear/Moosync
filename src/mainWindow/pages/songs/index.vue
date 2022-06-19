@@ -13,6 +13,7 @@
       :detailsButtonGroup="buttonGroups"
       :defaultDetails="defaultDetails"
       :songList="songList"
+      :afterSongAddRefreshCallback="requestSongs"
       @onRowContext="getSongMenu(arguments[0], arguments[1], undefined)"
     />
   </div>
@@ -25,7 +26,6 @@ import SongView from '@/mainWindow/components/songView/SongView.vue'
 import { mixins } from 'vue-class-component'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import { vxm } from '@/mainWindow/store'
-import { arrayDiff } from '@/utils/common'
 
 @Component({
   components: {
@@ -65,18 +65,6 @@ export default class AllSongs extends mixins(ContextMenuMixin) {
 
   private sort(options: SongSortOptions) {
     vxm.themes.songSortBy = options
-  }
-
-  private getSongMenu(event: Event, songs: Song[], exclude: string | undefined) {
-    this.getContextMenu(event, {
-      type: 'SONGS',
-      args: {
-        songs: songs,
-        exclude: exclude,
-        sortOptions: { callback: this.sort, current: vxm.themes.songSortBy },
-        refreshCallback: () => (this.songList = arrayDiff(this.songList, songs))
-      }
-    })
   }
 
   private getGeneralSongsMenu(event: Event) {

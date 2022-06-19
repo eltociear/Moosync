@@ -18,7 +18,6 @@
       :defaultDetails="defaultDetails"
       :songList="songList"
       :detailsButtonGroup="buttonGroups"
-      @onRowContext="getSongMenu(arguments[0], arguments[1], undefined)"
       @playAll="playAlbum"
       @addToQueue="addAlbumToQueue"
     />
@@ -34,7 +33,6 @@ import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import { vxm } from '@/mainWindow/store'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import RemoteSong from '@/utils/ui/mixins/remoteSongMixin'
-import { arrayDiff } from '@/utils/common'
 
 @Component({
   components: {
@@ -82,22 +80,6 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
         album_id: this.$route.query.id as string
       },
       sortBy: vxm.themes.songSortBy
-    })
-  }
-
-  private sort(options: SongSortOptions) {
-    if (options.type === 'title' || options.type === 'date_added') vxm.themes.songSortBy = options
-  }
-
-  private getSongMenu(event: Event, songs: Song[], exclude: string | undefined) {
-    this.getContextMenu(event, {
-      type: 'SONGS',
-      args: {
-        songs: songs,
-        exclude: exclude,
-        sortOptions: { callback: this.sort, current: vxm.themes.songSortBy },
-        refreshCallback: () => (this.songList = arrayDiff(this.songList, songs))
-      }
     })
   }
 

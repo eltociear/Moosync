@@ -8,7 +8,7 @@
 -->
 
 <template>
-  <b-container fluid class="song-container h-100">
+  <b-container fluid class="song-container h-100" @contextmenu="onGeneralContextMenu">
     <transition
       name="custom-classes-transition"
       enter-active-class="animate__animated animate__slideInLeft animate__delay-1s animate__slideInLeft_delay"
@@ -23,7 +23,7 @@
         :optionalProviders="optionalProviders"
         @onOptionalProviderChanged="onOptionalProviderChanged"
         @onRowDoubleClicked="queueSong([arguments[0]])"
-        @onRowContext="emitSongContextMenu"
+        @onRowContext="onSongContextMenu"
         @onRowSelected="updateCoverDetails"
         @onRowSelectionClear="clearSelection"
         @onRowPlayNowClicked="playTop([arguments[0]])"
@@ -49,7 +49,7 @@ import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 import { vxm } from '@/mainWindow/store'
 import SongViewClassic from '@/mainWindow/components/songView/components/SongViewClassic.vue'
 import SongViewCompact from '@/mainWindow/components/songView/components/SongViewCompact.vue'
-import { sortSongList } from '@/utils/common'
+import { arrayDiff, sortSongList } from '@/utils/common'
 import RouterPushes from '@/utils/ui/mixins/RouterPushes'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 
@@ -77,6 +77,9 @@ export default class AllSongs extends mixins(
 
   @Prop({ default: () => [] })
   private optionalProviders!: ProviderHeaderOptions[]
+
+  @Prop()
+  private afterSongAddRefreshCallback!: (() => void) | undefined
 
   private searchText = ''
 
@@ -124,14 +127,34 @@ export default class AllSongs extends mixins(
     this.selectedCopy = items
   }
 
-  private emitSongContextMenu(event: Event, item: Song) {
-    this.$emit('onRowContext', event, item)
+  private sort(options: SongSortOptions) {
+    vxm.themes.songSortBy = options
+  }
+
+  private onSongContextMenu(event: Event, songs: Song[]) {
+    this.getContextMenu(event, {
+      type: 'SONGS',
+      args: {
+        songs,
+        refreshCallback: () => (this.songList = arrayDiff(this.songList, songs))
+      }
+    })
   }
 
   private showSortMenu(event: Event) {
     this.getContextMenu(event, {
       type: 'SONG_SORT',
       args: {
+        sortOptions: { callback: this.sort, current: vxm.themes.songSortBy }
+      }
+    })
+  }
+
+  private onGeneralContextMenu(event: Event) {
+    this.getContextMenu(event, {
+      type: 'GENERAL_SONGS',
+      args: {
+        refreshCallback: this.afterSongAddRefreshCallback,
         sortOptions: {
           callback: (options) => (vxm.themes.songSortBy = options),
           current: vxm.themes.songSortBy

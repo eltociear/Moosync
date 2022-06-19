@@ -53,11 +53,11 @@ export default class ArtistsPage extends mixins(RouterPushes, ContextMenuMixin) 
 
   private sort() {
     this.artistList.sort((a, b) => {
-      switch (vxm.themes.otherSortBy.type) {
+      switch (vxm.themes.entitySortBy.type) {
         default:
         case 'name':
           return (
-            (vxm.themes.otherSortBy.asc
+            (vxm.themes.entitySortBy.asc
               ? a.artist_name?.localeCompare(b.artist_name ?? '')
               : b.artist_name?.localeCompare(a.artist_name ?? '')) ?? 0
           )
@@ -66,7 +66,7 @@ export default class ArtistsPage extends mixins(RouterPushes, ContextMenuMixin) 
   }
 
   private setSort(options: NormalSortOptions) {
-    vxm.themes.otherSortBy = options
+    vxm.themes.entitySortBy = options
   }
 
   private singleItemContextHandler(artist: Artists, event: MouseEvent) {
@@ -80,11 +80,11 @@ export default class ArtistsPage extends mixins(RouterPushes, ContextMenuMixin) 
 
   private contextHandler(event: MouseEvent) {
     this.getContextMenu(event, {
-      type: 'GENERIC_SORT',
+      type: 'ENTITY_SORT',
       args: {
         sortOptions: {
           callback: this.setSort,
-          current: vxm.themes.otherSortBy
+          current: vxm.themes.entitySortBy
         }
       }
     })
@@ -92,7 +92,7 @@ export default class ArtistsPage extends mixins(RouterPushes, ContextMenuMixin) 
 
   mounted() {
     this.getArtists()
-    vxm.themes.$watch('otherSortBy', this.sort)
+    vxm.themes.$watch('entitySortBy', this.sort)
   }
 }
 </script>

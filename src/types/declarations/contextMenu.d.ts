@@ -14,7 +14,6 @@ type ContextMenuArgs =
         exclude?: string
         refreshCallback?: () => void
         songs: Song[]
-        sortOptions?: Sort<SongSortOptions>
         isRemote?: boolean
       }
     }
@@ -22,7 +21,7 @@ type ContextMenuArgs =
       type: 'GENERAL_SONGS'
       args: {
         sortOptions?: Sort<SongSortOptions>
-        refreshCallback: () => void
+        refreshCallback?: () => void
       }
     }
   | {
@@ -40,15 +39,6 @@ type ContextMenuArgs =
       }
     }
   | {
-      type: 'PLAYLIST_CONTENT'
-      args: {
-        isRemote: boolean
-        refreshCallback: () => void
-        sortOptions?: Sort<SongSortOptions>
-        songs: Song[]
-      }
-    }
-  | {
       type: 'QUEUE_ITEM'
       args: {
         isRemote: boolean
@@ -58,7 +48,7 @@ type ContextMenuArgs =
       }
     }
   | {
-      type: 'GENERIC_SORT'
+      type: 'ENTITY_SORT'
       args: {
         sortOptions: Sort<NormalSortOptions>
       }

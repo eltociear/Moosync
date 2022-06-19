@@ -186,17 +186,12 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     }
   }
 
-  private sort(options: SongSortOptions) {
-    vxm.themes.songSortBy = options
-  }
-
   private getSongMenu(event: Event, songs: Song[]) {
     this.getContextMenu(event, {
-      type: 'PLAYLIST_CONTENT',
+      type: 'SONGS',
       args: {
         songs: songs,
         isRemote: !!this.isRemote,
-        sortOptions: { callback: this.sort, current: vxm.themes.songSortBy },
         refreshCallback: () => (this.songList = arrayDiff<Song>(this.songList, songs))
       }
     })

@@ -61,16 +61,16 @@ export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
   }
 
   private setSort(options: NormalSortOptions) {
-    vxm.themes.otherSortBy = options
+    vxm.themes.entitySortBy = options
   }
 
   private sort() {
     this.albumList.sort((a, b) => {
-      switch (vxm.themes.otherSortBy.type) {
+      switch (vxm.themes.entitySortBy.type) {
         default:
         case 'name':
           return (
-            (vxm.themes.otherSortBy.asc
+            (vxm.themes.entitySortBy.asc
               ? a.album_name?.localeCompare(b.album_name ?? '')
               : b.album_name?.localeCompare(a.album_name ?? '')) ?? 0
           )
@@ -89,11 +89,11 @@ export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
 
   private contextHandler(event: MouseEvent) {
     this.getContextMenu(event, {
-      type: 'GENERIC_SORT',
+      type: 'ENTITY_SORT',
       args: {
         sortOptions: {
           callback: this.setSort,
-          current: vxm.themes.otherSortBy
+          current: vxm.themes.entitySortBy
         }
       }
     })
@@ -101,7 +101,7 @@ export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
 
   mounted() {
     this.getAlbums()
-    vxm.themes.$watch('otherSortBy', this.sort)
+    vxm.themes.$watch('entitySortBy', this.sort)
   }
 }
 </script>

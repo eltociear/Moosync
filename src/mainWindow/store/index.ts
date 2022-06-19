@@ -30,7 +30,7 @@ const paths = [
   'themes.colors',
   'themes.songSortBy',
   'themes.playlistSortBy',
-  'themes.otherSortBy',
+  'themes.entitySortBy',
   'themes._sidebarOpen'
 ]
 
