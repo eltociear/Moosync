@@ -95,7 +95,7 @@ export class ScannerChannel implements IpcChannelInterface {
     if (song.hash) {
       const existing = SongDB.getByHash(song.hash)
       if (existing.length === 0) {
-        const res = cover && (await this.storeCover(song._id, cover))
+        const res = cover && (await this.storeCover(cover))
         if (res) {
           song.album = {
             ...song.album,
@@ -113,7 +113,7 @@ export class ScannerChannel implements IpcChannelInterface {
         const songCoverExists = await this.checkSongCovers(s)
 
         if (!albumCoverExists || !songCoverExists) {
-          const res = cover && (await this.storeCover(song._id, cover))
+          const res = cover && (await this.storeCover(cover))
           if (res) {
             if (!songCoverExists) SongDB.updateSongCover(s._id, res.high, res.low)
             if (!albumCoverExists) SongDB.updateAlbumCovers(s._id, res.high, res.low)
@@ -123,7 +123,7 @@ export class ScannerChannel implements IpcChannelInterface {
     }
   }
 
-  private async storeCover(id: string, cover: TransferDescriptor<Buffer> | undefined) {
+  private async storeCover(cover: TransferDescriptor<Buffer> | undefined) {
     if (cover) {
       const thumbPath = loadPreferences().thumbnailPath
       try {
@@ -133,7 +133,7 @@ export class ScannerChannel implements IpcChannelInterface {
       }
 
       try {
-        return writeBuffer(cover.send, thumbPath, id)
+        return writeBuffer(cover.send, thumbPath)
       } catch (e) {
         console.error('Error writing cover', e)
       }
