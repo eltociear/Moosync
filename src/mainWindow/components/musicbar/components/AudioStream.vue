@@ -92,7 +92,9 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
   private _bufferTrap: ReturnType<typeof setTimeout> | undefined
 
-  private showYTPlayer = false
+  private get showYTPlayer() {
+    return this.currentSong && this.activePlayer instanceof YoutubePlayer
+  }
 
   get songRepeat() {
     return vxm.player.Repeat
@@ -163,8 +165,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.activePlayerTypes = parsedType
 
       this.analyserNode = undefined
-
-      this.showYTPlayer = parsedType === 'YOUTUBE'
     }
 
     return parsedType
