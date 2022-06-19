@@ -19,6 +19,8 @@ export class ThemeStore extends VuexModule.With({ namespaced: 'themes' }) {
   public playlistSortBy: PlaylistSortOptions = { type: 'name', asc: true }
   public entitySortBy: NormalSortOptions = { type: 'name', asc: true }
 
+  public showPlayer = 0
+
   get isUpdateAvailable() {
     return this._updateAvailable
   }

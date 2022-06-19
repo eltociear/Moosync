@@ -44,11 +44,21 @@
           </div>
 
           <div class="song-info-container" :style="{ color: `${forceWhiteText ? '#fff' : 'var(--textPrimary)'}` }">
-            <div class="d-flex">
-              <div class="song-title text-truncate">
+            <b-row class="d-flex">
+              <b-col class="song-title text-truncate">
                 {{ title }}
-              </div>
-            </div>
+              </b-col>
+
+              <b-col
+                cols="auto"
+                class="align-self-center ml-auto show-lyrics"
+                v-if="isShowLyricsActive !== 0"
+                :style="{ color: isShowLyricsActive === 2 ? 'var(--accent)' : 'var(--textPrimary)' }"
+                @click="onShowLyricsClicked"
+              >
+                {{ isShowLyricsActive === 2 ? 'Show lyrics' : 'Show video' }}
+              </b-col>
+            </b-row>
             <div class="song-subtitle text-truncate" :title="subtitle" v-if="subtitle">{{ subtitle }}</div>
             <div class="song-timestamp" :title="subSubTitle" v-if="subSubTitle">
               {{ subSubTitle }}
@@ -128,6 +138,9 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   private cardHoverText!: string
   private parsedCardHoverText = ''
 
+  @Prop({ default: 0 })
+  private isShowLyricsActive!: number
+
   private handleImageError() {
     this.forceShowDefaultImage = true
   }
@@ -191,6 +204,11 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
 
   private addToLibrary() {
     this.$emit('addToLibrary')
+  }
+
+  private onShowLyricsClicked() {
+    this.pinHoverText = true
+    this.$emit('toggleLyrics')
   }
 }
 </script>
@@ -286,4 +304,9 @@ export default class SongDetailsCompact extends mixins(ImgLoader, FileMixin) {
   top: 0
   right: 30px
   width: 25px
+
+.show-lyrics
+  font-weight: 400
+  font-size: 17px
+  cursor: pointer
 </style>

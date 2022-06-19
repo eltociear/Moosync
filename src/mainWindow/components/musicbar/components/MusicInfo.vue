@@ -37,9 +37,11 @@
             :forceWhiteText="true"
             :currentSong="currentSong"
             :forceCover="computedImg"
+            :isShowLyricsActive="showPlayer"
+            @toggleLyrics="onToggleLyrics"
           />
-          <div class="audioStream-slot">
-            <b-container fluid class="h-100 scrollable">
+          <div class="audioStream-slot" v-show="showPlayer === 2">
+            <b-container fluid class="scrollable">
               <b-row no-gutters>
                 <b-col class="position-relative">
                   <div class="video-container w-100">
@@ -137,6 +139,10 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
 
   get remoteCover() {
     return vxm.sync.currentCover
+  }
+
+  get showPlayer() {
+    return vxm.themes.showPlayer
   }
 
   private close() {
@@ -272,6 +278,10 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   private currentSong!: Song | null
 
   private formattedDuration = convertDuration
+
+  private onToggleLyrics() {
+    vxm.themes.showPlayer = vxm.themes.showPlayer === 1 ? 2 : 1
+  }
 }
 </script>
 
@@ -369,7 +379,6 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
   position: absolute
   left: 0
   top: 0
-  height: 100%
   width: 100%
   padding-right: 25px
 

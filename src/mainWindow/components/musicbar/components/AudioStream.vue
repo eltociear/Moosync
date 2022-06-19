@@ -10,7 +10,7 @@
 <template>
   <div class="h-100 w-100">
     <div ref="audioHolder" class="h-100 w-100">
-      <div class="w-100 h-100" v-show="showYTPlayer">
+      <div class="w-100 h-100">
         <div class="yt-player" ref="yt-player" id="yt-player"></div>
       </div>
       <audio id="dummy-yt-player" />
@@ -93,7 +93,11 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   private _bufferTrap: ReturnType<typeof setTimeout> | undefined
 
   private get showYTPlayer() {
-    return this.currentSong && this.activePlayer instanceof YoutubePlayer
+    return vxm.themes.showPlayer
+  }
+
+  private set showYTPlayer(show: number) {
+    vxm.themes.showPlayer = show
   }
 
   get songRepeat() {
@@ -164,6 +168,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.registerPlayerListeners()
       this.activePlayerTypes = parsedType
 
+      this.showYTPlayer = this.useEmbed ? (this.activePlayerTypes === 'YOUTUBE' ? 2 : 1) : 0
+
       this.analyserNode = undefined
     }
 
@@ -175,7 +181,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
    * This method is responsible for loading the current song in active player
    * or unloading the player if current song is empty
    */
-  @Watch('currentSong')
+  @Watch('currentSong', { immediate: true })
   onSongChanged(newSong: Song | null | undefined) {
     if (newSong) this.loadAudio(newSong, false)
     else this.unloadAudio()
@@ -207,6 +213,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   @Ref('dash-player')
   private dashPlayerDiv!: HTMLVideoElement
 
+  private useEmbed = false
+
   /**
    * Initial setup for all players
    */
@@ -222,10 +230,11 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
           if (val) {
             this.ytPlayer = new InvidiousPlayer(this.audioElement)
           } else {
-            const useEmbed = (await window.PreferenceUtils.loadSelective<Checkbox[]>('audio'))?.find(
-              (val) => val.key === 'youtube_embeds'
-            )
-            this.ytPlayer = new YoutubePlayer(this.ytAudioElement, useEmbed?.enabled)
+            this.useEmbed =
+              (await window.PreferenceUtils.loadSelective<Checkbox[]>('audio'))?.find(
+                (val) => val.key === 'youtube_embeds'
+              )?.enabled ?? false
+            this.ytPlayer = new YoutubePlayer(this.ytAudioElement, this.useEmbed)
           }
 
           resolve()
@@ -639,7 +648,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
   private unloadAudio() {
     console.debug('Unloading audio')
-    this.activePlayer.stop()
+    this.activePlayer?.stop()
   }
 
   private async handleActivePlayerState(newState: PlayerState) {
@@ -681,8 +690,6 @@ a {
 <style lang="sass">
 .yt-player
   border-radius: 16px
-  height: 100%
-  width: 100%
 
 .dash-player
   width: 0 !important
