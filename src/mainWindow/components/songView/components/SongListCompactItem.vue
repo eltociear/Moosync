@@ -141,6 +141,7 @@ export default class SongListCompact extends mixins(ImgLoader) {
   }
 
   private onRowContext(event: MouseEvent, item: Song) {
+    event.stopPropagation()
     this.$emit('onRowContext', event, item)
   }
 
