@@ -124,8 +124,7 @@ export default class DefaultLayout extends mixins(ContextMenuMixin) {
   display: flex
 
 
-$mini-player: "only screen and (max-width : 800px)"
-@media #{$mini-player}
+@media only screen and (max-width : 800px)
   .main-content
     display: none
 

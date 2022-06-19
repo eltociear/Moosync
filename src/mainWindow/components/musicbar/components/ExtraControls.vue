@@ -171,8 +171,7 @@ export default class ExtraControls extends Vue {
 .test
   min-width: 0
 
-$mini-player: "only screen and (max-width : 800px)"
-@media #{$mini-player}
+@media only screen and (max-width : 800px)
   .expand-icon
     display: none
 

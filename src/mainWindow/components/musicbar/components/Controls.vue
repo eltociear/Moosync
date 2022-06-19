@@ -102,8 +102,7 @@ export default class MusicBar extends mixins(PlayerControls) {
 .shuffle-icon
   margin-right: 1.5rem
 
-$mini-player: "only screen and (max-width : 800px)"
-@media #{$mini-player}
+@media only screen and (max-width : 800px)
   .timestamp-container
     display: none
 
