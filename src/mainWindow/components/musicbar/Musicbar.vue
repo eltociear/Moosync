@@ -210,6 +210,13 @@ export default class MusicBar extends mixins(ImgLoader) {
 .extra-col
   display: block
 
+.slider
+  display: block
+
+@media only screen and (max-width : 800px)
+  .slider
+    display: none
+
 @media only screen and (max-width : 480px)
   .details-col
     display: none
