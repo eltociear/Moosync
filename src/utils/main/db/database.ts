@@ -235,10 +235,10 @@ export class SongDBInstance extends DBUtils {
     }
   }
 
-  private async getCoverPath(oldCoverPath: string, newCoverpath: string, songID: string) {
+  private async getCoverPath(oldCoverPath: string, newCoverpath: string) {
     if (oldCoverPath !== newCoverpath) {
       if (newCoverpath) {
-        const finalPath = path.join(loadPreferences().thumbnailPath, songID + (path.extname(newCoverpath) ?? '.png'))
+        const finalPath = path.join(loadPreferences().thumbnailPath, v4() + (path.extname(newCoverpath) ?? '.png'))
         if (newCoverpath.startsWith('http')) {
           await this.downloadFile(newCoverpath, finalPath)
           return finalPath
@@ -281,8 +281,7 @@ export class SongDBInstance extends DBUtils {
         this.updateSongGenre(song.genre ?? [], oldSong.genre, song._id)
         const finalCoverPath = await this.getCoverPath(
           oldSong.song_coverPath_high ?? '',
-          song.song_coverPath_high ?? '',
-          song._id
+          song.song_coverPath_high ?? ''
         )
         song.song_coverPath_high = finalCoverPath
         song.song_coverPath_low = finalCoverPath
@@ -717,10 +716,7 @@ export class SongDBInstance extends DBUtils {
     })[0]
     if (artist.artist_coverPath !== oldArtist?.artist_coverPath) {
       if (artist.artist_coverPath) {
-        const coverPath = path.join(
-          loadPreferences().thumbnailPath,
-          artist.artist_id + path.extname(artist.artist_coverPath)
-        )
+        const coverPath = path.join(loadPreferences().thumbnailPath, v4() + path.extname(artist.artist_coverPath))
 
         if (!artist.artist_coverPath.startsWith('http')) {
           await fsP.copyFile(artist.artist_coverPath, coverPath)
@@ -900,10 +896,7 @@ export class SongDBInstance extends DBUtils {
     const oldPlaylist = this.getEntityByOptions<Playlist>({ playlist: { playlist_id: playlist.playlist_id } })[0]
     if (oldPlaylist?.playlist_coverPath !== playlist.playlist_coverPath) {
       if (playlist.playlist_coverPath) {
-        const coverPath = path.join(
-          loadPreferences().thumbnailPath,
-          playlist.playlist_id + path.extname(playlist.playlist_coverPath)
-        )
+        const coverPath = path.join(loadPreferences().thumbnailPath, v4() + path.extname(playlist.playlist_coverPath))
 
         if (!playlist.playlist_coverPath.startsWith('http')) {
           await fsP.copyFile(playlist.playlist_coverPath, coverPath)
