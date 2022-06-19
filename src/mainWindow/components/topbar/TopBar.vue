@@ -8,7 +8,7 @@
 -->
 
 <template>
-  <div class="topbar-container d-flex align-items-center">
+  <div class="topbar-container align-items-center">
     <b-container fluid class="d-flex">
       <b-row align-h="start" class="flex-grow-1">
         <b-col cols="auto" class="my-auto"> <Navigation /> </b-col>

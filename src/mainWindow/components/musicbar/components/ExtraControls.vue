@@ -29,13 +29,15 @@
         v-model="volume"
       />
     </b-col>
-    <VolumeIcon
-      class="volume-icon"
-      @click.native="volumeIconClick"
-      :cut="volume == 0"
-      @mouseenter.native="handleVolumeIconMouseEnter"
-      @mouseleave.native="handleVolumeIconMouseLeave"
-    />
+    <b-col cols="auto">
+      <VolumeIcon
+        class="volume-icon align-self-center"
+        @click.native="volumeIconClick"
+        :cut="volume == 0"
+        @mouseenter.native="handleVolumeIconMouseEnter"
+        @mouseleave.native="handleVolumeIconMouseLeave"
+      />
+    </b-col>
     <b-col cols="auto" class="expand-icon ml-3" :class="{ open: sliderOpen }" @click="emitToggleSlider">
       <ExpandIcon />
     </b-col>
@@ -57,7 +59,7 @@ import { bus } from '@/mainWindow/main'
     Timestamp
   }
 })
-export default class MusicBar extends Vue {
+export default class ExtraControls extends Vue {
   private sliderOpen = false
   private oldVolume = 50
 
@@ -132,11 +134,6 @@ export default class MusicBar extends Vue {
 <style lang="sass" scoped>
 .slider-container
   padding-right: 20px
-  // @media(max-width: $grid-breakpoints[md])
-  //   right: 0
-  //   bottom: 60px
-  //   position: absolute
-
 
 .slider
   right: 0
@@ -163,6 +160,7 @@ export default class MusicBar extends Vue {
       display: block
 
 .expand-icon
+  display: block
   height: 27px
   width: 18px
   transition: transform 0.2s linear
@@ -172,4 +170,12 @@ export default class MusicBar extends Vue {
 
 .test
   min-width: 0
+
+$mini-player: "only screen and (max-width : 800px)"
+@media #{$mini-player}
+  .expand-icon
+    display: none
+
+  .slider-container
+    right: -230px !important
 </style>

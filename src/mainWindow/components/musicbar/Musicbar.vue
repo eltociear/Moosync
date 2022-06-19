@@ -28,7 +28,7 @@
             align-v="center"
             align-h="center"
             align-content="center"
-            class="d-flex no-gutters w-100 control-row"
+            class="no-gutters w-100 control-row justify-content-between"
           >
             <b-col cols="4" class="no-gutters details-col w-100">
               <Details
@@ -39,10 +39,10 @@
                 :iconURL="iconURL"
               />
             </b-col>
-            <b-col cols="auto" align-self="center" class="no-gutters controls-col">
+            <b-col align-self="center" class="no-gutters controls-col">
               <Controls :duration="currentSong ? currentSong.duration : 0" :timestamp="timestamp" />
             </b-col>
-            <b-col cols="4" align-self="center" class="no-gutters extra-col">
+            <b-col cols="1" lg="auto" align-self="center" class="no-gutters extra-col">
               <ExtraControls />
             </b-col>
           </b-row>
@@ -203,4 +203,17 @@ export default class MusicBar extends mixins(ImgLoader) {
 
 .close
   transform: translateY(100vh)
+
+.details-col
+  display: block
+
+.extra-col
+  display: block
+
+@media only screen and (max-width : 480px)
+  .details-col
+    display: none
+
+  .extra-col
+    display: none
 </style>

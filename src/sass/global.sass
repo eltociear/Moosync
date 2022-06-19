@@ -105,14 +105,8 @@ ul
 .control-row
   position: relative
 
-.details-col, .extra-col
-  position: absolute !important
-
 .details-col
   left: 0
-
-.extra-col
-  right: 0
 
 .gradient
   background: linear-gradient(176.27deg, var(--secondary) 1.69%, var(--primary) 72.01%)
@@ -377,14 +371,17 @@ ul
 
 @include media-breakpoint-down(md)
   .slider-container
-    right: -38px
-    bottom: 100px
+    right: -200px
+    bottom: 85px
     height: 40px
+    width: 175px
+    max-width: 175px
     position: absolute
     background: var(--tertiary)
     border-radius: 16px
     padding-left: 15px !important
     transform: rotate(-90deg)
+    transform-origin: 0px 88px
     transition: opacity 0.2s ease-in-out
     opacity: 0
 

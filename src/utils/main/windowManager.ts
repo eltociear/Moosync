@@ -70,8 +70,8 @@ export class WindowHandler {
     return {
       title: 'Moosync',
       ...getWindowSize('mainWindow', { width: 1016, height: 653 }),
-      minHeight: 653,
-      minWidth: 1016,
+      minHeight: 400,
+      minWidth: 300,
       ...this.baseWindowProps
     }
   }
@@ -263,7 +263,7 @@ export class WindowHandler {
 
     // TODO: Hopefully expand the blocklist in future
     window.webContents.session.webRequest.onBeforeRequest(
-      { urls: ['*://googleads.g.doubleclick.net/*'] },
+      { urls: ['*://googleads.g.doubleclick.net/*', '*://*.youtube.com/api/stats/ads'] },
       (details, callback) => {
         callback({ cancel: true })
       }

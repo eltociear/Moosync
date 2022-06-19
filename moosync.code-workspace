@@ -47,6 +47,7 @@
       "MBID",
       "Mbps",
       "minimizable",
+      "miniplayer",
       "minisong",
       "mixins",
       "musicbar",
@@ -104,7 +105,7 @@
     ],
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
-    "typescript.tsdk": "node_modules\\typescript\\lib",
+    "typescript.tsdk": "node_modules/typescript/lib",
     "[vue]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
     },

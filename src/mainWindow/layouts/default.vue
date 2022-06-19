@@ -12,8 +12,9 @@
     <TopBar :showRefreshIcon="showRefreshIcon" class="topbar" :class="{ 'is-open': isSidebarOpen }" />
     <Sidebar class="sidebar" />
     <MusicBar class="musicbar" />
+    <MiniPlayer class="mini-player" />
 
-    <div class="d-flex main-content" :class="{ 'is-open': isSidebarOpen }">
+    <div class="main-content" :class="{ 'is-open': isSidebarOpen }">
       <transition
         appear
         name="custom-slide-fade"
@@ -34,12 +35,14 @@ import { Component } from 'vue-property-decorator'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import { mixins } from 'vue-class-component'
 import { vxm } from '../store/index'
+import MiniPlayer from '@/mainWindow/components/miniplayer/MiniPlayer.vue'
 
 @Component({
   components: {
     Sidebar,
     TopBar,
-    MusicBar
+    MusicBar,
+    MiniPlayer
   }
 })
 export default class DefaultLayout extends mixins(ContextMenuMixin) {
@@ -106,4 +109,32 @@ export default class DefaultLayout extends mixins(ContextMenuMixin) {
   padding-right: 20px
   &.is-open
     left: calc(261px)
+
+.mini-player
+  display: none
+  height: calc(100% - 6rem - 15px)
+
+.main-content
+  display: flex
+
+.sidebar
+  display: block
+
+.topbar
+  display: flex
+
+
+$mini-player: "only screen and (max-width : 800px)"
+@media #{$mini-player}
+  .main-content
+    display: none
+
+  .sidebar
+    display: none
+
+  .topbar
+    display: none
+
+  .mini-player
+    display: block
 </style>
