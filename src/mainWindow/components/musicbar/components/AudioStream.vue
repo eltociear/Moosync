@@ -562,13 +562,11 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     console.debug('Got playback url and duration', res)
 
     if (res) {
-      this.duplicateSongChangeRequest = song
-
       // song is a reference to vxm.player.currentSong or vxm.sync.currentSong.
       // Mutating those properties should also mutate song
       if (vxm.player.currentSong && song) {
         song.duration = res.duration
-        Vue.set(song, 'playbackUrl', res.url)
+        song.playbackUrl = res.url
       }
     }
   }
@@ -602,6 +600,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
       console.debug('PlaybackUrl or Duration empty for', song._id)
       await this.setPlaybackURLAndDuration(song)
+      this.duplicateSongChangeRequest = song
     }
 
     if (!song.path && (!song.playbackUrl || !song.duration)) {
@@ -619,7 +618,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       )
       console.debug('Loaded song at', 'media://' + song.path)
       vxm.player.loading = false
-    } else if (PlayerTypes) {
+    } else {
       console.debug('PlaybackUrl for song', song._id, 'is', song.playbackUrl)
       console.debug('Loaded song at', song.playbackUrl)
 
