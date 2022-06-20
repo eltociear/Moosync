@@ -608,8 +608,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.unloadAudio()
 
       console.debug('PlaybackUrl or Duration empty for', song._id)
-      await this.setPlaybackURLAndDuration(song)
       this.duplicateSongChangeRequest = song
+      await this.setPlaybackURLAndDuration(song)
     }
 
     if (!song.path && (!song.playbackUrl || !song.duration)) {
