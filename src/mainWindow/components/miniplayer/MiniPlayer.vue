@@ -164,6 +164,7 @@ export default class App extends mixins(ImgLoader) {
   @Watch('currentSong')
   private async onCurrentSongChange() {
     this.iconType = (await this.getIconType()) ?? ''
+    this.lyricsContainer.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   // TODO: Better gradient calculations
