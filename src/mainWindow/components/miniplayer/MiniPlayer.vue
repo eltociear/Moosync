@@ -1,7 +1,6 @@
 <template>
-  <div>
+  <div class="position-relative">
     <div class="h-100 w-100 img-container">
-      <div v-if="computedImg" class="dark-overlay" :style="{ top: !hasFrame ? '-28px' : '0px' }"></div>
       <transition
         name="custom-fade"
         enter-active-class="animate__animated animate__fadeIn"
@@ -15,12 +14,13 @@
           referrerPolicy="no-referrer"
         ></b-img>
       </transition>
+      <div v-if="computedImg" class="dark-overlay" :style="{ top: !hasFrame ? '-28px' : '0px' }"></div>
     </div>
-    <b-container>
-      <b-row>
-        <b-col class="song-details">
-          <b-row>
-            <b-col class="text-truncate">
+    <b-container fluid class="h-100 w-100">
+      <b-row class="h-100">
+        <b-col class="song-details h-100">
+          <b-row no-gutters class="h-100">
+            <b-col class="h-100">
               <b-row align-h="start" align-v="center">
                 <b-col cols="auto" class="w-100 d-flex">
                   <div id="musicbar-title" :title="currentSong.title" class="text song-title text-truncate mr-2">
@@ -69,11 +69,17 @@
                   </div>
                 </b-col>
               </b-row>
+              <b-row no-gutters class="lyrics-container" ref="lyrics-container" @scroll="onLyricsScroll">
+                <b-col class="lyrics-holder" :style="{ 'background-image': lyricsGradient }">
+                  <p class="lyrics" v-if="lyrics" v-html="lyrics"></p>
+                </b-col>
+              </b-row>
             </b-col>
           </b-row>
         </b-col>
       </b-row>
     </b-container>
+    <div class="side-decoration"></div>
   </div>
 </template>
 
@@ -81,9 +87,11 @@
 import { vxm } from '@/mainWindow/store'
 import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 import { mixins } from 'vue-class-component'
-import { Component, Watch } from 'vue-property-decorator'
+import { Component, Ref, Watch } from 'vue-property-decorator'
 import SpotifyIcon from '@/icons/SpotifyIcon.vue'
 import YoutubeIcon from '@/icons/YoutubeIcon.vue'
+import { bus } from '@/mainWindow/main'
+import { EventBus } from '@/utils/main/ipc/constants'
 
 @Component({
   components: {
@@ -98,6 +106,19 @@ export default class App extends mixins(ImgLoader) {
   private iconType = ''
   private iconURL = ''
 
+  private scrollTop = 0
+  private scrollHeight = 0
+  private lyricsHeight = 0
+
+  @Ref('lyrics-container')
+  private lyricsContainer!: HTMLDivElement
+
+  private lyricsRaw?: string = ''
+
+  private get lyrics() {
+    return this.lyricsRaw?.replaceAll('\n', '<br/>').trim()
+  }
+
   private get currentSong() {
     return vxm.player.currentSong
   }
@@ -110,6 +131,11 @@ export default class App extends mixins(ImgLoader) {
   async created() {
     this.hasFrame = await window.WindowUtils.hasFrame()
     this.iconType = (await this.getIconType()) ?? ''
+    this.listenLyricsChanged()
+  }
+
+  mounted() {
+    this.onLyricsScroll()
   }
 
   private async getIconType() {
@@ -139,6 +165,29 @@ export default class App extends mixins(ImgLoader) {
   private async onCurrentSongChange() {
     this.iconType = (await this.getIconType()) ?? ''
   }
+
+  // TODO: Better gradient calculations
+  private get lyricsGradient() {
+    const adder = (600 - this.lyricsHeight) / 30
+    return `linear-gradient(transparent ${this.scrollTop > 0 ? '12%' : '0%'}, currentColor ${
+      this.scrollTop > 0 ? 30 + adder + '%' : '0%'
+    }, currentColor ${this.scrollTop < this.scrollHeight ? 70 - adder + '%' : '100%'}, transparent ${
+      this.scrollTop < this.scrollHeight ? '86%' : '100%'
+    })`
+  }
+
+  private onLyricsScroll() {
+    this.scrollTop = this.lyricsContainer.scrollTop
+    this.scrollHeight = this.lyricsContainer.scrollHeight - this.lyricsContainer.clientHeight
+    this.lyricsHeight = this.lyricsContainer.clientHeight
+  }
+
+  private listenLyricsChanged() {
+    this.lyricsRaw = this.currentSong?.lyrics
+    bus.$on(EventBus.REFRESH_LYRICS, (lyrics: string) => {
+      this.lyricsRaw = lyrics
+    })
+  }
 }
 </script>
 
@@ -146,18 +195,22 @@ export default class App extends mixins(ImgLoader) {
 .img-container
   position: absolute
 
+.bg-img
+  border-radius: 0px !important
+  filter: blur(10px)
+  object-fit: cover
+
 .dark-overlay
   height: calc(100% + 28px + 5px + 3px)
   width: 100vw
   position: absolute
   left: 0
-  background: rgba(0,0,0,.75)
+  background: rgba(0,0,0,.55)
 
 .song-details
   text-align: left
   margin-top: 30px
-  padding-left: 15px
-  padding-right: 15px
+  padding-left: 30px
 
 .text
   text-align: left
@@ -176,4 +229,31 @@ export default class App extends mixins(ImgLoader) {
   text-decoration: none
   &:hover
     text-decoration: underline
+
+.lyrics-holder
+  font-weight: 700
+  font-size: 24px
+  -webkit-background-clip: text
+  background-attachment: fixed
+  p
+    color: transparent
+
+.lyrics
+  word-break: break-word
+  line-height: 1.2
+
+.lyrics-container
+  overflow-y: auto
+  overflow-x: hidden
+  margin-top: 20px
+  margin-right: -20px !important
+  height: calc(100% - 80px - 15px - 20px)
+
+.side-decoration
+  position: absolute
+  top: 7.8rem
+  left: 0
+  background: var(--accent)
+  width: 8px
+  height: 20vh
 </style>

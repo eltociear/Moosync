@@ -188,24 +188,31 @@ export default class MusicInfo extends mixins(ImageLoader, ModelHelper) {
     }
   }
 
+  @Watch('lyrics', { immediate: true })
+  onLyricsChange() {
+    bus.$emit(EventBus.REFRESH_LYRICS, this.lyrics)
+  }
+
   @Watch('currentSong', { immediate: true })
   async onSongChange() {
     this.lyrics = ''
+
     if (this.currentSong) {
       if (this.currentSong.lyrics) {
         this.lyrics = this.currentSong.lyrics
       } else {
         this.lyrics = 'Searching Lyrics...'
+
+        const { _id, title, artists } = this.currentSong
         const resp =
           (await this.getLyricsFromExtension()) ??
-          (await window.SearchUtils.searchLyrics(
-            this.currentSong.artists?.map((val) => val.artist_name ?? '') ?? [],
-            this.currentSong.title
-          ))
+          (await window.SearchUtils.searchLyrics(artists?.map((val) => val.artist_name ?? '') ?? [], title))
 
-        this.currentSong.lyrics = resp
-        this.lyrics = resp || 'No lyrics found...'
-        window.DBUtils.updateLyrics(this.currentSong._id, resp)
+        if (this.currentSong._id === _id) {
+          this.currentSong.lyrics = resp
+          this.lyrics = resp || 'No lyrics found...'
+        }
+        window.DBUtils.updateLyrics(_id, resp)
       }
     }
   }

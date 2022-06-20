@@ -207,5 +207,6 @@ export enum EventBus {
   HIDE_OAUTH_MODAL = 'hide-oauth-modal',
   SHOW_FORM_MODAL = 'show-form-modal',
   REFRESH_USERNAMES = 'refresh-usernames',
-  REFRESH_PAGE = 'refresh-page'
+  REFRESH_PAGE = 'refresh-page',
+  REFRESH_LYRICS = 'refresh-lyrics'
 }
