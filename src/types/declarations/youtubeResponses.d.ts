@@ -131,7 +131,7 @@ declare namespace YoutubeResponses {
     }
 
     interface Snippet {
-      publishedAt: Date
+      publishedAt: string
       channelId: string
       title: string
       description: string
@@ -168,7 +168,7 @@ declare namespace YoutubeResponses {
     }
 
     interface Snippet {
-      publishedAt: Date
+      publishedAt: string
       channelId: string
       title: string
       description: string
@@ -207,7 +207,7 @@ declare namespace YoutubeResponses {
     interface Snippet {
       title: string
       description: string
-      publishedAt: Date
+      publishedAt: string
       thumbnails: Thumbnails.Thumbnails
       localized: Localized
     }
@@ -252,7 +252,7 @@ declare namespace YoutubeResponses {
     }
 
     interface Snippet {
-      publishedAt: Date
+      publishedAt: string
       channelId: string
       title: string
       description: string
