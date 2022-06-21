@@ -184,7 +184,10 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   @Watch('currentSong', { immediate: true })
   onSongChanged(newSong: Song | null | undefined) {
     if (newSong) this.loadAudio(newSong, false)
-    else this.unloadAudio()
+    else {
+      this.unloadAudio()
+      this.showYTPlayer = 0
+    }
   }
 
   /**
