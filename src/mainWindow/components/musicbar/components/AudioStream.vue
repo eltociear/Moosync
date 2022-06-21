@@ -160,13 +160,18 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     if (this.activePlayerTypes !== parsedType) {
       console.debug('Changing player type to', newType)
       this.unloadAudio()
-      this.activePlayer.removeAllListeners()
+
+      // Old active player may be null when window loads
+      this.activePlayer?.removeAllListeners()
 
       this.activePlayer = this.getAudioPlayer(parsedType)
 
-      this.activePlayer.volume = vxm.player.volume
-      this.registerPlayerListeners()
-      this.activePlayerTypes = parsedType
+      // Players might not have been initialized
+      if (this.activePlayer) {
+        this.activePlayer.volume = vxm.player.volume
+        this.registerPlayerListeners()
+        this.activePlayerTypes = parsedType
+      }
 
       this.showYTPlayer = this.useEmbed && this.activePlayerTypes === 'YOUTUBE' ? 2 : 0
 
