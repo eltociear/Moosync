@@ -914,13 +914,16 @@ export class SongDBInstance extends DBUtils {
     // TODO: Regenerate cover instead of using existing from song
     const coverExists = this.isPlaylistCoverExists(playlist_id)
     this.db.transaction((songs: Song[]) => {
-      for (const s of songs) {
-        if (!coverExists) {
-          if (s.album?.album_coverPath_high) {
-            this.updatePlaylistCoverPath(playlist_id, s.album.album_coverPath_high)
+      for (let s of songs) {
+        if (this.verifySong(s)) {
+          s = this.store(s) as Song
+          if (!coverExists) {
+            if (s.album?.album_coverPath_high) {
+              this.updatePlaylistCoverPath(playlist_id, s.album.album_coverPath_high)
+            }
           }
+          this.db.insert('playlist_bridge', { playlist: playlist_id, song: s._id })
         }
-        this.db.insert('playlist_bridge', { playlist: playlist_id, song: s._id })
       }
     })(songs)
     this.updateSongCountPlaylists()
