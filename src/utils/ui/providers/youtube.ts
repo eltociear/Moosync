@@ -456,7 +456,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
       do {
         const resp = await this.populateRequest(ApiResources.SEARCH, {
           params: {
-            part: ['id'],
+            part: ['id', 'snippet'],
             type: 'video',
             maxResults: 50,
             order: 'relevance',
@@ -467,7 +467,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
         })
 
         if (resp.items) {
-          resp.items.forEach((val) => finalIDs.push({ id: val.id.videoId, date: val.snippet.publishedAt }))
+          resp.items.forEach((val) => finalIDs.push({ id: val.id.videoId, date: val.snippet?.publishedAt }))
         }
 
         pageToken = resp.nextPageToken
@@ -479,7 +479,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     } else {
       const resp = await this.populateRequest(ApiResources.SEARCH, {
         params: {
-          part: ['id'],
+          part: ['id', 'snippet'],
           type: 'video',
           maxResults: 50,
           order: 'relevance',
@@ -489,7 +489,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
       })
 
       if (resp.items) {
-        resp.items.forEach((val) => finalIDs.push({ id: val.id.videoId, date: val.snippet.publishedAt }))
+        resp.items.forEach((val) => finalIDs.push({ id: val.id.videoId, date: val.snippet?.publishedAt }))
         yield this.getSongDetailsFromID(false, ...finalIDs)
       }
     }
