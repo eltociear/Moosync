@@ -12,7 +12,7 @@
     <b-col
       cols="auto"
       class="slider-container d-flex"
-      :style="{ opacity: `${showVolume ? '1' : ''}` }"
+      :style="{ opacity: `${showVolume ? '1' : ''}`, visibility: `${showVolume ? 'visible' : 'hidden'}` }"
       @mouseenter="handleSliderMouseEnter"
       @mouseleave="handleSliderMouseLeave"
     >
@@ -140,6 +140,7 @@ export default class ExtraControls extends Vue {
   -webkit-appearance: none
   height: 2px
   outline: none
+  visibility: visible
 
 .slider::-webkit-slider-thumb
   -webkit-appearance: none
@@ -174,7 +175,4 @@ export default class ExtraControls extends Vue {
 @media only screen and (max-width : 800px)
   .expand-icon
     display: none
-
-  .slider-container
-    right: -230px !important
 </style>
