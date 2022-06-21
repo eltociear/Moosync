@@ -23,8 +23,12 @@
             <b-col class="h-100">
               <b-row align-h="start" align-v="center">
                 <b-col cols="auto" class="w-100 d-flex">
-                  <div id="musicbar-title" :title="currentSong.title" class="text song-title text-truncate mr-2">
-                    {{ currentSong.title }}
+                  <div
+                    id="musicbar-title"
+                    :title="!!currentSong ? currentSong.title : '-'"
+                    class="text song-title text-truncate mr-2"
+                  >
+                    {{ !!currentSong ? currentSong.title : '-' }}
                   </div>
 
                   <YoutubeIcon
@@ -57,7 +61,7 @@
                 </b-col>
               </b-row>
               <b-row no-gutters>
-                <b-col class="d-flex">
+                <b-col class="d-flex" v-if="currentSong">
                   <div
                     v-for="(artist, index) of currentSong.artists"
                     :key="index"
@@ -111,7 +115,7 @@ export default class App extends mixins(ImgLoader) {
   private lyricsHeight = 0
 
   @Ref('lyrics-container')
-  private lyricsContainer!: HTMLDivElement
+  private lyricsContainer?: HTMLDivElement
 
   private lyricsRaw?: string = ''
 
@@ -164,7 +168,7 @@ export default class App extends mixins(ImgLoader) {
   @Watch('currentSong')
   private async onCurrentSongChange() {
     this.iconType = (await this.getIconType()) ?? ''
-    this.lyricsContainer.scrollTo({ top: 0, behavior: 'smooth' })
+    this.lyricsContainer?.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   // TODO: Better gradient calculations
@@ -178,9 +182,10 @@ export default class App extends mixins(ImgLoader) {
   }
 
   private onLyricsScroll() {
-    this.scrollTop = this.lyricsContainer.scrollTop
-    this.scrollHeight = this.lyricsContainer.scrollHeight - this.lyricsContainer.clientHeight
-    this.lyricsHeight = this.lyricsContainer.clientHeight
+    this.scrollTop = this.lyricsContainer?.scrollTop ?? 0
+    this.scrollHeight =
+      (this.lyricsContainer && this.lyricsContainer.scrollHeight - this.lyricsContainer.clientHeight) ?? 0
+    this.lyricsHeight = this.lyricsContainer?.clientHeight ?? 0
   }
 
   private listenLyricsChanged() {
