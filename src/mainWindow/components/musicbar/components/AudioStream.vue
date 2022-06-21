@@ -558,7 +558,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
     this.preloadStatus = 'PRELOADING'
 
-    const nextSong = vxm.player.queueData[vxm.player.queueOrder[vxm.player.queueIndex + 1].songID]
+    const nextSong = vxm.player.queueData[vxm.player.queueOrder[vxm.player.queueIndex + 1]?.songID]
     if (nextSong && !nextSong.path) {
       if (!nextSong.playbackUrl || !nextSong.duration) await this.setPlaybackURLAndDuration(nextSong)
 
