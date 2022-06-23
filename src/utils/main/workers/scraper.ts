@@ -61,9 +61,7 @@ axiosRetry(axios, {
 })
 
 async function queryMbid(name: string) {
-  return musicbrainz.get(
-    encodeURI(`/?limit=1&query=artist:${sanitizeArtistName(name).replaceAll(' ', '%20').replaceAll('.', '')}`)
-  )
+  return musicbrainz.get(`/?limit=1&query=artist:${sanitizeArtistName(name)}`)
 }
 
 async function getAndUpdateMBID(a: Artists): Promise<Artists | undefined> {
@@ -83,6 +81,8 @@ export async function fetchMBID(artists: Artists[], observer: SubscriptionObserv
       const updated = await getAndUpdateMBID(a)
       logger.debug('Got MBID for', a.artist_name, 'as', updated?.artist_mbid)
       observer.next(updated)
+    } else {
+      observer.next(a)
     }
   }
   logger.debug('Finished fetching MBID')
@@ -168,9 +168,7 @@ async function fetchFanartTv(mbid: string): Promise<string | undefined> {
 async function followWikimediaRedirects(fileName: string): Promise<string | undefined> {
   try {
     const data = (
-      await axios.get(
-        encodeURI(`https://commons.wikimedia.org/w/api.php?action=query&redirects=1&titles=${fileName}&format=json`)
-      )
+      await axios.get(`https://commons.wikimedia.org/w/api.php?action=query&redirects=1&titles=${fileName}&format=json`)
     ).data.query
     let filename = ''
     for (const i in data.pages) {
@@ -210,6 +208,7 @@ async function queryArtwork(a: Artists) {
 }
 
 async function checkCoverExists(coverPath: string | undefined): Promise<boolean> {
+  coverPath = coverPath && decodeURIComponent(coverPath)
   if (coverPath && !coverPath.startsWith('http')) {
     try {
       await fs.promises.access(coverPath)
@@ -241,6 +240,6 @@ export async function fetchArtworks(
       }
     }
   }
-  logger.debug('Finished fetching artworks')
+  logger.debug('Finished fetching artworks for', artists)
   observer.complete()
 }

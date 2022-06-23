@@ -207,18 +207,21 @@ export class ScannerChannel implements IpcChannelInterface {
   }
 
   private fetchMBID(allArtists: Artists[]) {
+    const pendingPromises: Promise<void>[] = []
     return new Promise<void>((resolve, reject) => {
       this.scraperWorker.fetchMBID(allArtists, loggerPath).subscribe(
-        (result: Artists) => {
+        async (result: Artists) => {
           if (result) {
-            SongDB.updateArtists(result)
-            this.fetchArtworks([result])
+            await SongDB.updateArtists(result)
+            pendingPromises.push(this.fetchArtworks([result]))
           }
         },
         (err: Error) => {
           reject(err)
         },
-        () => resolve()
+        () => {
+          Promise.all(pendingPromises).then(() => resolve())
+        }
       )
     })
   }
@@ -229,19 +232,21 @@ export class ScannerChannel implements IpcChannelInterface {
     if (cover) {
       ret.artist_coverPath = cover
     } else {
-      console.debug('Getting default cover for', artist.artist_name)
-      ret.artist_coverPath = await SongDB.getDefaultCoverByArtist(artist.artist_id)
+      if (!artist.artist_coverPath) {
+        console.debug('Getting default cover for', artist.artist_name)
+        ret.artist_coverPath = await SongDB.getDefaultCoverByArtist(artist.artist_id)
+      }
     }
 
     await SongDB.updateArtists(ret)
   }
 
   private async fetchArtworks(allArtists: Artists[]) {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       this.scraperWorker.fetchArtworks(allArtists, loggerPath).subscribe(
         (result: { artist: Artists; cover: string | undefined }) => this.updateArtwork(result.artist, result.cover),
         console.error,
-        () => resolve(undefined)
+        () => resolve()
       )
     })
   }
@@ -293,9 +298,6 @@ export class ScannerChannel implements IpcChannelInterface {
 
     console.info('Fetching MBIDs for Artists')
     await this.fetchMBID(allArtists)
-
-    console.info('Fetching Artwork for artists')
-    await this.fetchArtworks(allArtists)
 
     await Thread.terminate(this.scraperWorker)
     this.scraperWorker = undefined
