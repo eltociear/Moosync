@@ -82,7 +82,7 @@ declare namespace SpotifyResponses {
   type SearchRequest = {
     params: {
       query: string
-      type: 'track' | 'artist'
+      type: 'track' | 'artist' | 'playlist' | 'album'
       limit: number
     }
   }
@@ -408,8 +408,15 @@ declare namespace SpotifyResponses {
       items: RecommendationDetails.Track[]
     }
     artists?: {
-      items: SpotifyArtist[]
+      items: SpotifyResponses.RecommendationDetails.SpotifyArtist[]
       href: string
+    }
+    playlists?: {
+      items: SpotifyResponses.UserPlaylists.Item[]
+    }
+
+    albums?: {
+      items: RecommendationDetails.Album[]
     }
   }
 

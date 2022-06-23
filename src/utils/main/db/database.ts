@@ -840,6 +840,11 @@ export class SongDBInstance extends DBUtils {
    * @returns high resolution cover image for artist
    */
   public getDefaultCoverByArtist(id: string) {
+    const artist_cover = this.db.queryFirstRow(`SELECT artist_coverPath from artists WHERE artist_id = ?`, id)
+    if (artist_cover) {
+      return artist_cover
+    }
+
     const album_cover = (
       this.db.queryFirstRow(
         `SELECT album_coverPath_high from albums WHERE album_id = (SELECT album FROM album_bridge WHERE song = (SELECT song FROM artists_bridge WHERE artist = ?))`,

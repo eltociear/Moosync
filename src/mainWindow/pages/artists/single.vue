@@ -46,9 +46,9 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
   private optionalSongList: Record<string, string[]> = {}
   private artist: Artists | null = null
 
-  private extensionArtistSongProviders: ProviderHeaderOptions[] = []
+  private extensionArtistSongProviders: TabCarouselItem[] = []
 
-  private get artistSongProviders(): ProviderHeaderOptions[] {
+  private get artistSongProviders(): TabCarouselItem[] {
     return [
       {
         title: 'Youtube',
@@ -121,8 +121,11 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
       }
     }
 
+    console.log(this.artist.artist_coverPath)
+
     if (!this.artist.artist_coverPath) {
       let fetchedArtist = await this.fetchRemoteArtistDetails(this.artist)
+      console.log(fetchedArtist)
       this.artist = {
         ...this.artist,
         artist_coverPath: fetchedArtist?.artist_coverPath

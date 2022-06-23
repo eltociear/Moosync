@@ -49,7 +49,7 @@ export default class SongViewCompact extends mixins(PlayerControls, RemoteSong, 
   private tableBusy!: boolean
 
   @Prop({ default: () => [] })
-  private optionalProviders!: ProviderHeaderOptions[]
+  private optionalProviders!: TabCarouselItem[]
 
   @Prop({
     default: () => {

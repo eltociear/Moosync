@@ -7,17 +7,6 @@
  *  See LICENSE in the project root for license information.
  */
 
-type SearchResult = {
-  songs?: Song[]
-  albums?: Album[]
-  artists?: Artists[]
-  genres?: Genre[]
-  playlists?: Playlist[]
-  youtube?: YTMusicVideo[]
-  spotify?: Song[]
-  extension?: Record<string, Song[]>
-}
-
 interface marshaledSong {
   _id: string
   path?: string

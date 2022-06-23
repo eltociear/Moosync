@@ -22,7 +22,7 @@ declare namespace YoutubeResponses {
       part: ['id', 'snippet'?]
       relatedToVideoId?: string
       videoCategoryId?: 10
-      type?: 'video'
+      type?: 'video' | 'channel' | 'playlist'
       videoDuration?: 'short'
       maxResults?: number
       videoEmbeddable?: true
@@ -275,14 +275,19 @@ declare namespace YoutubeResponses {
   }
 
   namespace SearchDetails {
+    interface ChannelInfo extends ChannelInfo.Snippet {
+      channelId: string
+      channelTitle: string
+    }
     interface Item {
       id: {
         kind: string
-        videoId: string
+        videoId?: string
+        playlistId?: string
       }
       kind: string
       etag: string
-      snippet: VideoDetails.Snippet
+      snippet: VideoDetails.Snippet | ChannelInfo
     }
     interface SearchDetails {
       items: Item[]

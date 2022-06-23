@@ -683,4 +683,54 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       }
     }
   }
+
+  public async searchPlaylists(term: string): Promise<Playlist[]> {
+    const playlists: ExtendedPlaylist[] = []
+    const resp = await this.populateRequest(ApiResources.SEARCH, {
+      params: {
+        query: term,
+        type: 'playlist',
+        limit: 20
+      }
+    })
+
+    if (resp.playlists) {
+      playlists.push(...this.parsePlaylists(resp.playlists.items))
+    }
+
+    return playlists
+  }
+
+  private parseAlbum(...items: SpotifyResponses.RecommendationDetails.Album[]) {
+    const albums: Album[] = []
+
+    for (const a of items) {
+      albums.push({
+        album_id: `spotify-album:${a.id}`,
+        album_name: a.name,
+        album_song_count: a.total_tracks,
+        album_coverPath_high: a.images[0] ? a.images[0].url : '',
+        album_coverPath_low: a.images[2] ? a.images[2].url : ''
+      })
+    }
+
+    return albums
+  }
+
+  public async searchAlbum(term: string): Promise<Album[]> {
+    const albums: Album[] = []
+    const resp = await this.populateRequest(ApiResources.SEARCH, {
+      params: {
+        query: term,
+        type: 'album',
+        limit: 20
+      }
+    })
+
+    if (resp.albums) {
+      albums.push(...this.parseAlbum(...resp.albums.items))
+    }
+
+    return albums
+  }
 }

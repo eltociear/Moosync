@@ -10,7 +10,7 @@
 <template>
   <div class="d-flex h-100 w-100">
     <b-container fluid>
-      <TabCarousel v-on="$listeners" :optionalProviders="optionalProviders" />
+      <TabCarousel v-on="$listeners" :items="optionalProviders" />
       <b-row no-gutters class="h-100">
         <RecycleScroller
           class="scroller w-100 low-height"
@@ -56,7 +56,7 @@ import TabCarousel from '../../generic/TabCarousel.vue'
 })
 export default class SongListCompact extends mixins(ImgLoader, SongListMixin) {
   @Prop({ default: () => [] })
-  private optionalProviders!: ProviderHeaderOptions[]
+  private optionalProviders!: TabCarouselItem[]
 
   private onRowContext(event: Event, item: Song) {
     this.$emit(

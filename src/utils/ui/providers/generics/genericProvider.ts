@@ -89,4 +89,10 @@ export abstract class GenericProvider {
   public abstract searchSongs(term: string): Promise<Song[]>
 
   public abstract getArtistDetails(artist: Artists, forceFetch?: boolean): Promise<Artists | undefined>
+
+  public abstract searchArtists(term: string): Promise<Artists[]>
+
+  public abstract searchPlaylists(term: string): Promise<Playlist[]>
+
+  public abstract searchAlbum(term: string): Promise<Album[]>
 }

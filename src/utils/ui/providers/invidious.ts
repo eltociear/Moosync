@@ -244,4 +244,16 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
   public async getArtistDetails(artist: Artists): Promise<Artists | undefined> {
     return
   }
+
+  public async searchArtists(term: string): Promise<Artists[]> {
+    return []
+  }
+
+  public async searchPlaylists(term: string): Promise<Playlist[]> {
+    return []
+  }
+
+  public async searchAlbum(term: string): Promise<Album[]> {
+    return []
+  }
 }

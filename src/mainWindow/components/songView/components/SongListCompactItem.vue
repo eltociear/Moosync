@@ -98,7 +98,7 @@ import { vxm } from '@/mainWindow/store'
     AddToQueue
   }
 })
-export default class SongListCompact extends mixins(ImgLoader) {
+export default class SongListCompactItem extends mixins(ImgLoader) {
   private formattedDuration = convertDuration
 
   private iconType = ''

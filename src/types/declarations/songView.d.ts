@@ -19,7 +19,7 @@ interface SongDetailButtons {
   enableLibraryStore: boolean
 }
 
-interface ProviderHeaderOptions {
+interface TabCarouselItem {
   title: string
   key: string
 }

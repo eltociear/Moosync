@@ -8,456 +8,277 @@
 -->
 
 <template>
-  <div class="w-100 h-100 tab-outer-container">
-    <b-tabs content-class="mt-3 tab-inner-container" justified class="h-100">
-      <div v-for="i in items" :key="i.key">
-        <b-tab lazy v-if="showTab(i.tab)" :title="i.title ? i.title : i.tab" :id="i.key" :key="i.key">
+  <b-container class="h-100">
+    <TabCarousel
+      :items="searchItems"
+      :showExtraSongListActions="false"
+      :singleSelectMode="true"
+      :defaultSelected="searchItems[0].key"
+      :showBackgroundOnSelect="false"
+      @onItemsChanged="onProviderChanged"
+    />
+
+    <TabCarousel
+      :items="subCategories"
+      :showExtraSongListActions="false"
+      :singleSelectMode="true"
+      :defaultSelected="subCategories[0].key"
+      :showBackgroundOnSelect="false"
+      @onItemsChanged="onSubcategoriesChanged"
+    />
+
+    <transition
+      appear
+      name="custom-slide-fade"
+      :enter-active-class="`animate__animated ${transitionEnterActiveClass} animate__fast`"
+      :leave-active-class="`animate__animated ${transitionExitActiveClass} animate__fast`"
+    >
+      <b-row
+        class="scroller-row w-100"
+        v-if="activeSubcategory === 'songs'"
+        :key="`${activeProvider}-${activeSubcategory}`"
+      >
+        <b-col class="h-100">
           <RecycleScroller
-            class="scroller"
-            :items="ComputeTabContent(i.tab)"
-            :item-size="80"
-            :key-field="ComputeTabKeyField(i.tab)"
-            v-slot="{ item }"
-            v-if="ComputeTabContent(i.tab).length > 0"
+            class="scroller w-100 h-100"
+            :items="currentSongList"
+            :item-size="94"
+            key-field="_id"
             :direction="'vertical'"
           >
-            <SingleSearchResult
-              :title="ComputeTabTitle(i.tab, item)"
-              :subtitle="ComputeTabSubTitle(i.tab, item)"
-              :coverImg="ComputeTabImage(i.tab, item)"
-              :divider="true"
-              :id="item"
-              :showButtons="true"
-              :playable="isPlayable(item)"
-              @imgClick="imgClickHandler(i.tab, $event)"
-              @titleClick="titleClickHandler(i.tab, $event)"
-              @onContextMenu="contextMenuHandler(i.tab, ...arguments)"
-            />
+            <template v-slot="{ item, index }">
+              <SongListCompactItem
+                :item="item"
+                :index="index"
+                :selected="selected"
+                @onRowDoubleClicked="queueSong([arguments[0]])"
+                @onRowSelected="onRowSelected"
+                @onRowContext="onRowContext"
+                @onPlayNowClicked="playTop([arguments[0]])"
+                @onArtistClicked="gotoArtist"
+              />
+            </template>
           </RecycleScroller>
-          <b-container v-else class="mt-5 mb-3">
-            <b-row align-v="center" align-h="center">
-              <b-col cols="auto" v-if="i.loading"><b-spinner class="spinner" label="Loading..."></b-spinner></b-col>
-              <b-col v-else class="nothing-found"> Nothing found... </b-col>
-            </b-row>
-          </b-container>
-          <b-button class="load-more" v-if="getLoadMore(i.tab)" @click="handleLoadMore(i.tab)"
-            >Load more from Spotify</b-button
-          >
-        </b-tab>
-      </div>
-    </b-tabs>
-  </div>
+        </b-col>
+      </b-row>
+
+      <b-row class="scroller-row w-100" v-else :key="`${activeProvider}-${activeSubcategory}`">
+        <b-col col xl="2" md="3" v-for="entity in currentEntityList" :key="entity[entityKeyField]">
+          <CardView :title="entity[entityTitleField]" :imgSrc="entity[entityImageField]">
+            <template #defaultCover> <ArtistDefault /></template>
+          </CardView>
+        </b-col>
+      </b-row>
+    </transition>
+  </b-container>
 </template>
 
 <script lang="ts">
-import { Component, Watch } from 'vue-property-decorator'
-import SingleSearchResult from '@/mainWindow/components/generic/SingleSearchResult.vue'
-import { mixins } from 'vue-class-component'
-import RouterPushes from '@/utils/ui/mixins/RouterPushes'
-import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
-import ImgLoader from '@/utils/ui/mixins/ImageLoader'
 import { vxm } from '@/mainWindow/store'
+import { Component, Vue, Watch } from 'vue-property-decorator'
+import TabCarousel from '@/mainWindow/components/generic/TabCarousel.vue'
+import { GenericProvider } from '@/utils/ui/providers/generics/genericProvider'
+import SongListCompactItem from '@/mainWindow/components/songView/components/SongListCompactItem.vue'
+import CardView from '@/mainWindow/components/generic/CardView.vue'
+import ArtistDefault from '@/icons/ArtistDefaultIcon.vue'
+import { mixins } from 'vue-class-component'
+import PlayerControls from '@/utils/ui/mixins/PlayerControls'
+import SongListMixin from '@/utils/ui/mixins/SongListMixin'
+import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
+import RouterPushes from '@/utils/ui/mixins/RouterPushes'
 
 @Component({
   components: {
-    SingleSearchResult
+    TabCarousel,
+    SongListCompactItem,
+    CardView,
+    ArtistDefault
   }
 })
-export default class SearchPage extends mixins(RouterPushes, ContextMenuMixin, ImgLoader) {
-  private term = ''
-  private result: SearchResult = {}
-  private items: { tab: string; count: number; key: string; loading?: boolean; extension?: string; title?: string }[] =
-    [
-      { tab: 'Songs', count: 0, key: 'Songs-0' },
-      { tab: 'Albums', count: 0, key: 'Albums-0' },
-      { tab: 'Artists', count: 0, key: 'Artists-0' },
-      { tab: 'Genres', count: 0, key: 'Genres-0' },
-      { tab: 'Playlists', count: 0, key: 'Playlists-0' },
-      { tab: 'Youtube', count: 0, key: 'Youtube-0', loading: false },
-      { tab: 'Spotify', count: 0, key: 'Spotify-0', loading: false }
+export default class SearchPage extends mixins(PlayerControls, SongListMixin, ContextMenuMixin, RouterPushes) {
+  private optionalProviders: TabCarouselItem[] = []
+  private activeProvider = ''
+  private activeSubcategory: keyof SearchResult = 'songs'
+  private oldSubcategory = this.activeSubcategory
+
+  private get searchItems(): TabCarouselItem[] {
+    return [
+      {
+        title: 'Local',
+        key: 'local'
+      },
+      {
+        title: 'Youtube',
+        key: vxm.providers.youtubeProvider.key
+      },
+      {
+        title: 'Spotify',
+        key: vxm.providers.spotifyProvider.key
+      },
+      ...this.optionalProviders
     ]
-
-  private loadedMore: { [key: string]: boolean } = { artists: false }
-
-  private showTab(tab: string) {
-    if (tab === 'Spotify') {
-      return vxm.providers.loggedInSpotify
-    }
-    return true
   }
 
-  private async fetchData() {
-    window.SearchUtils.searchAll(`%${this.term}%`).then((data) => {
-      this.result = {
-        ...this.result,
-        ...data
+  private get subCategories(): TabCarouselItem[] {
+    return [
+      {
+        title: 'Songs',
+        key: 'songs'
+      },
+      {
+        title: 'Artists',
+        key: 'artists'
+      },
+      {
+        title: 'Playlists',
+        key: 'playlists'
+      },
+      {
+        title: 'Albums',
+        key: 'albums'
       }
-      this.refreshLocal()
-    })
+    ]
+  }
 
-    const youtubeItem = this.items.find((val) => val.tab === 'Youtube')
-    if (youtubeItem) {
-      youtubeItem.loading = true
-
-      if (vxm.providers.loggedInYoutube) {
-        vxm.providers.youtubeProvider.searchSongs(this.term).then((data) => {
-          this.result.youtube = data
-          this.refreshYoutube()
-          youtubeItem.loading = false
-        })
-      } else {
-        window.SearchUtils.searchYT(this.term, undefined, false, false, true).then((data) => {
-          this.result.youtube = data
-          this.refreshYoutube()
-          youtubeItem.loading = false
-        })
-      }
+  private get currentSongList() {
+    if (this.activeProvider) {
+      return this.results[this.activeProvider]?.songs ?? []
     }
 
-    const spotifyItem = this.items.find((val) => val.tab === 'Spotify')
-    if (spotifyItem) {
-      if (vxm.providers.loggedInSpotify) {
-        spotifyItem.loading = true
-        vxm.providers.spotifyProvider.searchSongs(this.term).then((data) => {
-          this.result.spotify = data
-          this.refreshSpotify()
-          spotifyItem.loading = false
-        })
-      }
-    }
-
-    const providers = await window.ExtensionUtils.getRegisteredSearchProviders()
-    for (const [key, val] of Object.entries(providers)) {
-      if (val && !this.items.find((val) => val.tab === key)) {
-        this.items.push({
-          tab: key,
-          title: val,
-          count: 0,
-          key: `${key}-0`,
-          loading: true,
-          extension: key
-        })
-
-        if (!this.result.extension) {
-          this.result.extension = {}
-        }
-
-        window.ExtensionUtils.sendEvent({ type: 'requestSearchResult', data: [this.term], packageName: key }).then(
-          (data) => {
-            if (data) {
-              for (const [key, val] of Object.entries(data)) {
-                if (this.result.extension) {
-                  if (val && val.songs) {
-                    this.result.extension[key] = val.songs
-                    this.refreshExtension(key)
-                  }
-                }
-              }
-            }
-          }
-        )
-      }
-    }
+    return []
   }
 
-  private refreshLocal() {
-    for (let i = 0; i < 5; i++) {
-      this.items[i].key = this.items[i].key.split('-')[0] + this.items[i].count++
-    }
-  }
-
-  private refreshYoutube() {
-    this.items[5].key = 'Youtube' + this.items[5].count++
-  }
-
-  private refreshSpotify() {
-    this.items[6].key = 'Spotify' + this.items[6].count++
-  }
-
-  private refreshExtension(packageName: string) {
-    const item = this.items.find((val) => val.extension === packageName)
-    if (item) {
-      item.key = `${packageName}-${item.count++}`
-    }
-  }
-
-  private getLoadMore(tab: string) {
-    if (tab === 'Artists' && !this.loadedMore.artists) return true
-    return false
-  }
-
-  private isPlayable(item: Song | Album | Artists | Genre | Playlist) {
-    if ((item as Artists).artist_id?.startsWith('spotify')) return false
-    return true
-  }
-
-  private async handleLoadMore(tab: string) {
-    if (tab === 'Artists') {
-      const resp = await vxm.providers.spotifyProvider.searchArtists(this.term)
-      for (const a of resp) {
-        if (!this.result.artists) {
-          this.result.artists = []
-        }
-
-        if (!this.result.artists.find((val) => val.artist_id === a.artist_id)) {
-          this.result.artists.push(a)
-        }
-        this.loadedMore.artists = true
-      }
-    }
-  }
-
-  private ComputeTabKeyField(tab: string) {
-    switch (tab) {
-      case 'Songs':
-      case 'Youtube':
-      case 'Spotify':
-      default:
-        return '_id'
-      case 'Albums':
-        return 'album_id'
-      case 'Artists':
-        return 'artist_id'
-      case 'Genres':
-        return 'genre_id'
-      case 'Playlists':
-        return 'playlist_id'
-    }
-  }
-
-  private ComputeTabContent(tab: string) {
-    if (this.result) {
-      switch (tab) {
-        case 'Songs':
-          return this.result.songs ?? []
-        case 'Albums':
-          return this.result.albums ?? []
-        case 'Artists':
-          return this.result.artists ?? []
-        case 'Genres':
-          return this.result.genres ?? []
-        case 'Playlists':
-          return this.result.playlists ?? []
-        case 'Youtube':
-          return this.result.youtube ?? []
-        case 'Spotify':
-          return this.result.spotify ?? []
-        default:
-          return (this.result.extension && this.result.extension[tab]) ?? []
-      }
+  private get currentEntityList() {
+    if (this.activeProvider) {
+      return this.results[this.activeProvider][this.activeSubcategory] ?? []
     }
     return []
   }
 
-  private ComputeTabTitle(tab: string, item: Song | Album | Artists | Genre | Playlist) {
-    if (item) {
-      switch (tab) {
-        case 'Spotify':
-        case 'Youtube':
-        case 'Songs':
-        default:
-          return (item as Song).title
-        case 'Albums':
-          return (item as Album).album_name
-        case 'Artists':
-          return (item as Artists).artist_name
-        case 'Genres':
-          return (item as Genre).genre_name
-        case 'Playlists':
-          return (item as Playlist).playlist_name
-      }
-    }
-    return ''
-  }
-
-  private ComputeTabSubTitle(tab: string, item: Song | Album | Artists | Genre | Playlist) {
-    if (item) {
-      switch (tab) {
-        case 'Spotify':
-        case 'Youtube':
-        case 'Songs':
-        default:
-          return (item as Song).artists?.map((val) => val.artist_name).join(', ')
-        case 'Albums':
-          return `${(item as Album).album_song_count} Songs`
-        case 'Artists':
-          return (item as Artists).artist_song_count ? `${(item as Artists).artist_song_count} Songs` : ''
-        case 'Genres':
-          return `${(item as Genre).genre_song_count} Songs`
-        case 'Playlists':
-          return `${(item as Playlist).playlist_song_count} Songs`
-      }
-    }
-    return ''
-  }
-
-  private ComputeTabImage(tab: string, item: Song | Album | Artists | Genre | Playlist) {
-    if (item) {
-      switch (tab) {
-        case 'Spotify':
-        case 'Youtube':
-        case 'Songs':
-        default:
-          return this.getValidImageLow(item as Song) ?? this.getValidImageHigh(item as Song)
-        case 'Albums':
-          return (item as Album).album_coverPath_low ?? (item as Album).album_coverPath_high
-        case 'Artists':
-          return (item as Artists).artist_coverPath
-        case 'Genres':
-          return ''
-        case 'Playlists':
-          return (item as Playlist).playlist_coverPath
-      }
-    }
-    return ''
-  }
-
-  private titleClickHandler(tab: string, item: Album | Artists | Genre | Playlist) {
-    switch (tab) {
-      case 'Songs':
-      case 'Spotify':
-      case 'Youtube':
+  private get entityKeyField() {
+    switch (this.activeSubcategory) {
       default:
-        // TODO: Redirect to a seperate page with song details
-        return
-      case 'Albums':
-        this.gotoAlbum(item as Album)
-        return
-      case 'Artists':
-        this.gotoArtist(item as Artists)
-        return
-      case 'Genres':
-        this.gotoGenre(item as Genre)
-        return ''
-      case 'Playlists':
-        this.gotoPlaylist(item as Playlist)
-        return
+      case 'songs':
+        return '_id'
+      case 'artists':
+        return 'artist_id'
+      case 'playlists':
+        return 'playlist_id'
+      case 'albums':
+        return 'album_id'
+      case 'genres':
+        return 'genre_id'
     }
   }
 
-  private imgClickHandler(tab: string, item: Song | Album | Artists | Genre | Playlist) {
-    switch (tab) {
-      case 'Songs':
-      case 'Spotify':
-      case 'Youtube':
+  private get entityTitleField() {
+    switch (this.activeSubcategory) {
       default:
-        this.playTop([item as Song])
-        return
-      case 'Albums':
-        this.playAlbum(item as Album)
-        return
-      case 'Artists':
-        this.playArtist(item as Artists)
-        return
-      case 'Genres':
-        this.playGenre(item as Genre)
-        return ''
-      case 'Playlists':
-        this.playPlaylist(item as Playlist)
-        return
+      case 'songs':
+        return 'title'
+      case 'artists':
+        return 'artist_name'
+      case 'playlists':
+        return 'playlist_name'
+      case 'albums':
+        return 'album_name'
+      case 'genres':
+        return 'genre_name'
     }
   }
 
-  private contextMenuHandler(tab: string, event: Event, item: Song) {
-    switch (tab) {
-      case 'Youtube':
-      case 'Songs':
-      case 'Spotify':
+  private get entityImageField() {
+    switch (this.activeSubcategory) {
       default:
-        this.getContextMenu(event, {
-          type: 'SONGS',
-          args: { songs: [item as Song], isRemote: tab !== 'Songs' }
-        })
-        break
-      case 'Albums':
-      case 'Artists':
-      case 'Genres':
-      case 'Playlists':
-        break
+      case 'songs':
+        return 'song_coverPath_high'
+      case 'artists':
+        return 'artist_coverPath'
+      case 'playlists':
+        return 'playlist_coverPath'
+      case 'albums':
+        return 'album_coverPath_high'
+      case 'genres':
+        return 'genre_coverPath'
     }
   }
 
-  private async playAlbum(item: Album) {
-    let songs = await window.SearchUtils.searchSongsByOptions({
-      album: {
-        album_id: item.album_id
-      }
-    })
-    songs.forEach((value) => {
-      this.queueSong([value])
+  private transitionEnterActiveClass = 'animate__slideInLeft'
+  private transitionExitActiveClass = 'animate__slideOutLeft'
+
+  private results: Record<string, SearchResult> = {}
+
+  private get searchTerm() {
+    return this.$route.query.search_term as string
+  }
+
+  @Watch('searchTerm', { immediate: true })
+  private onSearchTermChanged() {
+    this.fetchLocalSongList()
+    this.fetchProviderSongList(vxm.providers.youtubeProvider)
+    this.fetchProviderSongList(vxm.providers.spotifyProvider)
+  }
+
+  private async fetchLocalSongList() {
+    Vue.set(this.results, 'local', await window.SearchUtils.searchAll(`%${this.searchTerm}%`))
+  }
+
+  private async fetchProviderSongList(provider: GenericProvider) {
+    Vue.set(this.results, provider.key, {
+      songs: await provider.searchSongs(this.searchTerm),
+      artists: await provider.searchArtists(this.searchTerm),
+      playlists: await provider.searchPlaylists(this.searchTerm),
+      albums: await provider.searchAlbum(this.searchTerm),
+      genres: []
     })
   }
 
-  private async playArtist(item: Artists) {
-    let songs = await window.SearchUtils.searchSongsByOptions({
-      artist: {
-        artist_id: item.artist_id
-      }
-    })
-    songs.forEach((value) => {
-      this.queueSong([value])
-    })
+  private onProviderChanged({ key, checked }: { key: string; checked: boolean }) {
+    if (checked) this.activeProvider = key
   }
 
-  private async playGenre(item: Genre) {
-    let songs = await window.SearchUtils.searchSongsByOptions({
-      genre: {
-        genre_id: item.genre_id
-      }
-    })
-    songs.forEach((value) => {
-      this.queueSong([value])
-    })
-  }
+  private onSubcategoriesChanged({ key, checked }: { key: string; checked: boolean }) {
+    if (checked) {
+      this.activeSubcategory = key as keyof SearchResult
 
-  private async playPlaylist(item: Playlist) {
-    let songs = await window.SearchUtils.searchSongsByOptions({
-      playlist: {
-        playlist_id: item.playlist_id
-      }
-    })
-    songs.forEach((value) => {
-      this.queueSong([value])
-    })
-  }
+      const oldIndex = this.subCategories.findIndex((val) => val.key === this.oldSubcategory)
+      const newIndex = this.subCategories.findIndex((val) => val.key === this.activeSubcategory)
 
-  created() {
-    this.term = this.$route.query['search_term'] as string
-    this.fetchData()
-  }
+      this.oldSubcategory = this.activeSubcategory
 
-  @Watch('$route.query.search_term')
-  @Watch('$route.query.timestamp')
-  onTermChanged() {
-    if (this.$route.query.search_term) {
-      this.term = this.$route.query.search_term as string
-      this.result = {}
-      this.fetchData()
-
-      for (const k of Object.keys(this.loadedMore)) {
-        this.loadedMore[k] = false
+      if (oldIndex < newIndex) {
+        this.transitionEnterActiveClass = 'animate__slideInRight'
+        this.transitionExitActiveClass = 'animate__slideOutLeft'
+      } else {
+        this.transitionEnterActiveClass = 'animate__slideInLeft'
+        this.transitionExitActiveClass = 'animate__slideOutRight'
       }
     }
+  }
+
+  private async fetchSearchProviders() {
+    const providers = await window.ExtensionUtils.getRegisteredSearchProviders()
+    for (const [key, value] of Object.entries(providers)) {
+      this.optionalProviders.push({ title: value, key })
+    }
+  }
+
+  mounted() {
+    this.fetchSearchProviders()
+  }
+
+  private onRowContext(event: PointerEvent, item: Song) {
+    this.getContextMenu(event, {
+      type: 'SONGS',
+      args: { songs: [item], isRemote: this.activeProvider !== 'local' }
+    })
   }
 }
 </script>
 
 <style lang="sass">
-.tab-inner-container
-  height: calc(100% - 58px)
-
-.tab-outer-container
-  padding-top: 15px
-  overflow-y: scroll
-
-.nothing-found
-  font-size: 22px
-  font-weight: 700
-
-.tab-pane
-  height: 100%
-
-.load-more
-  background-color: var(--accent)
-  color: var(--textInverse)
+.scroller-row
+  position: absolute
+  height: calc(100% - 140px)
+  overflow: auto
 </style>

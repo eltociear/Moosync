@@ -525,4 +525,80 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
       return this.parseArtist(artistDetails)
     }
   }
+
+  private parseSearchArtist(...items: YoutubeResponses.SearchDetails.Item[]) {
+    const artists: Artists[] = []
+
+    for (const i of items) {
+      artists.push({
+        artist_id: `youtube-author:${i.snippet.channelId}`,
+        artist_name: i.snippet.channelTitle,
+        artist_coverPath: (i.snippet.thumbnails.maxres ?? i.snippet.thumbnails.high ?? i.snippet.thumbnails.default)
+          .url,
+        artist_extra_info: {
+          youtube: {
+            channel_id: i.snippet.channelId
+          }
+        }
+      })
+    }
+
+    return artists
+  }
+
+  public async searchArtists(term: string): Promise<Artists[]> {
+    const artists: Artists[] = []
+
+    const resp = await this.populateRequest(ApiResources.SEARCH, {
+      params: {
+        part: ['id', 'snippet'],
+        type: 'channel',
+        maxResults: 50,
+        order: 'relevance',
+        q: term
+      }
+    })
+
+    artists.push(...this.parseSearchArtist(...resp.items))
+
+    return artists
+  }
+
+  private parseSearchPlaylists(...items: YoutubeResponses.SearchDetails.Item[]) {
+    const playlists: Playlist[] = []
+
+    for (const i of items) {
+      playlists.push({
+        playlist_id: `youtube-playlist:${i.id.playlistId}`,
+        playlist_name: i.snippet.title,
+        playlist_coverPath: (i.snippet.thumbnails.maxres ?? i.snippet.thumbnails.high ?? i.snippet.thumbnails.default)
+          .url,
+        playlist_desc: i.snippet.description
+      })
+    }
+
+    return playlists
+  }
+
+  public async searchPlaylists(term: string): Promise<Playlist[]> {
+    const playlists: Playlist[] = []
+
+    const resp = await this.populateRequest(ApiResources.SEARCH, {
+      params: {
+        part: ['id', 'snippet'],
+        type: 'playlist',
+        maxResults: 50,
+        order: 'relevance',
+        q: term
+      }
+    })
+
+    playlists.push(...this.parseSearchPlaylists(...resp.items))
+
+    return playlists
+  }
+
+  public async searchAlbum(term: string): Promise<Album[]> {
+    return []
+  }
 }

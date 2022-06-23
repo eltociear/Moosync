@@ -11,14 +11,14 @@
   <b-row no-gutters>
     <b-col class="song-header-options w-100">
       <b-row no-gutters align-v="center" class="h-100">
-        <b-col cols="auto" class="mr-3" v-if="optionalProviders.length > 0 && showPrevIcon">
+        <b-col cols="auto" class="mr-3" v-if="items.length > 0 && showPrevIcon">
           <PrevIcon @click.native="onPrevClick" />
         </b-col>
-        <b-col class="provider-outer-container" v-if="optionalProviders.length > 0">
+        <b-col class="provider-outer-container" v-if="items.length > 0">
           <div ref="gradientContainer" class="gradient-overlay" :style="{ background: computedGradient }"></div>
           <div ref="providersContainer" class="provider-container d-flex">
             <div
-              v-for="provider in optionalProviders"
+              v-for="provider in items"
               cols="auto"
               class="`h-100 item-checkbox-col mr-2"
               :key="provider.key"
@@ -26,21 +26,17 @@
             >
               <div
                 class="h-100 d-flex item-checkbox-container"
-                :style="{
-                  background: `${
-                    selectedProviders.includes(provider.key) ? 'var(--textSecondary)' : 'var(--secondary)'
-                  }`
-                }"
+                :style="{ background: getItemBackgroundColor(provider), color: getItemTextColor(provider) }"
               >
                 <span class="align-self-center">{{ provider.title }}</span>
               </div>
             </div>
           </div>
         </b-col>
-        <b-col cols="auto" class="ml-3 mr-3" v-if="optionalProviders.length > 0">
+        <b-col cols="auto" class="ml-3 mr-3" v-if="items.length > 0">
           <NextIcon @click.native="onNextClick" v-if="showNextIcon" />
         </b-col>
-        <b-col cols="auto" class="ml-auto d-flex" ref="buttonGroupContainer">
+        <b-col cols="auto" class="ml-auto d-flex" ref="buttonGroupContainer" v-if="showExtraSongListActions">
           <div v-if="showSearchbar" class="searchbar-container mr-3">
             <b-form-input
               v-model="searchText"
@@ -82,7 +78,19 @@ import { vxm } from '@/mainWindow/store'
 })
 export default class TabCarousel extends mixins(ContextMenuMixin) {
   @Prop({ default: () => [] })
-  private optionalProviders!: ProviderHeaderOptions[]
+  private items!: TabCarouselItem[]
+
+  @Prop({ default: true })
+  private showExtraSongListActions!: boolean
+
+  @Prop({ default: false })
+  private singleSelectMode!: boolean
+
+  @Prop()
+  private defaultSelected: string | undefined
+
+  @Prop({ default: true })
+  private showBackgroundOnSelect!: boolean
 
   @Ref('providersContainer')
   private providerContainer!: HTMLDivElement
@@ -113,15 +121,40 @@ export default class TabCarousel extends mixins(ContextMenuMixin) {
     return vxm.themes.songSortBy.asc
   }
 
+  private getItemBackgroundColor(provider: TabCarouselItem) {
+    if (this.selectedProviders.includes(provider.key)) {
+      if (!this.showBackgroundOnSelect) return ''
+      return 'var(--textSecondary)'
+    } else {
+      if (!this.showBackgroundOnSelect) return ''
+      return 'var(--secondary)'
+    }
+  }
+
+  private getItemTextColor(provider: TabCarouselItem) {
+    if (this.selectedProviders.includes(provider.key)) {
+      if (!this.showBackgroundOnSelect) return 'var(--textPrimary)'
+      return ''
+    } else {
+      if (!this.showBackgroundOnSelect) return 'var(--textSecondary)'
+      return ''
+    }
+  }
+
   private onProviderSelected(key: string) {
     const isSelected = this.selectedProviders.findIndex((val) => val === key)
-    if (isSelected === -1) {
-      this.selectedProviders.push(key)
+
+    if (!this.singleSelectMode) {
+      if (isSelected === -1) {
+        this.selectedProviders.push(key)
+      } else {
+        this.selectedProviders.splice(isSelected, 1)
+      }
     } else {
-      this.selectedProviders.splice(isSelected, 1)
+      this.selectedProviders = [key]
     }
 
-    this.$emit('onOptionalProviderChanged', { key, checked: isSelected === -1 })
+    this.$emit('onItemsChanged', { key, checked: isSelected === -1 })
   }
 
   private showSortMenu(event: PointerEvent) {
@@ -156,6 +189,10 @@ export default class TabCarousel extends mixins(ContextMenuMixin) {
       this.gradientContainer.onwheel = scrollProviders.bind(this)
 
       new ResizeObserver((e) => (this.containerSize = e[0].target.clientWidth)).observe(this.providerContainer)
+
+      if (this.defaultSelected) {
+        this.onProviderSelected(this.defaultSelected)
+      }
     }
   }
 
@@ -204,6 +241,7 @@ export default class TabCarousel extends mixins(ContextMenuMixin) {
   padding-bottom: 3px
   padding-left: 15px
   padding-right: 15px
+  cursor: pointer
 
 .provider-container
   transition: all 0.3s ease-out

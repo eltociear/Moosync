@@ -10,7 +10,7 @@
 import { Observable, SubscriptionObserver } from 'observable-fns'
 import { expose } from 'threads/worker'
 
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import axiosRetry from 'axios-retry'
 import { createHash } from 'crypto'
 import fs from 'fs'
@@ -148,7 +148,7 @@ async function fetchTheAudioDB(artist_name: string) {
       }
     }
   } catch (e) {
-    logger.debug('TheAudioDB fetch failed', e)
+    logger.debug('TheAudioDB fetch failed', (e as AxiosError).response?.status)
   }
 }
 
@@ -208,6 +208,7 @@ async function queryArtwork(a: Artists) {
 }
 
 async function checkCoverExists(coverPath: string | undefined): Promise<boolean> {
+  console.log(coverPath && decodeURIComponent(coverPath))
   coverPath = coverPath && decodeURIComponent(coverPath)
   if (coverPath && !coverPath.startsWith('http')) {
     try {

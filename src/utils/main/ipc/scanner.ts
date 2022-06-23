@@ -232,10 +232,8 @@ export class ScannerChannel implements IpcChannelInterface {
     if (cover) {
       ret.artist_coverPath = cover
     } else {
-      if (!artist.artist_coverPath) {
-        console.debug('Getting default cover for', artist.artist_name)
-        ret.artist_coverPath = await SongDB.getDefaultCoverByArtist(artist.artist_id)
-      }
+      console.debug('Getting default cover for', artist.artist_name)
+      ret.artist_coverPath = await SongDB.getDefaultCoverByArtist(artist.artist_id)
     }
 
     await SongDB.updateArtists(ret)
@@ -253,6 +251,7 @@ export class ScannerChannel implements IpcChannelInterface {
 
   private async checkCoverExists(coverPath: string | undefined): Promise<boolean> {
     if (coverPath && !coverPath.startsWith('http')) {
+      coverPath = decodeURIComponent(coverPath)
       try {
         await fs.promises.access(coverPath)
         return true

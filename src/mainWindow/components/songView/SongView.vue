@@ -21,7 +21,7 @@
         :defaultDetails="defaultDetails"
         :detailsButtonGroup="detailsButtonGroup"
         :optionalProviders="optionalProviders"
-        @onOptionalProviderChanged="onOptionalProviderChanged"
+        @onItemsChanged="onOptionalProviderChanged"
         @onRowDoubleClicked="queueSong([arguments[0]])"
         @onRowContext="onSongContextMenu"
         @onRowSelected="updateCoverDetails"
@@ -76,7 +76,7 @@ export default class AllSongs extends mixins(
   private tableBusy!: boolean
 
   @Prop({ default: () => [] })
-  private optionalProviders!: ProviderHeaderOptions[]
+  private optionalProviders!: TabCarouselItem[]
 
   @Prop()
   private afterSongAddRefreshCallback!: (() => void) | undefined
