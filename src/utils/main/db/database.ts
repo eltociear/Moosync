@@ -153,6 +153,7 @@ export class SongDBInstance extends DBUtils {
               }) as Artists[]
             )[0]
             this.db.delete('artists', { artist_id: id.artist })
+            console.log('Should remove', artist?.artist_coverPath)
             if (artist?.artist_coverPath) pathsToRemove.push(artist.artist_coverPath)
           }
         }
@@ -226,7 +227,6 @@ export class SongDBInstance extends DBUtils {
         if (songCount === 0) {
           this.db.delete('albums', { album_id: oldAlbum.album_id })
           if (oldAlbum.album_coverPath_high) this.removeFile(oldAlbum.album_coverPath_high)
-
           if (oldAlbum.album_coverPath_low) this.removeFile(oldAlbum.album_coverPath_low)
         }
       }
@@ -294,15 +294,14 @@ export class SongDBInstance extends DBUtils {
         this.updateSongArtists(song.artists ?? [], oldSong.artists, song._id)
         this.updateSongAlbums(song.album ?? {}, oldSong.album, song._id)
         this.updateSongGenre(song.genre ?? [], oldSong.genre, song._id)
+
         const finalCoverPath = await this.getCoverPath(
           oldSong.song_coverPath_high ?? '',
           song.song_coverPath_high ?? ''
         )
 
-        if (finalCoverPath) {
-          song.song_coverPath_high = encodeURIComponent(finalCoverPath)
-          song.song_coverPath_low = encodeURIComponent(finalCoverPath)
-        }
+        song.song_coverPath_high = finalCoverPath && encodeURIComponent(finalCoverPath)
+        song.song_coverPath_low = finalCoverPath && encodeURIComponent(finalCoverPath)
 
         this.db.updateWithBlackList('allsongs', song, ['_id = ?', song._id], ['_id'])
         this.updateAllSongCounts()
@@ -609,11 +608,10 @@ export class SongDBInstance extends DBUtils {
     })[0]
 
     const coverPath = await this.getCoverPath(oldAlbum?.album_coverPath_high ?? '', album.album_coverPath_high ?? '')
+    album.album_coverPath_high = coverPath && encodeURIComponent(coverPath)
+    album.album_coverPath_low = coverPath && encodeURIComponent(coverPath)
 
     if (coverPath && oldAlbum?.album_coverPath_high !== coverPath) {
-      album.album_coverPath_high = encodeURIComponent(coverPath)
-      album.album_coverPath_low = encodeURIComponent(coverPath)
-
       if (oldAlbum?.album_coverPath_high) {
         await this.removeFile(oldAlbum.album_coverPath_high)
       }
@@ -723,13 +721,7 @@ export class SongDBInstance extends DBUtils {
     })[0]
 
     const coverPath = await this.getCoverPath(oldArtist.artist_coverPath ?? '', artist.artist_coverPath ?? '')
-    if (coverPath && coverPath !== oldArtist?.artist_coverPath) {
-      artist.artist_coverPath = encodeURIComponent(coverPath)
-
-      if (oldArtist?.artist_coverPath) {
-        await this.removeFile(oldArtist.artist_coverPath)
-      }
-    }
+    artist.artist_coverPath = coverPath && encodeURIComponent(coverPath)
 
     this.db.updateWithBlackList(
       'artists',
@@ -737,6 +729,10 @@ export class SongDBInstance extends DBUtils {
       ['artist_id = ?', artist.artist_id],
       ['artist_id', 'artist_extra_info']
     )
+
+    if (oldArtist?.artist_coverPath) {
+      await this.removeFile(oldArtist.artist_coverPath)
+    }
 
     this.updateArtistExtraInfo(artist.artist_id, artist.artist_extra_info)
   }
@@ -898,16 +894,13 @@ export class SongDBInstance extends DBUtils {
     const oldPlaylist = this.getEntityByOptions<Playlist>({ playlist: { playlist_id: playlist.playlist_id } })[0]
 
     const coverPath = await this.getCoverPath(oldPlaylist.playlist_coverPath ?? '', playlist.playlist_coverPath ?? '')
-
-    if (coverPath && oldPlaylist?.playlist_coverPath !== coverPath) {
-      playlist.playlist_coverPath = encodeURIComponent(coverPath)
-
-      if (oldPlaylist?.playlist_coverPath) {
-        await this.removeFile(oldPlaylist.playlist_coverPath)
-      }
-    }
+    playlist.playlist_coverPath = coverPath && encodeURIComponent(coverPath)
 
     this.db.updateWithBlackList('playlists', playlist, ['playlist_id = ?', playlist.playlist_id], ['playlist_id'])
+
+    if (oldPlaylist?.playlist_coverPath) {
+      await this.removeFile(oldPlaylist.playlist_coverPath)
+    }
   }
 
   /**
@@ -988,14 +981,12 @@ export class SongDBInstance extends DBUtils {
   }
 
   private async removeFile(src: string) {
-    if (!this.isCoverInUseBeforeRemoval(src)) {
+    if (!this.isCoverInUseAfterRemoval(src)) {
       await fsP.rm(src, { force: true })
     }
   }
 
-  private isCoverInUseBeforeRemoval(coverPath: string) {
-    let count = 0
-
+  private isCoverInUseAfterRemoval(coverPath: string) {
     const tableMap = [
       { table: 'allsongs', columns: ['song_coverPath_high', 'song_coverPath_low'] },
       { table: 'artists', columns: ['artist_coverPath'] },
@@ -1006,15 +997,13 @@ export class SongDBInstance extends DBUtils {
     for (const val of tableMap) {
       const argMap: string[] = Array(val.columns.length).fill(coverPath)
       const c = this.db.queryFirstCell<number>(
-        `SELECT count(${val.columns[0]}) FROM ${val.table} WHERE ${val.columns
-          .map((val) => `${val} = ?`)
-          .join(' OR ')}`,
+        `SELECT count(*) FROM ${val.table} WHERE ${val.columns.map((val) => `${val} = ?`).join(' OR ')}`,
         ...argMap
       )
 
-      if (c) {
-        count += c
-        if (count > 1) return true
+      if (c && c > 0) {
+        console.debug('Got cover', coverPath, 'usage in', val.table, c, 'times')
+        return true
       }
     }
 
