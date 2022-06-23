@@ -208,8 +208,6 @@ async function queryArtwork(a: Artists) {
 }
 
 async function checkCoverExists(coverPath: string | undefined): Promise<boolean> {
-  console.log(coverPath && decodeURIComponent(coverPath))
-  coverPath = coverPath && decodeURIComponent(coverPath)
   if (coverPath && !coverPath.startsWith('http')) {
     try {
       await fs.promises.access(coverPath)

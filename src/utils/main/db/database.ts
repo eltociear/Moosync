@@ -315,8 +315,8 @@ export class SongDBInstance extends DBUtils {
           song.song_coverPath_high ?? ''
         )
 
-        song.song_coverPath_high = finalCoverPath && encodeURIComponent(finalCoverPath)
-        song.song_coverPath_low = finalCoverPath && encodeURIComponent(finalCoverPath)
+        song.song_coverPath_high = finalCoverPath
+        song.song_coverPath_low = finalCoverPath
 
         this.db.updateWithBlackList('allsongs', song, ['_id = ?', song._id], ['_id'])
         this.updateAllSongCounts()
@@ -623,8 +623,8 @@ export class SongDBInstance extends DBUtils {
     })[0]
 
     const coverPath = await this.getCoverPath(oldAlbum?.album_coverPath_high ?? '', album.album_coverPath_high ?? '')
-    album.album_coverPath_high = coverPath && encodeURIComponent(coverPath)
-    album.album_coverPath_low = coverPath && encodeURIComponent(coverPath)
+    album.album_coverPath_high = coverPath
+    album.album_coverPath_low = coverPath
 
     if (coverPath && oldAlbum?.album_coverPath_high !== coverPath) {
       if (oldAlbum?.album_coverPath_high) {
@@ -736,7 +736,7 @@ export class SongDBInstance extends DBUtils {
     })[0]
 
     const coverPath = await this.getCoverPath(oldArtist.artist_coverPath ?? '', artist.artist_coverPath ?? '')
-    artist.artist_coverPath = coverPath && encodeURIComponent(coverPath)
+    artist.artist_coverPath = coverPath
 
     this.db.updateWithBlackList(
       'artists',
@@ -775,7 +775,6 @@ export class SongDBInstance extends DBUtils {
               }
 
               if (!existingArtist.artist_coverPath && a.artist_coverPath) {
-                a.artist_coverPath = encodeURIComponent(a.artist_coverPath ?? '')
                 this.db.update('artists', a.artist_coverPath, ['artist_id = ?', id])
               }
             }
@@ -914,7 +913,7 @@ export class SongDBInstance extends DBUtils {
     const oldPlaylist = this.getEntityByOptions<Playlist>({ playlist: { playlist_id: playlist.playlist_id } })[0]
 
     const coverPath = await this.getCoverPath(oldPlaylist.playlist_coverPath ?? '', playlist.playlist_coverPath ?? '')
-    playlist.playlist_coverPath = coverPath && encodeURIComponent(coverPath)
+    playlist.playlist_coverPath = coverPath
 
     this.db.updateWithBlackList('playlists', playlist, ['playlist_id = ?', playlist.playlist_id], ['playlist_id'])
 
