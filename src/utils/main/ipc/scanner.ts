@@ -299,6 +299,7 @@ export class ScannerChannel implements IpcChannelInterface {
     await this.fetchMBID(allArtists)
 
     await Thread.terminate(this.scraperWorker)
+    console.debug('Terminated scraper thread')
     this.scraperWorker = undefined
   }
 

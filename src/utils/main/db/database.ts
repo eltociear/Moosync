@@ -236,6 +236,7 @@ export class SongDBInstance extends DBUtils {
   }
 
   private async getCoverPath(oldCoverPath: string, newCoverpath: string) {
+    console.log(newCoverpath)
     if (oldCoverPath !== newCoverpath) {
       if (newCoverpath) {
         const finalPath = path.join(loadPreferences().thumbnailPath, v4() + (path.extname(newCoverpath) ?? '.png'))
@@ -848,26 +849,24 @@ export class SongDBInstance extends DBUtils {
    * @returns high resolution cover image for artist
    */
   public getDefaultCoverByArtist(id: string) {
-    const artist_cover = this.db.queryFirstRow(`SELECT artist_coverPath from artists WHERE artist_id = ?`, id)
+    const artist_cover = this.db.queryFirstCell(`SELECT artist_coverPath from artists WHERE artist_id = ?`, id)
     if (artist_cover) {
       return artist_cover
     }
 
-    const album_cover = (
-      this.db.queryFirstRow(
-        `SELECT album_coverPath_high from albums WHERE album_id = (SELECT album FROM album_bridge WHERE song = (SELECT song FROM artists_bridge WHERE artist = ?))`,
-        id
-      ) as marshaledSong
-    )?.album_coverPath_high
+    const album_cover = this.db.queryFirstCell(
+      `SELECT album_coverPath_high from albums WHERE album_id = (SELECT album FROM album_bridge WHERE song = (SELECT song FROM artists_bridge WHERE artist = ?))`,
+      id
+    ) as marshaledSong
 
     if (album_cover) {
       return album_cover
     }
 
-    const song_cover = this.db.queryFirstRow(
+    const song_cover = this.db.queryFirstCell(
       `SELECT song_coverPath_high from allsongs WHERE _id = (SELECT song FROM artists_bridge WHERE artist = ?)`,
       id
-    )?.song_coverPath_high
+    )
 
     return song_cover
   }

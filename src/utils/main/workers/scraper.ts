@@ -45,7 +45,7 @@ const musicbrainz = rateLimit(
   axios.create({
     baseURL: 'https://musicbrainz.org/ws/2/artist/',
     headers: { 'User-Agent': 'moosync/' + process.env.MOOSYNC_VERSION.toString() + ' (ovenoboyo@gmail.com)' },
-    timeout: 3000
+    timeout: 5000
   }),
   {
     maxRequests: 1,
@@ -66,9 +66,13 @@ async function queryMbid(name: string) {
 
 async function getAndUpdateMBID(a: Artists): Promise<Artists | undefined> {
   if (a.artist_name) {
-    const data = await queryMbid(a.artist_name)
-    if (data.data && data.data.artists.length > 0 && data.data.artists[0].id) {
-      return { artist_id: a.artist_id, artist_mbid: data.data.artists[0].id, artist_name: a.artist_name }
+    try {
+      const data = await queryMbid(a.artist_name)
+      if (data.data && data.data.artists.length > 0 && data.data.artists[0].id) {
+        return { artist_id: a.artist_id, artist_mbid: data.data.artists[0].id, artist_name: a.artist_name }
+      }
+    } catch (e) {
+      console.debug('Failed to fetch artist mbid for', a.artist_name, (e as AxiosError).response?.status)
     }
   }
 }
