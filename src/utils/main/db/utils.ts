@@ -33,7 +33,7 @@ export class DBUtils {
     if (this.db && this.db.open) this.db.close()
   }
 
-  protected unMarshalSong(dbSong: marshaledSong): Song {
+  protected unMarshalSong(dbSong: marshaledSong, fetchArtists: (artistIds: string[]) => Artists[]): Song {
     return {
       _id: dbSong._id,
       path: dbSong.path,
@@ -51,7 +51,7 @@ export class DBUtils {
       },
       date: dbSong.date,
       year: dbSong.year,
-      artists: this.parseArtists(dbSong.artists ?? ''),
+      artists: fetchArtists(dbSong.artists?.split(',') ?? []),
       genre: dbSong.genre_name ? dbSong.genre_name.split(',') : [],
       lyrics: dbSong.lyrics,
       releaseType: undefined,
@@ -70,26 +70,6 @@ export class DBUtils {
       playbackUrl: dbSong.playbackUrl,
       providerExtension: dbSong.provider_extension
     }
-  }
-
-  private parseArtists(artistStr: string) {
-    const artists = artistStr.split(';')
-    const ret: Artists[] = []
-    for (const a of artists) {
-      const split = a.split(',')
-      if (split[0] && split[1] && ret.findIndex((val) => val.artist_id === split[0]) === -1) {
-        ret.push({
-          artist_id: split[0],
-          artist_name: split[1],
-          artist_coverPath: split[2],
-          artist_mbid: split[3],
-          artist_song_count: parseInt(split[4]),
-          artist_extra_info: JSON.parse(split.slice(5).join(',') || '{}')
-        })
-      }
-    }
-
-    return ret
   }
 
   protected marshalSong(song: Partial<Song>): marshaledSong {
@@ -124,10 +104,10 @@ export class DBUtils {
     }
   }
 
-  protected batchUnmarshal(marshaled: marshaledSong[]) {
+  protected batchUnmarshal(marshaled: marshaledSong[], fetchArtists: (artistIds: string[]) => Artists[]) {
     const unmarshaled: Song[] = []
     for (const m of marshaled) {
-      unmarshaled.push(this.unMarshalSong(m))
+      unmarshaled.push(this.unMarshalSong(m, fetchArtists))
     }
     return unmarshaled
   }
@@ -201,10 +181,10 @@ export class DBUtils {
   }
 
   protected addGroupConcatClause() {
-    return `group_concat(artist_id||','||artist_name||','||COALESCE(artist_coverPath, '')||','||COALESCE(artist_mbid, '')||','||artist_song_count||','||COALESCE(artist_extra_info, ''), ';') as artists, group_concat(genre_name) as genre_name`
+    return `group_concat(artist_id) as artists, group_concat(genre_name) as genre_name`
   }
 
   protected getSelectClause() {
-    return `allsongs._id, allsongs.path, allsongs.size, allsongs.title, allsongs.song_coverPath_high, allsongs.song_coverPath_low, allsongs.date, allsongs.date_added, allsongs.year, allsongs.lyrics, allsongs.bitrate, allsongs.codec, allsongs.container, allsongs.duration, allsongs.sampleRate, allsongs.hash, allsongs.type, allsongs.url, allsongs.icon, allsongs.playbackUrl, allsongs.provider_extension, albums.album_id, albums.album_name, albums.album_coverPath_high, albums.album_coverPath_low, albums.album_song_count, albums.year as album_year, artists.artist_name, artists.artist_id, artists.artist_coverPath, artists.artist_song_count, artists.artist_mbid, genre.genre_name`
+    return `allsongs._id, allsongs.path, allsongs.size, allsongs.title, allsongs.song_coverPath_high, allsongs.song_coverPath_low, allsongs.date, allsongs.date_added, allsongs.year, allsongs.lyrics, allsongs.bitrate, allsongs.codec, allsongs.container, allsongs.duration, allsongs.sampleRate, allsongs.hash, allsongs.type, allsongs.url, allsongs.icon, allsongs.playbackUrl, allsongs.provider_extension, albums.album_id, albums.album_name, albums.album_coverPath_high, albums.album_coverPath_low, albums.album_song_count, albums.year as album_year`
   }
 }
