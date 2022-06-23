@@ -300,8 +300,8 @@ export class SongDBInstance extends DBUtils {
         )
 
         if (finalCoverPath) {
-          song.song_coverPath_high = finalCoverPath
-          song.song_coverPath_low = finalCoverPath
+          song.song_coverPath_high = encodeURIComponent(finalCoverPath)
+          song.song_coverPath_low = encodeURIComponent(finalCoverPath)
         }
 
         this.db.updateWithBlackList('allsongs', song, ['_id = ?', song._id], ['_id'])
@@ -611,8 +611,8 @@ export class SongDBInstance extends DBUtils {
     const coverPath = await this.getCoverPath(oldAlbum?.album_coverPath_high ?? '', album.album_coverPath_high ?? '')
 
     if (coverPath && oldAlbum?.album_coverPath_high !== coverPath) {
-      album.album_coverPath_high = coverPath
-      album.album_coverPath_low = coverPath
+      album.album_coverPath_high = encodeURIComponent(coverPath)
+      album.album_coverPath_low = encodeURIComponent(coverPath)
 
       if (oldAlbum?.album_coverPath_high) {
         await this.removeFile(oldAlbum.album_coverPath_high)
@@ -724,7 +724,7 @@ export class SongDBInstance extends DBUtils {
 
     const coverPath = await this.getCoverPath(oldArtist.artist_coverPath ?? '', artist.artist_coverPath ?? '')
     if (coverPath && coverPath !== oldArtist?.artist_coverPath) {
-      artist.artist_coverPath = coverPath
+      artist.artist_coverPath = encodeURIComponent(coverPath)
 
       if (oldArtist?.artist_coverPath) {
         await this.removeFile(oldArtist.artist_coverPath)
@@ -764,6 +764,7 @@ export class SongDBInstance extends DBUtils {
               }
 
               if (!existingArtist.artist_coverPath && a.artist_coverPath) {
+                a.artist_coverPath = encodeURIComponent(a.artist_coverPath ?? '')
                 this.db.update('artists', a.artist_coverPath, ['artist_id = ?', id])
               }
             }
@@ -899,7 +900,7 @@ export class SongDBInstance extends DBUtils {
     const coverPath = await this.getCoverPath(oldPlaylist.playlist_coverPath ?? '', playlist.playlist_coverPath ?? '')
 
     if (coverPath && oldPlaylist?.playlist_coverPath !== coverPath) {
-      playlist.playlist_coverPath = coverPath
+      playlist.playlist_coverPath = encodeURIComponent(coverPath)
 
       if (oldPlaylist?.playlist_coverPath) {
         await this.removeFile(oldPlaylist.playlist_coverPath)
