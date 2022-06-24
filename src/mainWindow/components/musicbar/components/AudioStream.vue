@@ -588,15 +588,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
   }
 
-  private duplicateSongChangeRequest: Song | undefined
-
   private async loadAudio(song: Song, loadedState: boolean) {
-    if (this.duplicateSongChangeRequest?._id === song._id) {
-      console.debug('Got duplicate song request, ignoring')
-      this.duplicateSongChangeRequest = undefined
-      return
-    }
-
     vxm.player.loading = true
 
     console.debug('Loading new song', song.title, song.type)
@@ -616,7 +608,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this.unloadAudio()
 
       console.debug('PlaybackUrl or Duration empty for', song._id)
-      this.duplicateSongChangeRequest = song
       await this.setPlaybackURLAndDuration(song)
     }
 
