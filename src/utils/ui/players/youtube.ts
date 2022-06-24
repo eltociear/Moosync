@@ -11,11 +11,16 @@ import { Segment, SponsorBlock } from 'sponsorblock-api'
 import { v4 } from 'uuid'
 import { YTPlayerWrapper } from './wrapper/ytPlayer'
 import { LocalPlayer } from './local'
+import localforage from 'localforage'
 
 type YouTubePlayerQuality = 'small' | 'medium' | 'large' | 'hd720' | 'hd1080' | 'highres' | 'default'
 
 export class YoutubePlayer extends LocalPlayer {
   private sponsorBlock = new SponsorBlock(v4())
+  private cacheStore = localforage.createInstance({
+    driver: [localforage.INDEXEDDB],
+    name: 'SponsorBlock'
+  })
 
   private currentSegments: Segment[] = []
 
@@ -31,23 +36,40 @@ export class YoutubePlayer extends LocalPlayer {
     }
   }
 
+  private async storeCache(id: string, value: unknown) {
+    await this.cacheStore.setItem(id, { expiry: Date.now() + 6 * 60 * 60 * 1000, value })
+  }
+
+  private async getCache<T>(id: string): Promise<T | undefined> {
+    const cache = await this.cacheStore.getItem<{ expiry: number; value: T }>(id)
+    if (cache && cache.expiry > Date.now()) {
+      return cache.value
+    }
+  }
+
   private async getSponsorblock(videoID: string) {
     const preferences = await window.PreferenceUtils.loadSelective<Checkbox[]>('audio')
     if (preferences) {
       const sponsorblock = preferences.find((val) => val.key === 'sponsorblock')
       if (sponsorblock && sponsorblock.enabled) {
-        try {
-          const segments = await this.sponsorBlock.getSegments(videoID, [
-            'sponsor',
-            'intro',
-            'music_offtopic',
-            'selfpromo',
-            'interaction',
-            'preview'
-          ])
-          this.currentSegments = segments
-        } catch (e) {
-          console.warn('Sponsorblock error for id:', videoID, e)
+        let segments = await this.getCache<Segment[]>(videoID)
+        if (!segments) {
+          try {
+            segments = await this.sponsorBlock.getSegments(videoID, [
+              'sponsor',
+              'intro',
+              'music_offtopic',
+              'selfpromo',
+              'interaction',
+              'preview'
+            ])
+
+            await this.storeCache(videoID, segments)
+          } catch (e) {
+            console.warn('Sponsorblock error for id:', videoID, e)
+          }
+
+          if (segments) this.currentSegments = segments
         }
       }
     }
