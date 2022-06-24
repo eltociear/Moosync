@@ -28,19 +28,20 @@
           <b-col class="details" cols="8" xl="9">
             <b-row>
               <b-col>
-                <b-input :title="title" class="title text-truncate editable" :value="title" @input="changeTitle">
+                <b-input :title="title" class="title text-truncate input-style" :value="title" @input="changeTitle">
                 </b-input>
               </b-col>
             </b-row>
             <b-row class="mt-1">
               <b-col class="field-col" cols="12" v-for="key in filterFields" :key="key">
                 <b-row no-gutters class="d-flex">
-                  <b-col cols="auto" class="field-title"> {{ key }}: </b-col>
+                  <b-col cols="auto" class="field-title"> {{ getParsedFieldTitle(key) }}: </b-col>
                   <b-col class="ml-1 d-flex align-items-center text-truncate">
                     <component
-                      class="text-truncate field-value w-100 editable"
+                      :class="`text-truncate field-value w-100 input-style ${isEditable(key) ? 'editable' : ''}`"
                       :is="isEditable(key) ? 'b-input' : 'div'"
                       :value="getValue(key)"
+                      placeholder="Enter value"
                       @input="changeEntityField(key, arguments[0])"
                     >
                       <span class="text-truncate" v-if="!isEditable(key)">{{ getValue(key) }}</span>
@@ -246,6 +247,17 @@ export default class EntityInfoModal extends Vue {
     }
   }
 
+  private getParsedFieldTitle(field: string) {
+    switch (field.toLowerCase()) {
+      case 'artist_extra_info.spotify.artist_id':
+        return 'spotify artist id'
+      case 'artist_extra_info.youtube.channel_id':
+        return 'youtube channel id'
+      default:
+        return field.replaceAll('_', ' ')
+    }
+  }
+
   mounted() {
     bus.$on(EventBus.SHOW_ENTITY_INFO_MODAL, (entity: Artists | Album | Playlist) => {
       this.forceEmptyImg = false
@@ -271,6 +283,7 @@ export default class EntityInfoModal extends Vue {
   font-size: 14px
   font-weight: 400
   width: auto
+  margin-left: 8px
 
 .modal-content-container
   max-height: 600px
@@ -315,7 +328,7 @@ export default class EntityInfoModal extends Vue {
   color: var(--textInverse)
   background-color: var(--accent)
 
-.editable
+.input-style
   background-color: transparent !important
   background: transparent !important
   border: none !important
@@ -323,6 +336,8 @@ export default class EntityInfoModal extends Vue {
   color: var(--textPrimary) !important
   height: inherit
   padding: 0 !important
+
+.editable
   border-bottom: transparent 1px solid !important
   &:focus
     border-bottom: var(--accent) 1px solid !important
