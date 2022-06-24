@@ -52,18 +52,18 @@
                     <b-tab :title="i.tab" :id="i.tab">
                       <div class="tab-content">
                         <b-container fluid class="tab-content-container">
-                          <b-row>
+                          <b-row no-gutters>
                             <b-col
                               class="field-col"
                               :cols="showDatalist(field[0]) ? 12 : 6"
                               v-for="field in i.items"
                               :key="getKey(field)"
                             >
-                              <b-row class="d-flex" no-gutters>
+                              <b-row no-gutters class="d-flex flex-nowrap">
                                 <b-col cols="auto" @click="copyText(field)" class="field-title">
                                   {{ getKey(field) }}:
                                 </b-col>
-                                <b-col class="ml-1 d-flex">
+                                <b-col class="ml-2 d-flex">
                                   <component
                                     :is="getComponent(field)"
                                     :id="getKey(field)"
@@ -75,7 +75,7 @@
                                     :limit="getLimit(field[0])"
                                     :class="`field-value w-100 ${
                                       getComponent(field) !== 'tags-input' && 'd-flex align-items-center text-truncate'
-                                    } editable ml-1`"
+                                    } editable`"
                                     :value="getValue(field)"
                                     :existingTags="datalist[field[0]]"
                                     @input="onInputChange(field[0], ...arguments)"
@@ -415,6 +415,8 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   color: var(--textPrimary)
   padding-top: 8px
   padding-bottom: 8px
+  padding-left: 10px
+  padding-right: 15px
   margin-bottom: 5px
   a
     margin-top: 6px
@@ -438,7 +440,6 @@ export default class SongInfoModal extends mixins(ImgLoader) {
   padding-left: 0
 
 .field-title
-  margin-left: 1rem
   text-transform: capitalize
   font-weight: 700
 
