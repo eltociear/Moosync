@@ -11,7 +11,7 @@ import { extensionRequests } from '../constants'
 import crypto from 'crypto'
 
 export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
-  private packageName: string
+  packageName: string
   player: PlayerControls
   utils: Utils
 

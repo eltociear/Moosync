@@ -349,7 +349,7 @@ type ExtraExtensionEventReturnType<T extends ExtraExtensionEventTypes> = T exten
   : T extends 'requestedPlaylistFromURL'
   ? PlaylistAndSongsReturnType | void
   : T extends 'requestedSearchResult'
-  ? SongsReturnType | void
+  ? SearchReturnType | void
   : T extends 'requestedRecommendations'
   ? GetRecommendationsReturnType | void
   : T extends 'requestedLyrics'
@@ -500,6 +500,7 @@ interface utils {
 
 interface extensionAPI {
   utils: utils
+  packageName: string
 
   /**
    * Get songs from database filtered by provided options
