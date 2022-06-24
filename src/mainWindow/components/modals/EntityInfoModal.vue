@@ -332,8 +332,8 @@ export default class EntityInfoModal extends Vue {
 
 .edit-button
   position: absolute
-  width: 100%
-  height: 100%
+  width: 157px
+  height: 157px
   background: rgba(0, 0, 0, 0.6)
   top: 0
   left: 0
