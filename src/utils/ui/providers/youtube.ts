@@ -484,7 +484,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
           maxResults: 50,
           order: 'relevance',
           videoEmbeddable: true,
-          q: artist.artist_name
+          q: `${artist.artist_name} music`
         }
       })
 
