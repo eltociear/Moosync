@@ -491,7 +491,16 @@ type LoginModalOptions = {
     }
 )
 
+interface utils {
+  /**
+   * Helper function that returns extra info stored by this extension only
+   */
+  getArtistExtraInfo(artist: Artists): Record<string, string> | undefined
+}
+
 interface extensionAPI {
+  utils: utils
+
   /**
    * Get songs from database filtered by provided options
    * @param options filter the results
@@ -802,6 +811,13 @@ interface extensionAPI {
    * @param title Title to show in artists page
    */
   registerArtistSongProvider(title: string): void
+
+  /**
+   * Set extra info for an artist. This info is editable by the user using "Show info" context menu
+   * option on artist
+   * @param object Key-value pairs of editable info
+   */
+  setArtistEditableInfo(artist_id: string, object: Record<string, string>): Promise<void>
 
   /**
    * Object containing controls for player

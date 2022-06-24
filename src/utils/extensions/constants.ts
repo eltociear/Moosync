@@ -19,7 +19,8 @@ export const extensionRequestsKeys = [
   'set-secure-preferences',
   'register-oauth',
   'open-external',
-  'register-account'
+  'register-account',
+  'set-artist-editable-info'
 ] as const
 export const extensionUIRequestsKeys = [
   'get-current-song',

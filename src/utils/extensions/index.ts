@@ -361,6 +361,12 @@ class ExtensionRequestHandler {
       })
     }
 
+    if (message.type === 'set-artist-editable-info') {
+      if (typeof message.data.artist_id === 'string' && message.data.object) {
+        SongDB.updateArtistExtraInfo(message.data.artist_id, message.data.object, message.extensionName)
+      }
+    }
+
     if (
       extensionUIRequestsKeys.includes(message.type as typeof extensionUIRequestsKeys[number]) ||
       playerControlRequests.includes(message.type as typeof playerControlRequests[number])

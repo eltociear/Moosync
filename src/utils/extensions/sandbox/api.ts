@@ -13,6 +13,7 @@ import crypto from 'crypto'
 export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
   private packageName: string
   player: PlayerControls
+  utils: Utils
 
   // eslint-disable-next-line @typescript-eslint/ban-types
   private eventCallbackMap: { [key: string]: Function } = {}
@@ -27,6 +28,7 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
   constructor(packageName: string) {
     this.packageName = packageName
     this.player = new PlayerControls(this.packageName)
+    this.utils = new Utils(packageName)
   }
 
   public async getSongs(options: SongAPIOptions) {
@@ -240,6 +242,23 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
 
   public _getPlaylistProvider() {
     return this.playlistProvider
+  }
+
+  public setArtistEditableInfo(artist_id: string, object: Record<string, string>) {
+    return sendAsync<void>(this.packageName, 'set-artist-editable-info', { artist_id, object })
+  }
+}
+
+class Utils implements utils {
+  private packageName: string
+
+  constructor(packageName: string) {
+    this.packageName = packageName
+  }
+
+  public getArtistExtraInfo(artist: Artists) {
+    if (artist.artist_extra_info?.extensions)
+      return artist.artist_extra_info?.extensions[this.packageName] as Record<string, string>
   }
 }
 
