@@ -14,8 +14,8 @@
         <div class="yt-player" ref="yt-player" id="yt-player"></div>
       </div>
       <audio id="dummy-yt-player" />
-      <audio ref="audio" preload="auto" />
-      <video ref="dash-player" class="dash-player"></video>
+      <audio ref="audio" preload="auto" crossorigin="anonymous" />
+      <video ref="dash-player" class="dash-player" crossorigin="anonymous"></video>
     </div>
   </div>
 </template>
