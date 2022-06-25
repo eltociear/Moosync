@@ -14,7 +14,7 @@
       :showExtraSongListActions="false"
       :singleSelectMode="true"
       :defaultSelected="searchItems[0].key"
-      :showBackgroundOnSelect="false"
+      :showBackgroundOnSelect="true"
       @onItemsChanged="onProviderChanged"
     />
 
@@ -23,7 +23,7 @@
       :showExtraSongListActions="false"
       :singleSelectMode="true"
       :defaultSelected="subCategories[0].key"
-      :showBackgroundOnSelect="false"
+      :showBackgroundOnSelect="true"
       @onItemsChanged="onSubcategoriesChanged"
     />
 
@@ -64,7 +64,11 @@
 
       <b-row class="scroller-row w-100" v-else :key="`${activeProvider}-${activeSubcategory}`">
         <b-col col xl="2" md="3" v-for="entity in currentEntityList" :key="entity[entityKeyField]">
-          <CardView :title="entity[entityTitleField]" :imgSrc="entity[entityImageField]">
+          <CardView
+            @click.native="onCardClick(entity)"
+            :title="entity[entityTitleField]"
+            :imgSrc="entity[entityImageField]"
+          >
             <template #defaultCover> <ArtistDefault /></template>
           </CardView>
         </b-col>
@@ -100,6 +104,12 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
   private activeProvider = ''
   private activeSubcategory: keyof SearchResult = 'songs'
   private oldSubcategory = this.activeSubcategory
+
+  private fetchMap: Record<string, boolean> = {}
+
+  private isFetching(key: string) {
+    return this.fetchMap[key]
+  }
 
   private get searchItems(): TabCarouselItem[] {
     return [
@@ -217,6 +227,7 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
     this.fetchLocalSongList()
     this.fetchProviderSongList(vxm.providers.youtubeProvider)
     this.fetchProviderSongList(vxm.providers.spotifyProvider)
+    this.fetchExtensionSongList()
   }
 
   private async fetchLocalSongList() {
@@ -224,13 +235,41 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
   }
 
   private async fetchProviderSongList(provider: GenericProvider) {
-    Vue.set(this.results, provider.key, {
-      songs: await provider.searchSongs(this.searchTerm),
-      artists: await provider.searchArtists(this.searchTerm),
-      playlists: await provider.searchPlaylists(this.searchTerm),
-      albums: await provider.searchAlbum(this.searchTerm),
-      genres: []
-    })
+    this.fetchMap[provider.key] = true
+
+    if (provider.loggedIn) {
+      Vue.set(this.results, provider.key, {
+        songs: await provider.searchSongs(this.searchTerm),
+        artists: await provider.searchArtists(this.searchTerm),
+        playlists: await provider.searchPlaylists(this.searchTerm),
+        albums: await provider.searchAlbum(this.searchTerm),
+        genres: []
+      })
+    }
+    this.fetchMap[provider.key] = false
+  }
+
+  private async fetchExtensionSongList() {
+    for (const p of this.optionalProviders) {
+      this.fetchMap[p.key] = true
+
+      window.ExtensionUtils.sendEvent({
+        type: 'requestedSearchResult',
+        data: [this.searchTerm],
+        packageName: p.key
+      }).then((data) => {
+        if (data && data[p.key]) {
+          Vue.set(this.results, p.key, {
+            songs: data[p.key]?.songs,
+            artists: data[p.key]?.artists,
+            playlists: data[p.key]?.playlists,
+            albums: data[p.key]?.albums,
+            genre: []
+          })
+        }
+        this.fetchMap[p.key] = false
+      })
+    }
   }
 
   private onProviderChanged({ key, checked }: { key: string; checked: boolean }) {
@@ -261,6 +300,7 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
     for (const [key, value] of Object.entries(providers)) {
       this.optionalProviders.push({ title: value, key })
     }
+    await this.fetchExtensionSongList()
   }
 
   mounted() {
@@ -272,6 +312,23 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
       type: 'SONGS',
       args: { songs: [item], isRemote: this.activeProvider !== 'local' }
     })
+  }
+
+  private onCardClick(item: typeof this.currentEntityList[0]) {
+    switch (this.activeSubcategory) {
+      case 'artists':
+        this.gotoArtist(item as Artists)
+        break
+      case 'playlists':
+        this.gotoPlaylist(item as Playlist)
+        break
+      case 'albums':
+        this.gotoAlbum(item as Album)
+        break
+      case 'genres':
+        this.gotoGenre(item as Genre)
+        break
+    }
   }
 }
 </script>

@@ -36,6 +36,8 @@ export const cache = setupCache({
 export abstract class GenericProvider {
   abstract key: string
 
+  abstract loggedIn: boolean
+
   /**
    * Get user playlists
    * @returns Array of playlist fetched from users profile
