@@ -216,6 +216,10 @@ class MainRequestGenerator {
     return this.sendAsync<Record<string, string>>('get-playlist-providers')
   }
 
+  public async getAlbumSongProviders() {
+    return this.sendAsync<Record<string, string>>('get-album-songs-providers')
+  }
+
   public async sendContextMenuItemClicked(
     id: string,
     packageName: string,
@@ -364,6 +368,12 @@ class ExtensionRequestHandler {
     if (message.type === 'set-artist-editable-info') {
       if (typeof message.data.artist_id === 'string' && message.data.object) {
         SongDB.updateArtistExtraInfo(message.data.artist_id, message.data.object, message.extensionName)
+      }
+    }
+
+    if (message.type === 'set-album-editable-info') {
+      if (typeof message.data.album_id === 'string' && message.data.object) {
+        SongDB.updateAlbumExtraInfo(message.data.album_id, message.data.object, message.extensionName)
       }
     }
 

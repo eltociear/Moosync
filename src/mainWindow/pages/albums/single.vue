@@ -20,6 +20,8 @@
       :detailsButtonGroup="buttonGroups"
       @playAll="playAlbum"
       @addToQueue="addAlbumToQueue"
+      @onOptionalProviderChanged="onAlbumProviderChanged"
+      :optionalProviders="albumSongProviders"
     />
   </div>
 </template>
@@ -42,6 +44,13 @@ import RemoteSong from '@/utils/ui/mixins/remoteSongMixin'
 export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerControls, RemoteSong) {
   private album: Album | null = null
   private songList: Song[] = []
+  private optionalSongList: Record<string, string[]> = {}
+
+  private extensionAlbumSongProviders: TabCarouselItem[] = []
+
+  private get albumSongProviders(): TabCarouselItem[] {
+    return [...this.extensionAlbumSongProviders]
+  }
 
   get buttonGroups(): SongDetailButtons {
     return {
@@ -59,12 +68,13 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
     }
   }
 
-  created() {
+  async created() {
     this.fetchAlbum()
+    this.fetchExtensionAlbumSongProviders()
     this.fetchSongList()
   }
 
-  private async fetchAlbum() {
+  private fetchAlbum() {
     this.album = {
       album_id: this.$route.query.id as string,
       album_name: this.$route.query.name as string,
@@ -90,6 +100,50 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
 
   private addAlbumToQueue() {
     this.queueSong(this.songList)
+  }
+
+  private async fetchExtensionAlbumSongProviders() {
+    const exts = await window.ExtensionUtils.getRegisteredAlbumSongProviders()
+    if (exts) {
+      for (const [key, title] of Object.entries(exts)) {
+        if (title) {
+          this.extensionAlbumSongProviders.push({ key, title })
+        }
+      }
+    }
+  }
+
+  private async fetchExtensionSongs(key: string) {
+    if (this.album) {
+      const data = await window.ExtensionUtils.sendEvent({
+        type: 'requestedAlbumSongs',
+        data: [this.album],
+        packageName: key
+      })
+
+      if (data && data[key]) {
+        for (const s of data[key].songs) {
+          if (!this.songList.find((val) => val._id === s._id)) {
+            this.songList.push(s)
+
+            if (!this.optionalSongList[key]) {
+              this.optionalSongList[key] = []
+            }
+            this.optionalSongList[key].push(s._id)
+          }
+        }
+      }
+    }
+  }
+
+  private onAlbumProviderChanged({ key, checked }: { key: string; checked: boolean }) {
+    if (checked) {
+      this.fetchExtensionSongs(key)
+    } else {
+      this.songList = this.songList.filter((val) =>
+        this.optionalSongList[key] ? !this.optionalSongList[key].includes(val._id) : true
+      )
+    }
   }
 }
 </script>

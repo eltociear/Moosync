@@ -5,6 +5,9 @@ interface Album {
   album_coverPath_low?: string
   album_song_count?: number
   album_artist?: string
+  album_extra_info?: {
+    extensions?: Record<string, Record<string, string | undefined> | undefined>
+  }
   year?: number
 }
 
@@ -335,6 +338,7 @@ type ExtraExtensionEventTypes =
   | 'requestedRecommendations'
   | 'requestedLyrics'
   | 'requestedArtistSongs'
+  | 'requestedAlbumSongs'
 
 type ExtraExtensionEventReturnType<T extends ExtraExtensionEventTypes> = T extends 'requestedPlaylists'
   ? PlaylistReturnType | void
@@ -355,6 +359,8 @@ type ExtraExtensionEventReturnType<T extends ExtraExtensionEventTypes> = T exten
   : T extends 'requestedLyrics'
   ? string | void
   : T extends 'requestedArtistSongs'
+  ? SongsReturnType
+  : T extends 'requestedAlbumSongs'
   ? SongsReturnType
   : void
 
@@ -390,6 +396,8 @@ type ExtraExtensionEventData<T extends ExtraExtensionEventTypes> = T extends 're
   ? [song: Song]
   : T extends 'requestedArtistSongs'
   ? [artist: Artists]
+  : T extends 'requestedAlbumSongs'
+  ? [album: Album]
   : []
 
 type PlaylistReturnType = {
@@ -722,6 +730,14 @@ interface extensionAPI {
   on(eventName: 'requestedArtistSongs', callback: (artist: Artists) => Promise<SongsReturnType | void>)
 
   /**
+   * Event fired when songs by a particular album are requested
+   * Callback should return parsed songs or undefined
+   *
+   * Requires extension to be registered as a provider using {@link registerAlbumSongProvider}
+   */
+  on(eventName: 'requestedAlbumSongs', callback: (album: Album) => Promise<SongsReturnType | void>)
+
+  /**
    * Remove callbacks from extra events
    * @param eventName name of event whose callback is to be removed
    */
@@ -814,11 +830,26 @@ interface extensionAPI {
   registerArtistSongProvider(title: string): void
 
   /**
+   * Register extension as provider of album songs. 'requestedAlbumSongs' can be
+   * listened after calling this method
+   *
+   * @param title Title to show in albums page
+   */
+  registerAlbumSongProvider(title: string): void
+
+  /**
    * Set extra info for an artist. This info is editable by the user using "Show info" context menu
    * option on artist
    * @param object Key-value pairs of editable info
    */
   setArtistEditableInfo(artist_id: string, object: Record<string, string>): Promise<void>
+
+  /**
+   * Set extra info for an album. This info is editable by the user using "Show info" context menu
+   * option on album
+   * @param object Key-value pairs of editable info
+   */
+  setAlbumEditableInfo(artist_id: string, object: Record<string, string>): Promise<void>
 
   /**
    * Object containing controls for player

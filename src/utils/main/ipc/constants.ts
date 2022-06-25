@@ -178,7 +178,8 @@ export enum ExtensionHostEvents {
   ON_EXTENSIONS_CHANGED = 'onExtensionsChanged',
   GET_REGISTERED_SEARCH_PROVIDERS = 'getRegisteredSearchProviders',
   GET_REGISTERED_ARTIST_SONG_PROVIDERS = 'getRegisteredArtistSongProviders',
-  GET_REGISTERED_PLAYLIST_PROVIDERS = 'getRegisteredPlaylistProviders'
+  GET_REGISTERED_PLAYLIST_PROVIDERS = 'getRegisteredPlaylistProviders',
+  GET_REGISTERED_ALBUM_SONG_PROVIDERS = 'getRegisteredAlbumSongProviders'
 }
 
 export enum ServiceProviderEvents {

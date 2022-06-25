@@ -126,6 +126,7 @@ interface ExtendedExtensionAPI extends extensionAPI {
   _getAccountDetails: () => AccountDetails[]
   _getSearchProvider: () => string | undefined
   _getArtistSongProvider: () => string | undefined
+  _getAlbumSongProvider: () => string | undefined
   _getPlaylistProvider: () => string | undefined
 }
 

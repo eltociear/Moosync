@@ -23,6 +23,7 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
   private accountsMap: AccountDetails[] = []
   private searchProvider: string | undefined
   private artistSongProvider: string | undefined
+  private albumSongProvider: string | undefined
   private playlistProvider: string | undefined
 
   constructor(packageName: string) {
@@ -236,6 +237,14 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
     return this.artistSongProvider
   }
 
+  public registerAlbumSongProvider(title: string) {
+    this.albumSongProvider = title
+  }
+
+  public _getAlbumSongProvider() {
+    return this.albumSongProvider
+  }
+
   private registerPlaylistProvider() {
     this.playlistProvider = this.packageName
   }
@@ -247,6 +256,10 @@ export class ExtensionRequestGenerator implements ExtendedExtensionAPI {
   public setArtistEditableInfo(artist_id: string, object: Record<string, string>) {
     return sendAsync<void>(this.packageName, 'set-artist-editable-info', { artist_id, object })
   }
+
+  public setAlbumEditableInfo(album_id: string, object: Record<string, string>) {
+    return sendAsync<void>(this.packageName, 'set-album-editable-info', { album_id, object })
+  }
 }
 
 class Utils implements utils {
@@ -257,7 +270,7 @@ class Utils implements utils {
   }
 
   public getArtistExtraInfo(artist: Artists) {
-    if (artist.artist_extra_info?.extensions)
+    if (artist?.artist_extra_info?.extensions)
       return artist.artist_extra_info?.extensions[this.packageName] as Record<string, string>
   }
 }

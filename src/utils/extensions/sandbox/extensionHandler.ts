@@ -109,6 +109,8 @@ export class ExtensionHandler {
     switch (type) {
       case 'get-artist-songs-providers':
         return '_getArtistSongProvider'
+      case 'get-album-songs-providers':
+        return '_getAlbumSongProvider'
       case 'get-playlist-providers':
         return '_getPlaylistProvider'
       case 'get-search-providers':

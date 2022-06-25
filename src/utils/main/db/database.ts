@@ -626,26 +626,52 @@ export class SongDBInstance extends DBUtils {
   }
 
   public async updateAlbum(album: Album) {
-    const oldAlbum = this.getEntityByOptions<Album>({
-      album: {
-        album_id: album.album_id
+    if (album.album_id) {
+      const oldAlbum = this.getEntityByOptions<Album>({
+        album: {
+          album_id: album.album_id
+        }
+      })[0]
+
+      const coverPath = await this.getCoverPath(oldAlbum?.album_coverPath_high ?? '', album.album_coverPath_high ?? '')
+      album.album_coverPath_high = coverPath
+      album.album_coverPath_low = coverPath
+
+      if (coverPath && oldAlbum?.album_coverPath_high !== coverPath) {
+        if (oldAlbum?.album_coverPath_high) {
+          await this.removeFile(oldAlbum.album_coverPath_high)
+        }
+
+        if (oldAlbum?.album_coverPath_low) {
+          await this.removeFile(oldAlbum.album_coverPath_low)
+        }
       }
-    })[0]
+      this.db.updateWithBlackList('albums', album, ['album_id = ?', album.album_id], ['album_id', 'album_extra_info'])
 
-    const coverPath = await this.getCoverPath(oldAlbum?.album_coverPath_high ?? '', album.album_coverPath_high ?? '')
-    album.album_coverPath_high = coverPath
-    album.album_coverPath_low = coverPath
+      this.updateAlbumExtraInfo(album.album_id, album.album_extra_info)
+    }
+  }
 
-    if (coverPath && oldAlbum?.album_coverPath_high !== coverPath) {
-      if (oldAlbum?.album_coverPath_high) {
-        await this.removeFile(oldAlbum.album_coverPath_high)
-      }
+  public updateAlbumExtraInfo(id: string, info: Album['album_extra_info'], extension?: string) {
+    let toUpdateInfo: Album['album_extra_info'] = JSON.parse(
+      this.db.queryFirstCell<string>('SELECT album_extra_info from albums WHERE album_id = ?', id) ?? '{}'
+    )
 
-      if (oldAlbum?.album_coverPath_low) {
-        await this.removeFile(oldAlbum.album_coverPath_low)
+    if (!toUpdateInfo || Object.keys(toUpdateInfo).length === 0) {
+      toUpdateInfo = {
+        extensions: {}
       }
     }
-    this.db.updateWithBlackList('albums', album, ['album_id = ?', album.album_id], ['album_id'])
+
+    if (extension) {
+      if (toUpdateInfo.extensions && info && info['extensions']) {
+        toUpdateInfo['extensions'][extension] = info['extensions'][extension]
+      }
+    } else {
+      toUpdateInfo = { ...toUpdateInfo, ...info }
+    }
+
+    this.db.update('albums', { album_extra_info: JSON.stringify(toUpdateInfo) }, ['album_id = ?', id])
   }
 
   /**

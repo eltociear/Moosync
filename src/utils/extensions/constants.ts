@@ -20,7 +20,8 @@ export const extensionRequestsKeys = [
   'register-oauth',
   'open-external',
   'register-account',
-  'set-artist-editable-info'
+  'set-artist-editable-info',
+  'set-album-editable-info'
 ] as const
 export const extensionUIRequestsKeys = [
   'get-current-song',
@@ -51,6 +52,7 @@ export const mainRequestsKeys = [
 export const providerExtensionKeys = [
   'get-search-providers',
   'get-artist-songs-providers',
+  'get-album-songs-providers',
   'get-playlist-providers'
 ] as const
 

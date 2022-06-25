@@ -271,6 +271,7 @@ interface extensionUtils {
   getRegisteredSearchProviders: () => Promise<Record<string, string>>
   getRegisteredArtistSongProviders: () => Promise<Record<string, string>>
   getRegisteredPlaylistProviders: () => Promise<Record<string, string>>
+  getRegisteredAlbumSongProviders: () => Promise<Record<string, string>>
 }
 
 /**

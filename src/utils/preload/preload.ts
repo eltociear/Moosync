@@ -544,6 +544,12 @@ contextBridge.exposeInMainWorld('ExtensionUtils', {
       params: undefined
     }),
 
+  getRegisteredAlbumSongProviders: () =>
+    ipcRendererHolder.send(IpcEvents.EXTENSION_HOST, {
+      type: ExtensionHostEvents.GET_REGISTERED_ALBUM_SONG_PROVIDERS,
+      params: undefined
+    }),
+
   getRegisteredPlaylistProviders: () =>
     ipcRendererHolder.send(IpcEvents.EXTENSION_HOST, {
       type: ExtensionHostEvents.GET_REGISTERED_PLAYLIST_PROVIDERS,

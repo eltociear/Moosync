@@ -215,5 +215,13 @@ export const migrations = [
   ALTER TABLE artists ADD artist_extra_info TEXT;
 
   -- Down
+  `,
+
+  // 25-06-2022
+  `
+  -- Up
+  ALTER TABLE albums ADD album_extra_info TEXT;
+
+  -- Down
   `
 ]
