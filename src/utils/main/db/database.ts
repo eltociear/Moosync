@@ -236,7 +236,6 @@ export class SongDBInstance extends DBUtils {
   }
 
   private async getCoverPath(oldCoverPath: string, newCoverpath: string) {
-    console.log(newCoverpath)
     if (oldCoverPath !== newCoverpath) {
       if (newCoverpath) {
         const finalPath = path.join(loadPreferences().thumbnailPath, v4() + (path.extname(newCoverpath) ?? '.png'))

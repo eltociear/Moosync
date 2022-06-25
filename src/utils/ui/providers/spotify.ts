@@ -748,8 +748,6 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
         albumId = (await this.searchAlbum(album.album_name))[0]?.album_extra_info?.spotify?.album_id
       }
 
-      console.log(albumId)
-
       if (albumId) {
         const albumDets = await this.populateRequest(ApiResources.ALBUM, {
           params: {
