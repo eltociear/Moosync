@@ -301,6 +301,10 @@ export class ExtensionHandler {
           ;(resp as SearchReturnType).artists = this.sanitizeArtists(ext, ...(resp as SearchReturnType).artists)
           ;(resp as SearchReturnType).albums = this.sanitizeAlbums(ext, ...(resp as SearchReturnType).albums)
         }
+
+        if (EventType === 'requestedArtistSongs') {
+          ;(resp as SongsReturnType).songs = this.sanitizeSong(ext, ...(resp as SongsReturnType).songs)
+        }
       }
 
       allData[ext.packageName] = resp
