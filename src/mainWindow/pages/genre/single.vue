@@ -53,7 +53,7 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin) {
   get defaultDetails(): SongDetailDefaults {
     return {
       defaultTitle: this.genre?.genre_name,
-      defaultSubSubtitle: `${this.genre?.genre_song_count} Songs`
+      defaultSubSubtitle: `${this.songList.length} Songs`
     }
   }
 
