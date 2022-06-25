@@ -54,7 +54,7 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
     return {
       defaultTitle: this.album?.album_name,
       defaultSubtitle: this.album?.album_artist,
-      defaultSubSubtitle: `${this.album?.album_song_count} Songs`,
+      defaultSubSubtitle: `${this.songList.length} Songs`,
       defaultCover: this.album?.album_coverPath_high
     }
   }
@@ -65,13 +65,14 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
   }
 
   private async fetchAlbum() {
-    this.album = (
-      await window.SearchUtils.searchEntityByOptions<Album>({
-        album: {
-          album_id: this.$route.query.id as string
-        }
-      })
-    )[0]
+    this.album = {
+      album_id: this.$route.query.id as string,
+      album_name: this.$route.query.name as string,
+      album_coverPath_high: this.$route.query.cover_high as string,
+      album_coverPath_low: this.$route.query.cover_low as string,
+      album_artist: this.$route.query.album_artist as string,
+      year: parseInt(this.$route.query.year as string)
+    }
   }
 
   private async fetchSongList() {

@@ -16,7 +16,12 @@ export default class PlayerControls extends Vue {
       this.$router.push({
         name: 'albums-single',
         query: {
-          id: album.album_id as string
+          id: album.album_id as string,
+          name: album.album_name,
+          cover_high: album.album_coverPath_high,
+          cover_low: album.album_coverPath_low,
+          artist: album.album_artist,
+          year: (album.year ?? 0).toString()
         }
       })
     } catch (e) {
