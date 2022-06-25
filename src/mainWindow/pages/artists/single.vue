@@ -159,15 +159,6 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
     })
   }
 
-  private getIsRemote(songs: Song[]) {
-    for (const s of songs) {
-      if (s._id.startsWith('youtube') || s._id.startsWith('spotify') || s.providerExtension) {
-        return true
-      }
-    }
-    return false
-  }
-
   private playArtist() {
     this.playTop(this.songList)
   }

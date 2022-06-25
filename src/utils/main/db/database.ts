@@ -664,8 +664,8 @@ export class SongDBInstance extends DBUtils {
     }
 
     if (extension) {
-      if (toUpdateInfo.extensions && info && info['extensions']) {
-        toUpdateInfo['extensions'][extension] = info['extensions'][extension]
+      if (toUpdateInfo.extensions && info) {
+        toUpdateInfo['extensions'][extension] = info as Record<string, string>
       }
     } else {
       toUpdateInfo = { ...toUpdateInfo, ...info }
@@ -845,8 +845,8 @@ export class SongDBInstance extends DBUtils {
     }
 
     if (extension) {
-      if (toUpdateInfo.extensions && info && info['extensions']) {
-        toUpdateInfo['extensions'][extension] = info['extensions'][extension]
+      if (toUpdateInfo.extensions && info) {
+        toUpdateInfo['extensions'][extension] = info as Record<string, string>
       }
     } else {
       toUpdateInfo = { ...toUpdateInfo, ...info }

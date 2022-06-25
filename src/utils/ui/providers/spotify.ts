@@ -39,6 +39,7 @@ enum ApiResources {
   ARTIST_TOP = 'artists/{artist_id}/top-tracks',
   ARTIST_ALBUMS = 'artists/{artist_id}/albums',
   ARTIST = 'artists/{artist_id}',
+  ALBUM = 'albums/{album_id}',
   ALBUM_SONGS = 'albums/{album_id}/tracks'
 }
 
@@ -161,7 +162,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       url = resource.replace('{artist_id}', (search as SpotifyResponses.ArtistsTopTracks).params.id)
     }
 
-    if (resource === ApiResources.ALBUM_SONGS) {
+    if (resource === ApiResources.ALBUM_SONGS || resource === ApiResources.ALBUM) {
       url = resource.replace('{album_id}', (search as SpotifyResponses.AlbumTracksRequest).params.id)
     }
 
@@ -586,7 +587,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     return resp.items
   }
 
-  private async *getAlbumSongs(album: SpotifyResponses.RecommendationDetails.Album) {
+  private async *_getAlbumSongs(album: SpotifyResponses.RecommendationDetails.Album) {
     let nextOffset = 0
     let isNext = false
     const limit = 50
@@ -659,7 +660,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
 
       const albums = await this.getArtistAlbums(artist_id)
       for (const a of albums) {
-        for await (const s of this.getAlbumSongs(a)) yield [s]
+        for await (const s of this._getAlbumSongs(a)) yield [s]
       }
     }
   }
@@ -710,7 +711,12 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
         album_name: a.name,
         album_song_count: a.total_tracks,
         album_coverPath_high: a.images[0] ? a.images[0].url : '',
-        album_coverPath_low: a.images[2] ? a.images[2].url : ''
+        album_coverPath_low: a.images[2] ? a.images[2].url : '',
+        album_extra_info: {
+          spotify: {
+            album_id: a.id
+          }
+        }
       })
     }
 
@@ -732,5 +738,30 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     }
 
     return albums
+  }
+
+  public async *getAlbumSongs(album: Album) {
+    if (album.album_name) {
+      let albumId = album.album_extra_info?.spotify?.album_id
+
+      if (!albumId) {
+        albumId = (await this.searchAlbum(album.album_name))[0]?.album_extra_info?.spotify?.album_id
+      }
+
+      console.log(albumId)
+
+      if (albumId) {
+        const albumDets = await this.populateRequest(ApiResources.ALBUM, {
+          params: {
+            id: albumId,
+            market: 'ES'
+          }
+        })
+
+        for await (const s of this._getAlbumSongs(albumDets)) {
+          yield s
+        }
+      }
+    }
   }
 }

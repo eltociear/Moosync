@@ -271,7 +271,12 @@ class Utils implements utils {
 
   public getArtistExtraInfo(artist: Artists) {
     if (artist?.artist_extra_info?.extensions)
-      return artist.artist_extra_info?.extensions[this.packageName] as Record<string, string>
+      return artist.artist_extra_info.extensions[this.packageName] as Record<string, string>
+  }
+
+  public getAlbumExtraInfo(album: Album) {
+    if (album?.album_extra_info?.extensions)
+      return album?.album_extra_info?.extensions[this.packageName] as Record<string, string>
   }
 }
 

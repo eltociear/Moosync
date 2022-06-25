@@ -307,6 +307,10 @@ export class ExtensionHandler {
         if (EventType === 'requestedArtistSongs') {
           ;(resp as SongsReturnType).songs = this.sanitizeSong(ext, ...(resp as SongsReturnType).songs)
         }
+
+        if (EventType === 'requestedAlbumSongs') {
+          ;(resp as SongsReturnType).songs = this.sanitizeSong(ext, ...(resp as SongsReturnType).songs)
+        }
       }
 
       allData[ext.packageName] = resp
@@ -331,7 +335,7 @@ export class ExtensionHandler {
   ) {
     for (const ext of this.extensionManager.getExtensions({ started: true, packageName })) {
       const item = (ext.global.api.getContextMenuItems() as ExtendedExtensionContextMenuItems<ContextMenuTypes>[]).find(
-        (val) => val.id
+        (val) => val.id === id
       )
 
       item?.handler && item.handler(arg)

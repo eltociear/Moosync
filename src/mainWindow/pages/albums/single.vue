@@ -49,7 +49,13 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
   private extensionAlbumSongProviders: TabCarouselItem[] = []
 
   private get albumSongProviders(): TabCarouselItem[] {
-    return [...this.extensionAlbumSongProviders]
+    return [
+      {
+        key: vxm.providers.spotifyProvider.key,
+        title: 'Spotify'
+      },
+      ...this.extensionAlbumSongProviders
+    ]
   }
 
   get buttonGroups(): SongDetailButtons {
@@ -70,6 +76,7 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
 
   async created() {
     this.fetchAlbum()
+    this.fetchAlbumCover()
     this.fetchExtensionAlbumSongProviders()
     this.fetchSongList()
   }
@@ -82,6 +89,27 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
       album_coverPath_low: this.$route.query.cover_low as string,
       album_artist: this.$route.query.album_artist as string,
       year: parseInt(this.$route.query.year as string)
+    }
+  }
+
+  private async fetchAlbumCover() {
+    if (this.album) {
+      if (!(this.album.album_coverPath_high ?? this.album.album_coverPath_low) && this.album.album_name) {
+        if (vxm.providers.spotifyProvider.loggedIn) {
+          const res = (await vxm.providers.spotifyProvider.searchAlbum(this.album.album_name))[0]
+          if (res) {
+            this.album.album_coverPath_high = res.album_coverPath_high
+            this.album.album_coverPath_low = res.album_coverPath_low
+          }
+
+          window.DBUtils.updateAlbum({
+            ...this.album,
+            album_coverPath_high: res.album_coverPath_high,
+            album_coverPath_low: res.album_coverPath_low,
+            album_extra_info: res.album_extra_info
+          })
+        }
+      }
     }
   }
 
@@ -136,8 +164,26 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
     }
   }
 
+  private async fetchSpotifySongs() {
+    if (this.album) {
+      for await (const s of vxm.providers.spotifyProvider.getAlbumSongs(this.album)) {
+        this.songList.push(s)
+
+        if (!this.optionalSongList[vxm.providers.spotifyProvider.key]) {
+          this.optionalSongList[vxm.providers.spotifyProvider.key] = []
+        }
+
+        this.optionalSongList[vxm.providers.spotifyProvider.key].push(s._id)
+      }
+    }
+  }
+
   private onAlbumProviderChanged({ key, checked }: { key: string; checked: boolean }) {
     if (checked) {
+      if (key === vxm.providers.spotifyProvider.key) {
+        this.fetchSpotifySongs()
+        return
+      }
       this.fetchExtensionSongs(key)
     } else {
       this.songList = this.songList.filter((val) =>

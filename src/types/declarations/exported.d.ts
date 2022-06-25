@@ -6,6 +6,9 @@ interface Album {
   album_song_count?: number
   album_artist?: string
   album_extra_info?: {
+    spotify?: {
+      album_id?: string
+    }
     extensions?: Record<string, Record<string, string | undefined> | undefined>
   }
   year?: number
@@ -504,6 +507,11 @@ interface utils {
    * Helper function that returns extra info stored by this extension only
    */
   getArtistExtraInfo(artist: Artists): Record<string, string> | undefined
+
+  /**
+   * Helper function that returns extra info stored by this extension only
+   */
+  getAlbumExtraInfo(album: Album): Record<string, string> | undefined
 }
 
 interface extensionAPI {
