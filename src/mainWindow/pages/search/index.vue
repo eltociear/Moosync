@@ -27,53 +27,58 @@
       @onItemsChanged="onSubcategoriesChanged"
     />
 
-    <transition
-      appear
-      name="custom-slide-fade"
-      :enter-active-class="`animate__animated ${transitionEnterActiveClass} animate__fast`"
-      :leave-active-class="`animate__animated ${transitionExitActiveClass} animate__fast`"
-    >
-      <b-row
-        class="scroller-row w-100"
-        v-if="activeSubcategory === 'songs'"
-        :key="`${activeProvider}-${activeSubcategory}`"
+    <div v-if="!isFetching">
+      <transition
+        appear
+        name="custom-slide-fade"
+        :enter-active-class="`animate__animated ${transitionEnterActiveClass} animate__fast`"
+        :leave-active-class="`animate__animated ${transitionExitActiveClass} animate__fast`"
       >
-        <b-col class="h-100">
-          <RecycleScroller
-            class="scroller w-100 h-100"
-            :items="currentSongList"
-            :item-size="94"
-            key-field="_id"
-            :direction="'vertical'"
-          >
-            <template v-slot="{ item, index }">
-              <SongListCompactItem
-                :item="item"
-                :index="index"
-                :selected="selected"
-                @onRowDoubleClicked="queueSong([arguments[0]])"
-                @onRowSelected="onRowSelected"
-                @onRowContext="onRowContext"
-                @onPlayNowClicked="playTop([arguments[0]])"
-                @onArtistClicked="gotoArtist"
-              />
-            </template>
-          </RecycleScroller>
-        </b-col>
-      </b-row>
+        <b-row
+          class="scroller-row w-100"
+          v-if="activeSubcategory === 'songs'"
+          :key="`${activeProvider}-${activeSubcategory}`"
+        >
+          <b-col class="h-100">
+            <RecycleScroller
+              class="scroller w-100 h-100"
+              :items="currentSongList"
+              :item-size="94"
+              key-field="_id"
+              :direction="'vertical'"
+            >
+              <template v-slot="{ item, index }">
+                <SongListCompactItem
+                  :item="item"
+                  :index="index"
+                  :selected="selected"
+                  @onRowDoubleClicked="queueSong([arguments[0]])"
+                  @onRowSelected="onRowSelected"
+                  @onRowContext="onRowContext"
+                  @onPlayNowClicked="playTop([arguments[0]])"
+                  @onArtistClicked="gotoArtist"
+                />
+              </template>
+            </RecycleScroller>
+          </b-col>
+        </b-row>
 
-      <b-row class="scroller-row w-100" v-else :key="`${activeProvider}-${activeSubcategory}`">
-        <b-col col xl="2" md="3" v-for="entity in currentEntityList" :key="entity[entityKeyField]">
-          <CardView
-            @click.native="onCardClick(entity)"
-            :title="entity[entityTitleField]"
-            :imgSrc="entity[entityImageField]"
-          >
-            <template #defaultCover> <ArtistDefault /></template>
-          </CardView>
-        </b-col>
-      </b-row>
-    </transition>
+        <b-row class="scroller-row w-100" v-else :key="`${activeProvider}-${activeSubcategory}`">
+          <b-col col xl="2" md="3" v-for="entity in currentEntityList" :key="entity[entityKeyField]">
+            <CardView
+              @click.native="onCardClick(entity)"
+              :title="entity[entityTitleField]"
+              :imgSrc="entity[entityImageField]"
+            >
+              <template #defaultCover> <component :is="defaultCoverComponent" /></template>
+            </CardView>
+          </b-col>
+        </b-row>
+      </transition>
+    </div>
+    <div v-else>
+      <b-spinner label="Loading..."></b-spinner>
+    </div>
   </b-container>
 </template>
 
@@ -85,6 +90,9 @@ import { GenericProvider } from '@/utils/ui/providers/generics/genericProvider'
 import SongListCompactItem from '@/mainWindow/components/songView/components/SongListCompactItem.vue'
 import CardView from '@/mainWindow/components/generic/CardView.vue'
 import ArtistDefault from '@/icons/ArtistDefaultIcon.vue'
+import AlbumDefault from '@/icons/AlbumDefaultIcon.vue'
+import PlaylistDefault from '@/icons/PlaylistDefaultIcon.vue'
+import GenreDefault from '@/icons/SongDefaultIcon.vue'
 import { mixins } from 'vue-class-component'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import SongListMixin from '@/utils/ui/mixins/SongListMixin'
@@ -96,7 +104,10 @@ import RouterPushes from '@/utils/ui/mixins/RouterPushes'
     TabCarousel,
     SongListCompactItem,
     CardView,
-    ArtistDefault
+    ArtistDefault,
+    AlbumDefault,
+    PlaylistDefault,
+    GenreDefault
   }
 })
 export default class SearchPage extends mixins(PlayerControls, SongListMixin, ContextMenuMixin, RouterPushes) {
@@ -107,8 +118,22 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
 
   private fetchMap: Record<string, boolean> = {}
 
-  private isFetching(key: string) {
-    return this.fetchMap[key]
+  private get isFetching() {
+    return this.fetchMap[this.activeProvider]
+  }
+
+  private get defaultCoverComponent() {
+    switch (this.activeSubcategory) {
+      case 'artists':
+        return 'ArtistDefault'
+      case 'playlists':
+        return 'PlaylistDefault'
+      case 'albums':
+        return 'AlbumDefault'
+      case 'genres':
+      default:
+        return 'GenreDefault'
+    }
   }
 
   private get searchItems(): TabCarouselItem[] {
@@ -224,6 +249,7 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
 
   @Watch('searchTerm', { immediate: true })
   private onSearchTermChanged() {
+    console.log('term changed')
     this.fetchLocalSongList()
     this.fetchProviderSongList(vxm.providers.youtubeProvider)
     this.fetchProviderSongList(vxm.providers.spotifyProvider)
@@ -231,11 +257,13 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
   }
 
   private async fetchLocalSongList() {
+    Vue.set(this.fetchMap, 'local', true)
     Vue.set(this.results, 'local', await window.SearchUtils.searchAll(`%${this.searchTerm}%`))
+    Vue.set(this.fetchMap, 'local', false)
   }
 
   private async fetchProviderSongList(provider: GenericProvider) {
-    this.fetchMap[provider.key] = true
+    Vue.set(this.fetchMap, provider.key, true)
 
     if (provider.loggedIn) {
       Vue.set(this.results, provider.key, {
@@ -246,12 +274,12 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
         genres: []
       })
     }
-    this.fetchMap[provider.key] = false
+    Vue.set(this.fetchMap, provider.key, false)
   }
 
   private async fetchExtensionSongList() {
     for (const p of this.optionalProviders) {
-      this.fetchMap[p.key] = true
+      Vue.set(this.fetchMap, p.key, true)
 
       window.ExtensionUtils.sendEvent({
         type: 'requestedSearchResult',
@@ -267,7 +295,7 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
             genre: []
           })
         }
-        this.fetchMap[p.key] = false
+        Vue.set(this.fetchMap, p.key, false)
       })
     }
   }
