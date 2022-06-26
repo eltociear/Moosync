@@ -28,11 +28,11 @@ export class LocalPlayer extends Player {
   }
 
   async play(): Promise<void> {
-    if (this.playerInstance.paused) await this.playerInstance.play()
+    if (this.playerInstance.paused) await this.playerInstance?.play()
   }
 
   pause(): void {
-    if (!this.playerInstance.paused) this.playerInstance.pause()
+    if (!this.playerInstance.paused) this.playerInstance?.pause()
   }
 
   stop(): void {

@@ -380,7 +380,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       this._bufferTrap = setTimeout(() => {
         if (this.activePlayerTypes === 'YOUTUBE' && this.activePlayer instanceof YoutubePlayer) {
           // this.activePlayer.setPlaybackQuality('small')
-          this.pause()
+          this?.pause()
           Vue.nextTick(() => this.play())
 
           console.debug('Triggered buffer trap')
@@ -619,7 +619,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
 
     if (PlayerTypes === 'LOCAL') {
-      this.activePlayer.load(
+      this.activePlayer?.load(
         song.path ? 'media://' + song.path : song.playbackUrl,
         this.volume,
         vxm.player.playAfterLoad || this.playerState === 'PLAYING'
@@ -630,7 +630,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       console.debug('PlaybackUrl for song', song._id, 'is', song.playbackUrl)
       console.debug('Loaded song at', song.playbackUrl)
 
-      this.activePlayer.load(song.playbackUrl, this.volume, vxm.player.playAfterLoad || this.playerState !== 'PAUSED')
+      this.activePlayer?.load(song.playbackUrl, this.volume, vxm.player.playAfterLoad || this.playerState !== 'PAUSED')
     }
 
     vxm.player.playAfterLoad = false
@@ -654,9 +654,9 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     try {
       switch (newState) {
         case 'PLAYING':
-          return this.activePlayer.play()
+          return this.activePlayer?.play()
         case 'PAUSED':
-          return this.activePlayer.pause()
+          return this.activePlayer?.pause()
         case 'STOPPED':
           return this.unloadAudio()
       }

@@ -141,7 +141,7 @@ export class WindowHandler {
           packageName: extensionPackageName
         })
 
-        if (data[extensionPackageName]) {
+        if (data[extensionPackageName] && (data[extensionPackageName] as CustomRequestReturnType).data) {
           callback({
             mimeType: (data[extensionPackageName] as CustomRequestReturnType).mimeType,
             data: Buffer.from((data[extensionPackageName] as CustomRequestReturnType).data)

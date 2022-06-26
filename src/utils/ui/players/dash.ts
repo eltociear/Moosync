@@ -37,11 +37,11 @@ export class DashPlayer extends Player {
   }
 
   async play(): Promise<void> {
-    this.isAttachedView && this.playerInstance.play()
+    this.isAttachedView && this.playerInstance?.play()
   }
 
   pause(): void {
-    this.isAttachedView && this.playerInstance.pause()
+    this.isAttachedView && this.playerInstance?.pause()
   }
 
   stop(): void {
@@ -107,13 +107,12 @@ export class DashPlayer extends Player {
     // TODO
   }
 
-  createAudioContext(): AudioContext {
+  createAudioContext() {
     if (!this.context) {
       this.context = new AudioContext()
       this.track = this.context.createMediaElementSource(this.playerInstance.getVideoElement())
       this.track.connect(this.context.destination)
     }
-
     return this.context
   }
   connectAudioContextNode(node: AudioNode): void {
