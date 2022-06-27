@@ -221,7 +221,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   @Ref('dash-player')
   private dashPlayerDiv!: HTMLVideoElement
 
-  private useEmbed = false
+  private useEmbed = true
 
   /**
    * Initial setup for all players
@@ -241,7 +241,8 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
             this.useEmbed =
               (await window.PreferenceUtils.loadSelective<Checkbox[]>('audio'))?.find(
                 (val) => val.key === 'youtube_embeds'
-              )?.enabled ?? false
+              )?.enabled ?? true
+
             this.ytPlayer = new YoutubePlayer(this.ytAudioElement, this.useEmbed)
           }
 
