@@ -509,7 +509,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
         await dummyAudio.play()
         dummyAudio.volume = 0
       } else {
-        dummyAudio.pause()
+        dummyAudio?.pause()
       }
 
       if (this.metadataInterval) {

@@ -44,11 +44,11 @@ export class YTPlayerWrapper implements CustomAudioInstance {
   }
 
   public async play() {
-    this.instance.play()
+    this.instance?.play()
   }
 
   public pause() {
-    this.instance.pause()
+    this.instance?.pause()
   }
 
   public stop() {
