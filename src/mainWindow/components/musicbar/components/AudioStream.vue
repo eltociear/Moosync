@@ -500,18 +500,18 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
       const dummyAudio: HTMLAudioElement = document.getElementById('dummy-yt-player') as HTMLAudioElement
 
-      if (this.parsePlayerTypes(this.activePlayerTypes) === 'YOUTUBE') {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const audio = require('../../../../assets/5-seconds-of-silence.mp3')
-        dummyAudio.load()
-        dummyAudio.src = audio
-        dummyAudio.volume = 0
-        dummyAudio.loop = true
-        await dummyAudio.play()
-        dummyAudio.volume = 0
-      } else {
-        dummyAudio?.pause()
-      }
+      // if (this.parsePlayerTypes(this.activePlayerTypes) === 'YOUTUBE') {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const audio = require('../../../../assets/5-seconds-of-silence.mp3')
+      dummyAudio.load()
+      dummyAudio.src = audio
+      dummyAudio.volume = 0
+      dummyAudio.loop = true
+      await dummyAudio.play()
+      dummyAudio.volume = 0
+      // } else {
+      //   dummyAudio?.pause()
+      // }
 
       if (this.metadataInterval) {
         clearInterval(this.metadataInterval)
@@ -530,7 +530,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
       this.metadataInterval = setInterval(() => {
         setMetadata()
-      }, 10000)
+      }, 3000)
 
       console.debug('Set navigator mediaSession action handlers')
     }
