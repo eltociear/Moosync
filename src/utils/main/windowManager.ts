@@ -19,6 +19,8 @@ import pie from 'puppeteer-in-electron'
 import puppeteer from 'puppeteer-core'
 import { getExtensionHostChannel } from './ipc'
 import { SongDB } from './db/index'
+import https from 'https'
+import { Readable } from 'stream'
 
 export class WindowHandler {
   private static mainWindow: number
@@ -131,7 +133,7 @@ export class WindowHandler {
   }
 
   public registerExtensionProtocol() {
-    protocol.registerBufferProtocol('extension', async (request, callback) => {
+    protocol.registerStreamProtocol('extension', async (request, callback) => {
       const extensionPackageName = new URL(request.url).hostname
       if (extensionPackageName) {
         const extensionHost = getExtensionHostChannel()
@@ -141,15 +143,26 @@ export class WindowHandler {
           packageName: extensionPackageName
         })
 
-        if (data[extensionPackageName] && (data[extensionPackageName] as CustomRequestReturnType).data) {
-          callback({
-            mimeType: (data[extensionPackageName] as CustomRequestReturnType).mimeType,
-            data: Buffer.from((data[extensionPackageName] as CustomRequestReturnType).data)
-          })
-          return
+        if (data[extensionPackageName]) {
+          const redirectUrl = (data[extensionPackageName] as CustomRequestReturnType).redirectUrl
+          if (redirectUrl) {
+            https.get(redirectUrl, callback)
+            return
+          }
+
+          const respData = (data[extensionPackageName] as CustomRequestReturnType).data
+          const mimeType = (data[extensionPackageName] as CustomRequestReturnType).mimeType
+          if (respData && mimeType) {
+            callback({
+              statusCode: 200,
+              headers: {
+                'content-type': mimeType
+              },
+              data: Readable.from(Buffer.from(respData))
+            })
+          }
         }
       }
-      callback({ data: Buffer.from('') })
     })
   }
 

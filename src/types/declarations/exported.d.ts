@@ -424,8 +424,9 @@ type PlaybackDetailsReturnType = {
 }
 
 type CustomRequestReturnType = {
-  mimeType: string
-  data: Buffer
+  mimeType?: string
+  data?: Buffer
+  redirectUrl?: string
 }
 
 type SongReturnType = {
