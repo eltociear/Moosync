@@ -123,11 +123,11 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
   }
 
   private async populatePlaylists() {
-    let RawPlaylists = await window.SearchUtils.searchEntityByOptions<Playlist>({
+    const RawPlaylists = await window.SearchUtils.searchEntityByOptions<Playlist>({
       playlist: true
     })
-    let playlists: playlistInfo = {}
-    for (let p of RawPlaylists) {
+    const playlists: playlistInfo = {}
+    for (const p of RawPlaylists) {
       playlists[p.playlist_id] = p.playlist_name
     }
     vxm.playlist.playlists = playlists
@@ -148,14 +148,14 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
   }
 
   private getFileName(path: string) {
-    let li = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'))
+    const li = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'))
     const fileName = path.substring(li + 1)
     return fileName.split('.')[0]
   }
 
   private getDuration(src: string): Promise<number> {
     return new Promise(function (resolve) {
-      var audio = new Audio()
+      const audio = new Audio()
       audio.addEventListener('loadedmetadata', function () {
         resolve(audio.duration)
       })
@@ -188,7 +188,7 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
   private registerFileOpenRequests() {
     window.FileUtils.listenInitialFileOpenRequest(async (paths) => {
       if (paths.length > 0) {
-        for (let [index, path] of paths.entries()) {
+        for (const [index, path] of paths.entries()) {
           const song = await this.getSongFromPath(path)
           if (index === 0) {
             await this.playTop([song])

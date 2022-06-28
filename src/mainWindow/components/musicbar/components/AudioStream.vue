@@ -484,8 +484,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       for (const a of artworkList) {
         if (!a.startsWith('http')) {
           const blob = await (await fetch('media://' + a)).blob()
-          let objectURL = URL.createObjectURL(blob)
-          artwork.push({ src: objectURL })
+          artwork.push({ src: URL.createObjectURL(blob) })
         } else {
           artwork.push({ src: a })
         }
@@ -501,14 +500,17 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       const dummyAudio: HTMLAudioElement = document.getElementById('dummy-yt-player') as HTMLAudioElement
 
       // if (this.parsePlayerTypes(this.activePlayerTypes) === 'YOUTUBE') {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const audio = require('../../../../assets/5-seconds-of-silence.mp3')
-      dummyAudio.load()
-      dummyAudio.src = audio
-      dummyAudio.volume = 0
-      dummyAudio.loop = true
-      await dummyAudio.play()
-      dummyAudio.volume = 0
+
+      if (dummyAudio) {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const audio = require('../../../../assets/5-seconds-of-silence.mp3')
+        dummyAudio.load()
+        dummyAudio.src = audio
+        dummyAudio.volume = 0
+        dummyAudio.loop = true
+        await dummyAudio.play()
+        dummyAudio.volume = 0
+      }
       // } else {
       //   dummyAudio?.pause()
       // }

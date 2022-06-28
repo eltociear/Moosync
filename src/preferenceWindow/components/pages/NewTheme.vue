@@ -97,7 +97,7 @@ export default class NewTheme extends Vue {
   }
 
   private getThemeTitle(key: string) {
-    let str = key.replace(/([A-Z])/g, ' $1').trim()
+    const str = key.replace(/([A-Z])/g, ' $1').trim()
     return str.charAt(0).toUpperCase() + str.slice(1)
   }
 

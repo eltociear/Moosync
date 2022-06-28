@@ -122,7 +122,7 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
     }
 
     if (!this.artist.artist_coverPath) {
-      let fetchedArtist = await this.fetchRemoteArtistDetails(this.artist)
+      const fetchedArtist = await this.fetchRemoteArtistDetails(this.artist)
       this.artist = {
         ...this.artist,
         artist_coverPath: fetchedArtist?.artist_coverPath
