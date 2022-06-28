@@ -156,8 +156,9 @@ export class AZLyricsFetcher extends CacheHandler {
       .split('<div class="BNeawe uEec3 AP7Wnd">')[0]
       .replaceAll(/<(.*?)>/g, '')
 
-    final && console.debug('Found lyrics on google', url)
-
-    return final
+    if (final && !final.includes('did not match')) {
+      console.debug('Found lyrics on google', url)
+      return final
+    }
   }
 }
