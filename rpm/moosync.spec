@@ -35,7 +35,7 @@ Features
   * Available on Windows and Linux and MacOS
 
 %prep
-rpm2cpio Moosync-%{version}-linux-x86_64.rpm | cpio -idmv
+rpm2cpio %{url}/releases/download/v%{version}/Moosync-%{version}-linux-x86_64.rpm | cpio -idmv
 sed -i 's|/opt/Moosync/moosync|%{_libdir}/%{name}/moosync|' \
     %{_builddir}/usr/share/applications/moosync.desktop
 
