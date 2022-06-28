@@ -3,12 +3,11 @@ node_modules
 /dist
 /target
 
-
 # local env files
 .env.local
 .env.*.local
 
-config.env
+*.env
 
 # Log files
 npm-debug.log*
@@ -39,4 +38,3 @@ build-dir
 generated-sources.json
 
 *.nupkg
-
