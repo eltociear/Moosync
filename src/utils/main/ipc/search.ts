@@ -52,7 +52,7 @@ export class SearchChannel implements IpcChannelInterface {
         this.scrapeLyrics(event, request as IpcRequest<SearchRequests.LyricsScrape>)
         break
       case SearchEvents.REQUEST_INVIDIOUS:
-        this.requestIndivious(event, request as IpcRequest<SearchRequests.InvidiousRequest>)
+        this.requestInvidious(event, request as IpcRequest<SearchRequests.InvidiousRequest>)
         break
     }
   }
@@ -148,7 +148,7 @@ export class SearchChannel implements IpcChannelInterface {
     }
   }
 
-  private async requestIndivious(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.InvidiousRequest>) {
+  private async requestInvidious(event: Electron.IpcMainEvent, request: IpcRequest<SearchRequests.InvidiousRequest>) {
     if (request.params.resource && request.params.search) {
       const resp = await this.invidiousRequester.makeInvidiousRequest(
         request.params.resource,
