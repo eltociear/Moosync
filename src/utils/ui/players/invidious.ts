@@ -4,12 +4,14 @@ import EventEmitter from 'events'
 
 export class InvidiousPlayer extends LocalPlayer {
   private customLoadEventEmitter = new EventEmitter()
+  private lastAutoPlay = false
 
   load(src?: string, volume?: number, autoplay?: boolean): void {
     this.customLoadEventEmitter.emit('loading')
     this.fetchPlaybackURL(src).then((data) => {
       this.customLoadEventEmitter.emit('loaded')
-      super.load(data, volume, autoplay)
+      this.lastAutoPlay = autoplay ?? this.lastAutoPlay
+      super.load(data, volume, this.lastAutoPlay)
     })
   }
 
@@ -36,5 +38,22 @@ export class InvidiousPlayer extends LocalPlayer {
   protected listenOnBuffer(callback: () => void): void {
     this.customLoadEventEmitter.on('loading', callback)
     super.listenOnBuffer(callback)
+  }
+
+  protected listenOnError(callback: (err: Error) => void): void {
+    this.playerInstance.onerror = async (event, source, line, col, err) => {
+      this.customLoadEventEmitter.emit('loading')
+      const baseUrl = new URL((await window.PreferenceUtils.loadSelective<string>('invidious_instance')) ?? '')
+      const currentSrc = new URL(((event as ErrorEvent)?.target as HTMLAudioElement)?.src)
+
+      if (baseUrl.host && baseUrl.host !== currentSrc.host) {
+        currentSrc.host = new URL(baseUrl).host
+        this.load(currentSrc.toString())
+      }
+
+      if (err) {
+        callback(err)
+      }
+    }
   }
 }
