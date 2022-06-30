@@ -99,12 +99,10 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
 
   private registerKeyboardHotkeys() {
     document.addEventListener('keydown', (e) => {
-      if (process.env.NODE_ENV === 'development') {
-        if (e.code === 'F11') {
-          window.WindowUtils.toggleDevTools(true)
-        } else if (e.code === 'F5') {
-          location.reload()
-        }
+      if (e.code === 'F11') {
+        window.WindowUtils.toggleDevTools(true)
+      } else if (e.code === 'F5') {
+        location.reload()
       }
 
       if (e.code === 'F1') {
