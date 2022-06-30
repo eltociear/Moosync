@@ -42,13 +42,17 @@ export class InvidiousPlayer extends LocalPlayer {
 
   protected listenOnError(callback: (err: Error) => void): void {
     this.playerInstance.onerror = async (event, source, line, col, err) => {
-      this.customLoadEventEmitter.emit('loading')
-      const baseUrl = new URL((await window.PreferenceUtils.loadSelective<string>('invidious_instance')) ?? '')
-      const currentSrc = new URL(((event as ErrorEvent)?.target as HTMLAudioElement)?.src)
+      try {
+        this.customLoadEventEmitter.emit('loading')
+        const baseUrl = new URL((await window.PreferenceUtils.loadSelective<string>('invidious_instance')) ?? '')
+        const currentSrc = new URL(((event as ErrorEvent)?.target as HTMLAudioElement)?.src)
 
-      if (baseUrl.host && baseUrl.host !== currentSrc.host) {
-        currentSrc.host = new URL(baseUrl).host
-        this.load(currentSrc.toString())
+        if (baseUrl.host && baseUrl.host !== currentSrc.host) {
+          currentSrc.host = new URL(baseUrl).host
+          this.load(currentSrc.toString())
+        }
+      } catch (e) {
+        console.error(e)
       }
 
       if (err) {
