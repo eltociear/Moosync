@@ -250,6 +250,14 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong)
         }
       }
     ]
+
+    items.push({
+      label: 'More Info',
+      handler: () => {
+        bus.$emit(EventBus.SHOW_SONG_INFO_MODAL, item)
+      }
+    })
+
     if (isRemote) {
       items.push({
         label: 'Add Song to Library',
