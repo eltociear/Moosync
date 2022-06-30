@@ -17,6 +17,7 @@
     <SongView
       :defaultDetails="defaultDetails"
       :songList="songList"
+      :isLoading="isLoading"
       @playAll="playArtist"
       @addToQueue="addArtistToQueue"
       @onOptionalProviderChanged="onArtistProviderChanged"
@@ -35,6 +36,7 @@ import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import { vxm } from '@/mainWindow/store'
 import { GenericProvider } from '@/utils/ui/providers/generics/genericProvider'
 import RemoteSong from '@/utils/ui/mixins/remoteSongMixin'
+import Vue from 'vue'
 
 @Component({
   components: {
@@ -48,6 +50,8 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
 
   private extensionArtistSongProviders: TabCarouselItem[] = []
 
+  private loadingMap: Record<string, boolean> = {}
+
   private get artistSongProviders(): TabCarouselItem[] {
     return [
       {
@@ -60,6 +64,11 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
       },
       ...this.extensionArtistSongProviders
     ]
+  }
+
+  get isLoading() {
+    console.log(Object.values(this.loadingMap).includes(true))
+    return Object.values(this.loadingMap).includes(true)
   }
 
   get buttonGroups(): SongDetailButtons {
@@ -131,6 +140,7 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
   }
 
   private async fetchProviderSonglist(provider: GenericProvider) {
+    Vue.set(this.loadingMap, provider.key, true)
     if (this.artist) {
       for await (const songs of provider.getArtistSongs(this.artist)) {
         for (const s of songs) {
@@ -145,15 +155,18 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
         }
       }
     }
+    Vue.set(this.loadingMap, provider.key, false)
   }
 
   private async fetchSongList() {
+    Vue.set(this.loadingMap, 'local', true)
     this.songList = await window.SearchUtils.searchSongsByOptions({
       artist: {
         artist_id: this.$route.query.id as string
       },
       sortBy: vxm.themes.songSortBy
     })
+    Vue.set(this.loadingMap, 'local', false)
   }
 
   private playArtist() {
@@ -165,6 +178,8 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
   }
 
   private async fetchExtensionSongs(key: string) {
+    Vue.set(this.loadingMap, key, true)
+    console.log('set true')
     if (this.artist) {
       const data = await window.ExtensionUtils.sendEvent({
         type: 'requestedArtistSongs',
@@ -185,6 +200,8 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
         }
       }
     }
+    console.log('set false')
+    Vue.set(this.loadingMap, key, false)
   }
 
   private onArtistProviderChanged({ key, checked }: { key: string; checked: boolean }) {

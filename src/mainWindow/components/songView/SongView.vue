@@ -73,7 +73,7 @@ export default class AllSongs extends mixins(
   private ignoreSort = false
 
   @Prop({ default: false })
-  private tableBusy!: boolean
+  private isLoading!: boolean
 
   @Prop({ default: () => [] })
   private optionalProviders!: TabCarouselItem[]

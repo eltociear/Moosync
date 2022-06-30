@@ -11,9 +11,14 @@
   <div class="d-flex h-100 w-100">
     <b-container fluid>
       <TabCarousel v-on="$listeners" :items="optionalProviders" />
+      <b-row v-if="isLoading">
+        <b-col class="mb-2">
+          <b-spinner>Loading...</b-spinner>
+        </b-col>
+      </b-row>
       <b-row no-gutters class="h-100">
         <RecycleScroller
-          class="scroller w-100 low-height"
+          :class="`scroller w-100  ${isLoading ? 'low-height' : 'full-height'}`"
           :items="songList"
           :item-size="94"
           key-field="_id"
@@ -58,6 +63,9 @@ export default class SongListCompact extends mixins(ImgLoader, SongListMixin) {
   @Prop({ default: () => [] })
   private optionalProviders!: TabCarouselItem[]
 
+  @Prop({ default: false })
+  private isLoading!: boolean
+
   private onRowContext(event: Event, item: Song) {
     this.$emit(
       'onRowContext',
@@ -85,6 +93,6 @@ export default class SongListCompact extends mixins(ImgLoader, SongListMixin) {
   color: var(--textPrimary)
   transition: color 0.3s ease
 
-.low-height
+.full-height
   height: calc(100% - 40px - 13px)
 </style>

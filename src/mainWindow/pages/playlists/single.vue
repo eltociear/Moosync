@@ -18,7 +18,7 @@
       :defaultDetails="defaultDetails"
       :songList="songList"
       :detailsButtonGroup="buttonGroups"
-      :tableBusy="tableBusy"
+      :isLoading="isLoading"
       @onRowContext="getSongMenu(arguments[0], arguments[1])"
       @playAll="playPlaylist"
       @addToQueue="addPlaylistToQueue"
@@ -49,7 +49,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
 
   private songList: Song[] = []
 
-  private tableBusy = false
+  private isLoading = false
 
   private playlist: ExtendedPlaylist | null = null
 
@@ -118,6 +118,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
   }
 
   private async fetchLocalSongList() {
+    this.isLoading = true
     if (this.playlist) {
       this.songList = await window.SearchUtils.searchSongsByOptions({
         playlist: {
@@ -126,9 +127,11 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
         sortBy: vxm.themes.songSortBy
       })
     }
+    this.isLoading = false
   }
 
   private async fetchYoutube(invalidateCache = false) {
+    this.isLoading = true
     const generator = vxm.providers.youtubeProvider.getPlaylistContent(
       (this.$route.query.id as string)?.replace('youtube-playlist:', ''),
       invalidateCache
@@ -139,9 +142,11 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
         this.songList.push(...items)
       }
     }
+    this.isLoading = false
   }
 
   private async fetchSpotify(invalidateCache = false) {
+    this.isLoading = true
     const generator = vxm.providers.spotifyProvider.getPlaylistContent(
       (this.$route.query.id as string)?.replace('spotify-playlist:', ''),
       invalidateCache
@@ -152,9 +157,12 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
         this.songList.push(...items)
       }
     }
+
+    this.isLoading = false
   }
 
   private async fetchExtension(invalidateCache = false) {
+    this.isLoading = true
     const extension = this.playlist?.extension
     const playlistId = this.playlist?.playlist_id
 
@@ -169,6 +177,8 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
         this.songList.push(...(data[extension] as SongsReturnType).songs)
       }
     }
+
+    this.isLoading = false
   }
 
   private async fetchSongListAsync(invalidateCache = false) {

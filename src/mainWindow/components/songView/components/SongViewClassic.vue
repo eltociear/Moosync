@@ -27,7 +27,7 @@
           { key: 'album_name', label: 'Album' },
           { key: 'artist_name', label: 'Artists' }
         ]"
-        :tableBusy="tableBusy"
+        :isLoading="isLoading"
         v-on="$listeners"
       />
     </b-row>
@@ -56,7 +56,7 @@ export default class SongViewClassic extends mixins(ImgLoader, ModelHelper) {
   private currentSong!: Song | undefined | null
 
   @Prop({ default: false })
-  private tableBusy!: boolean
+  private isLoading!: boolean
 
   @Prop({
     default: () => {

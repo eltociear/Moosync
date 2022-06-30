@@ -35,6 +35,7 @@ import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import { vxm } from '@/mainWindow/store'
 import PlayerControls from '@/utils/ui/mixins/PlayerControls'
 import RemoteSong from '@/utils/ui/mixins/remoteSongMixin'
+import Vue from 'vue'
 
 @Component({
   components: {
@@ -47,6 +48,12 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
   private optionalSongList: Record<string, string[]> = {}
 
   private extensionAlbumSongProviders: TabCarouselItem[] = []
+
+  private loadingMap: Record<string, boolean> = {}
+
+  get isLoading() {
+    return Object.values(this.loadingMap).includes(true)
+  }
 
   private get albumSongProviders(): TabCarouselItem[] {
     return [
@@ -114,12 +121,14 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
   }
 
   private async fetchSongList() {
+    Vue.set(this.loadingMap, 'local', true)
     this.songList = await window.SearchUtils.searchSongsByOptions({
       album: {
         album_id: this.$route.query.id as string
       },
       sortBy: vxm.themes.songSortBy
     })
+    Vue.set(this.loadingMap, 'local', false)
   }
 
   private playAlbum() {
@@ -142,6 +151,7 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
   }
 
   private async fetchExtensionSongs(key: string) {
+    Vue.set(this.loadingMap, key, true)
     if (this.album) {
       const data = await window.ExtensionUtils.sendEvent({
         type: 'requestedAlbumSongs',
@@ -162,9 +172,11 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
         }
       }
     }
+    Vue.set(this.loadingMap, key, false)
   }
 
   private async fetchSpotifySongs() {
+    Vue.set(this.loadingMap, vxm.providers.spotifyProvider.key, true)
     if (this.album) {
       for await (const s of vxm.providers.spotifyProvider.getAlbumSongs(this.album)) {
         this.songList.push(s)
@@ -176,6 +188,7 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
         this.optionalSongList[vxm.providers.spotifyProvider.key].push(s._id)
       }
     }
+    Vue.set(this.loadingMap, vxm.providers.spotifyProvider.key, false)
   }
 
   private onAlbumProviderChanged({ key, checked }: { key: string; checked: boolean }) {

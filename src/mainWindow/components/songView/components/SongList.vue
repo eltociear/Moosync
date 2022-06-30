@@ -92,7 +92,7 @@ export default class SongList extends mixins(SongListMixin) {
   private extrafields!: [{ key: TableFields; label?: string }]
 
   @Prop({ default: false })
-  private tableBusy!: boolean
+  private isLoading!: boolean
 
   @Ref('headers')
   private headers!: HTMLDivElement
