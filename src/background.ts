@@ -18,7 +18,12 @@ import path, { resolve } from 'path'
 import { oauthHandler } from '@/utils/main/oauth/handler'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import { getExtensionHostChannel, registerIpcChannels } from '@/utils/main/ipc'
-import { setInitialPreferences, loadPreferences, shouldWatchFileChanges } from './utils/main/db/preferences'
+import {
+  setInitialPreferences,
+  loadPreferences,
+  shouldWatchFileChanges,
+  loadSelectivePreference
+} from './utils/main/db/preferences'
 import { setupScanTask } from '@/utils/main/scheduler/index'
 import { setupDefaultThemes, setupSystemThemes } from './utils/main/themes/preferences'
 import { logger } from './utils/main/logger/index'
@@ -61,12 +66,14 @@ function interceptHttp() {
   // So to display them and export them, we spoof the request here
   // This should pose any security risk as such since we're only doing it for youtube trusted urls
 
+  const useEmbeds =
+    loadSelectivePreference<Checkbox[]>('audio')?.find((val) => val.key === 'youtube_embeds')?.enabled ?? true
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     let headers: { [key: string]: string | string[] } = { ...details.responseHeaders }
 
     if (
       details.url.startsWith('https') &&
-      (details.url.startsWith('https://i.ytimg.com') || details.url.includes('.googlevideo.com'))
+      (details.url.startsWith('https://i.ytimg.com') || (!useEmbeds && details.url.includes('.googlevideo.com')))
     ) {
       headers = {
         ...headers,
