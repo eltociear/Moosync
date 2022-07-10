@@ -176,9 +176,7 @@ module.exports = {
       preload: 'src/utils/preload/preload.ts',
       externals: ['better-sqlite3', 'vm2', 'sharp'],
       chainWebpackMainProcess: (config) => {
-        if (process.env.NODE_ENV === 'production') {
-          config.devtool('source-map').end()
-        }
+        config.devtool('source-map').end()
         config.module
           .rule('babel')
           .before('ts')
