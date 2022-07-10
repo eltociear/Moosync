@@ -66,14 +66,18 @@ function interceptHttp() {
   // So to display them and export them, we spoof the request here
   // This should pose any security risk as such since we're only doing it for youtube trusted urls
 
+  const useInvidious =
+    loadSelectivePreference<Checkbox[]>('system')?.find((val) => val.key === 'use_invidious')?.enabled ?? false
   const useEmbeds =
     loadSelectivePreference<Checkbox[]>('audio')?.find((val) => val.key === 'youtube_embeds')?.enabled ?? true
+
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     let headers: { [key: string]: string | string[] } = { ...details.responseHeaders }
 
     if (
       details.url.startsWith('https') &&
-      (details.url.startsWith('https://i.ytimg.com') || (!useEmbeds && details.url.includes('.googlevideo.com')))
+      (details.url.startsWith('https://i.ytimg.com') ||
+        ((useInvidious || !useEmbeds) && details.url.includes('.googlevideo.com')))
     ) {
       headers = {
         ...headers,
