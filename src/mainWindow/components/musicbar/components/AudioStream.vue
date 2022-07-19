@@ -21,6 +21,21 @@
 </template>
 
 <script lang="ts">
+const enum ButtonEnum {
+  Play = 0,
+  Pause = 1,
+  Stop = 2,
+  Record = 3,
+  FastForward = 4,
+  Rewind = 5,
+  Next = 6,
+  Previous = 7,
+  ChannelUp = 8,
+  ChannelDown = 9,
+  Shuffle = 10,
+  Repeat = 11
+}
+
 import { Component, Prop, Ref, Watch } from 'vue-property-decorator'
 import { mixins } from 'vue-class-component'
 import { Player } from '@/utils/ui/players/player'
@@ -100,10 +115,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     vxm.themes.showPlayer = show
   }
 
-  get songRepeat() {
-    return vxm.player.Repeat
-  }
-
   get volume() {
     return vxm.player.volume
   }
@@ -120,6 +131,9 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       }
       await this.handleActivePlayerState(newState)
       this.emitPlayerState(newState)
+
+      console.log(newState)
+      await window.MprisUtils.updatePlaybackState(newState)
     }
 
     this.ignoreStateChange = false
@@ -259,13 +273,13 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   }
 
   private registerRoomListeners() {
-    this.$root.$on('join-room', (data: string) => this.joinRoom(data))
-    this.$root.$on('create-room', () => this.createRoom())
+    // this.$root.$on('join-room', (data: string) => this.joinRoom(data))
+    // this.$root.$on('create-room', () => this.createRoom())
   }
 
   private async onSongEnded() {
     vxm.player.playAfterLoad = true
-    if (this.songRepeat && this.currentSong) {
+    if (this.repeat && this.currentSong) {
       // Re load entire audio instead of setting current time to 0
       this.loadAudio(this.currentSong, false)
     } else {
@@ -397,11 +411,40 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
   }
 
+  private registerMediaControlListener() {
+    window.MprisUtils.listenMediaButtonPress((args) => {
+      switch (args) {
+        case ButtonEnum.Play:
+          this.play()
+          break
+        case ButtonEnum.Pause:
+          this.pause()
+          break
+        case ButtonEnum.Stop:
+          this.pause()
+          break
+        case ButtonEnum.Next:
+          this.nextSong()
+          break
+        case ButtonEnum.Previous:
+          this.prevSong()
+          break
+        case ButtonEnum.Shuffle:
+          this.shuffle()
+          break
+        case ButtonEnum.Repeat:
+          this.toggleRepeat()
+          break
+      }
+    })
+  }
+
   private registerListeners() {
     this.registerPlayerListeners()
     this.registerRoomListeners()
+    this.registerMediaControlListener()
 
-    vxm.player.$watch('playerState', this.onPlayerStateChanged)
+    vxm.player.$watch('playerState', this.onPlayerStateChanged, { immediate: true, deep: false })
   }
 
   /**
@@ -459,83 +502,41 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
     }
   }
 
-  private metadataInterval: ReturnType<typeof setInterval> | undefined
-
   /**
    * Set media info which is recognised by different applications and OS specific API
    */
   private async setMediaInfo(song: Song) {
-    if (navigator.mediaSession) {
-      const artworkList: string[] = []
-      if (song.song_coverPath_low) {
-        artworkList.push(song.song_coverPath_low)
-      }
-      if (song.song_coverPath_high) {
-        artworkList.push(song.song_coverPath_high)
-      }
-      if (song.album?.album_coverPath_high) {
-        artworkList.push(song.album.album_coverPath_high)
-      }
-      if (song.album?.album_coverPath_low) {
-        artworkList.push(song.album.album_coverPath_low)
-      }
+    await window.MprisUtils.updateSongInfo({
+      title: song.title,
+      albumName: song.album?.album_name,
+      albumArtist: song.album?.album_artist,
+      artistName: song.artists && song.artists.map((val) => val.artist_name).join(', '),
+      genres: song.genre,
+      thumbnail:
+        song.song_coverPath_high ??
+        song.album?.album_coverPath_high ??
+        song.song_coverPath_low ??
+        song.album?.album_coverPath_low
+    })
+  }
 
-      const artwork: MediaImage[] = []
-      for (const a of artworkList) {
-        if (!a.startsWith('http')) {
-          const blob = await (await fetch('media://' + a)).blob()
-          artwork.push({ src: URL.createObjectURL(blob) })
-        } else {
-          artwork.push({ src: a })
-        }
-      }
+  get enableTrackControls() {
+    return this.isSyncing ? vxm.sync.queueOrder.length > 1 : vxm.player.queueOrder.length > 1
+  }
 
-      const metadata = {
-        title: song.title,
-        artist: song.artists && song.artists.map((val) => val.artist_name).join(', '),
-        album: song.album?.album_name,
-        artwork
-      }
+  @Watch('enableTrackControls', { immediate: true, deep: false })
+  private async onEnableTrackControls() {
+    await window.MprisUtils.setButtonStatus({
+      play: true,
+      pause: true,
+      next: this.enableTrackControls,
+      prev: this.enableTrackControls
+    })
+  }
 
-      const dummyAudio: HTMLAudioElement = document.getElementById('dummy-yt-player') as HTMLAudioElement
-
-      // if (this.parsePlayerTypes(this.activePlayerTypes) === 'YOUTUBE') {
-
-      if (dummyAudio) {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const audio = require('../../../../assets/5-seconds-of-silence.mp3')
-        dummyAudio.load()
-        dummyAudio.src = audio
-        dummyAudio.volume = 0
-        dummyAudio.loop = true
-        await dummyAudio.play()
-        dummyAudio.volume = 0
-      }
-      // } else {
-      //   dummyAudio?.pause()
-      // }
-
-      if (this.metadataInterval) {
-        clearInterval(this.metadataInterval)
-      }
-
-      const setMetadata = () => {
-        navigator.mediaSession.metadata = new MediaMetadata(metadata)
-        navigator.mediaSession.setActionHandler('nexttrack', () => this.nextSong())
-        navigator.mediaSession.setActionHandler('seekbackward', () => this.nextSong())
-        navigator.mediaSession.setActionHandler('previoustrack', () => this.prevSong())
-        navigator.mediaSession.setActionHandler('seekforward', () => this.prevSong())
-        navigator.mediaSession.setActionHandler('seekto', (data) => data.seekTime && (this.forceSeek = data.seekTime))
-      }
-      setMetadata()
-      console.debug('Set navigator mediaSession info', metadata)
-
-      this.metadataInterval = setInterval(() => {
-        setMetadata()
-      }, 3000)
-
-      console.debug('Set navigator mediaSession action handlers')
-    }
+  @Watch('repeat', { immediate: true, deep: false })
+  private async onRepeatChanged() {
+    await window.MprisUtils.setShuffleRepeat(false, this.repeat ? 'Track' : 'None')
   }
 
   private async getLocalSong(songID: string) {
@@ -594,7 +595,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   private async loadAudio(song: Song, loadedState: boolean) {
     vxm.player.loading = true
 
-    console.debug('Loading new song', song.title, song.type)
+    console.debug('Loading new song', song)
 
     if (this.isSyncing) {
       const tmp = await this.getLocalSong(song._id)
@@ -646,6 +647,10 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
     // Clear preload status after song has changed
     this.preloadStatus = undefined
+
+    await window.MprisUtils.updatePlaybackState(
+      vxm.player.playAfterLoad || this.playerState !== 'PAUSED' ? 'PLAYING' : 'PAUSED'
+    )
   }
 
   private unloadAudio() {

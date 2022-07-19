@@ -237,3 +237,17 @@ declare namespace WindowRequests {
     path: string
   }
 }
+
+declare namespace MprisRequests {
+  interface PlaybackState {
+    state: PlayerState
+  }
+
+  type SongInfo = import('media-controller').PlayerDetails
+  type ButtonStatus = import('media-controller').PlayerButtons
+
+  interface ShuffleRepeat {
+    shuffle: boolean
+    repeat: 'Playlist' | 'Track' | 'None'
+  }
+}

@@ -85,6 +85,7 @@
     "localforage": "^1.10.0",
     "loglevel": "^1.8.0",
     "md5-wasm": "^2.0.0",
+    "media-controller": "git+https://github.com/Moosync/MediaController.git",
     "music-metadata": "^7.12.3",
     "node-stream-zip": "^1.15.0",
     "node-youtube-music": "^0.7.0",

@@ -23,7 +23,8 @@ export enum IpcEvents {
   LOGGER = 'logger',
   NOTIFIER = 'notifier',
   EXTENSION_HOST = 'extensionHost',
-  UPDATE = 'update'
+  UPDATE = 'update',
+  MPRIS = 'mpris'
 }
 
 export enum StoreEvents {
@@ -92,7 +93,9 @@ export enum WindowEvents {
 
   RESTART_APP = 'restartApp',
 
-  UPDATE_ZOOM = 'updateZoom'
+  UPDATE_ZOOM = 'updateZoom',
+
+  GET_PLATFORM = 'getPlatform'
 }
 
 export enum AlbumEvents {
@@ -158,6 +161,14 @@ export enum LoggerEvents {
 
 export enum NotifierEvents {
   LIBVIPS_INSTALLED = 'isLibvipsInstalled'
+}
+
+export enum MprisEvents {
+  PLAYBACK_STATE_CHANGED = 'playbackStateChanged',
+  SONG_INFO_CHANGED = 'songInfoChanged',
+  BUTTON_STATUS_CHANGED = 'buttonStatusChanged',
+  SHUFFLE_REPEAT_CHANGED = 'shuffleRepeatChanged',
+  ON_BUTTON_PRESSED = 'onButtonPressed'
 }
 
 export enum ExtensionHostEvents {

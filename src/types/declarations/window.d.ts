@@ -218,6 +218,7 @@ interface windowUtils {
   automateSpotify: () => Promise<{ clientID: string; clientSecret: string } | undefined>
   restartApp: () => Promise<void>
   updateZoom: () => Promise<void>
+  getPlatform: () => Promise<typeof process.platform>
 }
 
 /**
@@ -296,6 +297,16 @@ interface updateUtils {
   updateNow: () => void
 }
 
+type ValueOf<T> = T[keyof T]
+
+interface mprisUtils {
+  updateSongInfo: (data: MprisRequests.SongInfo) => Promise<void>
+  updatePlaybackState: (state: PlayerState) => Promise<void>
+  setButtonStatus: (status: import('media-controller').PlayerButtons) => Promise<void>
+  listenMediaButtonPress: (callback: (args: number) => void) => Promise<void>
+  setShuffleRepeat: (shuffle: boolean, repeat: MprisRequests.ShuffleRepeat['repeat']) => Promise<void>
+}
+
 interface Window {
   DBUtils: DBUtils
   SearchUtils: searchUtils
@@ -308,4 +319,5 @@ interface Window {
   ExtensionUtils: extensionUtils
   ThemeUtils: themeUtils
   UpdateUtils: updateUtils
+  MprisUtils: mprisUtils
 }

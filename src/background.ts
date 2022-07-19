@@ -28,8 +28,12 @@ import { setupScanTask } from '@/utils/main/scheduler/index'
 import { setupDefaultThemes, setupSystemThemes } from './utils/main/themes/preferences'
 import { logger } from './utils/main/logger/index'
 import { ToadScheduler } from 'toad-scheduler'
-import { setupUpdateCheckTask } from './utils/main/scheduler/index'
+import { setupUpdateCheckTask } from '@/utils/main/scheduler/index'
 import pie from 'puppeteer-in-electron'
+
+if (process.platform !== 'darwin') {
+  app.commandLine.appendSwitch('disable-features', 'HardwareMediaKeyHandling,MediaSessionService')
+}
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 

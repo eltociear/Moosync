@@ -19,12 +19,14 @@ import {
   StoreEvents,
   WindowEvents,
   UpdateEvents,
-  NotifierEvents
+  NotifierEvents,
+  MprisEvents
 } from '@/utils/main/ipc/constants'
 import { contextBridge, ipcRenderer } from 'electron'
 
 import { IpcRendererHolder } from '@/utils/preload/ipc/index'
 import { LogLevelDesc } from 'loglevel'
+import { ButtonEnum, PlayerButtons } from 'media-controller'
 
 const ipcRendererHolder = new IpcRendererHolder(ipcRenderer)
 
@@ -395,7 +397,10 @@ contextBridge.exposeInMainWorld('WindowUtils', {
     ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.RESTART_APP, params: undefined }),
 
   updateZoom: () =>
-    ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.UPDATE_ZOOM, params: undefined })
+    ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.UPDATE_ZOOM, params: undefined }),
+
+  getPlatform: () =>
+    ipcRendererHolder.send(IpcEvents.BROWSER_WINDOWS, { type: WindowEvents.GET_PLATFORM, params: undefined })
 })
 
 contextBridge.exposeInMainWorld('LoggerUtils', {
@@ -563,4 +568,33 @@ contextBridge.exposeInMainWorld('UpdateUtils', {
   listenUpdate: (callback: (hasUpdate: boolean) => void) => ipcRendererHolder.on(UpdateEvents.GOT_UPDATE, callback),
 
   updateNow: () => ipcRendererHolder.send(IpcEvents.UPDATE, { type: UpdateEvents.UPDATE_NOW, params: undefined })
+})
+
+contextBridge.exposeInMainWorld('MprisUtils', {
+  updateSongInfo: (data: MprisRequests.SongInfo) =>
+    ipcRendererHolder.send<MprisRequests.SongInfo>(IpcEvents.MPRIS, {
+      type: MprisEvents.SONG_INFO_CHANGED,
+      params: data
+    }),
+
+  updatePlaybackState: (state: PlayerState) =>
+    ipcRendererHolder.send<MprisRequests.PlaybackState>(IpcEvents.MPRIS, {
+      type: MprisEvents.PLAYBACK_STATE_CHANGED,
+      params: { state }
+    }),
+
+  setButtonStatus: (status: PlayerButtons) =>
+    ipcRendererHolder.send<MprisRequests.ButtonStatus>(IpcEvents.MPRIS, {
+      type: MprisEvents.BUTTON_STATUS_CHANGED,
+      params: status
+    }),
+
+  listenMediaButtonPress: (callback: (args: typeof ButtonEnum) => void) =>
+    ipcRendererHolder.on(MprisEvents.ON_BUTTON_PRESSED, callback),
+
+  setShuffleRepeat: (shuffle: boolean, repeat: MprisRequests.ShuffleRepeat['repeat']) =>
+    ipcRendererHolder.send<MprisRequests.ShuffleRepeat>(IpcEvents.MPRIS, {
+      type: MprisEvents.SHUFFLE_REPEAT_CHANGED,
+      params: { shuffle, repeat }
+    })
 })

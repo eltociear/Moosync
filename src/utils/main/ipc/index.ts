@@ -21,6 +21,7 @@ import { WindowHandler } from '../windowManager'
 import { ipcMain } from 'electron'
 import { UpdateChannel } from './update'
 import { NotifierChannel } from './notifier'
+import { MprisChannel } from './mpris'
 
 let scannerChannel: ScannerChannel | undefined
 let updateChannel: UpdateChannel | undefined
@@ -40,7 +41,8 @@ export function registerIpcChannels() {
     new LoggerChannel(),
     getExtensionHostChannel(),
     getUpdateChannel(),
-    new NotifierChannel()
+    new NotifierChannel(),
+    new MprisChannel()
   ]
   ipcChannels.forEach((channel) => ipcMain.on(channel.name, (event, request) => channel.handle(event, request)))
 }

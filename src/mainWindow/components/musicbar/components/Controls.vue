@@ -62,10 +62,6 @@ export default class MusicBar extends mixins(PlayerControls) {
   @Prop({ default: 0 })
   private timestamp!: number
 
-  get repeat() {
-    return vxm.player.Repeat
-  }
-
   get playerState() {
     return vxm.player.playerState
   }
@@ -84,10 +80,6 @@ export default class MusicBar extends mixins(PlayerControls) {
 
   get isLoading() {
     return vxm.player.loading
-  }
-
-  private toggleRepeat() {
-    vxm.player.Repeat = !this.repeat
   }
 }
 </script>
