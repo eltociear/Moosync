@@ -40,7 +40,18 @@ export class MprisChannel implements IpcChannelInterface {
   private onSongInfoChange(event: Electron.IpcMainEvent, request: IpcRequest<MprisRequests.SongInfo>) {
     if (request.params) {
       const { title, albumName, artistName, albumArtist, thumbnail, genres } = request.params
-      this.controller.updatePlayerDetails({ title, albumName, artistName, thumbnail, genres, albumArtist })
+      if (!title) {
+        this.controller.updatePlayerDetails({
+          title: '',
+          albumName: '',
+          artistName: '',
+          thumbnail: '',
+          genres: [],
+          albumArtist: ''
+        })
+      } else {
+        this.controller.updatePlayerDetails({ title, albumName, artistName, thumbnail, genres, albumArtist })
+      }
     }
 
     event.reply(request.responseChannel)
