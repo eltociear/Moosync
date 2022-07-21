@@ -249,7 +249,6 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
 
   @Watch('searchTerm', { immediate: true })
   private onSearchTermChanged() {
-    console.log('term changed')
     this.fetchLocalSongList()
     this.fetchProviderSongList(vxm.providers.youtubeProvider)
     this.fetchProviderSongList(vxm.providers.spotifyProvider)

@@ -80,7 +80,6 @@ export class MprisChannel implements IpcChannelInterface {
   private setButtonStatus(event: Electron.IpcMainEvent, request: IpcRequest<MprisRequests.ButtonStatus>) {
     if (request.params) {
       const { play, pause, next, prev } = request.params
-      console.log(request.params)
       this.controller.setButtonStatus({
         play,
         pause,

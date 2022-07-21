@@ -132,7 +132,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       await this.handleActivePlayerState(newState)
       this.emitPlayerState(newState)
 
-      console.log(newState)
       await window.MprisUtils.updatePlaybackState(newState)
     }
 

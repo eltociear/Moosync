@@ -67,7 +67,6 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
   }
 
   get isLoading() {
-    console.log(Object.values(this.loadingMap).includes(true))
     return Object.values(this.loadingMap).includes(true)
   }
 
@@ -179,7 +178,6 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
 
   private async fetchExtensionSongs(key: string) {
     Vue.set(this.loadingMap, key, true)
-    console.log('set true')
     if (this.artist) {
       const data = await window.ExtensionUtils.sendEvent({
         type: 'requestedArtistSongs',
@@ -200,7 +198,6 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
         }
       }
     }
-    console.log('set false')
     Vue.set(this.loadingMap, key, false)
   }
 
