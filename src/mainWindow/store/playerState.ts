@@ -99,8 +99,8 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
   }
 
   get queueTop(): Song | null | undefined {
-    if (this.songQueue.index > -1 && this.songQueue.data) {
-      const songID = this.songQueue.order[this.songQueue.index]
+    if (this.queueIndex > -1 && this.songQueue.data) {
+      const songID = this.songQueue.order[this.queueIndex]
       if (songID) return this.songQueue.data[songID.songID]
     }
     return null
@@ -132,8 +132,8 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
         this.currentSong = null
       }
 
-      if (index < this.songQueue.index) {
-        this.songQueue.index -= 1
+      if (index < this.queueIndex) {
+        this.queueIndex -= 1
       }
     }
   }
@@ -145,7 +145,7 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
       this.removeFromQueue(index)
       this.removeFromQueueData(data)
 
-      if (this.songQueue.index === index) {
+      if (this.queueIndex === index) {
         this.loadSong(this.queueTop)
       }
     }
@@ -181,7 +181,7 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
   @mutation
   private addInQueueTop(item: Song[]) {
     this.songQueue.order.splice(
-      this.songQueue.index + 1,
+      this.queueIndex + 1,
       0,
       ...item.map((obj) => {
         return { id: v1(), songID: obj._id }
@@ -191,8 +191,8 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
 
   @mutation
   private incrementQueue() {
-    if (this.songQueue.index < this.songQueue.order.length - 1) this.songQueue.index += 1
-    else this.songQueue.index = 0
+    if (this.queueIndex < this.songQueue.order.length - 1) this.queueIndex += 1
+    else this.queueIndex = 0
   }
 
   @action
@@ -204,8 +204,8 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
 
   @mutation
   private decrementQueue() {
-    if (this.songQueue.index > 0) this.songQueue.index -= 1
-    else this.songQueue.index = this.songQueue.order.length - 1
+    if (this.queueIndex > 0) this.queueIndex -= 1
+    else this.queueIndex = this.songQueue.order.length - 1
   }
 
   @action
@@ -216,8 +216,8 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
 
   @mutation
   shuffle() {
-    const currentSong = this.songQueue.order[this.songQueue.index]
-    this.songQueue.order.splice(this.songQueue.index, 1)
+    const currentSong = this.songQueue.order[this.queueIndex]
+    this.songQueue.order.splice(this.queueIndex, 1)
 
     // https://stackoverflow.com/a/12646864
     for (let i: number = this.songQueue.order.length - 1; i > 0; i--) {
@@ -228,7 +228,7 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
     }
 
     this.songQueue.order.unshift(currentSong)
-    this.songQueue.index = 0
+    this.queueIndex = 0
   }
 
   @mutation
@@ -242,7 +242,7 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
 
   @mutation
   private moveIndexTo(index: number) {
-    if (index >= 0) this.songQueue.index = index
+    if (index >= 0) this.queueIndex = index
   }
 
   @action async playQueueSong(index: number) {
@@ -266,15 +266,15 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
       this.songQueue.order.splice(newIndex, 0, data)
     }
 
-    if (oldIndex === this.songQueue.index) {
-      this.songQueue.index = newIndex
+    if (oldIndex === this.queueIndex) {
+      this.queueIndex = newIndex
       return
     }
 
-    if (oldIndex < this.songQueue.index) {
-      if (newIndex >= this.songQueue.index) this.songQueue.index -= 1
-    } else if (oldIndex > this.songQueue.index) {
-      if (newIndex <= this.songQueue.index) this.songQueue.index += 1
+    if (oldIndex < this.queueIndex) {
+      if (newIndex >= this.queueIndex) this.queueIndex -= 1
+    } else if (oldIndex > this.queueIndex) {
+      if (newIndex <= this.queueIndex) this.queueIndex += 1
     }
   }
 }

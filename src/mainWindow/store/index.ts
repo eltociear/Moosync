@@ -18,21 +18,9 @@ import { ThemeStore } from './themes'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { createPersist } from '@/utils/ui/store/persist'
+import { getProxy } from './vuexProvider'
 
 Vue.use(Vuex)
-
-const paths = [
-  'player.volume',
-  'player.currentSong',
-  'player.state',
-  'player.songQueue',
-  'player.repeat',
-  'themes.colors',
-  'themes.songSortBy',
-  'themes.playlistSortBy',
-  'themes.entitySortBy',
-  'themes._sidebarOpen'
-]
 
 export const store = new Vuex.Store({
   modules: {
@@ -43,14 +31,16 @@ export const store = new Vuex.Store({
     ...extractVuexModule(NotifierStore),
     ...extractVuexModule(ThemeStore)
   },
-  plugins: [createPersist(paths)]
+  plugins: [createPersist()]
 })
 
 export const vxm = {
-  player: createProxy(store, PlayerStore),
-  playlist: createProxy(store, PlaylistStore),
-  sync: createProxy(store, SyncStore),
-  providers: createProxy(store, ProviderStore),
-  notifier: createProxy(store, NotifierStore),
-  themes: createProxy(store, ThemeStore)
+  player: getProxy(store, PlayerStore),
+  playlist: getProxy(store, PlaylistStore),
+  sync: getProxy(store, SyncStore),
+  providers: getProxy(store, ProviderStore),
+  notifier: getProxy(store, NotifierStore),
+  themes: getProxy(store, ThemeStore)
 }
+
+const test = createProxy(store, PlayerStore)

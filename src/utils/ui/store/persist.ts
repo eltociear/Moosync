@@ -7,29 +7,43 @@
  *  See LICENSE in the project root for license information.
  */
 
-import * as shvl from 'shvl'
-
 import { Store } from 'vuex'
 import merge from 'deepmerge'
 
 let hasLoaded = false
 
-export function createPersist(paths: string[]) {
+export function createPersist() {
   return (store: Store<{ state: unknown }>) => {
     setInitialState(store).then(() => {
       store.subscribe((mutation, state) => {
-        setState(reducer(state, paths))
+        // let provider: string
+        // console.log(mutation)
+        // if (mutation.type.includes('internal_mutator')) {
+        //   provider = `${getProviderName(mutation.type)}/${mutation?.payload?.field}`
+        // } else {
+        //   provider = mutation.type
+        // }
+        // if (paths.includes(provider)) {
+        // }
       })
     })
   }
 }
 
+function getProviderName(type: string) {
+  return type.substring(0, type.indexOf('/'))
+}
+
 function reducer(state: object, paths: string[]) {
-  return Array.isArray(paths)
-    ? paths.reduce(function (substate, path) {
-        return shvl.set(substate, path, shvl.get(state, path))
-      }, {})
-    : state
+  // if (paths) {
+  //   const ret: { [key: string]: unknown } = {}
+  //   for (const [key, value] of Object.entries(state)) {
+  //     if (paths.includes(key)) {
+  //       ret[key] = value
+  //     }
+  //   }
+  //   return ret
+  // }
 }
 
 async function setInitialState(store: Store<{ state: unknown }>) {
