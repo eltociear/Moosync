@@ -294,15 +294,13 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
   private async fetchProviderSongList(provider: GenericProvider) {
     Vue.set(this.fetchMap, provider.key, true)
 
-    if (provider.loggedIn) {
-      Vue.set(this.results, provider.key, {
-        songs: await provider.searchSongs(this.searchTerm),
-        artists: await provider.searchArtists(this.searchTerm),
-        playlists: await provider.searchPlaylists(this.searchTerm),
-        albums: await provider.searchAlbum(this.searchTerm),
-        genres: []
-      })
-    }
+    Vue.set(this.results, provider.key, {
+      songs: await provider.searchSongs(this.searchTerm),
+      artists: await provider.searchArtists(this.searchTerm),
+      playlists: await provider.searchPlaylists(this.searchTerm),
+      albums: await provider.searchAlbum(this.searchTerm),
+      genres: []
+    })
     Vue.set(this.fetchMap, provider.key, false)
   }
 
