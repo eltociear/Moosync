@@ -79,7 +79,7 @@
     <div v-else>
       <b-spinner label="Loading..."></b-spinner>
     </div>
-    <div v-if="noResults" class="no-results">Nothing found...</div>
+    <div v-if="noResults" class="no-results">{{ noResultsReason }}</div>
   </b-container>
 </template>
 
@@ -121,6 +121,22 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
 
   private get isFetching() {
     return this.fetchMap[this.activeProvider]
+  }
+
+  private get noResultsReason() {
+    if (this.activeProvider === vxm.providers.youtubeProvider.key && !vxm.providers.loggedInYoutube) {
+      return 'Login to Youtube to use this feature'
+    }
+
+    if (this.activeProvider === vxm.providers.spotifyProvider.key && !vxm.providers.loggedInSpotify) {
+      return 'Login to Spotify to use this feature'
+    }
+
+    if (this.activeProvider !== 'local') {
+      return 'You might need to login with the extension to use this feature'
+    }
+
+    return 'Nothing found'
   }
 
   private get noResults() {
