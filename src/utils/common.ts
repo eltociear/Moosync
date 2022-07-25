@@ -15,13 +15,16 @@ export function arrayDiff<T>(arr1: T[], arr2: T[]) {
 }
 
 export function convertDuration(n: number) {
-  const tmp = new Date(n * 1000).toISOString().substr(11, 8)
+  if (n) {
+    const tmp = new Date(n * 1000).toISOString().substring(11, 8)
 
-  if (tmp[0] == '0' && tmp[1] == '0') {
-    return tmp.substr(3)
+    if (tmp[0] == '0' && tmp[1] == '0') {
+      return tmp.substring(3)
+    }
+
+    return tmp
   }
-
-  return tmp
+  return 0
 }
 
 export function getVersion(verS: string) {
