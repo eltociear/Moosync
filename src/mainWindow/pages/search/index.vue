@@ -79,6 +79,7 @@
     <div v-else>
       <b-spinner label="Loading..."></b-spinner>
     </div>
+    <div v-if="noResults" class="no-results">Nothing found...</div>
   </b-container>
 </template>
 
@@ -120,6 +121,16 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
 
   private get isFetching() {
     return this.fetchMap[this.activeProvider]
+  }
+
+  private get noResults() {
+    if (!this.isFetching) {
+      if (this.activeSubcategory === 'songs') {
+        return this.currentSongList.length === 0
+      }
+      return this.currentEntityList.length === 0
+    }
+    return false
   }
 
   private get defaultCoverComponent() {
@@ -185,7 +196,10 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
 
   private get currentEntityList() {
     if (this.activeProvider) {
-      return this.results[this.activeProvider][this.activeSubcategory] ?? []
+      const providerResults = this.results[this.activeProvider]
+      if (providerResults) {
+        return providerResults[this.activeSubcategory] ?? []
+      }
     }
     return []
   }
@@ -365,4 +379,8 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
   position: absolute
   height: calc(100% - 140px)
   overflow: auto
+
+.no-results
+  font-size: 18px
+  margin-top: 35px
 </style>
