@@ -235,6 +235,34 @@ declare namespace InvidiousResponses {
     }
   }
 
+  module SearchResults {
+    interface VideoThumbnail {
+      quality: string
+      url: string
+      width: number
+      height: number
+    }
+
+    interface RootObject {
+      type: string
+      title: string
+      videoId: string
+      author: string
+      authorId: string
+      authorUrl: string
+      videoThumbnails: VideoThumbnail[]
+      description: string
+      descriptionHtml: string
+      viewCount: number
+      published: number
+      publishedText: string
+      lengthSeconds: number
+      liveNow: boolean
+      premium: boolean
+      isUpcoming: boolean
+    }
+  }
+
   type SearchObject<T extends InvidiousApiResources> = T extends InvidiousApiResources.PLAYLISTS
     ? NoParamsRequest
     : T extends InvidiousApiResources.PLAYLIST_ITEMS
@@ -258,7 +286,7 @@ declare namespace InvidiousResponses {
     : T extends InvidiousApiResources.TRENDING
     ? VideoDetails.Trending
     : T extends InvidiousApiResources.SEARCH
-    ? VideoDetails.Trending
+    ? SearchResults.RootObject[]
     : T extends InvidiousApiResources.STATS
     ? InvidiousDetails
     : undefined

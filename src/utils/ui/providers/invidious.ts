@@ -139,8 +139,8 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
           }
         ],
         date_added: Date.now(),
-        song_coverPath_high: s.videoThumbnails.find((val) => val.quality.includes('maxres'))?.url,
-        song_coverPath_low: s.videoThumbnails.find((val) => val.quality.includes('medium'))?.url,
+        song_coverPath_high: s.videoThumbnails?.find((val) => val.quality.includes('maxres'))?.url,
+        song_coverPath_low: s.videoThumbnails?.find((val) => val.quality.includes('medium'))?.url,
         url: s.videoId,
         playbackUrl: '',
         invidiousPlaybackUrl: stream?.url ?? '',
@@ -236,7 +236,7 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
       }
     })
 
-    if (resp) return this.parsePlaylistItems([resp])
+    if (resp) return this.parsePlaylistItems(resp)
     return []
   }
 
