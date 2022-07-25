@@ -7,7 +7,7 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { createProxy, extractVuexModule } from 'vuex-class-component'
+import { extractVuexModule } from 'vuex-class-component'
 
 import { NotifierStore } from './notifications'
 import { PlayerStore } from './playerState'
@@ -19,6 +19,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { createPersist } from '@/utils/ui/store/persist'
 import { getProxy } from './vuexProvider'
+import { ProxyWatchers } from 'vuex-class-component/dist/interfaces'
 
 Vue.use(Vuex)
 
@@ -34,7 +35,15 @@ export const store = new Vuex.Store({
   plugins: [createPersist()]
 })
 
-export const vxm = {
+// Vetur for  some reason does not infer the type from context unless explicitly defined
+export const vxm: {
+  player: InstanceType<typeof PlayerStore> & ProxyWatchers
+  playlist: InstanceType<typeof PlaylistStore> & ProxyWatchers
+  sync: InstanceType<typeof SyncStore> & ProxyWatchers
+  providers: InstanceType<typeof ProviderStore> & ProxyWatchers
+  notifier: InstanceType<typeof NotifierStore> & ProxyWatchers
+  themes: InstanceType<typeof ThemeStore> & ProxyWatchers
+} = {
   player: getProxy(store, PlayerStore),
   playlist: getProxy(store, PlaylistStore),
   sync: getProxy(store, SyncStore),
@@ -42,5 +51,3 @@ export const vxm = {
   notifier: getProxy(store, NotifierStore),
   themes: getProxy(store, ThemeStore)
 }
-
-const test = createProxy(store, PlayerStore)
