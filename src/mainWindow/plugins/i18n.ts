@@ -5,7 +5,7 @@ import { messages } from '@/utils/ui/i18n'
 Vue.use(VueI18n)
 
 export const i18n = new VueI18n({
-  locale: 'en',
-  fallbackLocale: 'en',
+  locale: 'en_US',
+  fallbackLocale: 'en_US',
   messages
 })
