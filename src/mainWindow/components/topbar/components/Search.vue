@@ -13,7 +13,7 @@
       <Search class="search-icon" />
       <b-form-input
         class="searchbar"
-        placeholder="Search..."
+        :placeholder="$t('topbar.searchPlaceholder')"
         type="text"
         v-model="inputText"
         debounce="300"
@@ -46,7 +46,7 @@
           />
         </RecycleScroller>
       </div>
-      <div class="w-100 text-center" v-else>No Results found</div>
+      <div class="w-100 text-center" v-else>{{ $t('topbar.noResultsFound') }}</div>
     </div>
   </div>
 </template>

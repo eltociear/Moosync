@@ -13,7 +13,7 @@
       <TabCarousel v-on="$listeners" :items="optionalProviders" />
       <b-row v-if="isLoading">
         <b-col class="mb-2">
-          <b-spinner>Loading...</b-spinner>
+          <b-spinner>{{ $t('loading') }}</b-spinner>
         </b-col>
       </b-row>
       <b-row no-gutters class="h-100">

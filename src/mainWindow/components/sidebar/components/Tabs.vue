@@ -84,16 +84,18 @@ import { bus } from '@/mainWindow/main'
   }
 })
 export default class Sidebar extends Vue {
-  private componentNames = [
-    { component: 'Queue', title: 'Queue', link: './', custom: this.openQueue.bind(this) },
-    { component: 'AllSongs', title: 'All Songs', link: '/songs' },
-    { component: 'Playlists', title: 'Playlists', link: '/playlists' },
-    { component: 'Albums', title: 'Albums', link: '/albums' },
-    { component: 'Artists', title: 'Artists', link: '/artists' },
-    { component: 'Genre', title: 'Genre', link: '/genre' },
-    { component: 'Explore', title: 'Explore', link: '/recommendations' }
-    // { component: 'Fav', title: 'Favourites', link: '/favs' }
-  ]
+  private get componentNames() {
+    return [
+      { component: 'Queue', title: this.$t('sidebar.tabs.queue'), link: './', custom: this.openQueue.bind(this) },
+      { component: 'AllSongs', title: this.$t('sidebar.tabs.allSongs'), link: '/songs' },
+      { component: 'Playlists', title: this.$t('sidebar.tabs.playlists'), link: '/playlists' },
+      { component: 'Albums', title: this.$t('sidebar.tabs.albums'), link: '/albums' },
+      { component: 'Artists', title: this.$t('sidebar.tabs.artists'), link: '/artists' },
+      { component: 'Genre', title: this.$t('sidebar.tabs.genre'), link: '/genre' },
+      { component: 'Explore', title: this.$t('sidebar.tabs.explore'), link: '/recommendations' }
+      // { component: 'Fav', title: 'Favourites', link: '/favs' }
+    ]
+  }
 
   private get showExplore() {
     return vxm.providers.loggedInSpotify || vxm.providers.loggedInYoutube || vxm.providers.loggedInLastFM

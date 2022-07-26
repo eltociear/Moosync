@@ -41,7 +41,7 @@
             <b-form-input
               v-model="searchText"
               class="searchbar"
-              placeholder="Search..."
+              :placeholder="$t('songView.songList.topbar.searchPlaceholder')"
               type="text"
               @update="onSearchChange"
             />

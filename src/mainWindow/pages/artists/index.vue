@@ -10,7 +10,7 @@
 <template>
   <div class="h-100 w-100 parent" @contextmenu="contextHandler">
     <b-container fluid>
-      <b-row no-gutters class="page-title">Artists</b-row>
+      <b-row no-gutters class="page-title">{{ $t('pages.artists') }}</b-row>
       <b-row class="d-flex">
         <b-col col xl="2" md="3" v-for="artist in artistList" :key="artist.artist_id">
           <CardView

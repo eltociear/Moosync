@@ -10,7 +10,7 @@
 <template>
   <div class="h-100 w-100 parent">
     <b-container fluid>
-      <b-row no-gutters class="page-title">Genres</b-row>
+      <b-row no-gutters class="page-title">{{ $t('pages.genres') }}</b-row>
       <b-row class="d-flex">
         <b-col col xl="2" md="3" v-for="genre in genres" :key="genre.genre_id">
           <CardView

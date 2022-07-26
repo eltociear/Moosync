@@ -55,11 +55,11 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
   private get artistSongProviders(): TabCarouselItem[] {
     return [
       {
-        title: 'Youtube',
+        title: this.$tc('providers.youtube'),
         key: vxm.providers.youtubeProvider.key
       },
       {
-        title: 'Spotify',
+        title: this.$tc('providers.spotify'),
         key: vxm.providers.spotifyProvider.key
       },
       ...this.extensionArtistSongProviders
@@ -80,7 +80,7 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
   get defaultDetails(): SongDetailDefaults {
     return {
       defaultTitle: this.artist?.artist_name,
-      defaultSubSubtitle: `${this.songList.length} Songs`,
+      defaultSubSubtitle: this.$tc('songView.details.songCount', this.songList.length),
       defaultCover: this.artist?.artist_coverPath
     }
   }

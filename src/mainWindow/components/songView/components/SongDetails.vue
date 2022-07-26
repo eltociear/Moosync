@@ -58,10 +58,10 @@
           <b-row no-gutters align-v="end" class="flex-fill mt-2">
             <b-col>
               <div v-if="buttonGroup.enableContainer" class="button-group d-flex">
-                <PlainPlay :title="`Play ${title}`" @click.native="playAll" />
-                <AddToQueue :title="`Add ${title} to queue`" @click.native="addToQueue" />
+                <PlainPlay :title="$t('buttons.playSingle', { title })" @click.native="playAll" />
+                <AddToQueue :title="$t('buttons.addToQueue', { title })" @click.native="addToQueue" />
                 <AddToLibrary
-                  :title="`Add ${title} to library`"
+                  :title="$t('buttons.addToLibrary', { title })"
                   @click.native="addToLibrary"
                   v-if="buttonGroup.enableLibraryStore"
                 />

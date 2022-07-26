@@ -19,7 +19,7 @@
       :songList="songList"
       :detailsButtonGroup="buttonGroups"
       :isLoading="isLoading"
-      @onRowContext="getSongMenu(arguments[0], arguments[1])"
+      @onRowContext="getSongMenu"
       @playAll="playPlaylist"
       @addToQueue="addPlaylistToQueue"
       @addToLibrary="addPlaylistToLibrary"
@@ -63,7 +63,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
   get defaultDetails(): SongDetailDefaults {
     return {
       defaultTitle: this.playlist?.playlist_name ?? '',
-      defaultSubSubtitle: `${this.songList.length} Songs`,
+      defaultSubSubtitle: this.$tc('songView.details.songCount', this.songList.length),
       defaultCover: this.playlist?.playlist_coverPath ?? ''
     }
   }
@@ -197,6 +197,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
   }
 
   private getSongMenu(event: Event, songs: Song[]) {
+    console.log(!!this.isRemote)
     this.getContextMenu(event, {
       type: 'SONGS',
       args: {

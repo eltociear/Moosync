@@ -59,7 +59,7 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
     return [
       {
         key: vxm.providers.spotifyProvider.key,
-        title: 'Spotify'
+        title: this.$tc('providers.spotify')
       },
       ...this.extensionAlbumSongProviders
     ]
@@ -76,7 +76,7 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
     return {
       defaultTitle: this.album?.album_name,
       defaultSubtitle: this.album?.album_artist,
-      defaultSubSubtitle: `${this.songList.length} Songs`,
+      defaultSubSubtitle: this.$tc('songView.details.songCount', this.songList.length),
       defaultCover: this.album?.album_coverPath_high
     }
   }

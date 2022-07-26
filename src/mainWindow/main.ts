@@ -13,6 +13,7 @@ import '@/mainWindow/plugins/vueBootstrap'
 import '@/mainWindow/plugins/tags-typeahead'
 import '@/mainWindow/plugins/vueSliderBar'
 import '@/mainWindow/plugins/inlineSVG'
+import { i18n } from '@/mainWindow/plugins/i18n'
 import '@/sass/global.sass'
 import 'animate.css'
 
@@ -76,5 +77,6 @@ new Vue({
   components: { App },
   router,
   store,
+  i18n,
   template: '<App/>'
 }).$mount('#app')

@@ -10,7 +10,7 @@
 <template>
   <div class="h-100 w-100 parent">
     <b-container class="recommendations-container" fluid>
-      <b-row no-gutters class="page-title">Explore</b-row>
+      <b-row no-gutters class="page-title">{{ $t('pages.explore') }}</b-row>
       <b-row v-for="p of providers" :key="p.title">
         <b-col v-if="p.list.length > 0">
           <b-row class="mt-3">
@@ -58,17 +58,17 @@ import { GenericRecommendation } from '@/utils/ui/providers/generics/genericReco
 export default class Albums extends mixins(RouterPushes, ContextMenuMixin) {
   private providers: { [key: string]: { title: string; list: Song[]; provider: GenericRecommendation } } = {
     youtube: {
-      title: 'Youtube',
+      title: this.$tc('providers.youtube'),
       list: [],
       provider: vxm.providers.youtubeProvider
     },
     spotify: {
-      title: 'Spotify',
+      title: this.$tc('providers.spotify'),
       list: [],
       provider: vxm.providers.spotifyProvider
     },
     lastfm: {
-      title: 'LastFM',
+      title: this.$tc('providers.lastfm'),
       list: [],
       provider: vxm.providers.lastfmProvider
     }

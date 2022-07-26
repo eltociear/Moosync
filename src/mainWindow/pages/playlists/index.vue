@@ -11,7 +11,7 @@
   <div class="h-100 w-100 parent" @contextmenu="contextHandler">
     <b-container fluid class="album-container">
       <b-row no-gutters class="page-title">
-        <b-col cols="auto">Playlists</b-col>
+        <b-col cols="auto">{{ $t('pages.playlists') }}</b-col>
         <b-col class="button-grow" @click="newPlaylist" cols="auto"><PlusIcon class="add-icon mb-2" /></b-col>
       </b-row>
       <b-row class="d-flex">
