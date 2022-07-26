@@ -18,6 +18,8 @@
       :defaultDetails="defaultDetails"
       :songList="songList"
       :detailsButtonGroup="buttonGroups"
+      :isRemote="isRemote"
+      :isLoading="isLoading"
       @playAll="playAlbum"
       @addToQueue="addAlbumToQueue"
       @onOptionalProviderChanged="onAlbumProviderChanged"
@@ -53,6 +55,18 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
 
   get isLoading() {
     return Object.values(this.loadingMap).includes(true)
+  }
+
+  // TODO: Find some better method to check if song is remote
+  private isRemote(songs: Song[]) {
+    for (const s of songs) {
+      for (const op of Object.values(this.optionalSongList)) {
+        if (op.findIndex((val) => s._id === val) !== -1) {
+          return true
+        }
+      }
+    }
+    return false
   }
 
   private get albumSongProviders(): TabCarouselItem[] {

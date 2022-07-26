@@ -81,6 +81,9 @@ export default class AllSongs extends mixins(
   @Prop()
   private afterSongAddRefreshCallback!: (() => void) | undefined
 
+  @Prop()
+  private isRemote!: ((songs: Song[]) => boolean) | undefined
+
   private searchText = ''
 
   private get filteredSongList(): Song[] {
@@ -136,6 +139,7 @@ export default class AllSongs extends mixins(
       type: 'SONGS',
       args: {
         songs,
+        isRemote: this.isRemote && typeof this.isRemote === 'function' && this.isRemote(songs),
         refreshCallback: () => (this.songList = arrayDiff(this.songList, songs))
       }
     })

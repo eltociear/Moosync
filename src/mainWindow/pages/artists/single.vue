@@ -18,6 +18,7 @@
       :defaultDetails="defaultDetails"
       :songList="songList"
       :isLoading="isLoading"
+      :isRemote="isRemote"
       @playAll="playArtist"
       @addToQueue="addArtistToQueue"
       @onOptionalProviderChanged="onArtistProviderChanged"
@@ -83,6 +84,18 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
       defaultSubSubtitle: this.$tc('songView.details.songCount', this.songList.length),
       defaultCover: this.artist?.artist_coverPath
     }
+  }
+
+  // TODO: Find some better method to check if song is remote
+  private isRemote(songs: Song[]) {
+    for (const s of songs) {
+      for (const op of Object.values(this.optionalSongList)) {
+        if (op.findIndex((val) => s._id === val) !== -1) {
+          return true
+        }
+      }
+    }
+    return false
   }
 
   @Watch('$route.query.id')

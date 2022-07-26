@@ -19,7 +19,7 @@
       :songList="songList"
       :detailsButtonGroup="buttonGroups"
       :isLoading="isLoading"
-      @onRowContext="getSongMenu"
+      :isRemote="isRemote"
       @playAll="playPlaylist"
       @addToQueue="addPlaylistToQueue"
       @addToLibrary="addPlaylistToLibrary"
@@ -34,7 +34,6 @@ import SongView from '@/mainWindow/components/songView/SongView.vue'
 import { mixins } from 'vue-class-component'
 import ContextMenuMixin from '@/utils/ui/mixins/ContextMenuMixin'
 import { vxm } from '@/mainWindow/store'
-import { arrayDiff } from '@/utils/common'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
 
@@ -56,7 +55,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
   get buttonGroups(): SongDetailButtons {
     return {
       enableContainer: true,
-      enableLibraryStore: !!this.isRemote
+      enableLibraryStore: !!this.isRemote()
     }
   }
 
@@ -80,7 +79,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
     return this.$route.query.extension
   }
 
-  private get isRemote() {
+  private isRemote() {
     return this.isYoutube || this.isSpotify || this.isExtension
   }
 
@@ -183,7 +182,7 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
 
   private async fetchSongListAsync(invalidateCache = false) {
     if (this.playlist) {
-      if (!this.isRemote) {
+      if (!this.isRemote()) {
         return this.fetchLocalSongList()
       }
 
@@ -194,18 +193,6 @@ export default class SinglePlaylistView extends mixins(ContextMenuMixin) {
         return this.fetchExtension(invalidateCache)
       }
     }
-  }
-
-  private getSongMenu(event: Event, songs: Song[]) {
-    console.log(!!this.isRemote)
-    this.getContextMenu(event, {
-      type: 'SONGS',
-      args: {
-        songs: songs,
-        isRemote: !!this.isRemote,
-        refreshCallback: () => (this.songList = arrayDiff<Song>(this.songList, songs))
-      }
-    })
   }
 
   private playPlaylist() {
