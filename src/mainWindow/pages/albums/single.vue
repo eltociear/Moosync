@@ -16,7 +16,7 @@
   <div class="w-100 h-100">
     <SongView
       :defaultDetails="defaultDetails"
-      :songList="songList"
+      :songList="filteredSongList"
       :detailsButtonGroup="buttonGroups"
       :isRemote="isRemote"
       :isLoading="isLoading"
@@ -52,6 +52,10 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
   private extensionAlbumSongProviders: TabCarouselItem[] = []
 
   private loadingMap: Record<string, boolean> = {}
+
+  private activeProviders: Record<string, boolean> = {
+    local: true
+  }
 
   get isLoading() {
     return Object.values(this.loadingMap).includes(true)
@@ -90,9 +94,24 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
     return {
       defaultTitle: this.album?.album_name,
       defaultSubtitle: this.album?.album_artist,
-      defaultSubSubtitle: this.$tc('songView.details.songCount', this.songList.length),
+      defaultSubSubtitle: this.$tc('songView.details.songCount', this.filteredSongList.length),
       defaultCover: this.album?.album_coverPath_high
     }
+  }
+
+  get filteredSongList() {
+    return this.songList.filter((val) => {
+      for (const [key, value] of Object.entries(this.activeProviders)) {
+        if (this.optionalSongList[key]) {
+          if (value) {
+            if (this.optionalSongList[key].includes(val._id)) return true
+          } else {
+            if (!this.optionalSongList[key].includes(val._id)) return true
+          }
+        }
+      }
+      return false
+    })
   }
 
   async created() {
@@ -142,6 +161,11 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
       },
       sortBy: vxm.themes.songSortBy
     })
+    Vue.set(
+      this.optionalSongList,
+      'local',
+      this.songList.map((val) => val._id)
+    )
     Vue.set(this.loadingMap, 'local', false)
   }
 
@@ -193,29 +217,28 @@ export default class SingleAlbumView extends mixins(ContextMenuMixin, PlayerCont
     Vue.set(this.loadingMap, vxm.providers.spotifyProvider.key, true)
     if (this.album) {
       for await (const s of vxm.providers.spotifyProvider.getAlbumSongs(this.album)) {
-        this.songList.push(s)
+        if (!this.songList.find((val) => val._id === s._id)) {
+          this.songList.push(s)
 
-        if (!this.optionalSongList[vxm.providers.spotifyProvider.key]) {
-          this.optionalSongList[vxm.providers.spotifyProvider.key] = []
+          if (!this.optionalSongList[vxm.providers.spotifyProvider.key]) {
+            this.optionalSongList[vxm.providers.spotifyProvider.key] = []
+          }
+
+          this.optionalSongList[vxm.providers.spotifyProvider.key].push(s._id)
         }
-
-        this.optionalSongList[vxm.providers.spotifyProvider.key].push(s._id)
       }
     }
     Vue.set(this.loadingMap, vxm.providers.spotifyProvider.key, false)
   }
 
   private onAlbumProviderChanged({ key, checked }: { key: string; checked: boolean }) {
+    Vue.set(this.activeProviders, key, checked)
     if (checked) {
       if (key === vxm.providers.spotifyProvider.key) {
         this.fetchSpotifySongs()
         return
       }
       this.fetchExtensionSongs(key)
-    } else {
-      this.songList = this.songList.filter((val) =>
-        this.optionalSongList[key] ? !this.optionalSongList[key].includes(val._id) : true
-      )
     }
   }
 }

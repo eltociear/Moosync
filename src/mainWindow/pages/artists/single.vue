@@ -16,7 +16,7 @@
   <div class="w-100 h-100">
     <SongView
       :defaultDetails="defaultDetails"
-      :songList="songList"
+      :songList="filteredSongList"
       :isLoading="isLoading"
       :isRemote="isRemote"
       @playAll="playArtist"
@@ -53,6 +53,10 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
 
   private loadingMap: Record<string, boolean> = {}
 
+  private activeProviders: Record<string, boolean> = {
+    local: true
+  }
+
   private get artistSongProviders(): TabCarouselItem[] {
     return [
       {
@@ -81,9 +85,24 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
   get defaultDetails(): SongDetailDefaults {
     return {
       defaultTitle: this.artist?.artist_name,
-      defaultSubSubtitle: this.$tc('songView.details.songCount', this.songList.length),
+      defaultSubSubtitle: this.$tc('songView.details.songCount', this.filteredSongList.length),
       defaultCover: this.artist?.artist_coverPath
     }
+  }
+
+  get filteredSongList() {
+    return this.songList.filter((val) => {
+      for (const [key, value] of Object.entries(this.activeProviders)) {
+        if (this.optionalSongList[key]) {
+          if (value) {
+            if (this.optionalSongList[key].includes(val._id)) return true
+          } else {
+            if (!this.optionalSongList[key].includes(val._id)) return true
+          }
+        }
+      }
+      return false
+    })
   }
 
   // TODO: Find some better method to check if song is remote
@@ -178,6 +197,11 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
       },
       sortBy: vxm.themes.songSortBy
     })
+    Vue.set(
+      this.optionalSongList,
+      'local',
+      this.songList.map((val) => val._id)
+    )
     Vue.set(this.loadingMap, 'local', false)
   }
 
@@ -215,6 +239,7 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
   }
 
   private onArtistProviderChanged({ key, checked }: { key: string; checked: boolean }) {
+    Vue.set(this.activeProviders, key, checked)
     if (checked) {
       if (key === vxm.providers.youtubeProvider.key) {
         if (vxm.providers.loggedInYoutube) {
@@ -231,10 +256,6 @@ export default class SingleArtistView extends mixins(ContextMenuMixin, RemoteSon
       }
 
       this.fetchExtensionSongs(key)
-    } else {
-      this.songList = this.songList.filter((val) =>
-        this.optionalSongList[key] ? !this.optionalSongList[key].includes(val._id) : true
-      )
     }
   }
 }
