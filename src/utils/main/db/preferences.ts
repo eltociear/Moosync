@@ -229,7 +229,9 @@ export function loadPreferences(): Preferences {
   try {
     const tmp = store.get('prefs') as Preferences
     if (tmp) {
-      return validatePrefs(tmp)
+      const validated = validatePrefs(tmp)
+      store.set('prefs', validated)
+      return validated
     }
   } catch (e) {
     console.error(e)
