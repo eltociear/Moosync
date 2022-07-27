@@ -24,7 +24,7 @@ export function convertDuration(n: number) {
 
     return tmp
   }
-  return 0
+  return '00:00'
 }
 
 export function getVersion(verS: string) {
