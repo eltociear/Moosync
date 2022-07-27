@@ -10,14 +10,14 @@
 <template>
   <div class="w-100 h-100">
     <div class="mb-3">
-      <CheckboxGroup prefKey="logs" title="Log settings" :defaultValue="logSettings" />
+      <CheckboxGroup prefKey="logs" :title="$t('settings.logs.logSettings')" :defaultValue="logSettings" />
     </div>
     <div class="logger-bg">
       <b-container fluid class="controls w-100 d-flex">
         <b-row class="mt-2 w-100">
           <b-col cols="auto">
             <b-row no-gutters>
-              <b-col class="filter-title">Level</b-col>
+              <b-col class="filter-title">{{ $t('settings.logs.level') }}</b-col>
             </b-row>
             <b-row>
               <b-col>
@@ -37,7 +37,7 @@
           </b-col>
           <b-col cols="auto">
             <b-row no-gutters>
-              <b-col class="filter-title">Process</b-col>
+              <b-col class="filter-title">{{ $t('settings.logs.process') }}</b-col>
             </b-row>
             <b-row>
               <b-col>
@@ -55,7 +55,7 @@
           </b-col>
           <b-col>
             <b-row no-gutters>
-              <b-col class="filter-title">Filter message</b-col>
+              <b-col class="filter-title">{{ $t('settings.logs.filterMessage') }}</b-col>
             </b-row>
             <b-row>
               <b-col>

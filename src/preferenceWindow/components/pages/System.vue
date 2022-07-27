@@ -13,8 +13,8 @@
       <b-row no-gutters class="w-100">
         <div class="path-selector w-100">
           <CheckboxGroup
-            title="System Settings"
-            tooltip="Settings which are related to your system"
+            :title="$t('settings.system.systemSettings.title')"
+            :tooltip="$t('settings.system.systemSettings_tooltip')"
             :isExtension="false"
             :defaultValue="systemCheckboxValues"
             :onValueChange="onSystemPrefChange"
@@ -23,9 +23,9 @@
           />
 
           <CheckboxGroup
-            title="Audio Settings"
+            :title="$t('settings.system.audioSettings.title')"
             class="mt-4"
-            tooltip="Settings which are related audio playback"
+            :tooltip="$t('settings.system.audioSettings_tooltip')"
             :isExtension="false"
             :defaultValue="audioCheckboxValues"
             :onValueChange="onAudioPrefChange"
@@ -38,8 +38,8 @@
             class="mt-4"
             prefKey="invidious_instance"
             :datalist="invidiousInstances"
-            title="Invidious Instance"
-            tooltip="Invidious instance to use instead of youtube"
+            :title="$t('settings.system.invidious')"
+            :tooltip="$t('settings.system.invidious_tooltip')"
             :onValueChange="onInvidiousInstanceChange"
             :onValueFetch="onInvidiousInstanceChange"
           />
@@ -50,16 +50,16 @@
 
           <b-row v-if="showRestartButton">
             <b-col cols="auto">
-              <b-button class="create-button" @click="restartApp">Restart Moosync</b-button>
+              <b-button class="create-button" @click="restartApp">{{ $t('settings.system.restartApp') }}</b-button>
             </b-col>
           </b-row>
 
           <EditText
             class="mt-5 mb-3"
             :isExtension="false"
-            title="Zoom Factor (Beta)"
+            :title="$t('settings.system.zoom')"
             prefKey="zoomFactor"
-            tooltip="Zoom of windows in percentage. This may break the UI."
+            :tooltip="$t('settings.system.zoom_tooltip')"
             :onValueChange="onZoomUpdate"
             defaultValue="100"
             type="number"
@@ -68,9 +68,9 @@
           <EditText
             class="mt-5 mb-3"
             :isExtension="false"
-            title="Spotify Client ID"
+            :title="$t('settings.system.spotify.client_id')"
             prefKey="spotify.client_id"
-            tooltip="Spotify client ID required to login to Spotify. Click to know more"
+            :tooltip="$t('settings.system.spotify.client_id_tooltip')"
             @tooltipClick="openSpotifyHelp"
             :key="spotifyIDKey"
             :onValueFetch="onSpotifyValueFetch"
@@ -78,8 +78,8 @@
           />
           <EditText
             :isExtension="false"
-            tooltip="Spotify client Secret required to login to Spotify. Click to know more"
-            title="Spotify Client Secret"
+            :tooltip="$t('settings.system.spotify.client_secret_tooltip')"
+            :title="$t('settings.system.spotify.client_secret')"
             prefKey="spotify.client_secret"
             @tooltipClick="openSpotifyHelp"
             :key="spotifySecretKey"
@@ -89,9 +89,9 @@
 
           <b-row v-if="showSpotifyButton">
             <b-col cols="auto">
-              <b-button class="create-button" @click="showSpotifyAutomateDisclaimer"
-                >Get Spotify details automatically</b-button
-              >
+              <b-button class="create-button" @click="showSpotifyAutomateDisclaimer">{{
+                $t('settings.system.spotify.autoFetchButton')
+              }}</b-button>
             </b-col>
           </b-row>
 
@@ -99,13 +99,13 @@
             v-if="!youtubeEnvExists"
             class="mt-5 mb-3"
             :isExtension="false"
-            title="Youtube Client ID"
+            :title="$t('settings.system.youtube.client_id')"
             prefKey="youtube.client_id"
           />
           <EditText
             v-if="!youtubeEnvExists"
             :isExtension="false"
-            title="Youtube Client Secret"
+            :title="$t('settings.system.youtube.client_secret')"
             prefKey="youtube.client_secret"
           />
 
@@ -113,13 +113,13 @@
             v-if="!lastfmEnvExists"
             class="mt-5 mb-3"
             :isExtension="false"
-            title="LastFM API Key"
+            :title="$t('settings.system.lastfm.client_id')"
             prefKey="lastfm.client_id"
           />
           <EditText
             v-if="!lastfmEnvExists"
             :isExtension="false"
-            title="LastFM Client Secret"
+            :title="$t('settings.system.lastfm.client_secret')"
             prefKey="lastfm.client_secret"
           />
         </div>
@@ -128,15 +128,12 @@
     <b-modal no-close-on-backdrop centered size="md" id="spotify-automate-modal" hide-footer hide-header>
       <b-container class="response-container">
         <b-row no-gutters class="d-flex">
-          <b-col class="title" cols="auto">Get</b-col>
+          <b-col class="title" cols="auto">{{ $t('settings.system.spotify.autoFetchPreTitle') }}</b-col>
           <b-col class="title ml-2" cols="auto" :style="{ color: '#1ED760' }">Spotify</b-col>
-          <b-col class="title ml-2" cols="auto">ClientID and Secret</b-col>
+          <b-col class="title ml-2" cols="auto">{{ $t('settings.system.spotify.autoFetchTitle') }}</b-col>
         </b-row>
         <b-row>
-          <b-col class="mt-4 waiting"
-            >A window will now open where you will be asked to login to your Spotify account. After logging in please do
-            not click anywhere as the whole process will be automated</b-col
-          >
+          <b-col class="mt-4 waiting">{{ $t('settings.system.spotify.autoFetchDisclaimer') }}</b-col>
         </b-row>
         <b-row>
           <b-col class="d-flex justify-content-center">
@@ -144,7 +141,7 @@
               @click="openSpotifyAutomation"
               class="start-button button-grow mt-4 d-flex justify-content-center align-items-center"
             >
-              Open Window
+              {{ $t('settings.system.spotify.openWindow') }}
             </div>
           </b-col>
         </b-row>
@@ -206,7 +203,7 @@ export default class System extends Vue {
         }\nUsers: ${resp.usage.users.total}\nSignup: ${resp.openRegistrations ? 'Open' : 'Closed'}`
       }
     } catch (e) {
-      this.invidiousDetails = 'This url does not support Invidious API'
+      this.invidiousDetails = this.$tc('settings.system.invidiousUrlUnsupported')
     }
   }
 
@@ -226,17 +223,17 @@ export default class System extends Vue {
     return [
       {
         key: 'gapless_playback',
-        title: 'Use gapless playback for wherever possible',
+        title: this.$tc('settings.system.audioSettings.gaplessPlayback'),
         enabled: false
       },
       {
         key: 'sponsorblock',
-        title: 'Use SponsorBlock to automatically skip to highlighted part of Youtube song',
+        title: this.$tc('settings.system.audioSettings.sponsorBlock'),
         enabled: false
       },
       {
         key: 'youtube_embeds',
-        title: 'Use Youtube embeds for playing audio from Youtube',
+        title: this.$tc('settings.system.audioSettings.useEmbeds'),
         enabled: true
       }
     ]
@@ -255,7 +252,7 @@ export default class System extends Vue {
   get useInvidiousCheckbox() {
     return {
       key: 'use_invidious',
-      title: 'Use Invidious instead of Youtube',
+      title: this.$tc('settings.system.systemSettings.useInvidious'),
       enabled: false
     }
   }
@@ -271,7 +268,7 @@ export default class System extends Vue {
   get startupCheckbox(): SystemSettings {
     return {
       key: 'startOnStartup',
-      title: 'Start app on system startup',
+      title: this.$tc('settings.system.systemSettings.systemStartup'),
       enabled: false
     }
   }
@@ -279,7 +276,7 @@ export default class System extends Vue {
   get minimizeToTrayCheckbox(): SystemSettings {
     return {
       key: 'minimizeToTray',
-      title: 'Minimize to tray on close',
+      title: this.$tc('settings.system.systemSettings.minimizeTray'),
       enabled: true
     }
   }
@@ -287,7 +284,7 @@ export default class System extends Vue {
   get hardwareAcceleration(): SystemSettings {
     return {
       key: 'hardwareAcceleration',
-      title: 'Use GPU hardware acceleration',
+      title: this.$tc('settings.system.systemSettings.hardwareAcceleration'),
       enabled: true
     }
   }
@@ -295,7 +292,7 @@ export default class System extends Vue {
   get watchFileChanges(): SystemSettings {
     return {
       key: 'watchFileChanges',
-      title: 'Watch music directories for changes',
+      title: this.$tc('settings.system.systemSettings.watchFileChanges'),
       enabled: false
     }
   }

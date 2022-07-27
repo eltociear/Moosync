@@ -32,21 +32,21 @@
           </b-container>
 
           <DirectoryGroup
-            title="Song Directories"
-            tooltip="Directories where all your local music is stored"
+            :title="$t('settings.paths.songDirectories')"
+            :tooltip="$t('settings.paths.songDirectories_tooltip')"
             :defaultValue="[]"
             prefKey="musicPaths"
             @refresh="forceRescan"
           />
           <FilePicker
-            title="Downloaded Artwork Path"
-            tooltip="Directory where downloaded artworks are stored"
+            :title="$t('settings.paths.artworkPath')"
+            :tooltip="$t('settings.paths.artworkPath_tooltip')"
             prefKey="artworkPath"
             class="mt-5"
           />
           <FilePicker
-            title="Generated Thumbnail Path"
-            tooltip="Directory where generated thumbnails are stored"
+            :title="$t('settings.paths.thumbnailPath')"
+            :tooltip="$t('settings.paths.thumbnailPath_tooltip')"
             prefKey="thumbnailPath"
             class="mt-5"
           />

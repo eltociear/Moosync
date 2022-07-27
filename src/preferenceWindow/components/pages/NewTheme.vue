@@ -13,8 +13,18 @@
     <b-row no-gutters>
       <b-col class="h-100">
         <b-row no-gutters class="metadata mb-3">
-          <b-input v-model="title" class="theme-title" maxlength="20" placeholder="Theme Name" />
-          <b-input v-model="author" class="theme-title" maxlength="20" placeholder="Author" />
+          <b-input
+            v-model="title"
+            class="theme-title"
+            maxlength="20"
+            :placeholder="$t('settings.themes.newTheme.name')"
+          />
+          <b-input
+            v-model="author"
+            class="theme-title"
+            maxlength="20"
+            :placeholder="$t('settings.themes.newTheme.author')"
+          />
         </b-row>
         <b-row no-gutters>
           <b-col cols="6" class="preview-col">
@@ -36,7 +46,10 @@
             </b-row>
           </b-col>
           <b-col cols="auto" class="color-col ml-5">
-            <PreferenceHeader title="Colors" tooltip="Change the colors to customise UI" />
+            <PreferenceHeader
+              :title="$t('settings.themes.newTheme.colors')"
+              :tooltip="$t('settings.themes.newTheme.colors_tooltip')"
+            />
             <table>
               <ColorPicker
                 v-for="item in Object.keys(customTheme)"
@@ -48,8 +61,8 @@
               />
             </table>
             <b-row class="mt-5 mr-4" align-h="end">
-              <b-button class="cancel-button mr-4" @click="dismiss">Cancel</b-button>
-              <b-button class="confirm-button" @click="saveTheme">Save</b-button>
+              <b-button class="cancel-button mr-4" @click="dismiss">{{ $t('cancel') }}</b-button>
+              <b-button class="confirm-button" @click="saveTheme">{{ $t('save') }}</b-button>
             </b-row>
           </b-col>
         </b-row>
@@ -97,8 +110,7 @@ export default class NewTheme extends Vue {
   }
 
   private getThemeTitle(key: string) {
-    const str = key.replace(/([A-Z])/g, ' $1').trim()
-    return str.charAt(0).toUpperCase() + str.slice(1)
+    return this.$tc(`settings.themes.${key}`)
   }
 
   private toggleColorPicker(type: ThemeKey) {

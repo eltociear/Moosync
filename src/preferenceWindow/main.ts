@@ -10,6 +10,7 @@
 import '@/preferenceWindow/plugins/vueBootstrap'
 import '@/sass/global.sass'
 import '@/preferenceWindow/plugins/recycleScroller'
+import { i18n } from './plugins/i18n'
 import 'animate.css'
 
 import App from './Preferences.vue'
@@ -70,5 +71,6 @@ registerLogger()
 new Vue({
   components: { App },
   router,
+  i18n,
   template: '<App/>'
 }).$mount('#app')

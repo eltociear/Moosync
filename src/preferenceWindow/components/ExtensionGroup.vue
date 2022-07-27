@@ -10,16 +10,19 @@
 <template>
   <b-container fluid class="path-container w-100">
     <b-row no-gutters>
-      <PreferenceHeader title="Extensions" tooltip="List of all installed extensions" />
+      <PreferenceHeader
+        :title="$t('settings.extensions.extensions')"
+        tooltip="$t('settings.extensions.extensions_tooltip')"
+      />
       <b-col cols="auto" align-self="center" class="new-directories ml-auto d-flex">
         <div class="d-flex" @click="openDiscoverModal">
           <DiscoverIcon class="discover-icon mr-2" />
-          <div class="discover-button mr-4">Discover</div>
+          <div class="discover-button mr-4">{{ $t('settings.extensions.discover') }}</div>
         </div>
 
         <div class="d-flex" @click="openFileBrowser">
           <InstallIcon class="install-icon mr-2" />
-          <div class="add-directories-button">Install from file</div>
+          <div class="add-directories-button">{{ $t('settings.extensions.install') }}</div>
         </div>
       </b-col>
     </b-row>
@@ -33,7 +36,7 @@
           <div class="item-text-subtitle text-truncate">{{ ext.author }}</div>
         </b-col>
         <b-col cols="auto" align-self="center" class="ml-auto">
-          <div class="remove-button w-100" @click="removePath(index)">Remove</div>
+          <div class="remove-button w-100" @click="removePath(index)">{{ $t('settings.extensions.remove') }}</div>
         </b-col>
       </b-row>
     </b-row>

@@ -12,7 +12,11 @@
     <ContextMenu ref="contextMenu" v-click-outside="hideContextMenu" :menu-items="menu" />
     <b-container fluid>
       <b-row>
-        <PreferenceHeader title="Songs View" tooltip="Customize song list appearance" class="mb-3" />
+        <PreferenceHeader
+          :title="$t('settings.themes.songView')"
+          :tooltip="$t('settings.themes.songView_tooltip')"
+          class="mb-3"
+        />
       </b-row>
       <b-row no-gutters class="w-100"> </b-row>
       <b-row no-gutters class="w-100">
@@ -24,7 +28,7 @@
               :id="getRandomID()"
               :colors="currentTheme"
             />
-            Classic
+            {{ $t('settings.themes.songView_classic') }}
           </div>
         </b-col>
         <b-col cols="5" xl="3" class="p-2">
@@ -35,12 +39,16 @@
               :id="getRandomID()"
               :colors="currentTheme"
             />
-            Compact
+            {{ $t('settings.themes.songView_compact') }}
           </div>
         </b-col>
       </b-row>
       <b-row>
-        <PreferenceHeader title="Themes" tooltip="Customize colors" class="mt-5 mb-3" />
+        <PreferenceHeader
+          :title="$t('settings.themes.themes')"
+          :tooltip="$t('settings.themes.themes_tooltip')"
+          class="mt-5 mb-3"
+        />
       </b-row>
       <b-row no-gutters class="w-100"> </b-row>
       <b-row no-gutters class="w-100">
@@ -54,7 +62,7 @@
               :id="getRandomID()"
               :colors="defaultTheme.theme"
             />
-            <div class="title">Default</div>
+            <div class="title">{{ $t('settings.themes.themes_default') }}</div>
             <div class="author">Moosync</div>
           </div>
         </b-col>
@@ -79,7 +87,7 @@
         <b-col cols="5" xl="3" class="p-2">
           <div class="theme-component-container">
             <Add @click.native="createTheme" />
-            Create new theme
+            {{ $t('settings.themes.createTheme') }}
           </div>
         </b-col>
       </b-row>

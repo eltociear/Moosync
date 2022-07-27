@@ -60,7 +60,11 @@ export class ExtensionPreferenceMixin extends Vue {
           }
 
           if (typeof val === 'object' && typeof this.defaultValue === 'object') {
-            this.value = Object.assign(this.defaultValue, val)
+            if (Array.isArray(this.defaultValue)) {
+              this.value = Object.assign([], this.defaultValue, val)
+            } else {
+              this.value = Object.assign({}, this.defaultValue, val)
+            }
           } else {
             this.value = (val as string) ?? this.defaultValue
           }

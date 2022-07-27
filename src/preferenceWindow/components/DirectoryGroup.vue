@@ -19,7 +19,9 @@
         />
       </b-col>
       <b-col cols="auto" class="new-directories ml-4">
-        <div class="add-directories-button" v-if="!bottomButton" @click="openFileBrowser">Add Folder...</div>
+        <div class="add-directories-button" v-if="!bottomButton" @click="openFileBrowser">
+          {{ $t('settings.paths.addFolder') }}
+        </div>
       </b-col>
     </b-row>
     <b-row
@@ -43,13 +45,15 @@
           <div class="item-text text-truncate">{{ path.path }}</div>
         </b-col>
         <b-col cols="auto" align-self="center" class="ml-auto">
-          <div class="remove-button w-100" @click="removePath(index)">Remove</div>
+          <div class="remove-button w-100" @click="removePath(index)">{{ $t('settings.paths.remove') }}</div>
         </b-col>
       </b-row>
     </b-row>
     <b-row>
       <b-col cols="auto" align-self="center" class="new-directories mt-3">
-        <div class="add-directories-button" v-if="bottomButton" @click="openFileBrowser">Add Folder...</div>
+        <div class="add-directories-button" v-if="bottomButton" @click="openFileBrowser">
+          {{ $t('settings.paths.addFolder') }}
+        </div>
       </b-col>
     </b-row>
   </b-container>
