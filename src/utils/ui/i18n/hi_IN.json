@@ -1,25 +1,25 @@
 {
   "sidebar": {
     "tabs": {
-      "queue": "Queue",
-      "allSongs": "All Songs",
-      "playlists": "Playlists",
-      "albums": "Albums",
-      "artists": "Artists",
-      "genre": "Genres",
-      "explore": "Explore"
+      "queue": "कतार",
+      "allSongs": "सभी गानें",
+      "playlists": "गानों की सूचीयाँ",
+      "albums": "एल्बम",
+      "artists": "कलाकार",
+      "genre": "शैलियाँ",
+      "explore": "एक्सप्लोर करें"
     }
   },
   "topbar": {
-    "searchPlaceholder": "Search...",
-    "noResultsFound": "No results found"
+    "searchPlaceholder": "खोज",
+    "noResultsFound": "कोई परिणाम नहीं मिला"
   },
   "pages": {
-    "playlists": "Playlists",
-    "albums": "Albums",
-    "artists": "Artists",
-    "genres": "Genres",
-    "explore": "Explore"
+    "playlists": "गानों की सूचीयाँ",
+    "albums": "एल्बम",
+    "artists": "कलाकार",
+    "genres": "शैलियाँ",
+    "explore": "एक्सप्लोर करें"
   },
   "songView": {
     "details": {
@@ -27,7 +27,7 @@
     },
     "songList": {
       "topbar": {
-        "searchPlaceholder": "Search..."
+        "searchPlaceholder": "खोज"
       }
     }
   },
@@ -36,37 +36,37 @@
     "addToQueue": "Add {title} to queue",
     "addToLibrary": "Add {title} to library"
   },
-  "loading": "Loading...",
+  "loading": "लोड हो रहा है...",
   "contextMenu": {
     "sort": {
-      "name": "Name",
-      "dateAdded": "Date added",
-      "provider": "Provider"
+      "name": "नाम",
+      "dateAdded": "तारीख संकलित हुई",
+      "provider": "प्रदाता"
     },
     "playlist": {
-      "new": "Create Playlist",
-      "remove": "Remove playlist",
-      "export": "Export playlist",
-      "add": "Add To Playlist",
-      "addFromURL": "Add Playlist from URL"
+      "new": "प्लेलिस्ट बनाएँ",
+      "remove": "प्‍लेलिस्‍ट से हटाएं",
+      "export": "प्लेलिस्ट निर्यात करें",
+      "add": "प्लेलिस्ट में जोड़ें",
+      "addFromURL": "यूआरएल से प्लेलिस्ट में जोड़ें"
     },
     "song": {
-      "addFromURL": "Add from URL",
-      "playNow": "Play Now",
-      "addToQueue": "Add To Queue",
-      "moveToTop": "Move to top",
-      "moveToBottom": "Move to bottom",
-      "moveManually": "Move manually",
-      "manualIndex": "Set index of song",
-      "remove": "Remove from Library",
-      "add": "Add Song to Library | Add Songs to Library"
+      "addFromURL": "यूआरएल से जोड़ें",
+      "playNow": "प्ले करें",
+      "addToQueue": "सूची में जोड़े",
+      "moveToTop": "शीर्ष पर जाएं",
+      "moveToBottom": "नीचे ले जाएँ",
+      "moveManually": "मैन्युअल रूप से ले जाएँ",
+      "manualIndex": "गाने का नंबर सेट करे",
+      "remove": "लाइब्रेरी से निकालें",
+      "add": "गीत को लाईब्रेरी में जोड़ें"
     },
-    "moreInfo": "More Info"
+    "moreInfo": "अन्य जानकारी"
   },
   "providers": {
-    "youtube": "Youtube",
-    "spotify": "Spotify",
-    "invidious": "Invidious",
-    "lastfm": "LastFM"
+    "youtube": "यूट्यूब",
+    "spotify": "इस्पोटिफाई",
+    "invidious": "अपमानजनक",
+    "lastfm": "आखरीएफएम"
   }
 }
