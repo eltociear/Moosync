@@ -3,8 +3,8 @@
     "tabs": {
       "queue": "कतार",
       "allSongs": "सभी गानें",
-      "playlists": "गानों की सूचीयाँ",
-      "albums": "एल्बम",
+      "playlists": "गानो की सूची",
+      "albums": "संग्रहिका",
       "artists": "कलाकार",
       "genre": "शैलियाँ",
       "explore": "एक्सप्लोर करें"
@@ -23,7 +23,7 @@
   },
   "songView": {
     "details": {
-      "songCount": "{count} song | {count} songs"
+      "songCount": "{count} गाना | {count} songs गानें"
     },
     "songList": {
       "topbar": {
