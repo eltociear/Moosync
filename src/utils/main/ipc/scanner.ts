@@ -265,7 +265,7 @@ export class ScannerChannel implements IpcChannelInterface {
 
   private async destructiveScan(paths: togglePaths) {
     const allSongs = SongDB.getSongByOptions()
-    const regex = new RegExp(paths.join('|'))
+    const regex = new RegExp(paths.map((val) => val.path).join('|'))
     for (const s of allSongs) {
       if (s.type == 'LOCAL') {
         if (paths.length == 0 || !(s.path && s.path.match(regex)) || !s.path) {
