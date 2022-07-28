@@ -89,7 +89,7 @@
       "songView_compact": "Compact",
       "themes": "Themes",
       "themes_tooltip": "Customize colors",
-      "themes_default": "Default",
+      "themes_default": "Padrão",
       "createTheme": "Create new theme",
       "newTheme": {
         "name": "Theme Name",
@@ -97,13 +97,13 @@
         "colors": "Colors",
         "colors_tooltip": "Change the colors to customise UI"
       },
-      "primary": "Primary",
+      "primary": "Principal",
       "secondary": "Secondary",
       "tertiary": "Tertiary",
       "textPrimary": "Text Primary",
       "textSecondary": "Text Secondary",
       "textInverse": "Text Inverse",
-      "accent": "Accent",
+      "accent": "Realce",
       "divider": "Divider"
     },
     "extensions": {
