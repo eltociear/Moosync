@@ -1,155 +1,155 @@
 {
   "sidebar": {
     "tabs": {
-      "queue": "Queue",
-      "allSongs": "All Songs",
-      "playlists": "Playlists",
+      "queue": "File d'attente",
+      "allSongs": "Toutes les chansons",
+      "playlists": "Listes de lecture",
       "albums": "Albums",
-      "artists": "Artists",
+      "artists": "Artistes",
       "genre": "Genres",
-      "explore": "Explore"
+      "explore": "Explorer"
     }
   },
   "topbar": {
-    "searchPlaceholder": "Search...",
-    "noResultsFound": "No results found"
+    "searchPlaceholder": "Recherche...",
+    "noResultsFound": "Aucun résultat trouvé"
   },
   "pages": {
-    "playlists": "Playlists",
+    "playlists": "Listes de lecture",
     "albums": "Albums",
-    "artists": "Artists",
+    "artists": "Artistes",
     "genres": "Genres",
-    "explore": "Explore"
+    "explore": "Explorer"
   },
   "songView": {
     "details": {
-      "songCount": "{count} song | {count} songs"
+      "songCount": "{count} chanson | {count} chansons"
     },
     "songList": {
       "topbar": {
-        "searchPlaceholder": "Search..."
+        "searchPlaceholder": "Recherche..."
       }
     }
   },
   "buttons": {
-    "playSingle": "Play {title}",
-    "addToQueue": "Add {title} to queue",
-    "addToLibrary": "Add {title} to library"
+    "playSingle": "Jouer {title}",
+    "addToQueue": "Ajouter {title} à la file d'attente",
+    "addToLibrary": "Ajouter {title} à la bibliothèque"
   },
-  "loading": "Loading...",
+  "loading": "Chargement en cours...",
   "contextMenu": {
     "sort": {
-      "name": "Name",
-      "dateAdded": "Date added",
-      "provider": "Provider"
+      "name": "Nom",
+      "dateAdded": "Date d'ajout",
+      "provider": "Fournisseur"
     },
     "playlist": {
-      "new": "Create Playlist",
-      "remove": "Remove playlist",
-      "export": "Export playlist",
-      "add": "Add To Playlist",
-      "addFromURL": "Add Playlist from URL"
+      "new": "Créer une playlist",
+      "remove": "Supprimer la playlist",
+      "export": "Exporter la liste de lecture",
+      "add": "Ajouter à la playlist",
+      "addFromURL": "Ajouter une playlist à partir de l'URL"
     },
     "song": {
-      "addFromURL": "Add from URL",
-      "playNow": "Play Now",
-      "addToQueue": "Add To Queue",
-      "moveToTop": "Move to top",
-      "moveToBottom": "Move to bottom",
-      "moveManually": "Move manually",
-      "manualIndex": "Set index of song",
-      "remove": "Remove from Library",
-      "add": "Add Song to Library | Add Songs to Library"
+      "addFromURL": "Ajouter depuis l'URL",
+      "playNow": "Jouer maintenant",
+      "addToQueue": "Ajouter à la file d'attente",
+      "moveToTop": "Déplacer vers le haut",
+      "moveToBottom": "Déplacer vers le bas",
+      "moveManually": "Déplacer manuellement",
+      "manualIndex": "Définir l'index de la chanson",
+      "remove": "Retirer de la bibliothèque",
+      "add": "Ajouter des chansons à la bibliothèque | Ajouter des chansons à la bibliothèque"
     },
-    "moreInfo": "More Info"
+    "moreInfo": "Plus d'info"
   },
   "providers": {
     "youtube": "Youtube",
     "spotify": "Spotify",
-    "invidious": "Invidious",
+    "invidious": "Invivable",
     "lastfm": "LastFM"
   },
-  "save": "Save",
-  "cancel": "Cancel",
+  "save": "Enregistrer",
+  "cancel": "Abandonner",
   "settings": {
     "paths": {
-      "songDirectories": "Song Directories",
-      "songDirectories_tooltip": "Directories where all your local music is stored",
-      "addFolder": "Add Folder...",
-      "remove": "Remove",
-      "artworkPath": "Downloaded Artwork Path",
-      "artworkPath_tooltip": "Directory where downloaded artworks are stored",
-      "thumbnailPath": "Downloaded Thumbnail Path",
-      "thumbnailPath_tooltip": "Directory where generated thumbnails are stored"
+      "songDirectories": "Répertoires de chansons",
+      "songDirectories_tooltip": "Répertoires où toutes vos musiques locales sont stockées",
+      "addFolder": "Ajouter un dossier...",
+      "remove": "Retirer",
+      "artworkPath": "Chemin de l'œuvre téléchargée",
+      "artworkPath_tooltip": "Répertoire où les œuvres téléchargées sont stockées",
+      "thumbnailPath": "Chemin de la miniature téléchargée",
+      "thumbnailPath_tooltip": "Répertoire où les vignettes générées sont stockées"
     },
     "themes": {
-      "songView": "Songs View",
-      "songView_tooltip": "Customize song list appearance",
-      "songView_classic": "Classic",
+      "songView": "Vue des chansons",
+      "songView_tooltip": "Personnaliser l'apparence de la liste des chansons",
+      "songView_classic": "Classique",
       "songView_compact": "Compact",
-      "themes": "Themes",
-      "themes_tooltip": "Customize colors",
-      "themes_default": "Default",
-      "createTheme": "Create new theme",
+      "themes": "Thèmes",
+      "themes_tooltip": "Personnaliser les couleurs",
+      "themes_default": "Par défaut",
+      "createTheme": "Créer un nouveau thème",
       "newTheme": {
-        "name": "Theme Name",
-        "author": "Author",
-        "colors": "Colors",
-        "colors_tooltip": "Change the colors to customise UI"
+        "name": "Nom du thème",
+        "author": "Auteur",
+        "colors": "Couleurs",
+        "colors_tooltip": "Changer les couleurs pour personnaliser l'interface utilisateur"
       },
-      "primary": "Primary",
-      "secondary": "Secondary",
-      "tertiary": "Tertiary",
-      "textPrimary": "Text Primary",
-      "textSecondary": "Text Secondary",
-      "textInverse": "Text Inverse",
+      "primary": "Primaire",
+      "secondary": "Secondaire",
+      "tertiary": "Tertiaire",
+      "textPrimary": "Texte primaire",
+      "textSecondary": "Texte secondaire",
+      "textInverse": "Inverser le texte",
       "accent": "Accent",
-      "divider": "Divider"
+      "divider": "Diviseur"
     },
     "extensions": {
       "extensions": "Extensions",
-      "extensions_tooltip": "List of all installed extensions",
-      "discover": "Discover",
-      "install": "Install from file",
-      "remove": "Remove"
+      "extensions_tooltip": "Liste de toutes les extensions installées",
+      "discover": "Découvrir",
+      "install": "Installer depuis un fichier",
+      "remove": "Retirer"
     },
     "system": {
       "systemSettings": {
-        "title": "System Settings",
-        "systemStartup": "Start app on system startup",
-        "minimizeTray": "Minimize to tray on close",
-        "hardwareAcceleration": "Use GPU hardware acceleration",
-        "watchFileChanges": "Watch music directories for changes",
-        "useInvidious": "Use Invidious instead of Youtube"
+        "title": "Paramètres du système",
+        "systemStartup": "Démarrer l'application au démarrage du système",
+        "minimizeTray": "Réduire dans la barre d'état à la fermeture",
+        "hardwareAcceleration": "Utiliser l'accélération matérielle GPU",
+        "watchFileChanges": "Regarder les répertoires musicaux pour les modifications",
+        "useInvidious": "Utiliser Invidieux au lieu de Youtube"
       },
-      "systemSettings_tooltip": "Settings which are related to your system",
+      "systemSettings_tooltip": "Paramètres liés à votre système",
       "audioSettings": {
-        "title": "Audio Settings",
-        "gaplessPlayback": "Use gapless playback for wherever possible",
-        "sponsorBlock": "Use SponsorBlock to automatically skip to highlighted part of Youtube song",
-        "useEmbeds": "Use Youtube embeds for playing audio from Youtube"
+        "title": "Paramètres audio",
+        "gaplessPlayback": "Utiliser la lecture sans fil pour autant que possible",
+        "sponsorBlock": "Utiliser SponsorBlock pour passer automatiquement à une partie en surbrillance de la chanson Youtube",
+        "useEmbeds": "Utiliser des embeds Youtube pour jouer de l'audio depuis Youtube"
       },
-      "audioSettings_tooltip": "Settings which are related audio playback",
-      "invidious": "Invidious Instance",
-      "invidiousUrlUnsupported": "This url does not support Invidious API",
-      "invidious_tooltip": "Invidious instance to use instead of youtube",
-      "restartApp": "Restart Moosync",
-      "zoom": "Zoom Factor (Beta)",
-      "zoom_tooltip": "Zoom of windows in percentage. This may break the UI.",
+      "audioSettings_tooltip": "Paramètres qui sont liés à la lecture audio",
+      "invidious": "Instance Invidieuse",
+      "invidiousUrlUnsupported": "Cette url ne supporte pas l'API Invidious",
+      "invidious_tooltip": "Instance insensée à utiliser à la place de youtube",
+      "restartApp": "Redémarrer Moosync",
+      "zoom": "Facteur de zoom (Beta)",
+      "zoom_tooltip": "Zoom des fenêtres en pourcentage. Cela peut casser l'interface utilisateur.",
       "spotify": {
-        "client_id": "Spotify Client ID",
-        "client_id_tooltip": "Spotify client ID required to login to Spotify. Click to know more",
-        "client_secret": "Spotify Client Secret",
-        "client_secret_tooltip": "Spotify client Secret required to login to Spotify. Click to know more",
-        "autoFetchButton": "Get Spotify details automatically",
-        "autoFetchPreTitle": "Get",
-        "autoFetchTitle": "ClientID and Secret",
-        "autoFetchDisclaimer": "A window will now open where you will be asked to login to your Spotify account. After logging in please do not click anywhere as the whole process will be automated",
-        "openWindow": "Open Window"
+        "client_id": "ID client Spotify",
+        "client_id_tooltip": "Identifiant client Spotify requis pour se connecter à Spotify. Cliquez pour en savoir plus",
+        "client_secret": "Secret client Spotify",
+        "client_secret_tooltip": "Spotify client Secret requis pour se connecter à Spotify. Cliquez pour en savoir plus",
+        "autoFetchButton": "Obtenir automatiquement les détails de Spotify",
+        "autoFetchPreTitle": "Obtenir",
+        "autoFetchTitle": "ID client et secret",
+        "autoFetchDisclaimer": "Une fenêtre s'ouvre maintenant où on vous demandera de vous connecter à votre compte Spotify. Après vous être connecté, ne cliquez nulle part car l'ensemble du processus sera automatisé",
+        "openWindow": "Ouvrir la fenêtre"
       },
       "youtube": {
-        "client_id": "Youtube Client ID",
-        "client_secret": "Youtube Client Secret"
+        "client_id": "Identifiant client Youtube",
+        "client_secret": "Secret client Youtube"
       },
       "lastfm": {
         "client_id": "LastFM Api Key",
@@ -157,10 +157,10 @@
       }
     },
     "logs": {
-      "logSettings": "Log Settings",
-      "level": "Level",
-      "process": "Process",
-      "filterMessage": "Filter Message"
+      "logSettings": "Paramètres du journal",
+      "level": "Niveau",
+      "process": "Processus",
+      "filterMessage": "Filtrer le message"
     }
   }
 }
