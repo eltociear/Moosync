@@ -13,6 +13,12 @@ type songMenu = 'compact' | 'classic'
 
 type SystemSettings = Checkbox
 
+type CheckboxValue = {
+  key: string
+  title: string
+  enabled: boolean
+}[]
+
 interface Preferences {
   isFirstLaunch: boolean
   musicPaths: togglePaths

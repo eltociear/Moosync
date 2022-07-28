@@ -67,6 +67,9 @@ export class PreferenceChannel implements IpcChannelInterface {
       case PreferenceEvents.SET_SONG_VIEW:
         this.setSongView(event, request as IpcRequest<PreferenceRequests.SongView>)
         break
+      case PreferenceEvents.SET_LANGUAGE:
+        this.setActiveLanguage(event, request as IpcRequest<PreferenceRequests.LanguageKey>)
+        break
     }
   }
 
@@ -176,5 +179,11 @@ export class PreferenceChannel implements IpcChannelInterface {
 
   public notifyPreferenceWindow(key: string) {
     WindowHandler.getWindow(false)?.webContents.send(PreferenceEvents.PREFERENCE_REFRESH, key)
+  }
+
+  private setActiveLanguage(event: Electron.IpcMainEvent, request: IpcRequest<PreferenceRequests.LanguageKey>) {
+    if (request.params?.key) {
+      WindowHandler.getWindow(true)?.webContents.send(PreferenceEvents.LANGUAGE_REFRESH, request.params?.key)
+    }
   }
 }

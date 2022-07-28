@@ -31,6 +31,7 @@ import { mixins } from 'vue-class-component'
 import ThemeHandler from '@/utils/ui/mixins/ThemeHandler'
 import Sidebar from '@/preferenceWindow/components/Sidebar.vue'
 import Vue from 'vue'
+import { i18n } from '@/preferenceWindow/plugins/i18n'
 
 Vue.directive('click-outside', {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,9 +63,18 @@ Vue.directive('click-outside', {
 })
 export default class App extends mixins(ThemeHandler) {
   mounted() {
+    this.getLanguage()
     this.$root.$on('themeChanged', this.fetchThemeFromID)
     this.registerDevTools()
     this.listenArgs()
+  }
+
+  private async getLanguage() {
+    const langs = await window.PreferenceUtils.loadSelective<CheckboxValue>('system_language')
+    const active = (langs ?? []).find((val) => val.enabled)
+    if (active) {
+      i18n.locale = active?.key
+    }
   }
 
   private listenArgs() {

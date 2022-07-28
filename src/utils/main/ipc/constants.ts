@@ -60,7 +60,9 @@ export enum PreferenceEvents {
   SET_SONG_VIEW = 'setSongView',
   GET_SONG_VIEW = 'getSongView',
   THEME_REFRESH = 'themeRefresh',
-  SONG_VIEW_REFRESH = 'songViewRefresh'
+  SONG_VIEW_REFRESH = 'songViewRefresh',
+  SET_LANGUAGE = 'setLanguage',
+  LANGUAGE_REFRESH = 'languageRefresh'
 }
 
 export enum WindowEvents {

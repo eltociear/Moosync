@@ -8,7 +8,7 @@
 -->
 
 <template>
-  <b-container fluid class="path-container w-100" v-if="Array.isArray(value)">
+  <b-container fluid class="path-container w-100" v-if="prefKey && Array.isArray(value)">
     <PreferenceHeader v-if="title" :title="title" :tooltip="tooltip" />
     <b-row no-gutters class="item w-100" v-for="(checkbox, index) in defaultValue" :key="checkbox.key">
       <b-col cols="auto" align-self="center">
@@ -26,11 +26,6 @@
 </template>
 
 <script lang="ts">
-type CheckboxValue = {
-  key: string
-  enabled: boolean
-}[]
-
 import { Component, Prop, Mixins } from 'vue-property-decorator'
 import { ExtensionPreferenceMixin } from '../mixins/extensionPreferenceMixin'
 import PreferenceHeader from './PreferenceHeader.vue'

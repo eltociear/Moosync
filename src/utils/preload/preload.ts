@@ -297,11 +297,20 @@ contextBridge.exposeInMainWorld('ThemeUtils', {
   getSongView: () =>
     ipcRendererHolder.send(IpcEvents.PREFERENCES, { type: PreferenceEvents.GET_SONG_VIEW, params: undefined }),
 
+  setLanguage: (key: string) =>
+    ipcRendererHolder.send<PreferenceRequests.LanguageKey>(IpcEvents.PREFERENCES, {
+      type: PreferenceEvents.SET_LANGUAGE,
+      params: { key }
+    }),
+
   listenThemeChanged: (callback: (themeId: ThemeDetails) => void) =>
     ipcRendererHolder.on(PreferenceEvents.THEME_REFRESH, callback),
 
   listenSongViewChanged: (callback: (menu: songMenu) => void) =>
-    ipcRendererHolder.on(PreferenceEvents.SONG_VIEW_REFRESH, callback)
+    ipcRendererHolder.on(PreferenceEvents.SONG_VIEW_REFRESH, callback),
+
+  listenLanguageChanged: (callback: (language: string) => void) =>
+    ipcRendererHolder.on(PreferenceEvents.LANGUAGE_REFRESH, callback)
 })
 
 contextBridge.exposeInMainWorld('WindowUtils', {

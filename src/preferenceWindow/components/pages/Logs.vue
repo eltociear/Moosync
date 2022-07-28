@@ -25,6 +25,7 @@
                   :text="capitalizeFirstLetter(levelFilter)"
                   variant="success"
                   class="dropdown-container mb-3"
+                  toggle-class="inner-dropdown"
                 >
                   <b-dropdown-item @click="logLevelChange('ALL')">All</b-dropdown-item>
                   <b-dropdown-item @click="logLevelChange('DEBUG')">Debug</b-dropdown-item>
@@ -41,7 +42,12 @@
             </b-row>
             <b-row>
               <b-col>
-                <b-dropdown :text="processFilter" variant="success" class="dropdown-container mb-3">
+                <b-dropdown
+                  :text="processFilter"
+                  variant="success"
+                  class="dropdown-container mb-3"
+                  toggle-class="inner-dropdown"
+                >
                   <b-dropdown-item @click="processFilterChange('All')">All</b-dropdown-item>
                   <b-dropdown-item
                     v-for="process in processFilters"
@@ -318,7 +324,7 @@ td
 .dropdown-container
   min-width: 100px
 
-.dropdown-toggle
+.inner-dropdown
   background-color: var(--primary) !important
   border: none !important
   padding: 5px 35px 5px 15px

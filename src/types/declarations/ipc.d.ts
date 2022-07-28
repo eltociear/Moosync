@@ -128,6 +128,10 @@ declare namespace PreferenceRequests {
     id: string
   }
 
+  interface LanguageKey {
+    key: string
+  }
+
   interface Theme {
     theme: ThemeDetails
   }

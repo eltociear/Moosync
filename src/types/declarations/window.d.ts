@@ -287,8 +287,10 @@ interface themeUtils {
   getActiveTheme: () => Promise<ThemeDetails | undefined>
   setSongView: (menu: songMenu) => Promise<void>
   getSongView: () => Promise<songMenu>
+  setLanguage: (key: string) => Promise<void>
   listenThemeChanged: (callback: (themeId: ThemeDetails) => void) => void
   listenSongViewChanged: (callback: (menu: songMenu) => void) => void
+  listenLanguageChanged: (callback: (language: string) => void) => void
 }
 
 interface updateUtils {

@@ -14,7 +14,7 @@ import { v1 } from 'uuid'
 @Component
 export class ExtensionPreferenceMixin extends Vue {
   @Prop({ default: '' })
-  public defaultValue!: string
+  public defaultValue!: unknown
 
   @Prop()
   public prefKey?: string
@@ -37,6 +37,8 @@ export class ExtensionPreferenceMixin extends Vue {
   public value: unknown = ''
 
   public loading = false
+
+  protected postFetch: (() => void) | undefined
 
   private onValueChanged() {
     this.onValueChange && this.onValueChange(this.value)
@@ -70,6 +72,7 @@ export class ExtensionPreferenceMixin extends Vue {
           }
         })
         .then(() => (this.loading = false))
+        .then(() => this.postFetch && this.postFetch())
         .then(() => this.onValueFetch && this.onValueFetch(this.value))
     }
   }

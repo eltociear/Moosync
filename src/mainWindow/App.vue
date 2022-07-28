@@ -45,6 +45,7 @@ import { EventBus } from '@/utils/main/ipc/constants'
 import OAuthModal from './components/modals/OAuthModal.vue'
 import FormModal from './components/modals/FormModal.vue'
 import EntityInfoModal from './components/modals/EntityInfoModal.vue'
+import { i18n } from './plugins/i18n'
 
 @Component({
   components: {
@@ -63,6 +64,7 @@ import EntityInfoModal from './components/modals/EntityInfoModal.vue'
 export default class App extends mixins(ThemeHandler, PlayerControls) {
   created() {
     this.registerNotifier()
+    this.setLanguage()
     this.listenThemeChanges()
     this.listenExtensionEvents()
     this.listenExtensionRequests()
@@ -79,6 +81,18 @@ export default class App extends mixins(ThemeHandler, PlayerControls) {
     this.registerFileDragListener()
     this.handleInitialSetup()
     this.checkUpdate()
+  }
+
+  private async setLanguage() {
+    const langs = await window.PreferenceUtils.loadSelective<CheckboxValue>('system_language')
+    const active = (langs ?? []).find((val) => val.enabled)
+    if (active) {
+      i18n.locale = active?.key
+    }
+
+    window.ThemeUtils.listenLanguageChanged((val) => {
+      i18n.locale = val
+    })
   }
 
   private async useInvidious() {

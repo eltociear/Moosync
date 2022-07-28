@@ -122,6 +122,14 @@
             :title="$t('settings.system.lastfm.client_secret')"
             prefKey="lastfm.client_secret"
           />
+
+          <Dropdown
+            class="mt-5"
+            :defaultValue="languageDropdown"
+            title="Language"
+            prefKey="system_language"
+            :onValueChange="onLanguageChanged"
+          />
         </div>
       </b-row>
     </b-container>
@@ -169,6 +177,9 @@ import PreferenceHeader from '../PreferenceHeader.vue'
 import CrossIcon from '@/icons/CrossIcon.vue'
 import AutoFillEditText from '../AutoFillEditText.vue'
 import { InvidiousApiResources } from '@/utils/commonConstants'
+import Dropdown from '../Dropdown.vue'
+import { messages } from '@/utils/ui/i18n'
+import { i18n } from '@/preferenceWindow/plugins/i18n'
 
 @Component({
   components: {
@@ -176,7 +187,8 @@ import { InvidiousApiResources } from '@/utils/commonConstants'
     EditText,
     PreferenceHeader,
     AutoFillEditText,
-    CrossIcon
+    CrossIcon,
+    Dropdown
   }
 })
 export default class System extends Vue {
@@ -205,6 +217,28 @@ export default class System extends Vue {
     } catch (e) {
       this.invidiousDetails = this.$tc('settings.system.invidiousUrlUnsupported')
     }
+  }
+
+  private get languageDropdown() {
+    const items = new Intl.DisplayNames(['en'], {
+      type: 'language'
+    })
+    const languages = []
+    for (const lang of Object.keys(messages)) {
+      languages.push({
+        key: lang,
+        title: items.of(lang.replaceAll('_', '-')),
+        enabled: lang === 'en_US'
+      })
+    }
+    return languages
+  }
+
+  private onLanguageChanged(key: CheckboxValue) {
+    const active = key.find((val) => val.enabled) ?? this.languageDropdown[0]
+    console.debug('changing locale to', active.key)
+    i18n.locale = active.key
+    window.ThemeUtils.setLanguage(active.key)
   }
 
   private async fetchInvidiousInstances() {
