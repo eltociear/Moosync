@@ -43,6 +43,7 @@ export class StoreChannel implements IpcChannelInterface {
           const encrypted = safeStorage.encryptString(token)
           saveSelectivePreference(`secure.${service}`, encrypted.toString('base64'))
         } else {
+          console.warn('safe storage not available')
           saveSelectivePreference(`secure.${service}`, Buffer.from(token).toString('base64'))
         }
       } else {
@@ -74,9 +75,9 @@ export class StoreChannel implements IpcChannelInterface {
 
   public async getSecure(service: string) {
     try {
-      if (safeStorage.isEncryptionAvailable()) {
-        const encrypted = loadSelectivePreference<string>(`secure.${service}`)
-        if (encrypted) {
+      const encrypted = loadSelectivePreference<string>(`secure.${service}`)
+      if (encrypted) {
+        if (safeStorage.isEncryptionAvailable()) {
           try {
             const decrypted = safeStorage.decryptString(Buffer.from(encrypted, 'base64'))
             return decrypted
@@ -84,6 +85,9 @@ export class StoreChannel implements IpcChannelInterface {
             console.warn('Failed to decrypt token', service, e)
             return encrypted
           }
+        } else {
+          console.warn('safe storage not available')
+          return Buffer.from(encrypted, 'base64').toString('utf-8')
         }
       }
     } catch (e) {
