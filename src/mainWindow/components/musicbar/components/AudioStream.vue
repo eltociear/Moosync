@@ -529,13 +529,17 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
       play: true,
       pause: true,
       next: this.enableTrackControls,
-      prev: this.enableTrackControls
+      prev: this.enableTrackControls,
+      shuffle: false,
+      loop: 'None'
     })
   }
 
   @Watch('repeat', { immediate: true, deep: false })
   private async onRepeatChanged() {
-    await window.MprisUtils.setShuffleRepeat(false, this.repeat ? 'Track' : 'None')
+    await window.MprisUtils.setButtonStatus({
+      loop: this.repeat ? 'Track' : 'None'
+    })
   }
 
   private async getLocalSong(songID: string) {

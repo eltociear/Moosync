@@ -599,11 +599,5 @@ contextBridge.exposeInMainWorld('MprisUtils', {
     }),
 
   listenMediaButtonPress: (callback: (args: typeof ButtonEnum) => void) =>
-    ipcRendererHolder.on(MprisEvents.ON_BUTTON_PRESSED, callback),
-
-  setShuffleRepeat: (shuffle: boolean, repeat: MprisRequests.ShuffleRepeat['repeat']) =>
-    ipcRendererHolder.send<MprisRequests.ShuffleRepeat>(IpcEvents.MPRIS, {
-      type: MprisEvents.SHUFFLE_REPEAT_CHANGED,
-      params: { shuffle, repeat }
-    })
+    ipcRendererHolder.on(MprisEvents.ON_BUTTON_PRESSED, callback)
 })

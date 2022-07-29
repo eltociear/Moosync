@@ -306,7 +306,6 @@ interface mprisUtils {
   updatePlaybackState: (state: PlayerState) => Promise<void>
   setButtonStatus: (status: import('media-controller').PlayerButtons) => Promise<void>
   listenMediaButtonPress: (callback: (args: number) => void) => Promise<void>
-  setShuffleRepeat: (shuffle: boolean, repeat: MprisRequests.ShuffleRepeat['repeat']) => Promise<void>
 }
 
 interface Window {

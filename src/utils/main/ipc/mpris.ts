@@ -16,7 +16,7 @@ export class MprisChannel implements IpcChannelInterface {
   private controller = new MediaController()
 
   constructor() {
-    this.controller.createPlayer()
+    this.controller.createPlayer('Moosync')
     this.onButtonPressed()
   }
 
@@ -30,9 +30,6 @@ export class MprisChannel implements IpcChannelInterface {
         break
       case MprisEvents.BUTTON_STATUS_CHANGED:
         this.setButtonStatus(event, request as IpcRequest<MprisRequests.ButtonStatus>)
-        break
-      case MprisEvents.SHUFFLE_REPEAT_CHANGED:
-        this.setShuffleRepeat(event, request as IpcRequest<MprisRequests.ShuffleRepeat>)
         break
     }
   }
@@ -79,21 +76,15 @@ export class MprisChannel implements IpcChannelInterface {
 
   private setButtonStatus(event: Electron.IpcMainEvent, request: IpcRequest<MprisRequests.ButtonStatus>) {
     if (request.params) {
-      const { play, pause, next, prev } = request.params
+      const { play, pause, next, prev, shuffle, loop } = request.params
       this.controller.setButtonStatus({
         play,
         pause,
         next,
-        prev
+        prev,
+        shuffle,
+        loop
       })
-    }
-
-    event.reply(request.responseChannel)
-  }
-
-  private setShuffleRepeat(event: Electron.IpcMainEvent, request: IpcRequest<MprisRequests.ShuffleRepeat>) {
-    if (request.params) {
-      this.controller.setShuffleRepeat(request.params.shuffle, request.params.repeat)
     }
 
     event.reply(request.responseChannel)

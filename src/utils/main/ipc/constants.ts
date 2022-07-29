@@ -169,7 +169,6 @@ export enum MprisEvents {
   PLAYBACK_STATE_CHANGED = 'playbackStateChanged',
   SONG_INFO_CHANGED = 'songInfoChanged',
   BUTTON_STATUS_CHANGED = 'buttonStatusChanged',
-  SHUFFLE_REPEAT_CHANGED = 'shuffleRepeatChanged',
   ON_BUTTON_PRESSED = 'onButtonPressed'
 }
 
