@@ -1,155 +1,155 @@
 {
   "sidebar": {
     "tabs": {
-      "queue": "Queue",
-      "allSongs": "All Songs",
-      "playlists": "Playlists",
-      "albums": "Albums",
-      "artists": "Artists",
+      "queue": "Kø",
+      "allSongs": "Alle Sange",
+      "playlists": "Afspilningslister",
+      "albums": "Albummer",
+      "artists": "Kunstnere",
       "genre": "Genres",
-      "explore": "Explore"
+      "explore": "Udforsk"
     }
   },
   "topbar": {
-    "searchPlaceholder": "Search...",
-    "noResultsFound": "No results found"
+    "searchPlaceholder": "Søg...",
+    "noResultsFound": "Ingen resultater fundet"
   },
   "pages": {
-    "playlists": "Playlists",
-    "albums": "Albums",
-    "artists": "Artists",
+    "playlists": "Afspilningslister",
+    "albums": "Albummer",
+    "artists": "Kunstnere",
     "genres": "Genres",
-    "explore": "Explore"
+    "explore": "Udforsk"
   },
   "songView": {
     "details": {
-      "songCount": "{count} song | {count} songs"
+      "songCount": "{count} nummer {count} sange"
     },
     "songList": {
       "topbar": {
-        "searchPlaceholder": "Search..."
+        "searchPlaceholder": "Søg..."
       }
     }
   },
   "buttons": {
-    "playSingle": "Play {title}",
-    "addToQueue": "Add {title} to queue",
-    "addToLibrary": "Add {title} to library"
+    "playSingle": "Spil {title}",
+    "addToQueue": "Tilføj {title} til kø",
+    "addToLibrary": "Tilføj {title} til bibliotek"
   },
-  "loading": "Loading...",
+  "loading": "Indlæser...",
   "contextMenu": {
     "sort": {
-      "name": "Name",
-      "dateAdded": "Date added",
-      "provider": "Provider"
+      "name": "Navn",
+      "dateAdded": "Dato tilføjet",
+      "provider": "Udbyder"
     },
     "playlist": {
-      "new": "Create Playlist",
-      "remove": "Remove playlist",
-      "export": "Export playlist",
-      "add": "Add To Playlist",
-      "addFromURL": "Add Playlist from URL"
+      "new": "Opret Spilleliste",
+      "remove": "Fjern afspilningsliste",
+      "export": "Eksporter afspilningsliste",
+      "add": "Føj Til Spilleliste",
+      "addFromURL": "Tilføj afspilningsliste fra URL"
     },
     "song": {
-      "addFromURL": "Add from URL",
-      "playNow": "Play Now",
-      "addToQueue": "Add To Queue",
-      "moveToTop": "Move to top",
-      "moveToBottom": "Move to bottom",
-      "moveManually": "Move manually",
-      "manualIndex": "Set index of song",
-      "remove": "Remove from Library",
-      "add": "Add Song to Library | Add Songs to Library"
+      "addFromURL": "Tilføj fra URL",
+      "playNow": "Spil Nu",
+      "addToQueue": "Føj Til Kø",
+      "moveToTop": "Flyt til toppen",
+      "moveToBottom": "Flyt til bunden",
+      "moveManually": "Flyt manuelt",
+      "manualIndex": "Sæt indeks for sang",
+      "remove": "Fjern fra bibliotek",
+      "add": "Tilføj sang til biblioteket - Tilføj sange til biblioteket"
     },
-    "moreInfo": "More Info"
+    "moreInfo": "Mere Info"
   },
   "providers": {
-    "youtube": "Youtube",
+    "youtube": "YouTube",
     "spotify": "Spotify",
-    "invidious": "Invidious",
+    "invidious": "Invidiøs",
     "lastfm": "LastFM"
   },
-  "save": "Save",
-  "cancel": "Cancel",
+  "save": "Gem",
+  "cancel": "Annuller",
   "settings": {
     "paths": {
-      "songDirectories": "Song Directories",
-      "songDirectories_tooltip": "Directories where all your local music is stored",
-      "addFolder": "Add Folder...",
-      "remove": "Remove",
-      "artworkPath": "Downloaded Artwork Path",
-      "artworkPath_tooltip": "Directory where downloaded artworks are stored",
-      "thumbnailPath": "Downloaded Thumbnail Path",
-      "thumbnailPath_tooltip": "Directory where generated thumbnails are stored"
+      "songDirectories": "Sang Mapper",
+      "songDirectories_tooltip": "Mapper hvor al din lokale musik er gemt",
+      "addFolder": "Tilføj Mappe...",
+      "remove": "Fjern",
+      "artworkPath": "Downloadet Artwork Sti",
+      "artworkPath_tooltip": "Mappe, hvor downloadede kunstværker gemmes",
+      "thumbnailPath": "Downloadet Miniaturesti",
+      "thumbnailPath_tooltip": "Mappe, hvor genererede miniaturer er gemt"
     },
     "themes": {
-      "songView": "Songs View",
-      "songView_tooltip": "Customize song list appearance",
-      "songView_classic": "Classic",
-      "songView_compact": "Compact",
-      "themes": "Themes",
-      "themes_tooltip": "Customize colors",
-      "themes_default": "Default",
-      "createTheme": "Create new theme",
+      "songView": "Sange Visning",
+      "songView_tooltip": "Tilpas sang liste udseende",
+      "songView_classic": "Klassisk",
+      "songView_compact": "Kompakt",
+      "themes": "Temaer",
+      "themes_tooltip": "Tilpas farver",
+      "themes_default": "Standard",
+      "createTheme": "Opret nyt tema",
       "newTheme": {
-        "name": "Theme Name",
-        "author": "Author",
-        "colors": "Colors",
-        "colors_tooltip": "Change the colors to customise UI"
+        "name": "Tema Navn",
+        "author": "Forfatter",
+        "colors": "Farver",
+        "colors_tooltip": "Skift farverne for at tilpasse brugergrænsefladen"
       },
-      "primary": "Primary",
-      "secondary": "Secondary",
-      "tertiary": "Tertiary",
-      "textPrimary": "Text Primary",
-      "textSecondary": "Text Secondary",
-      "textInverse": "Text Inverse",
+      "primary": "Primær",
+      "secondary": "Sekundær",
+      "tertiary": "Tertiær",
+      "textPrimary": "Tekst Primær",
+      "textSecondary": "Sekundær Tekst",
+      "textInverse": "Tekst Omvendt",
       "accent": "Accent",
-      "divider": "Divider"
+      "divider": "Opdeler"
     },
     "extensions": {
-      "extensions": "Extensions",
-      "extensions_tooltip": "List of all installed extensions",
-      "discover": "Discover",
-      "install": "Install from file",
-      "remove": "Remove"
+      "extensions": "Udvidelser",
+      "extensions_tooltip": "Liste over alle installerede udvidelser",
+      "discover": "Opdag",
+      "install": "Installer fra fil",
+      "remove": "Fjern"
     },
     "system": {
       "systemSettings": {
-        "title": "System Settings",
-        "systemStartup": "Start app on system startup",
-        "minimizeTray": "Minimize to tray on close",
-        "hardwareAcceleration": "Use GPU hardware acceleration",
-        "watchFileChanges": "Watch music directories for changes",
-        "useInvidious": "Use Invidious instead of Youtube"
+        "title": "Systemindstillinger",
+        "systemStartup": "Start app ved systemopstart",
+        "minimizeTray": "Minimér til bakke ved lukning",
+        "hardwareAcceleration": "Brug GPU hardware acceleration",
+        "watchFileChanges": "Se musikmapper for ændringer",
+        "useInvidious": "Brug Invidious i stedet for Youtube"
       },
-      "systemSettings_tooltip": "Settings which are related to your system",
+      "systemSettings_tooltip": "Indstillinger, der er relateret til dit system",
       "audioSettings": {
-        "title": "Audio Settings",
-        "gaplessPlayback": "Use gapless playback for wherever possible",
-        "sponsorBlock": "Use SponsorBlock to automatically skip to highlighted part of Youtube song",
-        "useEmbeds": "Use Youtube embeds for playing audio from Youtube"
+        "title": "Indstillinger For Lyd",
+        "gaplessPlayback": "Brug gapless afspilning for hvor det er muligt",
+        "sponsorBlock": "Brug SponsorBlock til automatisk at springe over til den markerede del af YouTube-sang",
+        "useEmbeds": "Brug Youtube embeds til afspilning af lyd fra Youtube"
       },
-      "audioSettings_tooltip": "Settings which are related audio playback",
+      "audioSettings_tooltip": "Indstillinger som er relateret til lydafspilning",
       "invidious": "Invidious Instance",
-      "invidiousUrlUnsupported": "This url does not support Invidious API",
-      "invidious_tooltip": "Invidious instance to use instead of youtube",
-      "restartApp": "Restart Moosync",
-      "zoom": "Zoom Factor (Beta)",
-      "zoom_tooltip": "Zoom of windows in percentage. This may break the UI.",
+      "invidiousUrlUnsupported": "Denne url understøtter ikke Invidious API",
+      "invidious_tooltip": "Invidious eksempel til at bruge i stedet for youtube",
+      "restartApp": "Genstart Moosync",
+      "zoom": "Zoomfaktor (Beta)",
+      "zoom_tooltip": "Zoom af vinduer i procent. Dette kan ødelægge brugergrænsefladen.",
       "spotify": {
-        "client_id": "Spotify Client ID",
-        "client_id_tooltip": "Spotify client ID required to login to Spotify. Click to know more",
-        "client_secret": "Spotify Client Secret",
-        "client_secret_tooltip": "Spotify client Secret required to login to Spotify. Click to know more",
-        "autoFetchButton": "Get Spotify details automatically",
-        "autoFetchPreTitle": "Get",
-        "autoFetchTitle": "ClientID and Secret",
-        "autoFetchDisclaimer": "A window will now open where you will be asked to login to your Spotify account. After logging in please do not click anywhere as the whole process will be automated",
-        "openWindow": "Open Window"
+        "client_id": "Spotify Klient ID",
+        "client_id_tooltip": "Spotify klient ID kræves for at logge ind på Spotify. Klik for at vide mere",
+        "client_secret": "Spotify Klient Hemmelighed",
+        "client_secret_tooltip": "Spotify klient Hemmelighed kræves for at logge ind på Spotify. Klik for at vide mere",
+        "autoFetchButton": "Få Spotify detaljer automatisk",
+        "autoFetchPreTitle": "Hent",
+        "autoFetchTitle": "KlientID og hemmelighed",
+        "autoFetchDisclaimer": "Et vindue åbnes nu, hvor du vil blive bedt om at logge ind på din Spotify-konto. Når du er logget ind, skal du ikke klikke hvor som helst da hele processen vil blive automatiseret",
+        "openWindow": "Åbn Vindue"
       },
       "youtube": {
-        "client_id": "Youtube Client ID",
-        "client_secret": "Youtube Client Secret"
+        "client_id": "Youtube Klient ID",
+        "client_secret": "Youtube Klient Hemmelig"
       },
       "lastfm": {
         "client_id": "LastFM Api Key",
@@ -157,10 +157,10 @@
       }
     },
     "logs": {
-      "logSettings": "Log Settings",
-      "level": "Level",
-      "process": "Process",
-      "filterMessage": "Filter Message"
+      "logSettings": "Log Indstillinger",
+      "level": "Niveau",
+      "process": "Proces",
+      "filterMessage": "Filtrer Besked"
     }
   }
 }

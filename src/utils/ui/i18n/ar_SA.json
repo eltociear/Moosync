@@ -1,155 +1,155 @@
 {
   "sidebar": {
     "tabs": {
-      "queue": "Queue",
-      "allSongs": "All Songs",
-      "playlists": "Playlists",
-      "albums": "Albums",
-      "artists": "Artists",
+      "queue": "قائمة الانتظار",
+      "allSongs": "جميع الأغاني",
+      "playlists": "قوائم التشغيل",
+      "albums": "ألبومات",
+      "artists": "الفنانون",
       "genre": "Genres",
-      "explore": "Explore"
+      "explore": "استكشف"
     }
   },
   "topbar": {
-    "searchPlaceholder": "Search...",
-    "noResultsFound": "No results found"
+    "searchPlaceholder": "بحث...",
+    "noResultsFound": "لم يتم العثور على نتائج"
   },
   "pages": {
-    "playlists": "Playlists",
-    "albums": "Albums",
-    "artists": "Artists",
+    "playlists": "قوائم التشغيل",
+    "albums": "ألبومات",
+    "artists": "الفنانون",
     "genres": "Genres",
-    "explore": "Explore"
+    "explore": "استكشف"
   },
   "songView": {
     "details": {
-      "songCount": "{count} song | {count} songs"
+      "songCount": "{count} أغنية <unk> {count} أغنية"
     },
     "songList": {
       "topbar": {
-        "searchPlaceholder": "Search..."
+        "searchPlaceholder": "بحث..."
       }
     }
   },
   "buttons": {
-    "playSingle": "Play {title}",
-    "addToQueue": "Add {title} to queue",
-    "addToLibrary": "Add {title} to library"
+    "playSingle": "تشغيل {title}",
+    "addToQueue": "إضافة {title} إلى قائمة الانتظار",
+    "addToLibrary": "إضافة {title} إلى المكتبة"
   },
-  "loading": "Loading...",
+  "loading": "تحميل...",
   "contextMenu": {
     "sort": {
-      "name": "Name",
-      "dateAdded": "Date added",
-      "provider": "Provider"
+      "name": "الاسم",
+      "dateAdded": "تاريخ الإضافة",
+      "provider": "موفر"
     },
     "playlist": {
-      "new": "Create Playlist",
-      "remove": "Remove playlist",
-      "export": "Export playlist",
-      "add": "Add To Playlist",
-      "addFromURL": "Add Playlist from URL"
+      "new": "إنشاء قائمة تشغيل",
+      "remove": "إزالة قائمة التشغيل",
+      "export": "تصدير قائمة التشغيل",
+      "add": "إضافة إلى قائمة التشغيل",
+      "addFromURL": "إضافة قائمة تشغيل من URL"
     },
     "song": {
-      "addFromURL": "Add from URL",
-      "playNow": "Play Now",
-      "addToQueue": "Add To Queue",
-      "moveToTop": "Move to top",
-      "moveToBottom": "Move to bottom",
-      "moveManually": "Move manually",
-      "manualIndex": "Set index of song",
-      "remove": "Remove from Library",
-      "add": "Add Song to Library | Add Songs to Library"
+      "addFromURL": "إضافة من عنوان URL",
+      "playNow": "تشغيل الآن",
+      "addToQueue": "إضافة إلى قائمة الانتظار",
+      "moveToTop": "الانتقال إلى الأعلى",
+      "moveToBottom": "الانتقال إلى الأسفل",
+      "moveManually": "نقل يدوياً",
+      "manualIndex": "تعيين فهرس الأغنية",
+      "remove": "إزالة من المكتبة",
+      "add": "إضافة أغنية إلى المكتبة <unk> إضافة أغاني إلى المكتبة"
     },
-    "moreInfo": "More Info"
+    "moreInfo": "المزيد من المعلومات"
   },
   "providers": {
-    "youtube": "Youtube",
-    "spotify": "Spotify",
-    "invidious": "Invidious",
+    "youtube": "يوتيوب",
+    "spotify": "سبوتيفاي",
+    "invidious": "دعوي",
     "lastfm": "LastFM"
   },
-  "save": "Save",
-  "cancel": "Cancel",
+  "save": "حفظ",
+  "cancel": "إلغاء",
   "settings": {
     "paths": {
-      "songDirectories": "Song Directories",
-      "songDirectories_tooltip": "Directories where all your local music is stored",
-      "addFolder": "Add Folder...",
-      "remove": "Remove",
-      "artworkPath": "Downloaded Artwork Path",
-      "artworkPath_tooltip": "Directory where downloaded artworks are stored",
-      "thumbnailPath": "Downloaded Thumbnail Path",
-      "thumbnailPath_tooltip": "Directory where generated thumbnails are stored"
+      "songDirectories": "أدلة الأغنية",
+      "songDirectories_tooltip": "الدلائل حيث يتم تخزين جميع الموسيقى المحلية الخاصة بك",
+      "addFolder": "إضافة مجلد...",
+      "remove": "إزالة",
+      "artworkPath": "مسار الأعمال الفنية المحمّلة",
+      "artworkPath_tooltip": "الدليل حيث يتم تخزين الأعمال الفنية التي تم تنزيلها",
+      "thumbnailPath": "مسار الصورة المصغرة الذي تم تنزيله",
+      "thumbnailPath_tooltip": "الدليل حيث يتم تخزين الصور المصغرة التي تم إنشاؤها"
     },
     "themes": {
-      "songView": "Songs View",
-      "songView_tooltip": "Customize song list appearance",
-      "songView_classic": "Classic",
-      "songView_compact": "Compact",
-      "themes": "Themes",
-      "themes_tooltip": "Customize colors",
-      "themes_default": "Default",
-      "createTheme": "Create new theme",
+      "songView": "عرض الأغاني",
+      "songView_tooltip": "تخصيص مظهر قائمة الأغنية",
+      "songView_classic": "كلاسيكي",
+      "songView_compact": "مدمج",
+      "themes": "السمات",
+      "themes_tooltip": "تخصيص الألوان",
+      "themes_default": "الافتراضي",
+      "createTheme": "إنشاء سمة جديدة",
       "newTheme": {
-        "name": "Theme Name",
-        "author": "Author",
-        "colors": "Colors",
-        "colors_tooltip": "Change the colors to customise UI"
+        "name": "اسم السمة",
+        "author": "المؤلف",
+        "colors": "الألوان",
+        "colors_tooltip": "تغيير الألوان لتخصيص واجهة المستخدم"
       },
-      "primary": "Primary",
-      "secondary": "Secondary",
-      "tertiary": "Tertiary",
-      "textPrimary": "Text Primary",
-      "textSecondary": "Text Secondary",
-      "textInverse": "Text Inverse",
-      "accent": "Accent",
-      "divider": "Divider"
+      "primary": "اساسي",
+      "secondary": "ثانوي",
+      "tertiary": "المستوى الثالث",
+      "textPrimary": "النص الأساسي",
+      "textSecondary": "ثانوية نصية",
+      "textInverse": "عكس النص",
+      "accent": "اللكنة",
+      "divider": "الفاصل"
     },
     "extensions": {
-      "extensions": "Extensions",
-      "extensions_tooltip": "List of all installed extensions",
-      "discover": "Discover",
-      "install": "Install from file",
-      "remove": "Remove"
+      "extensions": "ملحقات",
+      "extensions_tooltip": "قائمة بجميع الملحقات المثبتة",
+      "discover": "اكتشف",
+      "install": "تثبيت من الملف",
+      "remove": "إزالة"
     },
     "system": {
       "systemSettings": {
-        "title": "System Settings",
-        "systemStartup": "Start app on system startup",
-        "minimizeTray": "Minimize to tray on close",
-        "hardwareAcceleration": "Use GPU hardware acceleration",
-        "watchFileChanges": "Watch music directories for changes",
-        "useInvidious": "Use Invidious instead of Youtube"
+        "title": "إعدادات النظام",
+        "systemStartup": "بدء تشغيل التطبيق عند بدء تشغيل النظام",
+        "minimizeTray": "تصغير إلى غلق",
+        "hardwareAcceleration": "استخدام تسارع أجهزة GPU",
+        "watchFileChanges": "مشاهدة أدلة الموسيقى للتغييرات",
+        "useInvidious": "استخدام دعوة بدلاً من يوتيوب"
       },
-      "systemSettings_tooltip": "Settings which are related to your system",
+      "systemSettings_tooltip": "الإعدادات المرتبطة بالنظام الخاص بك",
       "audioSettings": {
-        "title": "Audio Settings",
-        "gaplessPlayback": "Use gapless playback for wherever possible",
-        "sponsorBlock": "Use SponsorBlock to automatically skip to highlighted part of Youtube song",
-        "useEmbeds": "Use Youtube embeds for playing audio from Youtube"
+        "title": "إعدادات الصوت",
+        "gaplessPlayback": "استخدام تشغيل غير قابل للتشغيل كلما كان ذلك ممكناً",
+        "sponsorBlock": "استخدم SponsorBlock للتخطي تلقائياً لجزء من أغنية يوتيوب",
+        "useEmbeds": "استخدام تضمين اليوتيوب لتشغيل الصوت من يوتيوب"
       },
-      "audioSettings_tooltip": "Settings which are related audio playback",
-      "invidious": "Invidious Instance",
-      "invidiousUrlUnsupported": "This url does not support Invidious API",
-      "invidious_tooltip": "Invidious instance to use instead of youtube",
-      "restartApp": "Restart Moosync",
-      "zoom": "Zoom Factor (Beta)",
-      "zoom_tooltip": "Zoom of windows in percentage. This may break the UI.",
+      "audioSettings_tooltip": "الإعدادات ذات الصلة بتشغيل الصوت",
+      "invidious": "المثيل المشجّع",
+      "invidiousUrlUnsupported": "عنوان URL هذا لا يدعم API المدعو",
+      "invidious_tooltip": "مثال دعوي لاستخدام بدلا من يوتيوب",
+      "restartApp": "إعادة تشغيل موسينك",
+      "zoom": "عامل التكبير (بيتا)",
+      "zoom_tooltip": "تكبير النوافذ بنسبة مئوية. قد يؤدي هذا إلى كسر واجهة المستخدم.",
       "spotify": {
-        "client_id": "Spotify Client ID",
-        "client_id_tooltip": "Spotify client ID required to login to Spotify. Click to know more",
-        "client_secret": "Spotify Client Secret",
-        "client_secret_tooltip": "Spotify client Secret required to login to Spotify. Click to know more",
-        "autoFetchButton": "Get Spotify details automatically",
-        "autoFetchPreTitle": "Get",
-        "autoFetchTitle": "ClientID and Secret",
-        "autoFetchDisclaimer": "A window will now open where you will be asked to login to your Spotify account. After logging in please do not click anywhere as the whole process will be automated",
-        "openWindow": "Open Window"
+        "client_id": "معرف عميل Spotify",
+        "client_id_tooltip": "معرف عميل Spotify مطلوب لتسجيل الدخول إلى Spotify. انقر لمعرفة المزيد",
+        "client_secret": "سر عميل Spotify",
+        "client_secret_tooltip": "Spotify الزبون السري مطلوب لتسجيل الدخول إلى Spotify. انقر لمعرفة المزيد",
+        "autoFetchButton": "احصل على تفاصيل Spotify تلقائياً",
+        "autoFetchPreTitle": "احصل",
+        "autoFetchTitle": "معرف العميل والسر",
+        "autoFetchDisclaimer": "ستفتح نافذة الآن حيث سيُطلب منك تسجيل الدخول إلى حساب Spotify الخاص بك. بعد تسجيل الدخول الرجاء عدم النقر في أي مكان لأن العملية بأكملها ستكون تلقائية",
+        "openWindow": "فتح النافذة"
       },
       "youtube": {
-        "client_id": "Youtube Client ID",
-        "client_secret": "Youtube Client Secret"
+        "client_id": "معرف عميل اليوتيوب",
+        "client_secret": "سر عميل اليوتيوب"
       },
       "lastfm": {
         "client_id": "LastFM Api Key",
@@ -157,10 +157,10 @@
       }
     },
     "logs": {
-      "logSettings": "Log Settings",
-      "level": "Level",
-      "process": "Process",
-      "filterMessage": "Filter Message"
+      "logSettings": "إعدادات السجل",
+      "level": "المستوى",
+      "process": "العملية",
+      "filterMessage": "تصفية الرسالة"
     }
   }
 }
