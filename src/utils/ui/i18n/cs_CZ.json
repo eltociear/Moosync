@@ -1,155 +1,155 @@
 {
   "sidebar": {
     "tabs": {
-      "queue": "Queue",
-      "allSongs": "All Songs",
-      "playlists": "Playlists",
-      "albums": "Albums",
-      "artists": "Artists",
+      "queue": "Fronta",
+      "allSongs": "Všechny skladby",
+      "playlists": "Seznamy stop",
+      "albums": "Alba",
+      "artists": "Umělci",
       "genre": "Genres",
-      "explore": "Explore"
+      "explore": "Prozkoumat"
     }
   },
   "topbar": {
-    "searchPlaceholder": "Search...",
-    "noResultsFound": "No results found"
+    "searchPlaceholder": "Hledat...",
+    "noResultsFound": "Nebyly nalezeny žádné výsledky"
   },
   "pages": {
-    "playlists": "Playlists",
-    "albums": "Albums",
-    "artists": "Artists",
+    "playlists": "Seznamy stop",
+    "albums": "Alba",
+    "artists": "Umělci",
     "genres": "Genres",
-    "explore": "Explore"
+    "explore": "Prozkoumat"
   },
   "songView": {
     "details": {
-      "songCount": "{count} song | {count} songs"
+      "songCount": "{count} skladba | {count} skladeb"
     },
     "songList": {
       "topbar": {
-        "searchPlaceholder": "Search..."
+        "searchPlaceholder": "Hledat..."
       }
     }
   },
   "buttons": {
-    "playSingle": "Play {title}",
-    "addToQueue": "Add {title} to queue",
-    "addToLibrary": "Add {title} to library"
+    "playSingle": "Hrajte {title}",
+    "addToQueue": "Přidat {title} do fronty",
+    "addToLibrary": "Přidat {title} do knihovny"
   },
-  "loading": "Loading...",
+  "loading": "Načítám...",
   "contextMenu": {
     "sort": {
-      "name": "Name",
-      "dateAdded": "Date added",
-      "provider": "Provider"
+      "name": "Název",
+      "dateAdded": "Datum přidání",
+      "provider": "Poskytovatel"
     },
     "playlist": {
-      "new": "Create Playlist",
-      "remove": "Remove playlist",
-      "export": "Export playlist",
-      "add": "Add To Playlist",
-      "addFromURL": "Add Playlist from URL"
+      "new": "Vytvořit playlist",
+      "remove": "Odstranit seznam skladeb",
+      "export": "Exportovat seznam skladeb",
+      "add": "Přidat do seznamu skladeb",
+      "addFromURL": "Přidat playlist z URL"
     },
     "song": {
-      "addFromURL": "Add from URL",
-      "playNow": "Play Now",
-      "addToQueue": "Add To Queue",
-      "moveToTop": "Move to top",
-      "moveToBottom": "Move to bottom",
-      "moveManually": "Move manually",
-      "manualIndex": "Set index of song",
-      "remove": "Remove from Library",
-      "add": "Add Song to Library | Add Songs to Library"
+      "addFromURL": "Přidat z URL",
+      "playNow": "Přehrát nyní",
+      "addToQueue": "Přidat do fronty",
+      "moveToTop": "Přesunout nahoru",
+      "moveToBottom": "Přesunout dolů",
+      "moveManually": "Přesunout ručně",
+      "manualIndex": "Nastavit index skladby",
+      "remove": "Odstranit z knihovny",
+      "add": "Přidat skladbu do knihovny | Přidat skladby do knihovny"
     },
-    "moreInfo": "More Info"
+    "moreInfo": "Další informace"
   },
   "providers": {
-    "youtube": "Youtube",
+    "youtube": "YouTube",
     "spotify": "Spotify",
-    "invidious": "Invidious",
+    "invidious": "Neviditelné",
     "lastfm": "LastFM"
   },
-  "save": "Save",
-  "cancel": "Cancel",
+  "save": "Uložit",
+  "cancel": "Zrušit",
   "settings": {
     "paths": {
-      "songDirectories": "Song Directories",
-      "songDirectories_tooltip": "Directories where all your local music is stored",
-      "addFolder": "Add Folder...",
-      "remove": "Remove",
-      "artworkPath": "Downloaded Artwork Path",
-      "artworkPath_tooltip": "Directory where downloaded artworks are stored",
-      "thumbnailPath": "Downloaded Thumbnail Path",
-      "thumbnailPath_tooltip": "Directory where generated thumbnails are stored"
+      "songDirectories": "Adresáře skladeb",
+      "songDirectories_tooltip": "Adresáře, kde jsou uloženy všechny místní hudby",
+      "addFolder": "Přidat složku...",
+      "remove": "Odebrat",
+      "artworkPath": "Stáhnutá cesta k interpretu",
+      "artworkPath_tooltip": "Adresář, kde jsou ukládány stažené interprety",
+      "thumbnailPath": "Cesta ke stažení miniatur",
+      "thumbnailPath_tooltip": "Adresář, kde jsou uloženy generované náhledy"
     },
     "themes": {
-      "songView": "Songs View",
-      "songView_tooltip": "Customize song list appearance",
-      "songView_classic": "Classic",
-      "songView_compact": "Compact",
-      "themes": "Themes",
-      "themes_tooltip": "Customize colors",
-      "themes_default": "Default",
-      "createTheme": "Create new theme",
+      "songView": "Zobrazení skladeb",
+      "songView_tooltip": "Přizpůsobit vzhled seznamu skladeb",
+      "songView_classic": "Klasický",
+      "songView_compact": "Kompaktní",
+      "themes": "Motivy",
+      "themes_tooltip": "Přizpůsobit barvy",
+      "themes_default": "Výchozí",
+      "createTheme": "Vytvořit nový motiv",
       "newTheme": {
-        "name": "Theme Name",
-        "author": "Author",
-        "colors": "Colors",
-        "colors_tooltip": "Change the colors to customise UI"
+        "name": "Název šablony",
+        "author": "Autor",
+        "colors": "Barvy",
+        "colors_tooltip": "Změnit barvy pro přizpůsobení uživatelského rozhraní"
       },
-      "primary": "Primary",
-      "secondary": "Secondary",
-      "tertiary": "Tertiary",
-      "textPrimary": "Text Primary",
-      "textSecondary": "Text Secondary",
-      "textInverse": "Text Inverse",
-      "accent": "Accent",
-      "divider": "Divider"
+      "primary": "Primární",
+      "secondary": "Sekundární",
+      "tertiary": "Terciární",
+      "textPrimary": "Primární text",
+      "textSecondary": "Sekundární text",
+      "textInverse": "Převrácený text",
+      "accent": "zvýraznění",
+      "divider": "Dělič"
     },
     "extensions": {
-      "extensions": "Extensions",
-      "extensions_tooltip": "List of all installed extensions",
-      "discover": "Discover",
-      "install": "Install from file",
-      "remove": "Remove"
+      "extensions": "Rozšíření",
+      "extensions_tooltip": "Seznam všech nainstalovaných rozšíření",
+      "discover": "Objevte",
+      "install": "Instalovat ze souboru",
+      "remove": "Odebrat"
     },
     "system": {
       "systemSettings": {
-        "title": "System Settings",
-        "systemStartup": "Start app on system startup",
-        "minimizeTray": "Minimize to tray on close",
-        "hardwareAcceleration": "Use GPU hardware acceleration",
-        "watchFileChanges": "Watch music directories for changes",
-        "useInvidious": "Use Invidious instead of Youtube"
+        "title": "Systémová nastavení",
+        "systemStartup": "Spustit aplikaci při spuštění systému",
+        "minimizeTray": "Minimalizovat do lišty při zavření",
+        "hardwareAcceleration": "Použít hardwarovou akceleraci GPU",
+        "watchFileChanges": "Sledujte hudební adresáře pro změny",
+        "useInvidious": "Použít neviditelné místo YouTube"
       },
-      "systemSettings_tooltip": "Settings which are related to your system",
+      "systemSettings_tooltip": "Nastavení vztahující se k vašemu systému",
       "audioSettings": {
-        "title": "Audio Settings",
-        "gaplessPlayback": "Use gapless playback for wherever possible",
-        "sponsorBlock": "Use SponsorBlock to automatically skip to highlighted part of Youtube song",
-        "useEmbeds": "Use Youtube embeds for playing audio from Youtube"
+        "title": "Nastavení zvuku",
+        "gaplessPlayback": "Používejte přehrávání bez mezer všude, kde je to možné",
+        "sponsorBlock": "Použít SponsorBlock k automatickému přeskočení zvýrazněné části Youtube písně",
+        "useEmbeds": "Použít YouTube embeds pro přehrávání zvuku z Youtube"
       },
-      "audioSettings_tooltip": "Settings which are related audio playback",
-      "invidious": "Invidious Instance",
-      "invidiousUrlUnsupported": "This url does not support Invidious API",
-      "invidious_tooltip": "Invidious instance to use instead of youtube",
-      "restartApp": "Restart Moosync",
-      "zoom": "Zoom Factor (Beta)",
-      "zoom_tooltip": "Zoom of windows in percentage. This may break the UI.",
+      "audioSettings_tooltip": "Nastavení související přehrávání zvuku",
+      "invidious": "Invidní instance",
+      "invidiousUrlUnsupported": "Tato url nepodporuje Invidious API",
+      "invidious_tooltip": "Neviditelná instance k použití namísto youtube",
+      "restartApp": "Restartovat Moosync",
+      "zoom": "Faktor přiblížení (Beta)",
+      "zoom_tooltip": "Přiblížení oken v procentech. To může poškodit UI.",
       "spotify": {
-        "client_id": "Spotify Client ID",
-        "client_id_tooltip": "Spotify client ID required to login to Spotify. Click to know more",
-        "client_secret": "Spotify Client Secret",
-        "client_secret_tooltip": "Spotify client Secret required to login to Spotify. Click to know more",
-        "autoFetchButton": "Get Spotify details automatically",
-        "autoFetchPreTitle": "Get",
-        "autoFetchTitle": "ClientID and Secret",
-        "autoFetchDisclaimer": "A window will now open where you will be asked to login to your Spotify account. After logging in please do not click anywhere as the whole process will be automated",
-        "openWindow": "Open Window"
+        "client_id": "Spotify ID klienta",
+        "client_id_tooltip": "Pro přihlášení do Spotify je vyžadováno ID klienta. Klikněte pro více informací",
+        "client_secret": "Tajný Spotify klient",
+        "client_secret_tooltip": "Spotify klient Secret je vyžadován pro přihlášení do Spotify. Klikněte pro více informací",
+        "autoFetchButton": "Automaticky získat Spotify podrobnosti",
+        "autoFetchPreTitle": "Získat",
+        "autoFetchTitle": "KlientID a tajný klíč",
+        "autoFetchDisclaimer": "Okno se nyní otevře, kde budete požádáni o přihlášení ke svému účtu Spotify. Po přihlášení prosím neklikejte nikde a celý proces bude automatizován",
+        "openWindow": "Otevřít okno"
       },
       "youtube": {
-        "client_id": "Youtube Client ID",
-        "client_secret": "Youtube Client Secret"
+        "client_id": "ID klienta YouTube",
+        "client_secret": "Tajný klíč klienta YouTube"
       },
       "lastfm": {
         "client_id": "LastFM Api Key",
@@ -157,10 +157,10 @@
       }
     },
     "logs": {
-      "logSettings": "Log Settings",
-      "level": "Level",
-      "process": "Process",
-      "filterMessage": "Filter Message"
+      "logSettings": "Nastavení protokolu",
+      "level": "Úrovně",
+      "process": "Proces",
+      "filterMessage": "Filtrovat zprávu"
     }
   }
 }

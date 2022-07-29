@@ -1,155 +1,155 @@
 {
   "sidebar": {
     "tabs": {
-      "queue": "Queue",
-      "allSongs": "All Songs",
-      "playlists": "Playlists",
-      "albums": "Albums",
-      "artists": "Artists",
+      "queue": "Ουρά",
+      "allSongs": "Όλα Τα Τραγούδια",
+      "playlists": "Λίστες",
+      "albums": "Άλμπουμ",
+      "artists": "Καλλιτέχνες",
       "genre": "Genres",
-      "explore": "Explore"
+      "explore": "Εξερεύνηση"
     }
   },
   "topbar": {
-    "searchPlaceholder": "Search...",
-    "noResultsFound": "No results found"
+    "searchPlaceholder": "Αναζήτηση...",
+    "noResultsFound": "Δεν βρέθηκαν αποτελέσματα"
   },
   "pages": {
-    "playlists": "Playlists",
-    "albums": "Albums",
-    "artists": "Artists",
+    "playlists": "Λίστες",
+    "albums": "Άλμπουμ",
+    "artists": "Καλλιτέχνες",
     "genres": "Genres",
-    "explore": "Explore"
+    "explore": "Εξερεύνηση"
   },
   "songView": {
     "details": {
-      "songCount": "{count} song | {count} songs"
+      "songCount": "{count} τραγούδι - {count} τραγούδια"
     },
     "songList": {
       "topbar": {
-        "searchPlaceholder": "Search..."
+        "searchPlaceholder": "Αναζήτηση..."
       }
     }
   },
   "buttons": {
-    "playSingle": "Play {title}",
-    "addToQueue": "Add {title} to queue",
-    "addToLibrary": "Add {title} to library"
+    "playSingle": "Παίξε {title}",
+    "addToQueue": "Προσθήκη {title} στην ουρά",
+    "addToLibrary": "Προσθήκη {title} στη βιβλιοθήκη"
   },
-  "loading": "Loading...",
+  "loading": "Φόρτωση...",
   "contextMenu": {
     "sort": {
-      "name": "Name",
-      "dateAdded": "Date added",
-      "provider": "Provider"
+      "name": "Όνομα",
+      "dateAdded": "Ημερομηνία προσθήκης",
+      "provider": "Πάροχος"
     },
     "playlist": {
-      "new": "Create Playlist",
-      "remove": "Remove playlist",
-      "export": "Export playlist",
-      "add": "Add To Playlist",
-      "addFromURL": "Add Playlist from URL"
+      "new": "Δημιουργία Λίστας",
+      "remove": "Αφαίρεση λίστας αναπαραγωγής",
+      "export": "Εξαγωγή λίστας αναπαραγωγής",
+      "add": "Προσθήκη Στη Λίστα Αναπαραγωγής",
+      "addFromURL": "Προσθήκη λίστας αναπαραγωγής από URL"
     },
     "song": {
-      "addFromURL": "Add from URL",
-      "playNow": "Play Now",
-      "addToQueue": "Add To Queue",
-      "moveToTop": "Move to top",
-      "moveToBottom": "Move to bottom",
-      "moveManually": "Move manually",
-      "manualIndex": "Set index of song",
-      "remove": "Remove from Library",
-      "add": "Add Song to Library | Add Songs to Library"
+      "addFromURL": "Προσθήκη από URL",
+      "playNow": "Αναπαραγωγή Τώρα",
+      "addToQueue": "Προσθήκη Στην Ουρά",
+      "moveToTop": "Μετακίνηση στην κορυφή",
+      "moveToBottom": "Μετακίνηση στο κάτω μέρος",
+      "moveManually": "Χειροκίνητη κίνηση",
+      "manualIndex": "Ορισμός ευρετηρίου τραγουδιού",
+      "remove": "Αφαίρεση από τη βιβλιοθήκη",
+      "add": "Προσθήκη τραγουδιού στη βιβλιοθήκη \"Προσθήκη τραγουδιών στη βιβλιοθήκη"
     },
-    "moreInfo": "More Info"
+    "moreInfo": "Περισσότερες Πληροφορίες"
   },
   "providers": {
-    "youtube": "Youtube",
+    "youtube": "YouTube",
     "spotify": "Spotify",
-    "invidious": "Invidious",
+    "invidious": "Προβληματικό",
     "lastfm": "LastFM"
   },
-  "save": "Save",
-  "cancel": "Cancel",
+  "save": "Αποθήκευση",
+  "cancel": "Ακύρωση",
   "settings": {
     "paths": {
-      "songDirectories": "Song Directories",
-      "songDirectories_tooltip": "Directories where all your local music is stored",
-      "addFolder": "Add Folder...",
-      "remove": "Remove",
-      "artworkPath": "Downloaded Artwork Path",
-      "artworkPath_tooltip": "Directory where downloaded artworks are stored",
-      "thumbnailPath": "Downloaded Thumbnail Path",
-      "thumbnailPath_tooltip": "Directory where generated thumbnails are stored"
+      "songDirectories": "Κατάλογοι Τραγουδιών",
+      "songDirectories_tooltip": "Κατάλογοι όπου αποθηκεύονται όλες οι τοπικές μουσικές σας",
+      "addFolder": "Προσθήκη Φακέλου...",
+      "remove": "Αφαίρεση",
+      "artworkPath": "Ληφθείσες Διαδρομές Έργων",
+      "artworkPath_tooltip": "Κατάλογος όπου αποθηκεύονται τα ληφθέντα έργα τέχνης",
+      "thumbnailPath": "Λήφθηκε Διαδρομή Μικρογραφίας",
+      "thumbnailPath_tooltip": "Κατάλογος όπου δημιουργούνται μικρογραφίες αποθηκεύονται"
     },
     "themes": {
-      "songView": "Songs View",
-      "songView_tooltip": "Customize song list appearance",
-      "songView_classic": "Classic",
-      "songView_compact": "Compact",
-      "themes": "Themes",
-      "themes_tooltip": "Customize colors",
-      "themes_default": "Default",
-      "createTheme": "Create new theme",
+      "songView": "Προβολή Τραγουδιών",
+      "songView_tooltip": "Προσαρμογή εμφάνισης λίστας τραγουδιών",
+      "songView_classic": "Κλασικό",
+      "songView_compact": "Συμπαγής",
+      "themes": "Θέματα",
+      "themes_tooltip": "Προσαρμογή χρωμάτων",
+      "themes_default": "Προεπιλογή",
+      "createTheme": "Δημιουργία νέου θέματος",
       "newTheme": {
-        "name": "Theme Name",
-        "author": "Author",
-        "colors": "Colors",
-        "colors_tooltip": "Change the colors to customise UI"
+        "name": "Όνομα Θέματος",
+        "author": "Συγγραφέας",
+        "colors": "Χρώματα",
+        "colors_tooltip": "Αλλάξτε τα χρώματα για να προσαρμόσετε το UI"
       },
-      "primary": "Primary",
-      "secondary": "Secondary",
-      "tertiary": "Tertiary",
-      "textPrimary": "Text Primary",
-      "textSecondary": "Text Secondary",
-      "textInverse": "Text Inverse",
-      "accent": "Accent",
-      "divider": "Divider"
+      "primary": "Κύριο",
+      "secondary": "Δευτερεύον",
+      "tertiary": "Τριτοβάθμιο",
+      "textPrimary": "Κύριο Κείμενο",
+      "textSecondary": "Δευτερεύον Κείμενο",
+      "textInverse": "Αντίστροφο Κείμενο",
+      "accent": "Απόχρωση",
+      "divider": "Διαχωριστικό"
     },
     "extensions": {
-      "extensions": "Extensions",
-      "extensions_tooltip": "List of all installed extensions",
-      "discover": "Discover",
-      "install": "Install from file",
-      "remove": "Remove"
+      "extensions": "Επεκτάσεις",
+      "extensions_tooltip": "Λίστα όλων των εγκατεστημένων επεκτάσεων",
+      "discover": "Ανακαλύψτε",
+      "install": "Εγκατάσταση από αρχείο",
+      "remove": "Αφαίρεση"
     },
     "system": {
       "systemSettings": {
-        "title": "System Settings",
-        "systemStartup": "Start app on system startup",
-        "minimizeTray": "Minimize to tray on close",
-        "hardwareAcceleration": "Use GPU hardware acceleration",
-        "watchFileChanges": "Watch music directories for changes",
-        "useInvidious": "Use Invidious instead of Youtube"
+        "title": "Ρυθμίσεις Συστήματος",
+        "systemStartup": "Έναρξη εφαρμογής κατά την εκκίνηση του συστήματος",
+        "minimizeTray": "Ελαχιστοποίηση στο δίσκο κατά το κλείσιμο",
+        "hardwareAcceleration": "Χρήση επιτάχυνσης υλικού GPU",
+        "watchFileChanges": "Παρακολουθήστε τους καταλόγους μουσικής για αλλαγές",
+        "useInvidious": "Χρήση Invidious αντί για το Youtube"
       },
-      "systemSettings_tooltip": "Settings which are related to your system",
+      "systemSettings_tooltip": "Ρυθμίσεις που σχετίζονται με το σύστημά σας",
       "audioSettings": {
-        "title": "Audio Settings",
-        "gaplessPlayback": "Use gapless playback for wherever possible",
-        "sponsorBlock": "Use SponsorBlock to automatically skip to highlighted part of Youtube song",
-        "useEmbeds": "Use Youtube embeds for playing audio from Youtube"
+        "title": "Ρυθμίσεις Ήχου",
+        "gaplessPlayback": "Χρήση gapless playback για όπου είναι δυνατό",
+        "sponsorBlock": "Χρησιμοποιήστε το SponsorBlock για αυτόματη μετάβαση στο επισημασμένο τμήμα του τραγουδιού του Youtube",
+        "useEmbeds": "Χρήση ενσωμάτωσης Youtube για αναπαραγωγή ήχου από το Youtube"
       },
-      "audioSettings_tooltip": "Settings which are related audio playback",
+      "audioSettings_tooltip": "Ρυθμίσεις που σχετίζονται με αναπαραγωγή ήχου",
       "invidious": "Invidious Instance",
-      "invidiousUrlUnsupported": "This url does not support Invidious API",
+      "invidiousUrlUnsupported": "Αυτή η διεύθυνση URL δεν υποστηρίζει Invidious API",
       "invidious_tooltip": "Invidious instance to use instead of youtube",
-      "restartApp": "Restart Moosync",
-      "zoom": "Zoom Factor (Beta)",
-      "zoom_tooltip": "Zoom of windows in percentage. This may break the UI.",
+      "restartApp": "Επανεκκίνηση Moosync",
+      "zoom": "Συντελεστής Μεγέθυνσης (Beta)",
+      "zoom_tooltip": "Μεγέθυνση παραθύρων σε ποσοστό. Αυτό μπορεί να σπάσει το UI.",
       "spotify": {
-        "client_id": "Spotify Client ID",
-        "client_id_tooltip": "Spotify client ID required to login to Spotify. Click to know more",
-        "client_secret": "Spotify Client Secret",
-        "client_secret_tooltip": "Spotify client Secret required to login to Spotify. Click to know more",
-        "autoFetchButton": "Get Spotify details automatically",
-        "autoFetchPreTitle": "Get",
-        "autoFetchTitle": "ClientID and Secret",
-        "autoFetchDisclaimer": "A window will now open where you will be asked to login to your Spotify account. After logging in please do not click anywhere as the whole process will be automated",
-        "openWindow": "Open Window"
+        "client_id": "Αναγνωριστικό Πελάτη Spotify",
+        "client_id_tooltip": "Το Spotify ID πελάτη απαιτείται για να συνδεθείτε στο Spotify. Κάντε κλικ για να μάθετε περισσότερα",
+        "client_secret": "Μυστικό Πελάτη Spotify",
+        "client_secret_tooltip": "Το μυστικό πελάτη Spotify απαιτείται για να συνδεθείτε στο Spotify. Κάντε κλικ για να μάθετε περισσότερα",
+        "autoFetchButton": "Αυτόματη λήψη λεπτομερειών Spotify",
+        "autoFetchPreTitle": "Λήψη",
+        "autoFetchTitle": "ClientID και Μυστικό",
+        "autoFetchDisclaimer": "Ένα παράθυρο θα ανοίξει τώρα όπου θα σας ζητηθεί να συνδεθείτε στο λογαριασμό σας στο Spotify. Αφού συνδεθείτε παρακαλώ μην κάνετε κλικ πουθενά, καθώς η όλη διαδικασία θα αυτοματοποιηθεί",
+        "openWindow": "Άνοιγμα Παραθύρου"
       },
       "youtube": {
         "client_id": "Youtube Client ID",
-        "client_secret": "Youtube Client Secret"
+        "client_secret": "Μυστικό Πελάτη Youtube"
       },
       "lastfm": {
         "client_id": "LastFM Api Key",
@@ -157,10 +157,10 @@
       }
     },
     "logs": {
-      "logSettings": "Log Settings",
-      "level": "Level",
-      "process": "Process",
-      "filterMessage": "Filter Message"
+      "logSettings": "Ρυθμίσεις Καταγραφής",
+      "level": "Επίπεδο",
+      "process": "Διεργασία",
+      "filterMessage": "Φίλτρο Μηνύματος"
     }
   }
 }

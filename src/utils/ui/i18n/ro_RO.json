@@ -1,155 +1,155 @@
 {
   "sidebar": {
     "tabs": {
-      "queue": "Queue",
-      "allSongs": "All Songs",
-      "playlists": "Playlists",
-      "albums": "Albums",
-      "artists": "Artists",
+      "queue": "Coadă",
+      "allSongs": "Toate melodiile",
+      "playlists": "Liste",
+      "albums": "Albume",
+      "artists": "Artişti",
       "genre": "Genres",
-      "explore": "Explore"
+      "explore": "Explorați"
     }
   },
   "topbar": {
-    "searchPlaceholder": "Search...",
-    "noResultsFound": "No results found"
+    "searchPlaceholder": "Caută...",
+    "noResultsFound": "Nici un rezultat găsit"
   },
   "pages": {
-    "playlists": "Playlists",
-    "albums": "Albums",
-    "artists": "Artists",
+    "playlists": "Liste",
+    "albums": "Albume",
+    "artists": "Artişti",
     "genres": "Genres",
-    "explore": "Explore"
+    "explore": "Explorați"
   },
   "songView": {
     "details": {
-      "songCount": "{count} song | {count} songs"
+      "songCount": "{count} melodie <unk> {count} melodii"
     },
     "songList": {
       "topbar": {
-        "searchPlaceholder": "Search..."
+        "searchPlaceholder": "Caută..."
       }
     }
   },
   "buttons": {
-    "playSingle": "Play {title}",
-    "addToQueue": "Add {title} to queue",
-    "addToLibrary": "Add {title} to library"
+    "playSingle": "Joacă {title}",
+    "addToQueue": "Adaugă {title} la coadă",
+    "addToLibrary": "Adaugă {title} la bibliotecă"
   },
-  "loading": "Loading...",
+  "loading": "Încărcare...",
   "contextMenu": {
     "sort": {
-      "name": "Name",
-      "dateAdded": "Date added",
-      "provider": "Provider"
+      "name": "Nume",
+      "dateAdded": "Data adăugării",
+      "provider": "Furnizor"
     },
     "playlist": {
-      "new": "Create Playlist",
-      "remove": "Remove playlist",
-      "export": "Export playlist",
-      "add": "Add To Playlist",
-      "addFromURL": "Add Playlist from URL"
+      "new": "Creează Playlist",
+      "remove": "Elimină playlist",
+      "export": "Exportă playlist",
+      "add": "Adaugă la Playlist",
+      "addFromURL": "Adaugă Playlist din URL"
     },
     "song": {
-      "addFromURL": "Add from URL",
-      "playNow": "Play Now",
-      "addToQueue": "Add To Queue",
-      "moveToTop": "Move to top",
-      "moveToBottom": "Move to bottom",
-      "moveManually": "Move manually",
-      "manualIndex": "Set index of song",
-      "remove": "Remove from Library",
-      "add": "Add Song to Library | Add Songs to Library"
+      "addFromURL": "Adaugă din URL",
+      "playNow": "Redă acum",
+      "addToQueue": "Adaugă la coadă",
+      "moveToTop": "Mută în sus",
+      "moveToBottom": "Mută jos",
+      "moveManually": "Mută manual",
+      "manualIndex": "Setează indexul melodiei",
+      "remove": "Elimină din bibliotecă",
+      "add": "Adaugă melodie la bibliotecă <unk> Adaugă melodii la bibliotecă"
     },
-    "moreInfo": "More Info"
+    "moreInfo": "Mai multe informații"
   },
   "providers": {
     "youtube": "Youtube",
     "spotify": "Spotify",
-    "invidious": "Invidious",
+    "invidious": "Invidios",
     "lastfm": "LastFM"
   },
-  "save": "Save",
-  "cancel": "Cancel",
+  "save": "Salvează",
+  "cancel": "Anulează",
   "settings": {
     "paths": {
-      "songDirectories": "Song Directories",
-      "songDirectories_tooltip": "Directories where all your local music is stored",
-      "addFolder": "Add Folder...",
-      "remove": "Remove",
-      "artworkPath": "Downloaded Artwork Path",
-      "artworkPath_tooltip": "Directory where downloaded artworks are stored",
-      "thumbnailPath": "Downloaded Thumbnail Path",
-      "thumbnailPath_tooltip": "Directory where generated thumbnails are stored"
+      "songDirectories": "Directoare melodii",
+      "songDirectories_tooltip": "Directoare unde toată muzica ta locală este stocată",
+      "addFolder": "Adaugă Dosar...",
+      "remove": "Elimină",
+      "artworkPath": "Calea Artwork descărcată",
+      "artworkPath_tooltip": "Director în care sunt stocate opere de artă descărcate",
+      "thumbnailPath": "Calea de miniatură descărcată",
+      "thumbnailPath_tooltip": "Directorul unde miniaturile generate sunt stocate"
     },
     "themes": {
-      "songView": "Songs View",
-      "songView_tooltip": "Customize song list appearance",
-      "songView_classic": "Classic",
+      "songView": "Vizualizare melodii",
+      "songView_tooltip": "Personalizează aspectul listei de melodii",
+      "songView_classic": "Clasic",
       "songView_compact": "Compact",
-      "themes": "Themes",
-      "themes_tooltip": "Customize colors",
-      "themes_default": "Default",
-      "createTheme": "Create new theme",
+      "themes": "Teme",
+      "themes_tooltip": "Personalizare culori",
+      "themes_default": "Implicit",
+      "createTheme": "Creează o temă nouă",
       "newTheme": {
-        "name": "Theme Name",
-        "author": "Author",
-        "colors": "Colors",
-        "colors_tooltip": "Change the colors to customise UI"
+        "name": "Nume Temă",
+        "author": "Autor",
+        "colors": "Culori",
+        "colors_tooltip": "Schimbă culorile pentru a personaliza interfața"
       },
-      "primary": "Primary",
-      "secondary": "Secondary",
-      "tertiary": "Tertiary",
-      "textPrimary": "Text Primary",
-      "textSecondary": "Text Secondary",
-      "textInverse": "Text Inverse",
+      "primary": "Primară",
+      "secondary": "Secundar",
+      "tertiary": "Terțiar",
+      "textPrimary": "Text primar",
+      "textSecondary": "Secundar text",
+      "textInverse": "Text inversat",
       "accent": "Accent",
       "divider": "Divider"
     },
     "extensions": {
-      "extensions": "Extensions",
-      "extensions_tooltip": "List of all installed extensions",
-      "discover": "Discover",
-      "install": "Install from file",
-      "remove": "Remove"
+      "extensions": "Extensii",
+      "extensions_tooltip": "Lista tuturor extensiilor instalate",
+      "discover": "Descoperă",
+      "install": "Instalează din fișier",
+      "remove": "Elimină"
     },
     "system": {
       "systemSettings": {
-        "title": "System Settings",
-        "systemStartup": "Start app on system startup",
-        "minimizeTray": "Minimize to tray on close",
-        "hardwareAcceleration": "Use GPU hardware acceleration",
-        "watchFileChanges": "Watch music directories for changes",
-        "useInvidious": "Use Invidious instead of Youtube"
+        "title": "Setări de sistem",
+        "systemStartup": "Pornește aplicația la pornirea sistemului",
+        "minimizeTray": "Minimizează în tăviță la închidere",
+        "hardwareAcceleration": "Folosește accelerarea hardware GPU",
+        "watchFileChanges": "Urmărește directoarele de muzică pentru modificări",
+        "useInvidious": "Folosește Invidios în loc de Youtube"
       },
-      "systemSettings_tooltip": "Settings which are related to your system",
+      "systemSettings_tooltip": "Setări care sunt legate de sistemul dvs.",
       "audioSettings": {
-        "title": "Audio Settings",
-        "gaplessPlayback": "Use gapless playback for wherever possible",
-        "sponsorBlock": "Use SponsorBlock to automatically skip to highlighted part of Youtube song",
-        "useEmbeds": "Use Youtube embeds for playing audio from Youtube"
+        "title": "Setări audio",
+        "gaplessPlayback": "Folosește redarea fără întreruperi ori de câte ori este posibil",
+        "sponsorBlock": "Folosește SponsorBlock pentru a sări automat în partea evidențiată a cântecului Youtube",
+        "useEmbeds": "Folosește embeds Youtube pentru a reda audio de pe Youtube"
       },
-      "audioSettings_tooltip": "Settings which are related audio playback",
-      "invidious": "Invidious Instance",
-      "invidiousUrlUnsupported": "This url does not support Invidious API",
-      "invidious_tooltip": "Invidious instance to use instead of youtube",
-      "restartApp": "Restart Moosync",
-      "zoom": "Zoom Factor (Beta)",
-      "zoom_tooltip": "Zoom of windows in percentage. This may break the UI.",
+      "audioSettings_tooltip": "Setări care sunt legate de redarea audio",
+      "invidious": "Instanță Invidioasă",
+      "invidiousUrlUnsupported": "Acest url nu acceptă API Invidious",
+      "invidious_tooltip": "Instanță invidioasă de folosit în loc de youtub",
+      "restartApp": "Repornește Moosync",
+      "zoom": "Factor de mărire (Beta)",
+      "zoom_tooltip": "Mărește proporția ferestrelor. Acest lucru poate distruge intersecția.",
       "spotify": {
-        "client_id": "Spotify Client ID",
-        "client_id_tooltip": "Spotify client ID required to login to Spotify. Click to know more",
-        "client_secret": "Spotify Client Secret",
-        "client_secret_tooltip": "Spotify client Secret required to login to Spotify. Click to know more",
-        "autoFetchButton": "Get Spotify details automatically",
-        "autoFetchPreTitle": "Get",
-        "autoFetchTitle": "ClientID and Secret",
-        "autoFetchDisclaimer": "A window will now open where you will be asked to login to your Spotify account. After logging in please do not click anywhere as the whole process will be automated",
-        "openWindow": "Open Window"
+        "client_id": "ID client Spotify",
+        "client_id_tooltip": "ID-ul clientului Spotify este necesar pentru a te autentifica în Spotify. Apasă pentru a afla mai multe",
+        "client_secret": "Secret client Spotify",
+        "client_secret_tooltip": "Secretul clientului Spotify este necesar pentru a te autentifica în Spotify. Apasă pentru a afla mai multe",
+        "autoFetchButton": "Obține automat detaliile Spotify",
+        "autoFetchPreTitle": "Ia",
+        "autoFetchTitle": "ClientID și Secret",
+        "autoFetchDisclaimer": "O fereastră se va deschide acum unde vi se va cere să vă autentificați în contul Spotify. După autentificare, nu faceţi clic nicăieri deoarece întregul proces va fi automat",
+        "openWindow": "Deschide fereastra"
       },
       "youtube": {
-        "client_id": "Youtube Client ID",
-        "client_secret": "Youtube Client Secret"
+        "client_id": "ID Client YouTube",
+        "client_secret": "Secret Client Youtube"
       },
       "lastfm": {
         "client_id": "LastFM Api Key",
@@ -157,10 +157,10 @@
       }
     },
     "logs": {
-      "logSettings": "Log Settings",
-      "level": "Level",
-      "process": "Process",
-      "filterMessage": "Filter Message"
+      "logSettings": "Setări Jurnal",
+      "level": "Nivel",
+      "process": "Procesare",
+      "filterMessage": "Filtrare mesaj"
     }
   }
 }
