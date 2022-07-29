@@ -44,12 +44,12 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
     return window.SearchUtils.requestInvidious(resource, search, this._token, invalidateCache)
   }
 
-  public get loggedIn() {
+  public async getLoggedIn() {
     return !!this._token
   }
 
   public async login() {
-    if (!this.loggedIn) {
+    if (!(await this.getLoggedIn())) {
       if (!this.oAuthChannel) {
         this.oAuthChannel = await window.WindowUtils.registerOAuthCallback('invidiousCallback')
       }

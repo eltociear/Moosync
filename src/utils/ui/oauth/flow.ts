@@ -171,7 +171,8 @@ export class AuthFlow {
     }
   }
 
-  loggedIn(): boolean {
+  async loggedIn(): Promise<boolean> {
+    await this.fetchedToken
     return !!this.accessTokenResponse && this.accessTokenResponse.isValid()
   }
 

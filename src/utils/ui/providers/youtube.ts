@@ -84,16 +84,17 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' })
   })
 
-  public get loggedIn() {
+  public async getLoggedIn() {
     if (this.auth) {
-      vxm.providers.loggedInYoutube = this.auth.loggedIn()
-      return this.auth.loggedIn()
+      const tmp = await this.auth.loggedIn()
+      vxm.providers.loggedInYoutube = tmp
+      return tmp
     }
     return false
   }
 
   public async login() {
-    if (!this.loggedIn) {
+    if (!(await this.getLoggedIn())) {
       if (this.auth?.config) {
         const validRefreshToken = await this.auth.hasValidRefreshToken()
         if (validRefreshToken) {
@@ -142,7 +143,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
 
   public async getUserDetails(invalidateCache = false, retries = 0): Promise<string | undefined> {
     const validRefreshToken = await this.auth?.hasValidRefreshToken()
-    if (this.auth?.loggedIn() || validRefreshToken) {
+    if ((await this.auth?.loggedIn()) || validRefreshToken) {
       const resp = await this.populateRequest(
         ApiResources.CHANNELS,
         {
@@ -186,7 +187,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
 
   public async getUserPlaylists(invalidateCache = false) {
     const validRefreshToken = await this.auth?.hasValidRefreshToken()
-    if (this.auth?.loggedIn() || validRefreshToken) {
+    if ((await this.getLoggedIn()) || validRefreshToken) {
       let nextPageToken: string | undefined
       const parsed: YoutubeResponses.UserPlaylists.Item[] = []
       do {
@@ -241,7 +242,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
 
     if (id) {
       const validRefreshToken = await this.auth?.hasValidRefreshToken()
-      if (this.auth?.loggedIn() || validRefreshToken) {
+      if ((await this.getLoggedIn()) || validRefreshToken) {
         let nextPageToken: string | undefined
         do {
           const resp = await this.populateRequest(
@@ -309,7 +310,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
 
   private async getSongDetailsFromID(invalidateCache: boolean, ...songs: { id?: string; date?: string }[]) {
     const validRefreshToken = await this.auth?.hasValidRefreshToken()
-    if (this.auth?.loggedIn() || validRefreshToken) {
+    if ((await this.getLoggedIn()) || validRefreshToken) {
       const filtered = songs.filter((val) => !!val)
       const resp = await this.populateRequest(
         ApiResources.VIDEO_DETAILS,
@@ -425,7 +426,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
       }
     }
 
-    if (this.loggedIn) {
+    if (await this.getLoggedIn()) {
       if (count < 10) {
         ;(
           await this.populateRequest(ApiResources.SEARCH, {

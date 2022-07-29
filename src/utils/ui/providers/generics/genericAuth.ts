@@ -12,7 +12,7 @@ export abstract class GenericAuth {
     this.updateConfig()
   }
 
-  public abstract get loggedIn(): boolean
+  public abstract getLoggedIn(): Promise<boolean>
 
   /**
    * Login auth handler for provider

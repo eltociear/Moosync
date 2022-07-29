@@ -79,7 +79,7 @@ export default class AccountsMixin extends Vue {
   protected async handleClick(provider: Providers) {
     const p = this.getProvider(provider)
     if (p) {
-      if (!p.provider.loggedIn) {
+      if (!(await p.provider.getLoggedIn())) {
         const success = await p.provider.updateConfig()
         if (!success) {
           window.WindowUtils.openWindow(false, { page: 'system' })

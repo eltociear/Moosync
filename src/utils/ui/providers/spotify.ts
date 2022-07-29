@@ -91,10 +91,11 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     return !!(conf && conf.client_id && conf.client_secret)
   }
 
-  public get loggedIn() {
+  public async getLoggedIn() {
     if (this.auth) {
-      vxm.providers.loggedInSpotify = this.auth.loggedIn()
-      return this.auth.loggedIn()
+      const tmp = await this.auth.loggedIn()
+      vxm.providers.loggedInSpotify = tmp
+      return tmp
     }
     return false
   }
@@ -178,7 +179,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
 
   public async getUserDetails(): Promise<string | undefined> {
     const validRefreshToken = await this.auth?.hasValidRefreshToken()
-    if (this.auth?.loggedIn() || validRefreshToken) {
+    if ((await this.getLoggedIn()) || validRefreshToken) {
       const resp = await this.populateRequest(ApiResources.USER_DETAILS, {
         params: undefined
       })
@@ -209,7 +210,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     const validRefreshToken = await this.auth?.hasValidRefreshToken()
     const playlists: ExtendedPlaylist[] = []
 
-    if (this.auth?.loggedIn() || validRefreshToken) {
+    if ((await this.getLoggedIn()) || validRefreshToken) {
       playlists.push({
         playlist_id: 'spotify-playlist:saved-tracks',
         playlist_name: 'Liked Songs',
@@ -309,7 +310,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
 
     if (id) {
       const validRefreshToken = await this.auth?.hasValidRefreshToken()
-      if (this.auth?.loggedIn() || validRefreshToken) {
+      if ((await this.getLoggedIn()) || validRefreshToken) {
         let nextOffset = 0
         let isNext = false
         const limit = id === 'saved-tracks' ? 50 : 100
@@ -366,7 +367,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
 
     if (id) {
       const validRefreshToken = await this.auth?.hasValidRefreshToken()
-      if (this.auth?.loggedIn() || validRefreshToken) {
+      if ((await this.getLoggedIn()) || validRefreshToken) {
         const resp = await this.populateRequest(
           ApiResources.PLAYLIST,
           {
@@ -390,7 +391,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
 
       const validRefreshToken = await this.auth?.hasValidRefreshToken()
 
-      if (this.auth?.loggedIn() || validRefreshToken) {
+      if ((await this.getLoggedIn()) || validRefreshToken) {
         const resp = await this.populateRequest(ApiResources.SONG_DETAILS, {
           params: {
             song_id: songID
@@ -472,7 +473,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   public async *getRecommendations(): AsyncGenerator<Song[]> {
-    if (this.loggedIn) {
+    if (await this.getLoggedIn()) {
       const seedTracks: string[] = []
       const seedArtists: string[] = []
 
@@ -526,7 +527,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
 
   public async searchSongs(term: string): Promise<Song[]> {
     const songList: Song[] = []
-    if (this.loggedIn) {
+    if (await this.getLoggedIn()) {
       const resp = await this.populateRequest(ApiResources.SEARCH, {
         params: {
           query: term,
@@ -559,7 +560,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
 
   public async searchArtists(term: string): Promise<Artists[]> {
     const artists: Artists[] = []
-    if (this.loggedIn) {
+    if (await this.getLoggedIn()) {
       const resp = await this.populateRequest(ApiResources.SEARCH, {
         params: {
           query: term,
@@ -579,7 +580,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   private async getArtistAlbums(artist_id: string) {
-    if (this.loggedIn) {
+    if (await this.getLoggedIn()) {
       const resp = await this.populateRequest(ApiResources.ARTIST_ALBUMS, {
         params: {
           id: artist_id,
@@ -595,7 +596,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   private async *_getAlbumSongs(album: SpotifyResponses.RecommendationDetails.Album) {
-    if (this.loggedIn) {
+    if (await this.getLoggedIn()) {
       let nextOffset = 0
       let isNext = false
       const limit = 50
@@ -646,7 +647,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   public async *getArtistSongs(artist: Artists): AsyncGenerator<Song[]> {
-    if (this.loggedIn) {
+    if (await this.getLoggedIn()) {
       let artist_id = artist.artist_extra_info?.spotify?.artist_id
 
       if (!artist_id && artist.artist_name) {
@@ -677,7 +678,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   public async getArtistDetails(artist: Artists, forceFetch = false) {
-    if (this.loggedIn) {
+    if (await this.getLoggedIn()) {
       if (artist.artist_extra_info?.spotify?.artist_id) {
         const artistDetails = await this.populateRequest(ApiResources.ARTIST, {
           params: {
@@ -701,7 +702,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   public async searchPlaylists(term: string): Promise<Playlist[]> {
     const playlists: ExtendedPlaylist[] = []
 
-    if (this.loggedIn) {
+    if (await this.getLoggedIn()) {
       const resp = await this.populateRequest(ApiResources.SEARCH, {
         params: {
           query: term,
@@ -740,7 +741,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
 
   public async searchAlbum(term: string): Promise<Album[]> {
     const albums: Album[] = []
-    if (this.loggedIn) {
+    if (await this.getLoggedIn()) {
       const resp = await this.populateRequest(ApiResources.SEARCH, {
         params: {
           query: term,
@@ -758,7 +759,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   public async *getAlbumSongs(album: Album) {
-    if (this.loggedIn) {
+    if (await this.getLoggedIn()) {
       if (album.album_name) {
         let albumId = album.album_extra_info?.spotify?.album_id
 

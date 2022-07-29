@@ -59,7 +59,7 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
     vxm.providers.loggedInLastFM = !!this._session
   }
 
-  public get loggedIn(): boolean {
+  public async getLoggedIn() {
     this.setLoggedInStatus()
     return !!this._session
   }
@@ -215,7 +215,7 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
   }
 
   public async scrobble(song: Song | null | undefined) {
-    if (this.loggedIn && song) {
+    if ((await this.getLoggedIn()) && song) {
       const parsedSong = this.serializeBody({
         track: song.title,
         album: song.album?.album_name,
@@ -265,7 +265,7 @@ export class LastFMProvider extends GenericAuth implements GenericScrobbler, Gen
   }
 
   public async *getRecommendations(): AsyncGenerator<Song[]> {
-    if (this.loggedIn) {
+    if (await this.getLoggedIn()) {
       const resp = await window.SearchUtils.scrapeLastFM(
         `https://www.last.fm/player/station/user/${this.username}/recommended`
       )
