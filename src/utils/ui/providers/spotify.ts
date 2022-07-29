@@ -101,7 +101,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   public async login() {
-    if (!this.auth.loggedIn()) {
+    if (!(await this.auth.loggedIn())) {
       if (this.auth.config) {
         const validRefreshToken = await this.auth.hasValidRefreshToken()
         if (validRefreshToken) {
