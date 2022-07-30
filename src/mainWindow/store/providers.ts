@@ -22,7 +22,6 @@ export class ProviderStore extends VuexModule.With({ namespaced: 'providers' }) 
   private _loggedInYoutube = false
   private _loggedInSpotify = false
   private _loggedInLastFM = false
-  private _loggedInInvidious = false
 
   private _useInvidious = false
 
@@ -64,13 +63,5 @@ export class ProviderStore extends VuexModule.With({ namespaced: 'providers' }) 
 
   set loggedInLastFM(val: boolean) {
     this._loggedInLastFM = val
-  }
-
-  get loggedInInvidious() {
-    return this._loggedInInvidious
-  }
-
-  set loggedInInvidious(val: boolean) {
-    this._loggedInInvidious = val
   }
 }

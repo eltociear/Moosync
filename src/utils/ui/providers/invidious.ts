@@ -15,6 +15,7 @@ import { GenericRecommendation } from './generics/genericRecommendations'
 import { bus } from '@/mainWindow/main'
 import { EventBus } from '@/utils/main/ipc/constants'
 import { InvidiousApiResources } from '@/utils/commonConstants'
+import { vxm } from '@/mainWindow/store'
 
 const KeytarService = 'MoosyncInvidiousToken'
 
@@ -41,10 +42,12 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
     search: InvidiousResponses.SearchObject<K>,
     invalidateCache = false
   ) {
+    await this.getLoggedIn()
     return window.SearchUtils.requestInvidious(resource, search, this._token, invalidateCache)
   }
 
   public async getLoggedIn() {
+    vxm.providers.loggedInYoutube = !!this._token
     return !!this._token
   }
 
@@ -99,6 +102,7 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
   public async signOut() {
     await window.Store.removeSecure(KeytarService)
     this._token = undefined
+    await this.getLoggedIn()
   }
 
   public async getUserDetails(): Promise<string | undefined> {

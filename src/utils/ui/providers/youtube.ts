@@ -123,6 +123,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
 
   public async signOut() {
     this.auth?.signOut()
+    await this.getLoggedIn()
   }
 
   private async populateRequest<K extends ApiResources>(
