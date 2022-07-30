@@ -23,7 +23,7 @@
   },
   "songView": {
     "details": {
-      "songCount": "{count} أغنية <unk> {count} أغنية"
+      "songCount": "{count} أغنية | {count} أغنية"
     },
     "songList": {
       "topbar": {
