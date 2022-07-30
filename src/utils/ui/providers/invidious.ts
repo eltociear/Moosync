@@ -125,7 +125,10 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
 
   public async getUserPlaylists(invalidateCache = false) {
     const resp = await this.populateRequest(InvidiousApiResources.PLAYLISTS, { params: undefined }, invalidateCache)
-    return this.parsePlaylists(resp ?? [])
+    if (resp && !resp.error) {
+      return this.parsePlaylists(resp ?? [])
+    }
+    return []
   }
 
   private parsePlaylistItems(items: InvidiousResponses.UserPlaylists.PlaylistResponse['videos']): InvidiousSong[] {

@@ -277,7 +277,7 @@ declare namespace InvidiousResponses {
     ? NoParamsRequest
     : undefined
 
-  type ResponseType<T extends InvidiousApiResources> = T extends InvidiousApiResources.PLAYLISTS
+  type ResponseType<T extends InvidiousApiResources> = (T extends InvidiousApiResources.PLAYLISTS
     ? UserPlaylists.PlaylistResponse[]
     : T extends InvidiousApiResources.PLAYLIST_ITEMS
     ? UserPlaylists.PlaylistResponse
@@ -289,5 +289,7 @@ declare namespace InvidiousResponses {
     ? SearchResults.RootObject[]
     : T extends InvidiousApiResources.STATS
     ? InvidiousDetails
-    : undefined
+    : undefined) & {
+    error?: string
+  }
 }
