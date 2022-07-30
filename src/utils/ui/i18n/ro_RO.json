@@ -23,7 +23,7 @@
   },
   "songView": {
     "details": {
-      "songCount": "{count} melodie <unk> {count} melodii"
+      "songCount": "{count} melodie | {count} melodii"
     },
     "songList": {
       "topbar": {
