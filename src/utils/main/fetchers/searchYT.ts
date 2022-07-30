@@ -94,8 +94,11 @@ export class YTScraper extends CacheHandler {
 
       await Promise.all(promises)
 
-      this.addToCache(term + '-search', JSON.stringify(res))
-      return this.parseSong(...res)
+      const parsed = this.parseSong(...res)
+      if (parsed.length > 0) {
+        this.addToCache(term + '-search', JSON.stringify(res))
+      }
+      return parsed
     } catch (e) {
       console.error('Failed to fetch search results from Youtube', e)
     }
@@ -149,8 +152,11 @@ export class YTScraper extends CacheHandler {
 
     try {
       const resp = await ytMusic.getSuggestions(videoID)
-      this.addToCache(videoID, JSON.stringify(resp))
-      return this.parseSong(...resp)
+      const parsed = this.parseSong(...resp)
+      if (parsed.length > 0) {
+        this.addToCache(videoID, JSON.stringify(resp))
+      }
+      return parsed
     } catch (e) {
       console.error('Failed to fetch suggestions from Youtube', e)
     }
