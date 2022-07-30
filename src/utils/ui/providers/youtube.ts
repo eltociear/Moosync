@@ -382,9 +382,8 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
       }
     } else {
       const resp = await window.SearchUtils.searchYT(term, undefined, false, false, true)
-      console.log(resp)
-      if (resp && resp.length > 0) {
-        songList.push(...resp)
+      if (resp && resp.songs.length > 0) {
+        songList.push(...resp.songs)
       }
     }
 
@@ -408,8 +407,8 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
 
         // Apparently searching Video ID in youtube returns the proper video as first result
         const scraped = await window.SearchUtils.searchYT(videoID, undefined, false, false, true)
-        if (scraped && scraped.length > 0) {
-          return scraped[0]
+        if (scraped && scraped.songs.length > 0) {
+          return scraped.songs[0]
         }
       }
       return
@@ -570,6 +569,11 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
       })
 
       artists.push(...this.parseSearchArtist(...resp.items))
+    } else {
+      const resp = await window.SearchUtils.searchYT(term, undefined, false, false, true)
+      if (resp && resp.songs.length > 0) {
+        artists.push(...resp.artists)
+      }
     }
 
     return artists
@@ -606,6 +610,11 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
       })
 
       playlists.push(...this.parseSearchPlaylists(...resp.items))
+    } else {
+      const resp = await window.SearchUtils.searchYT(term, undefined, false, false, true)
+      if (resp && resp.songs.length > 0) {
+        playlists.push(...resp.playlists)
+      }
     }
 
     return playlists

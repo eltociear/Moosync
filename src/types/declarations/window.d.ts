@@ -90,7 +90,7 @@ interface searchUtils {
     matchTitle = true,
     scrapeYTMusic = true,
     scrapeYoutube = false
-  ) => Promise<Song[]>
+  ) => Promise<SearchResult>
 
   /**
    * Get suggestions similar to provided video id

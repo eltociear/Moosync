@@ -255,8 +255,16 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
       false,
       true
     )
-    console.debug('Found', ytItem[0]?.title, '-', ytItem[0]?.url, 'for spotify song', item.artists, item.title)
-    if (ytItem.length > 0) return ytItem[0]
+    console.debug(
+      'Found',
+      ytItem.songs[0]?.title,
+      '-',
+      ytItem.songs[0]?.url,
+      'for spotify song',
+      item.artists,
+      item.title
+    )
+    if (ytItem.songs.length > 0) return ytItem.songs[0]
   }
 
   private parseSong(track: SpotifyResponses.PlaylistItems.Track): Song {

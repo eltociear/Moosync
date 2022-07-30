@@ -14,7 +14,7 @@ import { CacheHandler } from './cacheFile'
 import ytsr from 'ytsr'
 import ytdl from 'ytdl-core'
 
-interface YTMusicWMatchIndex extends ytMusic.MusicVideo {
+interface YTMusicWMatchIndex extends Song {
   matchIndex: number
 }
 
@@ -38,7 +38,74 @@ export class YTScraper extends CacheHandler {
     return url.replace('w60', 'w800').replace('h60', 'h800').replace('w120', 'w800').replace('h120', 'h800')
   }
 
-  private parseSong(...item: ytMusic.MusicVideo[]): Song[] {
+  public async searchTerm(
+    title: string,
+    artists?: string[],
+    matchTitle = true,
+    scrapeYTMusic = true,
+    scrapeYoutube = false
+  ): Promise<SearchResult> {
+    const term = `${artists ? artists.join(', ') + ' - ' : ''}${title}`
+
+    const cached = this.getCache(term + '-search')
+    if (cached) {
+      const data = JSON.parse(cached)
+      if (data.songs && data.artists && data.playlists && data.albums && data.genres) {
+        return data
+      }
+    }
+
+    const promises = []
+    const res: SearchResult = {
+      songs: [],
+      artists: [],
+      playlists: [],
+      albums: [],
+      genres: []
+    }
+    try {
+      scrapeYTMusic &&
+        promises.push(
+          this.scrapeYTMusic(title, artists, matchTitle).then((data) => {
+            res.songs.push(...data.songs)
+            res.artists.push(...data.artists)
+            res.playlists.push(...data.playlists)
+            res.albums.push(...data.albums)
+            res.genres.push(...data.genres)
+          })
+        )
+
+      scrapeYoutube &&
+        promises.push(
+          this.scrapeYoutube(title, artists, matchTitle).then((data) => {
+            res.songs.push(...data.songs)
+            res.artists.push(...data.artists)
+            res.playlists.push(...data.playlists)
+            res.albums.push(...data.albums)
+            res.genres.push(...data.genres)
+          })
+        )
+
+      await Promise.all(promises)
+
+      if (
+        res.songs.length > 0 ||
+        res.artists.length > 0 ||
+        res.playlists.length > 0 ||
+        res.albums.length > 0 ||
+        res.genres.length > 0
+      ) {
+        this.addToCache(term + '-search', JSON.stringify(res))
+      }
+      return res
+    } catch (e) {
+      console.error('Failed to fetch search results from Youtube', e)
+    }
+
+    return res
+  }
+
+  private parseYoutubeMusicSong(...item: ytMusic.MusicVideo[]): Song[] {
     const songs: Song[] = []
     for (const s of item) {
       const highResThumbnail = s.thumbnailUrl && this.getHighResThumbnail(s.thumbnailUrl)
@@ -72,47 +139,57 @@ export class YTScraper extends CacheHandler {
     return songs
   }
 
-  public async searchTerm(
-    title: string,
-    artists?: string[],
-    matchTitle = true,
-    scrapeYTMusic = true,
-    scrapeYoutube = false
-  ): Promise<Song[]> {
-    const term = `${artists ? artists.join(', ') + ' - ' : ''}${title}`
-
-    const cached = this.getCache(term + '-search')
-    if (cached) {
-      return this.parseSong(...JSON.parse(cached))
+  private parseYoutubeMusicArtist(...artist: ytMusic.Artist[]): Artists[] {
+    const artists: Artists[] = []
+    for (const a of artist) {
+      console.log(a.thumbnails?.find((val) => val))
+      artists.push({
+        artist_id: `youtube-author:${a.artistId}`,
+        artist_name: a.name,
+        artist_coverPath: a.thumbnails?.find((val) => val),
+        artist_extra_info: {
+          youtube: {
+            channel_id: a.artistId
+          }
+        }
+      })
     }
 
-    const promises = []
-    const res: ytMusic.MusicVideo[] = []
-    try {
-      scrapeYTMusic && promises.push(this.scrapeYTMusic(title, artists, matchTitle).then((data) => res.push(...data)))
-      scrapeYoutube && promises.push(this.scrapeYoutube(title, artists, matchTitle).then((data) => res.push(...data)))
+    return artists
+  }
 
-      await Promise.all(promises)
-
-      const parsed = this.parseSong(...res)
-      if (parsed.length > 0) {
-        this.addToCache(term + '-search', JSON.stringify(res))
-      }
-      return parsed
-    } catch (e) {
-      console.error('Failed to fetch search results from Youtube', e)
+  private parseYoutubeMusicPlaylist(...playlist: ytMusic.PlaylistPreview[]): Playlist[] {
+    const playlists: Playlist[] = []
+    for (const a of playlist) {
+      playlists.push({
+        playlist_id: `youtube-author:${a.playlistId}`,
+        playlist_name: a.title ?? '',
+        playlist_coverPath: a.thumbnailUrl
+      })
     }
 
-    return []
+    return playlists
   }
 
   private async scrapeYTMusic(title: string, artists?: string[], matchTitle = true) {
     const term = `${artists ? artists.join(', ') + ' - ' : ''}${title}`
+    const ret: SearchResult = {
+      songs: [],
+      artists: [],
+      playlists: [],
+      albums: [],
+      genres: []
+    }
 
-    const resp = await ytMusic.searchMusics(term)
-    const ytMusicSearches = matchTitle ? this.sortByMatches(title, resp) : resp
+    ret.songs = this.parseYoutubeMusicSong(...(await ytMusic.searchMusics(term)))
+    ret.artists = this.parseYoutubeMusicArtist(...(await ytMusic.searchArtists(term)))
+    ret.playlists = this.parseYoutubeMusicPlaylist(...(await ytMusic.searchPlaylists(term)))
 
-    return ytMusicSearches
+    if (matchTitle) {
+      ret.songs = this.sortByMatches(title, ret.songs)
+    }
+
+    return ret
   }
 
   private parseYoutubeDuration(dur: string) {
@@ -124,35 +201,100 @@ export class YTScraper extends CacheHandler {
     return ret
   }
 
+  private parseYoutubeVideo(vid: ytsr.Video): Song {
+    const highResThumbnail = vid.bestThumbnail?.url && this.getHighResThumbnail(vid.bestThumbnail.url)
+    return {
+      _id: 'youtube:' + vid.id,
+      title: vid.title ? vid.title.trim() : '',
+      song_coverPath_high: highResThumbnail ?? undefined,
+      song_coverPath_low: vid.bestThumbnail?.url ?? vid.thumbnails.find((val) => val.url)?.url ?? undefined,
+      artists: vid.author
+        ? [
+            {
+              artist_id: `youtube-author:${vid.author.channelID}`,
+              artist_name: vid.author.name,
+              artist_coverPath: vid.author.bestAvatar?.url ?? undefined,
+              artist_extra_info: {
+                youtube: {
+                  channel_id: vid.author.channelID
+                }
+              }
+            }
+          ]
+        : undefined,
+      duration: vid.duration ? this.parseYoutubeDuration(vid.duration ?? '') : 0,
+      url: vid.url,
+      date_added: Date.now(),
+      type: 'YOUTUBE'
+    }
+  }
+
+  private parseYoutubeChannel(channel: ytsr.Channel): Artists {
+    return {
+      artist_id: `youtube-author:${channel.channelID}`,
+      artist_name: channel.name,
+      artist_coverPath: channel.bestAvatar?.url ?? undefined,
+      artist_extra_info: {
+        youtube: {
+          channel_id: channel.channelID
+        }
+      }
+    }
+  }
+
+  private parseYoutubePlaylists(playlist: ytsr.Playlist): Playlist {
+    const highResThumbnail =
+      playlist.firstVideo?.bestThumbnail?.url && this.getHighResThumbnail(playlist.firstVideo?.bestThumbnail.url)
+    return {
+      playlist_id: `youtube-playlist:${playlist.playlistID}`,
+      playlist_name: playlist.title,
+      playlist_coverPath: highResThumbnail ?? undefined
+    }
+  }
+
   private async scrapeYoutube(title: string, artists?: string[], matchTitle = true) {
     const term = `${artists ? artists.join(', ') + ' - ' : ''}${title}`
 
     const resp = await ytsr(term)
-    const songs: ytMusic.MusicVideo[] = []
+    console.log(resp)
+    const ret: SearchResult = {
+      songs: [],
+      artists: [],
+      playlists: [],
+      albums: [],
+      genres: []
+    }
     for (const vid of resp.items) {
       if (vid.type === 'video') {
-        songs.push({
-          youtubeId: vid.id,
-          title: vid.title,
-          thumbnailUrl: vid.bestThumbnail.url ?? undefined,
-          artists: [{ id: vid.author?.channelID, name: vid.author?.name ?? '' }],
-          duration: { label: '', totalSeconds: vid.duration ? this.parseYoutubeDuration(vid.duration ?? '') : 0 }
-        })
+        ret.songs.push(this.parseYoutubeVideo(vid))
+      }
+
+      if (vid.type === 'channel') {
+        ret.artists.push(this.parseYoutubeChannel(vid))
+      }
+
+      if (vid.type === 'playlist') {
+        ret.playlists.push(this.parseYoutubePlaylists(vid))
       }
     }
 
-    return matchTitle ? this.sortByMatches(title, songs) : songs
+    if (matchTitle) {
+      ret.songs = this.sortByMatches(title, ret.songs)
+    }
+
+    return ret
+    // return matchTitle ? this.sortByMatches(title, songs) : songs
   }
 
   public async getSuggestions(videoID: string) {
     const cached = this.getCache(videoID)
     if (cached) {
-      return this.parseSong(...JSON.parse(cached))
+      return this.parseYoutubeMusicSong(...JSON.parse(cached))
     }
 
     try {
       const resp = await ytMusic.getSuggestions(videoID)
-      const parsed = this.parseSong(...resp)
+      const parsed = this.parseYoutubeMusicSong(...resp)
       if (parsed.length > 0) {
         this.addToCache(videoID, JSON.stringify(resp))
       }
@@ -164,7 +306,7 @@ export class YTScraper extends CacheHandler {
     return []
   }
 
-  private sortByMatches(searchTerm: string, songs: ytMusic.MusicVideo[]) {
+  private sortByMatches(searchTerm: string, songs: Song[]) {
     const finalMatches: YTMusicWMatchIndex[] = []
 
     for (const s of songs) {

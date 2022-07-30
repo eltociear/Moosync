@@ -83,7 +83,13 @@ export class SearchChannel implements IpcChannelInterface {
           loadSelectivePreference<SystemSettings[]>('system', false, [])?.find((val) => val.key === 'use_invidious')
             ?.enabled ?? false
 
-        let data
+        let data: SearchResult = {
+          songs: [],
+          artists: [],
+          playlists: [],
+          albums: [],
+          genres: []
+        }
         if (!useInvidious) {
           data = await this.ytScraper.searchTerm(
             request.params.title,
@@ -100,7 +106,7 @@ export class SearchChannel implements IpcChannelInterface {
             params: { q: searchTerm, type: 'video', sort_by: 'relevance' }
           })
 
-          if (resp) data = this.invidiousRequester.parseSongs(resp)
+          if (resp) data.songs = this.invidiousRequester.parseSongs(resp)
         }
         event.reply(request.responseChannel, data)
       } catch (e) {
