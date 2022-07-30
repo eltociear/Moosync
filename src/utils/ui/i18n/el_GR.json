@@ -154,7 +154,9 @@
       "lastfm": {
         "client_id": "LastFM Api Key",
         "client_secret": "LastFM Client Secret"
-      }
+      },
+      "language": "Language",
+      "language_tooltip": "Change the language of the interface"
     },
     "logs": {
       "logSettings": "Ρυθμίσεις Καταγραφής",
