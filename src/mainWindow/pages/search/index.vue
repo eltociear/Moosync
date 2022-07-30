@@ -124,8 +124,16 @@ export default class SearchPage extends mixins(PlayerControls, SongListMixin, Co
   }
 
   private get noResultsReason() {
-    if (this.activeProvider === vxm.providers.youtubeProvider.key && !vxm.providers.loggedInYoutube) {
-      return 'Login to Youtube to use this feature'
+    if (this.activeProvider === vxm.providers.youtubeProvider.key) {
+      if (!vxm.providers.loggedInYoutube) {
+        return 'Login to Youtube to use this feature'
+      }
+
+      if (vxm.providers.useInvidious) {
+        if (this.activeSubcategory !== 'songs') {
+          return 'Searching artists, playlists and albums is currently not supported using Invidious'
+        }
+      }
     }
 
     if (this.activeProvider === vxm.providers.spotifyProvider.key && !vxm.providers.loggedInSpotify) {
