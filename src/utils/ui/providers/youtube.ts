@@ -241,8 +241,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     const id: string | undefined = this.getIDFromURL(str)
 
     if (id) {
-      const validRefreshToken = await this.auth?.hasValidRefreshToken()
-      if ((await this.getLoggedIn()) || validRefreshToken) {
+      if (await this.getLoggedIn()) {
         let nextPageToken: string | undefined
         do {
           const resp = await this.populateRequest(
@@ -363,21 +362,30 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
 
   public async searchSongs(term: string): Promise<Song[]> {
     const songList: Song[] = []
-    const resp = await this.populateRequest(ApiResources.SEARCH, {
-      params: {
-        part: ['id', 'snippet'],
-        q: term,
-        type: 'video',
-        maxResults: 30,
-        order: 'relevance',
-        videoEmbeddable: true
-      }
-    })
 
-    const finalIDs: Parameters<typeof this.getSongDetailsFromID>[1][] = []
-    if (resp.items) {
-      resp.items.forEach((val) => finalIDs.push({ id: val.id.videoId, date: val.snippet.publishedAt }))
-      songList.push(...(await this.getSongDetailsFromID(false, ...finalIDs)))
+    if (await this.getLoggedIn()) {
+      const resp = await this.populateRequest(ApiResources.SEARCH, {
+        params: {
+          part: ['id', 'snippet'],
+          q: term,
+          type: 'video',
+          maxResults: 30,
+          order: 'relevance',
+          videoEmbeddable: true
+        }
+      })
+
+      const finalIDs: Parameters<typeof this.getSongDetailsFromID>[1][] = []
+      if (resp.items) {
+        resp.items.forEach((val) => finalIDs.push({ id: val.id.videoId, date: val.snippet.publishedAt }))
+        songList.push(...(await this.getSongDetailsFromID(false, ...finalIDs)))
+      }
+    } else {
+      const resp = await window.SearchUtils.searchYT(term, undefined, false, false, true)
+      console.log(resp)
+      if (resp && resp.length > 0) {
+        songList.push(...resp)
+      }
     }
 
     return songList
@@ -399,7 +407,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
         }
 
         // Apparently searching Video ID in youtube returns the proper video as first result
-        const scraped = await window.SearchUtils.searchYT(videoID, undefined, false, false)
+        const scraped = await window.SearchUtils.searchYT(videoID, undefined, false, false, true)
         if (scraped && scraped.length > 0) {
           return scraped[0]
         }
@@ -550,17 +558,19 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
   public async searchArtists(term: string): Promise<Artists[]> {
     const artists: Artists[] = []
 
-    const resp = await this.populateRequest(ApiResources.SEARCH, {
-      params: {
-        part: ['id', 'snippet'],
-        type: 'channel',
-        maxResults: 50,
-        order: 'relevance',
-        q: term
-      }
-    })
+    if (await this.getLoggedIn()) {
+      const resp = await this.populateRequest(ApiResources.SEARCH, {
+        params: {
+          part: ['id', 'snippet'],
+          type: 'channel',
+          maxResults: 50,
+          order: 'relevance',
+          q: term
+        }
+      })
 
-    artists.push(...this.parseSearchArtist(...resp.items))
+      artists.push(...this.parseSearchArtist(...resp.items))
+    }
 
     return artists
   }
@@ -584,17 +594,19 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
   public async searchPlaylists(term: string): Promise<Playlist[]> {
     const playlists: Playlist[] = []
 
-    const resp = await this.populateRequest(ApiResources.SEARCH, {
-      params: {
-        part: ['id', 'snippet'],
-        type: 'playlist',
-        maxResults: 50,
-        order: 'relevance',
-        q: term
-      }
-    })
+    if (await this.getLoggedIn()) {
+      const resp = await this.populateRequest(ApiResources.SEARCH, {
+        params: {
+          part: ['id', 'snippet'],
+          type: 'playlist',
+          maxResults: 50,
+          order: 'relevance',
+          q: term
+        }
+      })
 
-    playlists.push(...this.parseSearchPlaylists(...resp.items))
+      playlists.push(...this.parseSearchPlaylists(...resp.items))
+    }
 
     return playlists
   }
