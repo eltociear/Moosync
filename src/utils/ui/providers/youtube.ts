@@ -522,16 +522,18 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     }
   }
 
-  public async getArtistDetails(artist: Artists, forceFetch = false) {
-    if (artist.artist_extra_info?.youtube?.channel_id) {
-      const artistDetails = await this.populateRequest(ApiResources.CHANNELS, {
-        params: {
-          id: artist.artist_extra_info?.youtube?.channel_id,
-          part: ['id', 'snippet']
-        }
-      })
+  public async getArtistDetails(artist: Artists) {
+    if (await this.getLoggedIn()) {
+      if (artist.artist_extra_info?.youtube?.channel_id) {
+        const artistDetails = await this.populateRequest(ApiResources.CHANNELS, {
+          params: {
+            id: artist.artist_extra_info?.youtube?.channel_id,
+            part: ['id', 'snippet']
+          }
+        })
 
-      return this.parseArtist(artistDetails)
+        return this.parseArtist(artistDetails)
+      }
     }
   }
 
@@ -621,7 +623,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
     return playlists
   }
 
-  public async searchAlbum(term: string): Promise<Album[]> {
+  public async searchAlbum(): Promise<Album[]> {
     return []
   }
 }

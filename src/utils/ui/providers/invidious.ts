@@ -248,15 +248,15 @@ export class InvidiousProvider extends GenericAuth implements GenericProvider, G
   }
 
   // TODO: Fetch artist details from invidious
-  public async getArtistDetails(artist: Artists): Promise<Artists | undefined> {
+  public async getArtistDetails(): Promise<Artists | undefined> {
     return
   }
 
-  public async searchArtists(term: string): Promise<Artists[]> {
+  public async searchArtists(): Promise<Artists[]> {
     return []
   }
 
-  public async searchPlaylists(term: string): Promise<Playlist[]> {
+  public async searchPlaylists(): Promise<Playlist[]> {
     return []
   }
 

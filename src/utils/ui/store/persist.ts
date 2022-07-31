@@ -10,40 +10,10 @@
 import { Store } from 'vuex'
 import merge from 'deepmerge'
 
-let hasLoaded = false
-
 export function createPersist() {
   return (store: Store<{ state: unknown }>) => {
-    setInitialState(store).then(() => {
-      store.subscribe((mutation, state) => {
-        // let provider: string
-        // console.log(mutation)
-        // if (mutation.type.includes('internal_mutator')) {
-        //   provider = `${getProviderName(mutation.type)}/${mutation?.payload?.field}`
-        // } else {
-        //   provider = mutation.type
-        // }
-        // if (paths.includes(provider)) {
-        // }
-      })
-    })
+    setInitialState(store)
   }
-}
-
-function getProviderName(type: string) {
-  return type.substring(0, type.indexOf('/'))
-}
-
-function reducer(state: object, paths: string[]) {
-  // if (paths) {
-  //   const ret: { [key: string]: unknown } = {}
-  //   for (const [key, value] of Object.entries(state)) {
-  //     if (paths.includes(key)) {
-  //       ret[key] = value
-  //     }
-  //   }
-  //   return ret
-  // }
 }
 
 async function setInitialState(store: Store<{ state: unknown }>) {
@@ -56,9 +26,4 @@ async function setInitialState(store: Store<{ state: unknown }>) {
       })
     )
   }
-  hasLoaded = true
-}
-
-async function setState(state: object) {
-  if (hasLoaded) await window.PreferenceUtils.saveSelective('persisted', state, false)
 }

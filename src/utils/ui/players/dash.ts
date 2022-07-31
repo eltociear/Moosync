@@ -121,7 +121,7 @@ export class DashPlayer extends Player {
     }
   }
 
-  preload(src: string): void {
+  preload(): void {
     return
   }
 }
