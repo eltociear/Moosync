@@ -54,7 +54,7 @@ export class WindowHandler {
   private get baseWindowProps(): BrowserWindowConstructorOptions {
     return {
       backgroundColor: this.windowBackgroundColor,
-      titleBarStyle: 'hidden',
+      titleBarStyle: WindowHandler.hasFrame ? 'default' : 'hidden',
       frame: WindowHandler.hasFrame,
       show: false,
       icon: path.join(__static, 'logo.png'),
