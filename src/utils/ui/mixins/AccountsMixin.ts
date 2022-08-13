@@ -104,6 +104,9 @@ export default class AccountsMixin extends Vue {
           console.error(e)
           await p.provider.signOut()
         }
+
+        // Side-effect to set logged-in variable
+        await p.provider.getLoggedIn()
       }
     }
   }
