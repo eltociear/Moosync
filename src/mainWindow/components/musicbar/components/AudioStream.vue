@@ -596,8 +596,6 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
   }
 
   private async loadAudio(song: Song, loadedState: boolean) {
-    vxm.player.loading = true
-
     console.debug('Loading new song', song)
 
     if (this.isSyncing) {
@@ -609,6 +607,7 @@ export default class AudioStream extends mixins(SyncMixin, PlayerControls, Error
 
     const PlayerTypes = this.onPlayerTypesChanged(song.type)
 
+    vxm.player.loading = true
     if (!song.playbackUrl || !song.duration) {
       // Since fetching playbackURL or duration can be a long running operation
       // Unload previous song
