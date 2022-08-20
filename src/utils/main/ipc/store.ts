@@ -77,17 +77,17 @@ export class StoreChannel implements IpcChannelInterface {
     try {
       const encrypted = loadSelectivePreference<string>(`secure.${service}`)
       if (encrypted) {
-        if (safeStorage.isEncryptionAvailable()) {
-          try {
+        try {
+          if (safeStorage.isEncryptionAvailable()) {
             const decrypted = safeStorage.decryptString(Buffer.from(encrypted, 'base64'))
             return decrypted
-          } catch (e) {
-            console.warn('Failed to decrypt token', service, e)
-            return encrypted
+          } else {
+            console.warn('safe storage not available')
+            return Buffer.from(encrypted, 'base64').toString('utf-8')
           }
-        } else {
-          console.warn('safe storage not available')
-          return Buffer.from(encrypted, 'base64').toString('utf-8')
+        } catch (e) {
+          console.warn('Failed to decrypt token', service, e)
+          return encrypted
         }
       }
     } catch (e) {
