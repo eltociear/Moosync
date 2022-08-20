@@ -87,7 +87,7 @@ export class StoreChannel implements IpcChannelInterface {
           }
         } catch (e) {
           console.warn('Failed to decrypt token', service, e)
-          return encrypted
+          return Buffer.from(encrypted, 'base64').toString('utf-8')
         }
       }
     } catch (e) {
