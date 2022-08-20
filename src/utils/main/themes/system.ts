@@ -160,13 +160,6 @@ export class SystemThemeHandler {
   private async getKDETheme() {
     const dirs = await this.getKDEConfigDirs()
     if (dirs) {
-      const kdeDefaultsIndex = dirs.findIndex((val) => val.includes('kdedefaults'))
-      if (kdeDefaultsIndex !== -1) {
-        const dir = dirs[kdeDefaultsIndex]
-        dirs.splice(kdeDefaultsIndex, 1)
-        dirs.unshift(dir)
-      }
-
       for (const directory of dirs) {
         try {
           const config = path.join(directory, 'kdeglobals')
@@ -245,29 +238,73 @@ export class SystemThemeHandler {
     return themeVar
   }
 
-  private async parseGTKTheme(themePath: string): Promise<ThemeDetails | undefined> {
-    const filename = path.join(themePath, 'gtk-3.0', 'gtk.css')
-    try {
-      const theme = {
-        primary: (await this.findVar('theme_base_color', filename)) ?? defaultTheme.primary,
-        secondary: (await this.findVar('wm_bg', filename)) ?? defaultTheme.secondary,
-        tertiary: (await this.findVar('theme_bg_color', filename)) ?? defaultTheme.tertiary,
-        textPrimary: (await this.findVar('theme_text_color', filename)) ?? defaultTheme.textPrimary,
-        textSecondary: (await this.findVar('placeholder_text_color', filename)) ?? defaultTheme.textSecondary,
-        textInverse: (await this.findVar('theme_unfocused_selected_fg_color', filename)) ?? defaultTheme.textInverse,
-        accent: (await this.findVar('theme_selected_bg_color', filename)) ?? defaultTheme.accent,
-        divider: (await this.findVar('borders', filename)) ?? defaultTheme.divider
-      }
-
+  private getDefaultGtkColors(version: number, light = false) {
+    if (version === 4 || version === 3) {
+      // Based on color palette of Adwaita
       return {
-        id: 'system_default',
-        name: 'System Theme (GTK) (Beta)',
-        author: 'Moosync',
-        theme: theme as ThemeItem
+        primary: light ? '#FFFFFF' : '#2d2d2d',
+        secondary: light ? '#F6F5F4' : '#313131',
+        tertiary: light ? '#DEDDDA' : '#424242',
+        textPrimary: light ? 'rgba(0, 0, 0, 0.8)' : '#ffffff',
+        textSecondary: light ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.8)',
+        textInverse: light ? '#ffffff' : '#000000',
+        accent: light ? '#1c71d8' : '#78aeed',
+        divider: 'rgba(79, 79, 79, 0.67)'
       }
-    } catch (e) {
-      console.error('Error while fetching theme')
     }
+  }
+
+  private async getGTKVersion(themePath: string, version = 4): Promise<number | undefined> {
+    try {
+      // Pretty stupid but its short and it works
+      const file = path.join(themePath, `gtk-${version}.0`, 'gtk.css')
+      await access(file)
+      return version
+    } catch (e) {
+      console.debug(`GTK ${version}.0 not found in`, themePath)
+      if (version > 3) {
+        return await this.getGTKVersion(themePath, version - 1)
+      }
+    }
+  }
+
+  private async parseGTKTheme(themePath: string): Promise<ThemeDetails | undefined> {
+    const version = await this.getGTKVersion(themePath)
+    if (version) {
+      const filename = path.join(themePath, `gtk-${version}.0`, 'gtk.css')
+      const defaultGTKColors = this.getDefaultGtkColors(version, !themePath.toLowerCase().includes('dark'))
+      if (filename && defaultGTKColors) {
+        try {
+          const theme = {
+            primary: (await this.findVar('theme_base_color', filename)) ?? defaultGTKColors.primary,
+            secondary: (await this.findVar('wm_bg', filename)) ?? defaultGTKColors.secondary,
+            tertiary: (await this.findVar('theme_bg_color', filename)) ?? defaultGTKColors.tertiary,
+            textPrimary: (await this.findVar('theme_text_color', filename)) ?? defaultGTKColors.textPrimary,
+            textSecondary: (await this.findVar('placeholder_text_color', filename)) ?? defaultGTKColors.textSecondary,
+            textInverse:
+              (await this.findVar('theme_unfocused_selected_fg_color', filename)) ?? defaultGTKColors.textInverse,
+            accent: (await this.findVar('theme_selected_bg_color', filename)) ?? defaultGTKColors.accent,
+            divider: (await this.findVar('borders', filename)) ?? defaultGTKColors.divider
+          }
+
+          return {
+            id: 'system_default',
+            name: `System Theme (GTK ${version}.0) (Beta)`,
+            author: 'Moosync',
+            theme: theme as ThemeItem
+          }
+        } catch (e) {
+          console.warn('Using colors based on Adwaita')
+          return {
+            id: 'system_default',
+            name: `System Theme (GTK ${version}.0) (Beta)`,
+            author: 'Moosync',
+            theme: defaultGTKColors
+          }
+        }
+      }
+    }
+    console.error('Error while fetching theme')
   }
 
   private async findGTKTheme(theme: string) {
