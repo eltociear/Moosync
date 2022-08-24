@@ -62,7 +62,7 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
   }
 
   get queueOrder() {
-    return this.songQueue.order
+    return this.songQueue.order.filter((obj) => !!obj)
   }
 
   get queueIndex() {
@@ -80,7 +80,7 @@ export class PlayerStore extends VuexModule.With({ namespaced: 'player' }) {
 
   @mutation
   private _setSongQueueOrder(order: QueueOrder) {
-    this.songQueue.order = order
+    this.songQueue.order = order.filter((obj) => !!obj)
   }
 
   @action
