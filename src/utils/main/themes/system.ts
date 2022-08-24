@@ -44,6 +44,9 @@ interface KdeGlobals {
   'Colors:Selection': {
     BackgroundNormal: string
   }
+  'Colors:Complementary': {
+    BackgroundNormal: string
+  }
 }
 
 export class SystemThemeHandler {
@@ -203,13 +206,13 @@ export class SystemThemeHandler {
 
     if (colorsData) {
       const view = colorsData['Colors:View']
-      const window = colorsData['Colors:Window']
       const selection = colorsData['Colors:Selection']
+      const complementary = colorsData['Colors:Complementary']
 
       const theme = {
         primary: rgbToHex(view['BackgroundNormal']) ?? defaultTheme.primary,
         secondary: rgbToHex(view['BackgroundAlternate']) ?? defaultTheme.secondary,
-        tertiary: rgbToHex(window['BackgroundNormal']) ?? defaultTheme.tertiary,
+        tertiary: rgbToHex(complementary['BackgroundNormal']) ?? defaultTheme.tertiary,
         textPrimary: rgbToHex(view['ForegroundNormal']) ?? defaultTheme.textPrimary,
         textSecondary: rgbToHex(view['ForegroundInactive']) ?? defaultTheme.textSecondary,
         textInverse: rgbToHex(view['ForegroundNormal'], true) ?? defaultTheme.textInverse,
