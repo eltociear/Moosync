@@ -246,7 +246,6 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   public async spotifyToYoutube(item: Song) {
-    console.log(vxm.providers.loggedInYoutube)
     if (vxm.providers.loggedInYoutube) {
       const res = await vxm.providers.youtubeProvider.searchSongs(
         `${item.artists?.map((val) => val.artist_name ?? '').join(', ') ?? ''} ${item.title}`
@@ -385,8 +384,8 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     }
   }
 
-  public async getPlaylistDetails(str: string, invalidateCache = false) {
-    const id = this.getIDFromURL(str)
+  public async getPlaylistDetails(url: string, invalidateCache = false) {
+    const id = this.getIDFromURL(url)
 
     if (id) {
       const validRefreshToken = await this.auth?.hasValidRefreshToken()
@@ -406,8 +405,12 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     }
   }
 
+  private matchSongURL(url: string) {
+    return url.match(/^(https:\/\/open.spotify.com\/track\/|spotify:track:)([a-zA-Z0-9]+)(.*)$/)
+  }
+
   public async getSongDetails(url: string): Promise<Song | undefined> {
-    if (url.match(/^(https:\/\/open.spotify.com\/track\/|spotify:track:)([a-zA-Z0-9]+)(.*)$/)) {
+    if (this.matchSongURL(url)) {
       const parsedURL = new URL(url)
       const split = parsedURL.pathname.split('/')
       const songID = split[split.length - 1]
@@ -551,17 +554,22 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   public async searchSongs(term: string): Promise<Song[]> {
     const songList: Song[] = []
     if (await this.getLoggedIn()) {
-      const resp = await this.populateRequest(ApiResources.SEARCH, {
-        params: {
-          query: term,
-          type: 'track',
-          limit: 20
-        }
-      })
+      const parsedFromURL = await this.getSongDetails(term)
+      if (parsedFromURL) {
+        songList.push(parsedFromURL)
+      } else {
+        const resp = await this.populateRequest(ApiResources.SEARCH, {
+          params: {
+            query: term,
+            type: 'track',
+            limit: 20
+          }
+        })
 
-      if (resp.tracks) {
-        for (const s of resp.tracks.items) {
-          songList.push(this.parseSong(s))
+        if (resp.tracks) {
+          for (const s of resp.tracks.items) {
+            songList.push(this.parseSong(s))
+          }
         }
       }
     }
@@ -581,20 +589,40 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     }
   }
 
+  private matchArtist(url: string) {
+    return !!url.match(/^(https:\/\/open.spotify.com\/artist\/|spotify:artist:)([a-zA-Z0-9]+)(.*)$/)
+  }
+
   public async searchArtists(term: string): Promise<Artists[]> {
     const artists: Artists[] = []
     if (await this.getLoggedIn()) {
-      const resp = await this.populateRequest(ApiResources.SEARCH, {
-        params: {
-          query: term,
-          type: 'artist',
-          limit: 20
-        }
-      })
+      if (this.matchArtist(term)) {
+        const id = this.getIDFromURL(term)
+        const parsedFromURL = await this.getArtistDetails({
+          artist_id: id,
+          artist_extra_info: {
+            spotify: {
+              artist_id: id
+            }
+          }
+        })
 
-      if (resp.artists) {
-        for (const a of resp.artists.items) {
-          artists.push(this.parseArtist(a))
+        if (parsedFromURL) {
+          artists.push(parsedFromURL)
+        }
+      } else {
+        const resp = await this.populateRequest(ApiResources.SEARCH, {
+          params: {
+            query: term,
+            type: 'artist',
+            limit: 20
+          }
+        })
+
+        if (resp.artists) {
+          for (const a of resp.artists.items) {
+            artists.push(this.parseArtist(a))
+          }
         }
       }
     }
@@ -726,16 +754,23 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     const playlists: ExtendedPlaylist[] = []
 
     if (await this.getLoggedIn()) {
-      const resp = await this.populateRequest(ApiResources.SEARCH, {
-        params: {
-          query: term,
-          type: 'playlist',
-          limit: 20
+      if (this.matchPlaylist(term)) {
+        const parsedFromURL = await this.getPlaylistDetails(term)
+        if (parsedFromURL) {
+          playlists.push(parsedFromURL)
         }
-      })
+      } else {
+        const resp = await this.populateRequest(ApiResources.SEARCH, {
+          params: {
+            query: term,
+            type: 'playlist',
+            limit: 20
+          }
+        })
 
-      if (resp.playlists) {
-        playlists.push(...this.parsePlaylists(resp.playlists.items))
+        if (resp.playlists) {
+          playlists.push(...this.parsePlaylists(resp.playlists.items))
+        }
       }
     }
     return playlists
@@ -762,19 +797,44 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     return albums
   }
 
-  public async searchAlbum(term: string): Promise<Album[]> {
-    const albums: Album[] = []
+  private matchAlbum(url: string) {
+    return !!url.match(/^(https:\/\/open.spotify.com\/album\/|spotify:album:)([a-zA-Z0-9]+)(.*)$/)
+  }
+
+  private async getAlbumDetails(album_id: string) {
     if (await this.getLoggedIn()) {
-      const resp = await this.populateRequest(ApiResources.SEARCH, {
+      const albumDetails = await this.populateRequest(ApiResources.ALBUM, {
         params: {
-          query: term,
-          type: 'album',
-          limit: 20
+          id: album_id,
+          market: 'ES'
         }
       })
 
-      if (resp.albums) {
-        albums.push(...this.parseAlbum(...resp.albums.items))
+      return this.parseAlbum(albumDetails)[0]
+    }
+  }
+
+  public async searchAlbum(term: string): Promise<Album[]> {
+    const albums: Album[] = []
+    if (await this.getLoggedIn()) {
+      if (this.matchAlbum(term)) {
+        const id = this.getIDFromURL(term)
+        const parsedFromURL = await this.getAlbumDetails(id)
+        if (parsedFromURL) {
+          albums.push(parsedFromURL)
+        }
+      } else {
+        const resp = await this.populateRequest(ApiResources.SEARCH, {
+          params: {
+            query: term,
+            type: 'album',
+            limit: 20
+          }
+        })
+
+        if (resp.albums) {
+          albums.push(...this.parseAlbum(...resp.albums.items))
+        }
       }
     }
 
