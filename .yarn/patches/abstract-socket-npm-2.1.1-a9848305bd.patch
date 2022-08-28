@@ -1,0 +1,14 @@
+diff --git a/package.json b/package.json
+index f58df9b1a9095ecef05baaa59997fb757de85aa0..57632c6f8713be6780ca2dc0200893a292affe5f 100644
+--- a/package.json
++++ b/package.json
+@@ -5,7 +5,8 @@
+         "url": "https://bettercallsaghul.com"
+     },
+     "scripts": {
+-        "test": "./node_modules/.bin/mocha --growl --timeout 10000 test/*.test.js"
++        "test": "./node_modules/.bin/mocha --growl --timeout 10000 test/*.test.js",
++        "install": ""
+     },
+     "name": "abstract-socket",
+     "version": "2.1.1",

@@ -13,12 +13,13 @@
     "electron:build": "vue-cli-service electron:build",
     "electron:serve": "cross-env DEBUG_LOGGING=true vue-cli-service electron:serve --quiet-deps",
     "electron:serve-wayland": "cross-env DEBUG_LOGGING=true vue-cli-service electron:serve --quiet-deps --enable-features=UseOzonePlatform --ozone-platform=wayland",
-    "postinstall": "patch-package && electron-builder install-app-deps",
-    "postuninstall": "patch-package && electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps",
+    "postuninstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "@babel/core": "^7.18.13",
     "@babel/eslint-parser": "^7.18.9",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/plugin-syntax-bigint": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.18.10",
     "@babel/preset-env": "^7.18.10",
@@ -26,6 +27,7 @@
     "@babel/types": "^7.18.13",
     "@caohenghu/vue-colorpicker": "^1.2.4",
     "@googleapis/oauth2": "^0.3.1",
+    "@jest/types": "^29.0.1",
     "@openid/appauth": "^1.3.1",
     "@playwright/test": "^1.25.1",
     "@types/better-sqlite3": "^7.6.0",
@@ -34,6 +36,7 @@
     "@types/jest": "^28.1.8",
     "@types/js-yaml": "^4.0.5",
     "@types/node": "^18.7.13",
+    "@types/qs": "^6.9.7",
     "@types/sharp": "^0.30.5",
     "@types/tail": "^2.2.1",
     "@types/usetube": "^2.1.0",
@@ -57,6 +60,7 @@
     "babel-loader": "^8.2.5",
     "better-sqlite3": "^7.6.2",
     "better-sqlite3-helper": "^3.1.6",
+    "bootstrap": "^4.6.2",
     "bootstrap-vue": "^2.22.0",
     "buffer": "^6.0.3",
     "bufferutil": "4.0.6",
@@ -89,8 +93,8 @@
     "music-metadata": "^8.0.1",
     "node-stream-zip": "^1.15.0",
     "node-youtube-music": "^0.7.0",
-    "patch-package": "^6.4.7",
     "playwright": "^1.25.1",
+    "playwright-core": "^1.25.1",
     "prettier": "2.7.1",
     "puppeteer-core": "16.1.0",
     "puppeteer-in-electron": "^3.0.5",
@@ -116,16 +120,13 @@
     "uuid": "^8.3.2",
     "vm2": "git+https://github.com/patriksimek/vm2.git",
     "vue": "^2.7.10",
-    "vue-auto-routing": "^1.0.1",
     "vue-class-component": "^7.2.6",
-    "vue-cli-plugin-auto-routing": "~1.3.0",
     "vue-cli-plugin-electron-builder": "^3.0.0-alpha.4",
     "vue-context-menu-popup": "^1.0.4",
     "vue-i18n": "8.27.2",
     "vue-inline-svg": "^2.1.0",
     "vue-property-decorator": "^9.1.2",
     "vue-router": "~3.5.4",
-    "vue-router-layout": "^0.1.6",
     "vue-slider-component": "^3.2.20",
     "vue-template-compiler": "^2.6.14",
     "vue-toasted": "^1.1.28",
@@ -134,6 +135,7 @@
     "vuedraggable": "^2.24.3",
     "vuex": "~3.4.0",
     "vuex-class-component": "^2.3.6",
+    "webpack": "^5.74.0",
     "webpack-bundle-analyzer": "^4.6.1",
     "webpack-cli": "^4.10.0",
     "yt-player": "^3.6.1",
@@ -141,7 +143,7 @@
     "ytsr": "^3.8.0"
   },
   "devDependencies": {
-    "electron-builder": "^23.3.3"
+    "electron-builder": "^23.4.0"
   },
   "browserslist": [
     "> 1%",
@@ -149,13 +151,13 @@
     "not dead"
   ],
   "resolutions": {
-    "electron-builder": "23.3.3",
+    "electron-builder": "23.4.0",
     "node-abi": "^3.24.0",
-    "webpack": "^5.73.0",
+    "webpack": "^5.74.0",
     "better-sqlite3": "^7.6.2",
     "playwright": "^1.25.1",
     "playwright-core": "^1.25.1",
-    "nan": "git+https://github.com/jkleinsc/nan.git#remove_accessor_signature"
+    "abstract-socket@^2.0.0": "patch:abstract-socket@npm%3A2.1.1#./.yarn/patches/abstract-socket-npm-2.1.1-a9848305bd.patch"
   },
   "whiteListedModules": [
     "threads"
@@ -166,5 +168,6 @@
     "*.vue",
     "./src/mainWindow/plugins/*",
     "./src/preferenceWindow/plugins/*"
-  ]
+  ],
+  "packageManager": "yarn@3.2.3"
 }
