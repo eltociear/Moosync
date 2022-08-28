@@ -93,15 +93,20 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
 
   public async getLoggedIn() {
     if (this.auth) {
-      const tmp = await this.auth.loggedIn()
-      vxm.providers.loggedInSpotify = tmp
-      return tmp
+      const validRefreshToken = await this.auth.hasValidRefreshToken()
+      if ((await this.auth.loggedIn()) || validRefreshToken) {
+        vxm.providers.loggedInYoutube = true
+      } else {
+        vxm.providers.loggedInYoutube = false
+      }
+
+      return vxm.providers.loggedInYoutube
     }
     return false
   }
 
   public async login() {
-    if (!(await this.auth.loggedIn())) {
+    if (!(await this.getLoggedIn())) {
       if (this.auth.config) {
         const validRefreshToken = await this.auth.hasValidRefreshToken()
         if (validRefreshToken) {
@@ -241,6 +246,7 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
   }
 
   public async spotifyToYoutube(item: Song) {
+    console.log(vxm.providers.loggedInYoutube)
     if (vxm.providers.loggedInYoutube) {
       const res = await vxm.providers.youtubeProvider.searchSongs(
         `${item.artists?.map((val) => val.artist_name ?? '').join(', ') ?? ''} ${item.title}`

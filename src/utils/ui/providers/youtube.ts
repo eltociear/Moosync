@@ -86,9 +86,14 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
 
   public async getLoggedIn() {
     if (this.auth) {
-      const tmp = await this.auth.loggedIn()
-      vxm.providers.loggedInYoutube = tmp
-      return tmp
+      const validRefreshToken = await this.auth.hasValidRefreshToken()
+      if ((await this.auth.loggedIn()) || validRefreshToken) {
+        vxm.providers.loggedInYoutube = true
+      } else {
+        vxm.providers.loggedInYoutube = false
+      }
+
+      return vxm.providers.loggedInYoutube
     }
     return false
   }
@@ -144,7 +149,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
 
   public async getUserDetails(invalidateCache = false, retries = 0): Promise<string | undefined> {
     const validRefreshToken = await this.auth?.hasValidRefreshToken()
-    if ((await this.auth?.loggedIn()) || validRefreshToken) {
+    if ((await this.getLoggedIn()) || validRefreshToken) {
       const resp = await this.populateRequest(
         ApiResources.CHANNELS,
         {
@@ -372,6 +377,7 @@ export class YoutubeProvider extends GenericAuth implements GenericProvider, Gen
           type: 'video',
           maxResults: 30,
           order: 'relevance',
+          safeSearch: 'moderate',
           videoEmbeddable: true
         }
       })

@@ -29,6 +29,7 @@ declare namespace YoutubeResponses {
       order?: 'date' | 'relevance'
       channelId?: string
       q?: string
+      safeSearch?: 'none' | 'moderate' | 'strict'
       pageToken?: string | undefined
     }
   }
