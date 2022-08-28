@@ -95,12 +95,12 @@ export class SpotifyProvider extends GenericAuth implements GenericProvider, Gen
     if (this.auth) {
       const validRefreshToken = await this.auth.hasValidRefreshToken()
       if ((await this.auth.loggedIn()) || validRefreshToken) {
-        vxm.providers.loggedInYoutube = true
+        vxm.providers.loggedInSpotify = true
       } else {
-        vxm.providers.loggedInYoutube = false
+        vxm.providers.loggedInSpotify = false
       }
 
-      return vxm.providers.loggedInYoutube
+      return vxm.providers.loggedInSpotify
     }
     return false
   }
