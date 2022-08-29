@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /*
  *  router.ts is a part of Moosync.
  *
@@ -7,16 +9,86 @@
  *  See LICENSE in the project root for license information.
  */
 
-import Router from 'vue-router'
+import Router, { RouteConfig } from 'vue-router'
 import Vue from 'vue'
-import { createRouterLayout } from 'vue-router-layout'
-import routes from 'vue-auto-routing'
 
 Vue.use(Router)
 
-const RouterLayout = createRouterLayout((layout) => {
-  return import('@/mainWindow/layouts/' + layout + '.vue')
-})
+const routes: RouteConfig[] = [
+  {
+    name: 'index',
+    path: '',
+    component: () => import('@/mainWindow/pages/index.vue') 
+  },
+  {
+    name: 'albums',
+    path: 'albums',
+    component: () => import('@/mainWindow/pages/albums/index.vue') 
+  },
+  {
+    name: 'artists',
+    path: 'artists',
+    component: () => import('@/mainWindow/pages/artists/index.vue')
+
+  },
+  {
+    name: 'genre',
+    path: 'genre',
+    component: () => import('@/mainWindow/pages/genre/index.vue')
+  },
+  {
+    name: 'playlists',
+    path: 'playlists',
+    component: () => import('@/mainWindow/pages/playlists/index.vue')
+  },
+  {
+    name: 'recommendations',
+    path: 'recommendations',
+    component: () => import('@/mainWindow/pages/recommendations/index.vue')
+
+
+  },
+  {
+    name: 'search',
+    path: 'search',
+    component: () => import('@/mainWindow/pages/search/index.vue')
+
+  },
+  {
+    name: 'songs',
+    path: 'songs',
+    component: () => import('@/mainWindow/pages/songs/index.vue')
+
+  },
+  {
+    name: 'albums-single',
+    path: 'albums/single',
+    props: true,
+    component: () => import('@/mainWindow/pages/albums/single.vue')
+
+  },
+  {
+    name: 'artists-single',
+    path: 'artists/single',
+    props: true,
+        component: () => import('@/mainWindow/pages/artists/single.vue')
+
+  },
+  {
+    name: 'genre-single',
+    path: 'genre/single',
+    props: true,
+        component: () => import('@/mainWindow/pages/genre/single.vue')
+
+  },
+  {
+    name: 'playlists-single',
+    path: 'playlists/single',
+    props: true,
+        component: () => import('@/mainWindow/pages/playlists/single.vue')
+
+  }
+]
 
 export default new Router({
   mode: process.env.IS_ELECTRON ? 'hash' : 'history',
@@ -24,7 +96,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      component: RouterLayout,
+      component: () => import('@/mainWindow/layouts/default.vue'),
       children: routes
     }
   ]
