@@ -20,7 +20,7 @@ interface YTMusicWMatchIndex extends Song {
 
 export class YTScraper extends CacheHandler {
   constructor() {
-    super(path.join(app.getPath('cache'), app.getName(), 'youtube.cache'))
+    super(path.join(app.getPath('sessionData'), app.getName(), 'youtube.cache'))
   }
 
   private getHighResThumbnail(url: string) {

@@ -8,7 +8,6 @@
  */
 
 import { IpcRenderer } from 'electron'
-import { v4 } from 'uuid'
 
 export class IpcRendererHolder {
   ipcRenderer: IpcRenderer
@@ -19,7 +18,9 @@ export class IpcRendererHolder {
 
   public send<T>(channel: string, request: IpcRequest<T>): Promise<unknown> {
     if (!request.responseChannel) {
-      request.responseChannel = v4()
+      // require('crypto') seems to be undefined when preload script is first fires
+      // Lazy load crypto since we're sure that this will always happen after the crypto is loaded
+      request.responseChannel = window.crypto?.randomUUID() ?? Date.now().toString()
     }
     this.ipcRenderer.send(channel, request)
 

@@ -15,7 +15,7 @@ export class AZLyricsFetcher extends CacheHandler {
   private blocked = false
 
   constructor() {
-    super(path.join(app.getPath('cache'), app.getName(), 'azlyrics.cache'), false)
+    super(path.join(app.getPath('sessionData'), app.getName(), 'azlyrics.cache'), false)
   }
 
   public async getLyrics(artists: string[], title: string) {

@@ -6,7 +6,7 @@ import { loadSelectivePreference } from '../db/preferences'
 
 export class InvidiousRequester extends CacheHandler {
   constructor() {
-    super(path.join(app.getPath('cache'), app.getName(), 'invidious.cache'))
+    super(path.join(app.getPath('sessionData'), app.getName(), 'invidious.cache'))
   }
 
   public async makeInvidiousRequest<K extends InvidiousResponses.InvidiousApiResources>(

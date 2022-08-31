@@ -14,7 +14,7 @@ import { app } from 'electron'
 
 export class LastFMScraper extends CacheHandler {
   constructor() {
-    super(path.join(app.getPath('cache'), app.getName(), 'lastfm.cache'))
+    super(path.join(app.getPath('sessionData'), app.getName(), 'lastfm.cache'))
   }
 
   public async scrapeURL(url: string): Promise<string> {

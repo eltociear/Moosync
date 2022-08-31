@@ -103,7 +103,7 @@ export class SongsChannel implements IpcChannelInterface {
   }
 
   private isCacheFileExists(filename: string, cacheDir: string): string {
-    const cachePath = path.join(app.getPath('cache'), app.getName(), cacheDir)
+    const cachePath = path.join(app.getPath('sessionData'), app.getName(), cacheDir)
     const filepath = path.join(cachePath, filename)
 
     if (fs.existsSync(cachePath)) {
@@ -141,7 +141,7 @@ export class SongsChannel implements IpcChannelInterface {
   ) {
     if (request.params.path) {
       const filePath = path.join(
-        app.getPath('cache'),
+        app.getPath('sessionData'),
         app.getName(),
         type === 'audio' ? 'audioCache' : 'imageCache',
         request.params.path
