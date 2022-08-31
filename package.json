@@ -154,10 +154,10 @@
     "electron-builder": "23.4.0",
     "node-abi": "^3.24.0",
     "webpack": "^5.74.0",
-    "better-sqlite3": "^7.6.2",
     "playwright": "^1.25.1",
     "playwright-core": "^1.25.1",
-    "abstract-socket@^2.0.0": "patch:abstract-socket@npm%3A2.1.1#./.yarn/patches/abstract-socket-npm-2.1.1-a9848305bd.patch"
+    "abstract-socket@^2.0.0": "patch:abstract-socket@npm%3A2.1.1#./.yarn/patches/abstract-socket-npm-2.1.1-a9848305bd.patch",
+    "better-sqlite3": "patch:better-sqlite3@npm%3A7.6.2#./.yarn/patches/better-sqlite3-npm-7.6.2-a775750216.patch"
   },
   "whiteListedModules": [
     "threads"

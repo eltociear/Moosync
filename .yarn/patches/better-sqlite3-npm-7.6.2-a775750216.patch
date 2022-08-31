@@ -1,0 +1,52 @@
+diff --git a/binding.gyp b/binding.gyp
+index 59fa0a81f4be94bdb63c3795edf77b6912ae5f0a..fe8d144e2345e69a7285941d705348e910e0a579 100644
+--- a/binding.gyp
++++ b/binding.gyp
+@@ -9,9 +9,10 @@
+       'target_name': 'better_sqlite3',
+       'dependencies': ['deps/sqlite3.gyp:sqlite3'],
+       'sources': ['src/better_sqlite3.cpp'],
+-      'cflags': ['-std=c++14'],
++      'cflags': ['-std=c++17'],
++      'cflags_cc': ['-std=c++17'],
+       'xcode_settings': {
+-        'OTHER_CPLUSPLUSFLAGS': ['-std=c++14', '-stdlib=libc++'],
++        'OTHER_CPLUSPLUSFLAGS': ['-std=c++17', '-stdlib=libc++'],
+       },
+       'conditions': [
+         ['OS=="linux"', {
+diff --git a/package.json b/package.json
+index 2097c17eda3c030919fdc342a56ce68d483f3829..477a74131659a8eca3e94b6e902157e54572d4f8 100644
+--- a/package.json
++++ b/package.json
+@@ -24,6 +24,7 @@
+     "cli-color": "^2.0.2",
+     "fs-extra": "^10.1.0",
+     "mocha": "^8.3.2",
++    "node-gyp": "^9.1.0",
+     "nodemark": "^0.3.0",
+     "prebuild": "^11.0.4",
+     "sqlite": "^4.1.1",
+diff --git a/src/better_sqlite3.cpp b/src/better_sqlite3.cpp
+index 777c8b82c7a61378e1498cf7b758ad8d269008b8..0cfaf5184a4bf408c0617e15bd1e6bcd48fc3714 100644
+--- a/src/better_sqlite3.cpp
++++ b/src/better_sqlite3.cpp
+@@ -104,8 +104,7 @@ void SetPrototypeGetter (v8::Isolate * isolate, v8::Local <v8::External> data, v
+                 0,
+                 data,
+                 v8::AccessControl::DEFAULT,
+-                v8::PropertyAttribute::None,
+-                v8::AccessorSignature::New(isolate, recv)
++                v8::PropertyAttribute::None
+         );
+ }
+ #line 4 "./src/util/constants.lzz"
+@@ -1949,7 +1948,7 @@ bool Binder::IsPlainObject (v8::Isolate * isolate, v8::Local <v8::Object> obj)
+ #line 35 "./src/util/binder.lzz"
+                                                                                    {
+                 v8::Local<v8::Value> proto = obj->GetPrototype();
+-                v8::Local<v8::Context> ctx = obj->CreationContext();
++                v8::Local<v8::Context> ctx = obj->GetCreationContext().ToLocalChecked();
+                 ctx->Enter();
+                 v8::Local<v8::Value> baseProto = v8::Object::New(isolate)->GetPrototype();
+                 ctx->Exit();

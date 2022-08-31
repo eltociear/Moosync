@@ -4311,7 +4311,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"better-sqlite3@npm:^7.6.2":
+"better-sqlite3@npm:7.6.2":
   version: 7.6.2
   resolution: "better-sqlite3@npm:7.6.2"
   dependencies:
@@ -4319,6 +4319,17 @@ __metadata:
     node-gyp: latest
     prebuild-install: ^7.1.0
   checksum: 45159e535d2c4f81456f85adcfef82e8a49025ca3e70a79bb8c0a47c13e4d822633a51b457cc37b986c42f8912344152091c91cab485048a187900aab7e7d619
+  languageName: node
+  linkType: hard
+
+"better-sqlite3@patch:better-sqlite3@npm%3A7.6.2#./.yarn/patches/better-sqlite3-npm-7.6.2-a775750216.patch::locator=moosync%40workspace%3A.":
+  version: 7.6.2
+  resolution: "better-sqlite3@patch:better-sqlite3@npm%3A7.6.2#./.yarn/patches/better-sqlite3-npm-7.6.2-a775750216.patch::version=7.6.2&hash=80c0a2&locator=moosync%40workspace%3A."
+  dependencies:
+    bindings: ^1.5.0
+    node-gyp: latest
+    prebuild-install: ^7.1.0
+  checksum: 06b3198a2f11d8d8326733a18d758db273841ad2d77edd13e75813f3796bab6e20981ab40605e7e6b2ffd891d5d81adc0d30ec28a5231cdc3eda86b670aa229b
   languageName: node
   linkType: hard
 
