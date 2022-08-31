@@ -213,11 +213,6 @@ module.exports = {
 
         // config.plugin('copy').use(BundleAnalyzerPlugin)
       }
-    },
-    autoRouting: {
-      pages: 'src/mainWindow/pages',
-      importPrefix: '@/mainWindow/pages/',
-      chunkNamePrefix: 'page-'
     }
   }
 }
