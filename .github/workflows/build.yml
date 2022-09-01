@@ -56,6 +56,11 @@ jobs:
       - if: ${{ runner.os == 'Linux' }}
         run: sudo apt-get update -y && sudo apt-get install -y libarchive-tools rpm
 
+      - name: Remove abstract socket in non-linux
+        if: ${{ runner.os != 'Linux' }}
+        run: rm -f patches/abstract-socket*
+        shell: bash
+
       - name: yarn install
         run: yarn install
 
