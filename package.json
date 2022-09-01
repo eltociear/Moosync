@@ -164,6 +164,5 @@
     "*.vue",
     "./src/mainWindow/plugins/*",
     "./src/preferenceWindow/plugins/*"
-  ],
-  "packageManager": "yarn@3.2.3"
+  ]
 }
