@@ -36,33 +36,18 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         run: sudo snap install multipass
 
-      - name: Get yarn cache dir
-        id: yarn-cache
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - name: Yarn cache
-        uses: actions/cache@v1
-        with:
-          path: ${{ steps.yarn-cache.outputs.dir }}
-          key: ${{ runner.os }}-yarn-node${{ matrix.node }}-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-node${{ matrix.node }}-
       - uses: maxim-lobanov/setup-xcode@v1
         if: ${{ runner.os == 'macOS' }}
         with:
           xcode-version: latest-stable
 
-      # - uses: microsoft/playwright-github-action@v1
-
       - if: ${{ runner.os == 'Linux' }}
         run: sudo apt-get update -y && sudo apt-get install -y libarchive-tools rpm
 
-      - name: Remove abstract socket in non-linux
-        if: ${{ runner.os != 'Linux' }}
-        run: rm -f patches/abstract-socket*
-        shell: bash
-
       - name: yarn install
         run: yarn install
+        env:
+          YARN_CHECKSUM_BEHAVIOR: update
 
       - name: Set env BRANCH
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV

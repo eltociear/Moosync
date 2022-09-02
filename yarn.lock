@@ -10111,7 +10111,7 @@ __metadata:
     mpris-service: ^2.1.2
     node-addon-api: ^5.0.0
     node-gyp: ^9.1.0
-  checksum: b8f23a8f701685247c5fe56b7b94024d6e060750e1d06c9df3376c6f81644ff8eb46bf758361ac8aae148ab2ee188e73cc76229b24c217a8ab3e934e42b1424d
+  checksum: 8f128b685247a9bc109c0f89ebdc1e617d3a28d962777d5d7df12acf4197e420cfad5abbb2413082e7f878a193971783bae653d955d2a23ffd4c105878c32592
   languageName: node
   linkType: hard
 
