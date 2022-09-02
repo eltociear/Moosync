@@ -4,3 +4,6 @@
 [submodule "aur"]
 	path = aur
 	url = https://aur.archlinux.org/moosync.git
+[submodule ".yarn/cache"]
+	path = .yarn/cache
+	url = git@github.com:Moosync/moosync_package_cache.git
