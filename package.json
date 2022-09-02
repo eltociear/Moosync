@@ -153,8 +153,8 @@
     "node-abi": "^3.24.0",
     "webpack": "^5.73.0",
     "better-sqlite3": "^7.6.2",
-    "playwright": "^1.25.0",
-    "playwright-core": "^1.25.0",
+    "playwright": "^1.25.1",
+    "playwright-core": "^1.25.1",
     "nan": "git+https://github.com/jkleinsc/nan.git#remove_accessor_signature"
   },
   "whiteListedModules": [
