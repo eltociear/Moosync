@@ -1,70 +1,70 @@
 {
   "sidebar": {
     "tabs": {
-      "queue": "Queue",
-      "allSongs": "All Songs",
-      "playlists": "Playlists",
-      "albums": "Albums",
-      "artists": "Artists",
-      "genre": "Genres",
-      "explore": "Explore"
+      "queue": "Coda",
+      "allSongs": "Tutti i brani",
+      "playlists": "Playlist",
+      "albums": "Album",
+      "artists": "Artisti",
+      "genre": "Generi",
+      "explore": "Esplora"
     }
   },
   "topbar": {
-    "searchPlaceholder": "Search...",
-    "noResultsFound": "No results found"
+    "searchPlaceholder": "Cerca...",
+    "noResultsFound": "Nessun risultato"
   },
   "pages": {
-    "playlists": "Playlists",
-    "albums": "Albums",
-    "artists": "Artists",
-    "genres": "Genres",
-    "explore": "Explore"
+    "playlists": "Playlist",
+    "albums": "Album",
+    "artists": "Artisti",
+    "genres": "Generi",
+    "explore": "Esplora"
   },
   "songView": {
     "details": {
-      "songCount": "{count} song | {count} songs"
+      "songCount": "{count} Brano | {count} brani"
     },
     "songList": {
       "topbar": {
-        "searchPlaceholder": "Search..."
+        "searchPlaceholder": "Cerca..."
       }
     }
   },
   "buttons": {
-    "playSingle": "Play {title}",
-    "addToQueue": "Add {title} to queue",
-    "addToLibrary": "Add {title} to library"
+    "playSingle": "Riproduci {title}",
+    "addToQueue": "Aggiungi {title} alla coda",
+    "addToLibrary": "Aggiungi {title} alla libreria"
   },
-  "loading": "Loading...",
+  "loading": "Caricamento...",
   "contextMenu": {
     "sort": {
-      "name": "Name",
-      "dateAdded": "Date added",
-      "provider": "Provider"
+      "name": "Nome",
+      "dateAdded": "Data di aggiunta",
+      "provider": "Origine"
     },
     "playlist": {
-      "new": "Create Playlist",
-      "remove": "Remove playlist",
-      "export": "Export playlist",
-      "add": "Add To Playlist",
-      "addFromURL": "Add Playlist from URL"
+      "new": "Crea playlist",
+      "remove": "Elimina playlist",
+      "export": "Esporta playlist",
+      "add": "Aggiungi alla playlist",
+      "addFromURL": "Aggiungi alla playlist da un URL"
     },
     "song": {
-      "addFromURL": "Add from URL",
-      "playNow": "Play Now",
-      "addToQueue": "Add To Queue",
-      "moveToTop": "Move to top",
-      "moveToBottom": "Move to bottom",
-      "moveManually": "Move manually",
-      "manualIndex": "Set index of song",
-      "remove": "Remove from Library",
-      "add": "Add Song to Library | Add Songs to Library"
+      "addFromURL": "Aggiungi un brano da un URL",
+      "playNow": "Riproduci",
+      "addToQueue": "Aggiungi alla coda",
+      "moveToTop": "Sposta in cima",
+      "moveToBottom": "Sposta in fondo",
+      "moveManually": "Sposta manualmente",
+      "manualIndex": "Imposta la posizione del brano",
+      "remove": "Rimuovi dalla libreria",
+      "add": "Aggiungi il brano alla libreria | Aggiungi i brani alla libreria"
     },
-    "moreInfo": "More Info"
+    "moreInfo": "Più informazioni"
   },
   "providers": {
-    "youtube": "Youtube",
+    "youtube": "YouTube",
     "spotify": "Spotify",
     "invidious": "Invidious",
     "lastfm": "LastFM"
