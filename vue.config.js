@@ -165,7 +165,7 @@ module.exports = {
           }
         ],
         files: ['**/*', '!node_modules/librespot-node/native/target/*'],
-        asarUnpack: ['*.worker.js', 'sandbox.js', 'spotify.js', '**/node_modules/**/*.node'],
+        asarUnpack: ['*.worker.js', 'sandbox.js', 'spotify.js', '**/node_modules/**/*.node', '*.wasm'],
         protocols: [
           {
             name: 'Default protocol',
