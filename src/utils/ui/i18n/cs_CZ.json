@@ -40,8 +40,11 @@
   "loading": "Načítám...",
   "contextMenu": {
     "sort": {
-      "name": "Název",
-      "dateAdded": "Datum přidání",
+      "title": "Title",
+      "album": "Album",
+      "artist": "Artist",
+      "genre": "Genre",
+      "date_added": "Date added",
       "provider": "Poskytovatel",
       "playCount": "Počet přehrání"
     },
@@ -92,7 +95,9 @@
       "artworkPath": "Cesta k obrázku alba",
       "artworkPath_tooltip": "Adresář, kde jsou ukládány stažené obrázky alba",
       "thumbnailPath": "Cesta ke stažení miniatur",
-      "thumbnailPath_tooltip": "Adresář, kde jsou uloženy generované miniatury"
+      "thumbnailPath_tooltip": "Adresář, kde jsou uloženy generované miniatury",
+      "splitter": "Artist name split pattern",
+      "splitter_tooltip": "Regex to split artist names. Leave empty to disable splitting."
     },
     "themes": {
       "songView": "Zobrazení skladeb",

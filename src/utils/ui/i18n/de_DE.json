@@ -40,8 +40,11 @@
   "loading": "Wird geladen...",
   "contextMenu": {
     "sort": {
-      "name": "Name",
-      "dateAdded": "Hinzugefügt am",
+      "title": "Title",
+      "album": "Album",
+      "artist": "Artist",
+      "genre": "Genre",
+      "date_added": "Date added",
       "provider": "Anbieter",
       "playCount": "Play count"
     },
@@ -92,7 +95,9 @@
       "artworkPath": "Heruntergeladener Kunstwerkpfad",
       "artworkPath_tooltip": "Verzeichnis, in dem heruntergeladene Vorlagen gespeichert werden",
       "thumbnailPath": "Heruntergeladener Miniaturbildpfad",
-      "thumbnailPath_tooltip": "Verzeichnis in dem die erzeugten Thumbnails gespeichert werden"
+      "thumbnailPath_tooltip": "Verzeichnis in dem die erzeugten Thumbnails gespeichert werden",
+      "splitter": "Artist name split pattern",
+      "splitter_tooltip": "Regex to split artist names. Leave empty to disable splitting."
     },
     "themes": {
       "songView": "Titelansicht",

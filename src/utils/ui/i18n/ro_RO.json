@@ -40,8 +40,11 @@
   "loading": "Încărcare...",
   "contextMenu": {
     "sort": {
-      "name": "Nume",
-      "dateAdded": "Data adăugării",
+      "title": "Title",
+      "album": "Album",
+      "artist": "Artist",
+      "genre": "Genre",
+      "date_added": "Date added",
       "provider": "Furnizor",
       "playCount": "Play count"
     },
@@ -92,7 +95,9 @@
       "artworkPath": "Calea Artwork descărcată",
       "artworkPath_tooltip": "Director în care sunt stocate opere de artă descărcate",
       "thumbnailPath": "Calea de miniatură descărcată",
-      "thumbnailPath_tooltip": "Directorul unde miniaturile generate sunt stocate"
+      "thumbnailPath_tooltip": "Directorul unde miniaturile generate sunt stocate",
+      "splitter": "Artist name split pattern",
+      "splitter_tooltip": "Regex to split artist names. Leave empty to disable splitting."
     },
     "themes": {
       "songView": "Vizualizare melodii",
