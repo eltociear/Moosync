@@ -36,7 +36,11 @@ async function writeBuffer(bufferDesc: Buffer, basePath: string, hash?: string, 
   try {
     await access(highPath)
   } catch {
-    await writeNoResize(bufferDesc, highPath)
+    let image = photon.base64_to_image(bufferDesc.toString('base64'))
+    image = photon.resize(image, 800, 800, 1)
+
+    await writeFile(highPath, image.get_bytes())
+    image.free()
   }
 
   let lowPath

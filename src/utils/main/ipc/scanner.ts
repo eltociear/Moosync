@@ -138,18 +138,24 @@ export class ScannerChannel implements IpcChannelInterface {
       }
 
       try {
-        const ret = new Promise<SavedCovers>((resolve, reject) => {
+        let worker: Awaited<ReturnType<typeof spawn<CoverWorkerType>>> | undefined = undefined
+        const promise = new Promise<SavedCovers>((resolve, reject) => {
           console.debug('Storing cover for hash', hash)
-          spawn<CoverWorkerType>(new Worker(`./${coverWorker}`), { timeout: 5000 }).then((coverWorker) => {
-            coverWorker.writeBuffer(cover, thumbPath, hash, false).subscribe((val) => {
+          spawn<CoverWorkerType>(new Worker(`./${coverWorker}`), { timeout: 5000 }).then((cw) => {
+            worker = cw
+            cw.writeBuffer(cover, thumbPath, hash, false).subscribe((val) => {
               console.debug('Stored cover for hash', hash)
               resolve(val)
             }, reject)
           })
         })
 
-        this.isWritingCover[hash] = ret
-        return await ret
+        this.isWritingCover[hash] = promise
+
+        const ret = await promise
+        worker && (await Thread.terminate(worker))
+
+        return ret
       } catch (e) {
         console.error('Error writing cover', e)
       }
