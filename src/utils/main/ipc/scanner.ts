@@ -14,13 +14,14 @@ import { IpcMainEvent, app } from 'electron'
 import { getSongDB } from '@/utils/main/db/index'
 import fs from 'fs'
 import { getCombinedMusicPaths, loadPreferences } from '@/utils/main/db/preferences'
-import { writeBuffer } from '@/utils/main/workers/covers'
 import { access, mkdir } from 'fs/promises'
 
 // @ts-expect-error it don't want .ts
 import scannerWorker from 'threads-plugin/dist/loader?name=0!/src/utils/main/workers/scanner.ts'
 // @ts-expect-error it don't want .ts
 import scraperWorker from 'threads-plugin/dist/loader?name=1!/src/utils/main/workers/scraper.ts'
+// @ts-expect-error it don't want .ts
+import coverWorker from 'threads-plugin/dist/loader?name=2!/src/utils/main/workers/covers.ts'
 import { WindowHandler } from '../windowManager'
 import { v4 } from 'uuid'
 import path from 'path'
@@ -35,27 +36,10 @@ enum scanning {
   QUEUED
 }
 
+type ScanWorker = Awaited<ReturnType<typeof spawn<ScanWorkerWorkerType>>>
+
 type ScannedSong = { song: Song; cover: undefined | TransferDescriptor<Buffer> }
 type ScannedPlaylist = { filePath: string; title: string; songHashes: string[] }
-
-type ScanWorkerWorkerType = {
-  start: (
-    togglePaths: togglePaths,
-    excludePaths: string[],
-    loggerPath: string,
-    splitPattern: string
-  ) => ScannedSong | ScannedPlaylist | Progress
-
-  scanSinglePlaylist: (
-    path: string,
-    loggerPath: string,
-    splitPattern: string
-  ) => ScannedSong | ScannedPlaylist | Progress
-
-  scanSingleSong: (path: string, loggerPath: string, splitPattern: string) => ScannedSong | ScannedPlaylist | Progress
-}
-
-type ScanWorker = Awaited<ReturnType<typeof spawn<ScanWorkerWorkerType>>>
 
 export class ScannerChannel implements IpcChannelInterface {
   name = IpcEvents.SCANNER
@@ -154,7 +138,16 @@ export class ScannerChannel implements IpcChannelInterface {
       }
 
       try {
-        const ret = writeBuffer(cover.send, thumbPath, hash)
+        const ret = new Promise<SavedCovers>((resolve, reject) => {
+          console.debug('Storing cover for hash', hash)
+          spawn<CoverWorkerType>(new Worker(`./${coverWorker}`), { timeout: 5000 }).then((coverWorker) => {
+            coverWorker.writeBuffer(cover, thumbPath, hash, false).subscribe((val) => {
+              console.debug('Stored cover for hash', hash)
+              resolve(val)
+            }, reject)
+          })
+        })
+
         this.isWritingCover[hash] = ret
         return await ret
       } catch (e) {

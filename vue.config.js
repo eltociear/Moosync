@@ -58,7 +58,6 @@ module.exports = {
     externals: {
       'better-sqlite3': 'commonjs better-sqlite3',
       vm2: "require('vm2')",
-      sharp: "require('sharp')",
       'librespot-node': 'commonjs librespot-node'
     },
     devtool: 'source-map',
@@ -180,9 +179,10 @@ module.exports = {
       disableMainProcessTypescript: false,
       mainProcessTypeChecking: true,
       preload: 'src/utils/preload/preload.ts',
-      externals: ['better-sqlite3', 'vm2', 'sharp'],
+      externals: ['better-sqlite3', 'vm2'],
       chainWebpackMainProcess: (config) => {
         config.devtool('source-map').end()
+
         config.module
           .rule('babel')
           .before('ts')
@@ -221,7 +221,14 @@ module.exports = {
 
         config.plugin('thread').use(ThreadsPlugin, [{ target: 'electron-node-worker' }])
 
-        config.plugin('copy').use(CopyWebpackPlugin, [{ patterns: [{ from: resolve('dev-app-update.yml') }] }])
+        config.plugin('copy').use(CopyWebpackPlugin, [
+          {
+            patterns: [
+              { from: resolve('dev-app-update.yml') },
+              { from: resolve('node_modules/@silvia-odwyer/photon-node/photon_rs_bg.wasm') }
+            ]
+          }
+        ])
 
         // config.plugin('copy').use(BundleAnalyzerPlugin)
       }

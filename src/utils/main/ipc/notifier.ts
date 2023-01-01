@@ -7,7 +7,7 @@
  *  See LICENSE in the project root for license information.
  */
 
-import { IpcEvents, NotifierEvents } from './constants'
+import { IpcEvents } from './constants'
 
 export class NotifierChannel implements IpcChannelInterface {
   name = IpcEvents.NOTIFIER
@@ -15,25 +15,6 @@ export class NotifierChannel implements IpcChannelInterface {
   private importTried = false
 
   handle(event: Electron.IpcMainEvent, request: IpcRequest): void {
-    switch (request.type) {
-      case NotifierEvents.LIBVIPS_INSTALLED:
-        this.isLibvipsAvailable(event, request)
-        break
-    }
-  }
-
-  private async isLibvipsAvailable(event: Electron.IpcMainEvent, request: IpcRequest) {
-    if (!this.importTried) {
-      try {
-        await import('sharp')
-        event.reply(request.responseChannel, true)
-      } catch (e) {
-        this.importTried = true
-        event.reply(request.responseChannel, false)
-        console.debug(e)
-      }
-    }
-
-    event.reply(request.responseChannel, false)
+    return
   }
 }

@@ -166,15 +166,6 @@ export class PreferenceChannel implements IpcChannelInterface {
 
       await mkdir(path.dirname(iconPath), { recursive: true })
       const size = process.platform === 'darwin' ? 18 : 512
-
-      try {
-        const sharp = (await import('sharp')).default
-        await sharp(buffer).png().resize(size, size).toFile(iconPath)
-      } catch (e) {
-        console.error(
-          'Failed to import sharp. Probably missing libvips-cpp.so or libffi.so.7. Read more at https://moosync.app/wiki/#known-bugs'
-        )
-      }
     } else {
       await rm(iconPath, { force: true })
     }

@@ -8,28 +8,26 @@
  */
 
 import path from 'path'
-import { Sharp, SharpOptions } from 'sharp'
+import photon from '@silvia-odwyer/photon-node'
 import { promises as fsP } from 'fs'
 import { v4 } from 'uuid'
-import { access } from 'fs/promises'
+import { access, writeFile } from 'fs/promises'
+import { expose } from 'threads/worker'
+import { Observable } from 'observable-fns'
+import { TransferDescriptor } from 'threads'
 
-let sharpInstance: (input?: Buffer | string, options?: SharpOptions) => Sharp
-
-let importFailed = false
-
-export async function writeBuffer(bufferDesc: Buffer, basePath: string, hash?: string, onlyHigh = false) {
-  if (!sharpInstance && !importFailed) {
-    try {
-      sharpInstance = (await import('sharp')).default
-    } catch (e) {
-      importFailed = true
-      console.error(
-        'Failed to import sharp. Probably missing libvips-cpp.so or libffi.so.7. Read more at https://moosync.app/wiki/#known-bugs',
-        e
-      )
-    }
+expose({
+  writeBuffer: (bufferDesc: TransferDescriptor<Buffer>, basePath: string, hash?: string, onlyHigh = false) => {
+    return new Observable((observer) => {
+      writeBuffer(Buffer.from(bufferDesc.send), basePath, hash, onlyHigh).then((val) => {
+        observer.next(val)
+        observer.complete()
+      })
+    })
   }
+})
 
+async function writeBuffer(bufferDesc: Buffer, basePath: string, hash?: string, onlyHigh = false) {
   const id = hash ?? v4()
 
   const highPath = path.join(basePath, id + '-high.jpg')
@@ -38,11 +36,7 @@ export async function writeBuffer(bufferDesc: Buffer, basePath: string, hash?: s
   try {
     await access(highPath)
   } catch {
-    if (sharpInstance && typeof sharpInstance === 'function') {
-      await sharpInstance(Buffer.from(bufferDesc)).resize(800, 800).toFile(highPath)
-    } else {
-      await writeNoResize(bufferDesc, highPath)
-    }
+    await writeNoResize(bufferDesc, highPath)
   }
 
   let lowPath
@@ -52,11 +46,11 @@ export async function writeBuffer(bufferDesc: Buffer, basePath: string, hash?: s
     try {
       await access(lowPath)
     } catch {
-      if (sharpInstance) {
-        await sharpInstance(Buffer.from(bufferDesc)).resize(80, 80).toFile(lowPath)
-      } else {
-        lowPath = highPath
-      }
+      let image = photon.base64_to_image(bufferDesc.toString('base64'))
+      image = photon.resize(image, 80, 80, 1)
+
+      await writeFile(lowPath, image.get_bytes())
+      image.free()
     }
   }
 

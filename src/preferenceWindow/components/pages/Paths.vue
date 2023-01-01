@@ -13,14 +13,6 @@
       <b-row no-gutters class="w-100">
         <div class="path-selector w-100">
           <b-container fluid>
-            <b-row v-if="!isLibvipsAvailable">
-              <b-col class="lib-missing"
-                >*Sharp was unable to load (Missing libvips-cpp.so or libffi.so.7 probably). Images will not be
-                optimised. Read more at
-                <span class="lib-missing-link" @click="openWiki">https://moosync.app/wiki/#known-bugs</span></b-col
-              >
-            </b-row>
-
             <b-row no-gutters v-if="totalValue != 0">
               <b-col>
                 <b-progress class="progress-container mb-4" :max="totalValue">
@@ -94,8 +86,6 @@ export default class Paths extends Vue {
   private currentValue = 0
   private totalValue = 0
 
-  private isLibvipsAvailable = true
-
   private forceRescan() {
     window.FileUtils.scan(true)
   }
@@ -118,8 +108,6 @@ export default class Paths extends Vue {
     window.FileUtils.listenScanProgress(async (progress) => {
       this.setProgress(progress)
     })
-
-    this.isLibvipsAvailable = await window.NotifierUtils.isLibvipsAvailable()
   }
 }
 </script>

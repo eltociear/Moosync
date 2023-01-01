@@ -19,7 +19,6 @@ import {
   StoreEvents,
   WindowEvents,
   UpdateEvents,
-  NotifierEvents,
   MprisEvents
 } from '@/utils/main/ipc/constants'
 import { contextBridge, ipcRenderer } from 'electron'
@@ -558,10 +557,7 @@ contextBridge.exposeInMainWorld('LoggerUtils', {
 
 contextBridge.exposeInMainWorld('NotifierUtils', {
   registerMainProcessNotifier: (callback: (obj: NotificationObject) => void) =>
-    ipcRendererHolder.on(IpcEvents.NOTIFIER, callback),
-
-  isLibvipsAvailable: () =>
-    ipcRendererHolder.send(IpcEvents.NOTIFIER, { type: NotifierEvents.LIBVIPS_INSTALLED, params: undefined })
+    ipcRendererHolder.on(IpcEvents.NOTIFIER, callback)
 })
 
 contextBridge.exposeInMainWorld('ExtensionUtils', {
