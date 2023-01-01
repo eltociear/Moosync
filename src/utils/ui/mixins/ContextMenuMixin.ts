@@ -78,7 +78,7 @@ export default class ContextMenuMixin extends mixins(PlayerControls, RemoteSong,
         label: 'Sort by',
         children: [
           {
-            label: `${this.$tc('contextMenu.sort.name')} ${
+            label: `${this.$tc('contextMenu.sort.title')} ${
               sort.current.type === 'name' ? (sort.current.asc ? '▲' : '▼') : ''
             }`,
             handler: () => sort.callback({ type: 'name', asc: sort.current.type === 'name' && !sort.current.asc })
