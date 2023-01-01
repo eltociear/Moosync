@@ -40,8 +40,11 @@
   "loading": "Φόρτωση...",
   "contextMenu": {
     "sort": {
-      "name": "Όνομα",
-      "dateAdded": "Ημερομηνία προσθήκης",
+      "title": "Title",
+      "album": "Album",
+      "artist": "Artist",
+      "genre": "Genre",
+      "date_added": "Date added",
       "provider": "Πάροχος",
       "playCount": "Play count"
     },
@@ -92,7 +95,9 @@
       "artworkPath": "Ληφθείσες Διαδρομές Έργων",
       "artworkPath_tooltip": "Κατάλογος όπου αποθηκεύονται τα ληφθέντα έργα τέχνης",
       "thumbnailPath": "Λήφθηκε Διαδρομή Μικρογραφίας",
-      "thumbnailPath_tooltip": "Κατάλογος όπου δημιουργούνται μικρογραφίες αποθηκεύονται"
+      "thumbnailPath_tooltip": "Κατάλογος όπου δημιουργούνται μικρογραφίες αποθηκεύονται",
+      "splitter": "Artist name split pattern",
+      "splitter_tooltip": "Regex to split artist names. Leave empty to disable splitting."
     },
     "themes": {
       "songView": "Προβολή Τραγουδιών",

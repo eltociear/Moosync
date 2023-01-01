@@ -40,8 +40,11 @@
   "loading": "加载中...",
   "contextMenu": {
     "sort": {
-      "name": "名称",
-      "dateAdded": "添加日期",
+      "title": "Title",
+      "album": "Album",
+      "artist": "Artist",
+      "genre": "Genre",
+      "date_added": "Date added",
       "provider": "提供方",
       "playCount": "播放次数"
     },
@@ -92,7 +95,9 @@
       "artworkPath": "下载路径",
       "artworkPath_tooltip": "储存下载的目录",
       "thumbnailPath": "已下载缩略图路径",
-      "thumbnailPath_tooltip": "存储生成的缩略图的目录"
+      "thumbnailPath_tooltip": "存储生成的缩略图的目录",
+      "splitter": "Artist name split pattern",
+      "splitter_tooltip": "Regex to split artist names. Leave empty to disable splitting."
     },
     "themes": {
       "songView": "歌曲视图",

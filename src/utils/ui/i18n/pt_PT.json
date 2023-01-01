@@ -40,8 +40,11 @@
   "loading": "Loading...",
   "contextMenu": {
     "sort": {
-      "name": "Name",
-      "dateAdded": "Date added",
+      "title": "Title",
+      "album": "Album",
+      "artist": "Artist",
+      "genre": "Genre",
+      "date_added": "Date added",
       "provider": "Provider",
       "playCount": "Play count"
     },
@@ -92,7 +95,9 @@
       "artworkPath": "Downloaded Artwork Path",
       "artworkPath_tooltip": "Directory where downloaded artworks are stored",
       "thumbnailPath": "Downloaded Thumbnail Path",
-      "thumbnailPath_tooltip": "Directory where generated thumbnails are stored"
+      "thumbnailPath_tooltip": "Directory where generated thumbnails are stored",
+      "splitter": "Artist name split pattern",
+      "splitter_tooltip": "Regex to split artist names. Leave empty to disable splitting."
     },
     "themes": {
       "songView": "Songs View",

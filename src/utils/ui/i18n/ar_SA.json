@@ -40,8 +40,11 @@
   "loading": "تحميل...",
   "contextMenu": {
     "sort": {
-      "name": "الاسم",
-      "dateAdded": "تاريخ الإضافة",
+      "title": "Title",
+      "album": "Album",
+      "artist": "Artist",
+      "genre": "Genre",
+      "date_added": "Date added",
       "provider": "موفر",
       "playCount": "Play count"
     },
@@ -92,7 +95,9 @@
       "artworkPath": "مسار الأعمال الفنية المحمّلة",
       "artworkPath_tooltip": "الدليل حيث يتم تخزين الأعمال الفنية التي تم تنزيلها",
       "thumbnailPath": "مسار الصورة المصغرة الذي تم تنزيله",
-      "thumbnailPath_tooltip": "الدليل حيث يتم تخزين الصور المصغرة التي تم إنشاؤها"
+      "thumbnailPath_tooltip": "الدليل حيث يتم تخزين الصور المصغرة التي تم إنشاؤها",
+      "splitter": "Artist name split pattern",
+      "splitter_tooltip": "Regex to split artist names. Leave empty to disable splitting."
     },
     "themes": {
       "songView": "عرض الأغاني",

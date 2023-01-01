@@ -40,8 +40,11 @@
   "loading": "Chargement en cours...",
   "contextMenu": {
     "sort": {
-      "name": "Nom",
-      "dateAdded": "Date d'ajout",
+      "title": "Title",
+      "album": "Album",
+      "artist": "Artist",
+      "genre": "Genre",
+      "date_added": "Date added",
       "provider": "Fournisseur",
       "playCount": "Play count"
     },
@@ -92,7 +95,9 @@
       "artworkPath": "Chemin de l'œuvre téléchargée",
       "artworkPath_tooltip": "Répertoire où les œuvres téléchargées sont stockées",
       "thumbnailPath": "Chemin de la miniature téléchargée",
-      "thumbnailPath_tooltip": "Répertoire où les vignettes générées sont stockées"
+      "thumbnailPath_tooltip": "Répertoire où les vignettes générées sont stockées",
+      "splitter": "Artist name split pattern",
+      "splitter_tooltip": "Regex to split artist names. Leave empty to disable splitting."
     },
     "themes": {
       "songView": "Vue des chansons",

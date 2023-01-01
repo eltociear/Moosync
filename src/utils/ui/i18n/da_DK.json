@@ -40,8 +40,11 @@
   "loading": "Indlæser...",
   "contextMenu": {
     "sort": {
-      "name": "Navn",
-      "dateAdded": "Dato tilføjet",
+      "title": "Title",
+      "album": "Album",
+      "artist": "Artist",
+      "genre": "Genre",
+      "date_added": "Date added",
       "provider": "Udbyder",
       "playCount": "Play count"
     },
@@ -92,7 +95,9 @@
       "artworkPath": "Downloadet Artwork Sti",
       "artworkPath_tooltip": "Mappe, hvor downloadede kunstværker gemmes",
       "thumbnailPath": "Downloadet Miniaturesti",
-      "thumbnailPath_tooltip": "Mappe, hvor genererede miniaturer er gemt"
+      "thumbnailPath_tooltip": "Mappe, hvor genererede miniaturer er gemt",
+      "splitter": "Artist name split pattern",
+      "splitter_tooltip": "Regex to split artist names. Leave empty to disable splitting."
     },
     "themes": {
       "songView": "Sange Visning",
