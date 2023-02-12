@@ -1331,7 +1331,7 @@
       if (isPlayerObject(ytData) && isAgeRestricted(ytData.playabilityStatus)) {
         unlockResponse$1(ytData);
       }
-      // Player Unlock #2: Embedded Player inital data structure
+      // Player Unlock #2: Embedded Player initial data structure
       else if (isEmbeddedPlayerObject(ytData) && isAgeRestricted(ytData.previewPlayabilityStatus)) {
         unlockResponse$1(ytData);
       }
